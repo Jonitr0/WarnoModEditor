@@ -8,6 +8,7 @@ import subprocess
 # TODO: incorporate Eugen's scripts (CreateMod, GenerateMod, UpdateMod, UploadMod, BackupMod, RemoveBackup)
 # TODO: find mods in dir, switch between mods, remember last worked on
 
+SETTINGS_LAST_OPEN_KEY = "wme_last_open"
 
 def set_status_text(text):
     MainWidget.instance.status_set_text.emit(text)
@@ -30,19 +31,34 @@ def run_script(cwd, cmd, args: list):
         return -1
 
 
+def validate_mod_path(mod_path):
+    return QtCore.QFile().exists(mod_path + "/CreateModBackup.bat") and \
+            QtCore.QFile().exists(mod_path + "/GenerateMod.bat") and \
+            QtCore.QFile().exists(mod_path + "/RetrieveModBackup.bat") and \
+            QtCore.QFile().exists(mod_path + "/UpdateMod.bat") and \
+            QtCore.QFile().exists(mod_path + "/UploadMod.bat")
+
+
 class MainWidget(QtWidgets.QWidget):
     status_set_text = QtCore.Signal(str)
-    status_clear_text = QtCore.Signal()
+    mod_loaded = QtCore.Signal(str)
     instance = None
 
-    def __init__(self, warno_path):
+    def __init__(self, warno_path, settings):
         super().__init__()
+        self.loaded_mod_path = ""
         self.warno_path = warno_path
         self.status_label = QtWidgets.QLabel()
         self.status_timer = QtCore.QTimer()
         self.status_timer.timeout.connect(lambda: self.status_label.setText(""))
+        self.settings = settings
         self.setup_ui()
         MainWidget.instance = self
+        last_open = self.settings.value(SETTINGS_LAST_OPEN_KEY)
+        if not last_open is None:
+            if validate_mod_path(str(last_open)):
+                self.load_mod(last_open)
+
 
     def setup_ui(self):
         main_layout = QtWidgets.QVBoxLayout()
@@ -56,13 +72,18 @@ class MainWidget(QtWidgets.QWidget):
         new_action.setShortcut(QtGui.QKeySequence.New)
         new_action.triggered.connect(self.on_new_action)
 
-        tool_bar.addAction("Load")
-        tool_bar.addAction("Load recent")
+        load_action = tool_bar.addAction("Open")
+        load_action.setToolTip("Open an existing mod (Ctrl + O)")
+        load_action.setShortcut(QtGui.QKeySequence.Open)
+        load_action.triggered.connect(self.on_load_action)
+
         tool_bar.addSeparator()
         tool_bar.addAction("Generate")
+        tool_bar.addAction("Edit Configuration")
         tool_bar.addAction("Update")
         tool_bar.addAction("Upload")
-        tool_bar.addAction("Backup")
+        tool_bar.addAction("Create Backup")
+        tool_bar.addAction("Retrieve Backup")
         tool_bar.addAction("Remove Backup")
         tool_bar.addSeparator()
         tool_bar.addAction("Undo")
@@ -89,6 +110,9 @@ class MainWidget(QtWidgets.QWidget):
         self.status_timer.start()
 
     def on_new_action(self):
+        if not self.active_tab_ask_to_save():
+            return
+
         dialog = new_mod_dialog.NewModDialog(self.warno_path)
         result = dialog.exec_()
 
@@ -99,7 +123,68 @@ class MainWidget(QtWidgets.QWidget):
 
             if run_script(mods_path, "CreateNewMod.bat", mod_name) != 0:
                 print("Error while running CreateNewMod.bat")
+                return
 
-            # TODO: generate if needed
-            # TODO: load mod, send signal to UI
+            # generation not requested
+            generated = 2
+            if dialog.get_mod_generate():
+                if self.generate_mod(mod_name):
+                    # generation requested and successful
+                    generated = 1
+                else:
+                    # generation requested but failed
+                    generated = 0
 
+            # load mod
+            self.load_mod(mods_path + mod_name)
+
+            if generated == 2:
+                text = "Your mod " + mod_name + " was successfully created."
+            elif generated == 1:
+                text = "Your mod " + mod_name + " was successfully created and generated."
+            else:
+                text = "Your mod " + mod_name + " was successfully created but the generation appears to have failed."
+
+
+            set_status_text("Mod creation for " + mod_name + " finished.")
+            QtWidgets.QMessageBox().information(self, "Mod created", text)
+
+    def on_load_action(self):
+        if not self.active_tab_ask_to_save():
+            return
+
+        while True:
+            mod_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter mod path", self.warno_path + "/Mods")
+            if mod_path == "":
+                return
+
+            mod_path = mod_path.removesuffix("/")
+            if validate_mod_path(mod_path):
+                self.load_mod(mod_path)
+                return
+
+
+            QtWidgets.QMessageBox().information(self, "Path invalid", "The given path does not to point to a valid "
+                                                                      "WARNO mod directory. Please enter a valid path")
+
+    def load_mod(self, mod_path):
+        self.loaded_mod_path = mod_path
+        print("loaded mod at " + mod_path)
+        self.settings.setValue(SETTINGS_LAST_OPEN_KEY, mod_path)
+        self.mod_loaded.emit(mod_path)
+
+    def generate_mod(self, mod_name):
+        mod_path = self.warno_path + "/Mods/" + mod_name + "/"
+        mod_path = mod_path.replace("/", "\\")
+        # for whatever reason, the successful run returns 18?
+        if run_script(mod_path, "GenerateMod.bat", []) != 18:
+            print("Error while running GenerateMod.bat")
+            return False
+        return True
+
+    def active_tab_ask_to_save(self):
+        # TODO: ask the current tab if progress needs to be saved
+        # TODO: open dialog to save, discard, or cancel
+        # TODO: on save/discard perform action and return true
+        # TODO: on cancel return false
+        return True

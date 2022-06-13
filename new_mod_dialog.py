@@ -26,9 +26,18 @@ class NewModDialog(QtWidgets.QDialog):
         main_layout.addLayout(checkbox_layout)
 
         self.generate_checkbox.setChecked(True)
+        generate_info = "The generation step is needed before a mod can be activated in-game or uploaded to the " \
+                        "Steam Workshop. For a short period of time, the screen will turn black and the WARNO Mod " \
+                        "Editor will become unresponsive during the process. You can always generate your mod later" \
+                        " if you don't do it now."
         checkbox_layout.addWidget(self.generate_checkbox)
         checkbox_label = QtWidgets.QLabel("Generate mod after creation")
         checkbox_layout.addWidget(checkbox_label)
+
+        generate_info_label = QtWidgets.QLabel(generate_info)
+        generate_info_label.setWordWrap(True)
+        generate_info_label.setFixedWidth(600)
+        main_layout.addWidget(generate_info_label)
 
         main_layout.addLayout(button_layout)
         main_layout.setAlignment(button_layout, Qt.AlignCenter)

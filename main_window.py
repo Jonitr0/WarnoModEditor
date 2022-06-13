@@ -4,7 +4,7 @@ from PySide2 import QtWidgets, QtCore
 
 import warno_path_dialog, main_widget
 
-warno_path_key = "wme_warno_path"
+SETTINGS_WARNO_PATH_KEY = "wme_warno_path"
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -21,13 +21,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def start_main_window(self):
         self.resize(1024, 576)
         self.setWindowTitle("WARNO Mod Editor")
-        self.setCentralWidget(main_widget.MainWidget(self.warno_path))
+        self.setCentralWidget(main_widget.MainWidget(self.warno_path, self.settings))
         self.showNormal()
 
     def validate_warno_path(self, warno_path):
         if QtCore.QFile().exists(warno_path + "/WARNO.exe") and QtCore.QDir(warno_path + "/Mods").exists():
             self.warno_path = warno_path
-            self.settings.setValue(warno_path_key, warno_path)
+            self.settings.setValue(SETTINGS_WARNO_PATH_KEY, warno_path)
             self.start_main_window()
             return
         if self.dialog_finished_once:
@@ -37,11 +37,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.open_warno_path_dialog()
 
     def load_warno_path_from_settings(self):
-        tmp_path = self.settings.value(warno_path_key)
+        tmp_path = self.settings.value(SETTINGS_WARNO_PATH_KEY)
         if tmp_path is None:
             self.open_warno_path_dialog()
         else:
-            self.validate_warno_path(tmp_path)
+            self.validate_warno_path(str(tmp_path))
 
     def open_warno_path_dialog(self):
         path_dialog = warno_path_dialog.WarnoPathDialog(QtCore.QDir().currentPath())
