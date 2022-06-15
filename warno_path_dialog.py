@@ -40,14 +40,14 @@ class WarnoPathDialog(QtWidgets.QDialog):
         # setup ok button
         ok_button = QtWidgets.QPushButton()
         ok_button.setText("OK")
-        ok_button.setFixedWidth(50)
+        ok_button.setFixedWidth(80)
         ok_button.clicked.connect(self.accept)
         button_layout.addWidget(ok_button)
 
         # setup cancel button
         cancel_button = QtWidgets.QPushButton()
         cancel_button.setText("Cancel")
-        cancel_button.setFixedWidth(50)
+        cancel_button.setFixedWidth(80)
         cancel_button.clicked.connect(self.reject)
         button_layout.addWidget(cancel_button)
 
