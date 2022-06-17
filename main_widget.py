@@ -1,9 +1,11 @@
-from PySide2 import QtWidgets, QtCore, QtGui
-from PySide2.QtCore import Qt
 from pathlib import Path
 
-import ndf_editor_widget, new_mod_dialog
-import subprocess
+from PySide2 import QtWidgets, QtCore, QtGui
+from PySide2.QtCore import Qt
+
+import edit_config_dialog
+import ndf_editor_widget
+import new_mod_dialog
 
 # TODO: incorporate Eugen's scripts (CreateMod, GenerateMod, UpdateMod, UploadMod, BackupMod, RemoveBackup)
 # TODO: find mods in dir, switch between mods, remember last worked on
@@ -201,8 +203,9 @@ class MainWidget(QtWidgets.QWidget):
     def on_edit_config_action(self):
         config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
                       self.loaded_mod_name + "\\Config.ini"
-        R
-        pass
+        config = QtCore.QSettings(config_path, QtCore.QSettings.IniFormat)
+        dialog = edit_config_dialog.WarnoPathDialog(config)
+        result = dialog.exec_()
 
     def active_tab_ask_to_save(self):
         # TODO: ask the current tab if progress needs to be saved
