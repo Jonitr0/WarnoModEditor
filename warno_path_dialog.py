@@ -13,9 +13,9 @@ class WarnoPathDialog(QtWidgets.QDialog):
 
     def setup_ui(self, warno_path):
         # setup layouts
-        main_layout = QtWidgets.QVBoxLayout()
-        text_layout = QtWidgets.QHBoxLayout()
-        button_layout = QtWidgets.QHBoxLayout()
+        main_layout = QtWidgets.QVBoxLayout(self)
+        text_layout = QtWidgets.QHBoxLayout(self)
+        button_layout = QtWidgets.QHBoxLayout(self)
 
         # setup label
         info_label = QtWidgets.QLabel()

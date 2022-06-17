@@ -14,9 +14,9 @@ class NewModDialog(QtWidgets.QDialog):
         self.setWindowTitle("Create new mod")
 
     def setup_ui(self):
-        main_layout = QtWidgets.QVBoxLayout()
-        checkbox_layout = QtWidgets.QHBoxLayout()
-        button_layout = QtWidgets.QHBoxLayout()
+        main_layout = QtWidgets.QVBoxLayout(self)
+        checkbox_layout = QtWidgets.QHBoxLayout(self)
+        button_layout = QtWidgets.QHBoxLayout(self)
         self.setLayout(main_layout)
 
         self.name_line_edit.setPlaceholderText("Enter the name of your new mod")

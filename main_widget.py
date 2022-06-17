@@ -1,5 +1,6 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 from PySide2.QtCore import Qt
+from pathlib import Path
 
 import ndf_editor_widget, new_mod_dialog
 import subprocess
@@ -49,6 +50,7 @@ class MainWidget(QtWidgets.QWidget):
         super().__init__()
         self.toolbar = QtWidgets.QToolBar()
         self.loaded_mod_path = ""
+        self.loaded_mod_name = ""
         self.warno_path = warno_path
         self.status_label = QtWidgets.QLabel()
         self.status_timer = QtCore.QTimer()
@@ -62,7 +64,7 @@ class MainWidget(QtWidgets.QWidget):
                 self.load_mod(last_open)
 
     def setup_ui(self):
-        main_layout = QtWidgets.QVBoxLayout()
+        main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
 
         main_layout.addWidget(self.toolbar)
@@ -80,7 +82,7 @@ class MainWidget(QtWidgets.QWidget):
         self.toolbar.addSeparator()
 
         self.add_script_action("Generate", "Generate mod", self.on_generate_action)
-        self.add_script_action("Edit Configuration", "Edit mod configuration")
+        self.add_script_action("Edit Configuration", "Edit mod configuration", self.on_edit_config_action)
         self.add_script_action("Update", "Update mod")
         self.add_script_action("Upload", "Upload mod")
         self.add_script_action("Create Backup", "Create mod backup")
@@ -168,7 +170,8 @@ class MainWidget(QtWidgets.QWidget):
 
     def load_mod(self, mod_path: str):
         self.loaded_mod_path = mod_path
-        print("loaded mod at " + mod_path)
+        self.loaded_mod_name = mod_path[mod_path.rindex('\\')+1:]
+        print("loaded mod " + self.loaded_mod_name + " at " + mod_path)
         # TODO: set window title
         self.settings.setValue(SETTINGS_LAST_OPEN_KEY, mod_path)
         self.mod_loaded.emit(mod_path)
@@ -194,6 +197,12 @@ class MainWidget(QtWidgets.QWidget):
 
     def on_generate_action(self):
         self.generate_mod()
+
+    def on_edit_config_action(self):
+        config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
+                      self.loaded_mod_name + "\\Config.ini"
+        R
+        pass
 
     def active_tab_ask_to_save(self):
         # TODO: ask the current tab if progress needs to be saved
