@@ -19,7 +19,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # open actual main window
     def start_main_window(self):
-        self.resize(1024, 576)
+        self.resize(1152, 648)
         self.setWindowTitle("WARNO Mod Editor")
         self.setCentralWidget(main_widget.MainWidget(self.warno_path, self.settings))
         self.showNormal()
@@ -44,7 +44,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self.validate_warno_path(str(tmp_path))
 
     def open_warno_path_dialog(self):
-        path_dialog = warno_path_dialog.WarnoPathDialog(QtCore.QDir().currentPath())
+        tmp_path = "C:\Program Files (x86)\Steam\steamapps\common\WARNO"
+        if not QtCore.QDir(tmp_path).exists():
+            tmp_path = QtCore.QDir().currentPath()
+
+        path_dialog = warno_path_dialog.WarnoPathDialog(tmp_path)
         result = path_dialog.exec()
 
         if result == QtWidgets.QDialog.Accepted:

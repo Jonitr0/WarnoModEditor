@@ -20,7 +20,7 @@ class WarnoPathDialog(QtWidgets.QDialog):
         # setup label
         info_label = QtWidgets.QLabel()
         info_label.setText("Please enter the path to your WARNO installation.\nIt could look like this: "
-                           "\"C:/Program Files (x86)/Steam/steamapps/steamapps/common/WARNO\"")
+                           "\"C:/Program Files (x86)/Steam/steamapps/common/WARNO\"")
         main_layout.addWidget(info_label)
         main_layout.addLayout(text_layout)
 
