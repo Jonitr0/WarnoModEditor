@@ -204,12 +204,15 @@ class MainWidget(QtWidgets.QWidget):
         config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
                       self.loaded_mod_name + "\\Config.ini"
         config = QtCore.QSettings(config_path, QtCore.QSettings.IniFormat)
-        config_backup = {}
+        config_values = {}
         for key in config.allKeys():
-            config_backup[key] = config.value(key)
-        dialog = edit_config_dialog.WarnoPathDialog(config)
+            config_values[key] = config.value(key)
+        dialog = edit_config_dialog.WarnoPathDialog(config_values)
         result = dialog.exec_()
-        # TODO: if rejected, restore backup
+        if result == QtWidgets.QDialog.Accepted:
+            config_values = dialog.get_config_values()
+            for key in config.allKeys():
+                config.setValue(key, config_values[key])
 
     def active_tab_ask_to_save(self):
         # TODO: ask the current tab if progress needs to be saved
