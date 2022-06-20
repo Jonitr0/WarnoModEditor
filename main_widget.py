@@ -3,9 +3,8 @@ from pathlib import Path
 from PySide2 import QtWidgets, QtCore, QtGui
 from PySide2.QtCore import Qt
 
-import edit_config_dialog
 import ndf_editor_widget
-import new_mod_dialog
+from dialogs import new_mod_dialog, edit_config_dialog
 
 # TODO: incorporate Eugen's scripts (CreateMod, GenerateMod, UpdateMod, UploadMod, BackupMod, RemoveBackup)
 # TODO: find mods in dir, switch between mods, remember last worked on
@@ -213,6 +212,15 @@ class MainWidget(QtWidgets.QWidget):
             config_values = dialog.get_config_values()
             for key in config.allKeys():
                 config.setValue(key, config_values[key])
+
+            del config
+            # replace to make the file readable for Eugen...
+            with open(config_path, "r+") as f:
+                f_content = f.read()
+                f_content = f_content.replace("=", " = ")
+                f.seek(0)
+                f.write(f_content)
+
 
     def active_tab_ask_to_save(self):
         # TODO: ask the current tab if progress needs to be saved

@@ -1,23 +1,20 @@
 from pathlib import Path
 
 from PySide2 import QtWidgets, QtCore
-from PySide2.QtCore import Qt
+from dialogs.base_dialog import BaseDialog
 
 
-class WarnoPathDialog(QtWidgets.QDialog):
+class WarnoPathDialog(BaseDialog):
     def __init__(self, config_values: dict):
         self.icon_path_line_edit = QtWidgets.QLineEdit()
         self.config_values = config_values
-        super().__init__()
 
-        self.setup_ui()
-        self.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint | Qt.Dialog)
+        super().__init__()
         self.setWindowTitle("Edit mod configuration")
 
     def setup_ui(self):
-        main_layout = QtWidgets.QVBoxLayout(self)
         form_layout = QtWidgets.QFormLayout(self)
-        main_layout.addLayout(form_layout)
+        self.main_layout.addLayout(form_layout)
 
         # TODO: Add tooltips for all labels
 
@@ -58,26 +55,8 @@ class WarnoPathDialog(QtWidgets.QDialog):
         deck_format_version_spinbox.valueChanged.connect(self.on_deck_format_version_changed)
         form_layout.addRow("Deck Format Version", deck_format_version_spinbox)
 
-        button_layout = QtWidgets.QHBoxLayout(self)
-        main_layout.addLayout(button_layout)
-        main_layout.setAlignment(button_layout, Qt.AlignCenter)
-
-        # setup ok button
-        ok_button = QtWidgets.QPushButton()
-        ok_button.setText("OK")
-        ok_button.setFixedWidth(80)
-        ok_button.clicked.connect(self.accept)
-        button_layout.addWidget(ok_button)
-
-        # setup cancel button
-        cancel_button = QtWidgets.QPushButton()
-        cancel_button.setText("Cancel")
-        cancel_button.setFixedWidth(80)
-        cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(cancel_button)
-
     def on_name_changed(self, name: str):
-        self.config_values["Properties/Name"] =  name
+        self.config_values["Properties/Name"] = name
 
     def on_description_changed(self, desc: str):
         self.config_values["Properties/Description"] = desc

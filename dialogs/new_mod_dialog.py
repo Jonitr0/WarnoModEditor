@@ -1,29 +1,26 @@
 from PySide2 import QtWidgets, QtCore
 from PySide2.QtCore import Qt
 
+from dialogs.base_dialog import BaseDialog
 
-class NewModDialog(QtWidgets.QDialog):
+
+class NewModDialog(BaseDialog):
     def __init__(self, warno_path):
-        super().__init__()
-
         self.generate_checkbox = QtWidgets.QCheckBox()
         self.name_line_edit = QtWidgets.QLineEdit()
         self.warno_path = warno_path
-        self.setup_ui()
-        self.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint | Qt.Dialog)
+
+        super().__init__()
         self.setWindowTitle("Create new mod")
 
     def setup_ui(self):
-        main_layout = QtWidgets.QVBoxLayout(self)
         checkbox_layout = QtWidgets.QHBoxLayout(self)
-        button_layout = QtWidgets.QHBoxLayout(self)
-        self.setLayout(main_layout)
 
         self.name_line_edit.setPlaceholderText("Enter the name of your new mod")
-        main_layout.addWidget(self.name_line_edit)
+        self.main_layout.addWidget(self.name_line_edit)
 
         checkbox_layout.setAlignment(Qt.AlignCenter)
-        main_layout.addLayout(checkbox_layout)
+        self.main_layout.addLayout(checkbox_layout)
 
         self.generate_checkbox.setChecked(True)
         generate_info = "The generation step is needed before a mod can be activated in-game or uploaded to the " \
@@ -37,26 +34,9 @@ class NewModDialog(QtWidgets.QDialog):
         generate_info_label = QtWidgets.QLabel(generate_info)
         generate_info_label.setWordWrap(True)
         generate_info_label.setFixedWidth(600)
-        main_layout.addWidget(generate_info_label)
+        self.main_layout.addWidget(generate_info_label)
 
-        main_layout.addLayout(button_layout)
-        main_layout.setAlignment(button_layout, Qt.AlignCenter)
-
-        # setup ok button
-        ok_button = QtWidgets.QPushButton()
-        ok_button.setText("OK")
-        ok_button.setFixedWidth(80)
-        ok_button.clicked.connect(self.on_ok)
-        button_layout.addWidget(ok_button)
-
-        # setup cancel button
-        cancel_button = QtWidgets.QPushButton()
-        cancel_button.setText("Cancel")
-        cancel_button.setFixedWidth(80)
-        cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(cancel_button)
-
-    def on_ok(self):
+    def accept(self):
         mod_name = self.name_line_edit.text()
         if mod_name == "":
             QtWidgets.QMessageBox().information(self, "Name empty",
@@ -67,7 +47,7 @@ class NewModDialog(QtWidgets.QDialog):
                                                 "A mod directory with this name already exists.")
             return
 
-        self.accept()
+        super().accept()
 
     def get_mod_name(self):
         return self.name_line_edit.text()

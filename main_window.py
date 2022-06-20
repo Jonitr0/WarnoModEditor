@@ -1,8 +1,10 @@
 import sys
 
 from PySide2 import QtWidgets, QtCore
+from qt_material import apply_stylesheet
 
-import warno_path_dialog, main_widget
+import main_widget
+from dialogs import warno_path_dialog
 
 SETTINGS_WARNO_PATH_KEY = "wme_warno_path"
 
@@ -32,8 +34,8 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         if self.dialog_finished_once:
             QtWidgets.QMessageBox().information(self, "Path invalid",
-                                                      "The WARNO path appears to be invalid. "
-                                                      "Please enter the correct path.")
+                                                "The WARNO path appears to be invalid. "
+                                                "Please enter the correct path.")
         self.open_warno_path_dialog()
 
     def load_warno_path_from_settings(self):
@@ -58,8 +60,14 @@ class MainWindow(QtWidgets.QMainWindow):
         elif result == QtWidgets.QDialog.Rejected:
             QtCore.QCoreApplication.quit()
 
+
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
+
+    extra = {'density_scale': '-2'}
+    apply_stylesheet(app, theme="dark_lightgreen.xml", extra=extra)
+
     QtWidgets.QApplication.instance().setAttribute(QtCore.Qt.AA_DisableWindowContextHelpButton)
+
     main_window = MainWindow()
     sys.exit(app.exec_())
