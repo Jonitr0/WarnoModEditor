@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from PySide2 import QtWidgets, QtCore
 from PySide2.QtCore import Qt
 
@@ -35,12 +37,13 @@ class WarnoPathDialog(QtWidgets.QDialog):
         icon_path_layout = QtWidgets.QHBoxLayout()
         icon_path_layout.addWidget(self.icon_path_line_edit)
         icon_path_layout.addWidget(browse_button)
+        form_layout.addRow("Preview Image Path", icon_path_layout)
 
+        cosmetic_checkbox = QtWidgets.QCheckBox()
+        cosmetic_checkbox.setChecked(int(self.config.value("Properties/CosmeticOnly")))
+        cosmetic_checkbox.stateChanged.connect(self.on_cosmetic)
+        form_layout.addRow("Cosmetic only", cosmetic_checkbox)
 
-
-        # TODO: browse button
-        form_layout.addRow("Preview Image Path", QtWidgets.QLineEdit())
-        form_layout.addRow("Cosmetic only", QtWidgets.QCheckBox())
         form_layout.addRow("Mod Version", QtWidgets.QSpinBox())
         form_layout.addRow("Deck Format Version", QtWidgets.QSpinBox())
 
@@ -54,7 +57,14 @@ class WarnoPathDialog(QtWidgets.QDialog):
         self.config.setValue("Properties/PreviewImagePath", icon_path)
 
     def on_icon_browse(self):
-        pass
+        icon_path = self.icon_path_line_edit.text()
+        if not QtCore.QDir(icon_path).exists():
+            icon_path = str(Path.home())
+        icon_path, _ = QtWidgets.QFileDialog().getOpenFileName(self, "Enter WARNO path", icon_path)
+        self.icon_path_line_edit.setText(icon_path)
+
+    def on_cosmetic(self, state):
+        self.config.setValue("Properties/CosmeticOnly", state)
 
     def get_config(self):
         return self.config
