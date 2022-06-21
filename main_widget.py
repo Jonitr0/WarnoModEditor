@@ -82,6 +82,9 @@ class MainWidget(QtWidgets.QWidget):
         self.add_action_to_menu("Edit Mod Configuration", edit_menu, True, self.on_edit_config_action)
         self.add_action_to_menu("Update Mod", edit_menu, True, self.on_update_action)
         self.add_action_to_menu("Upload Mod", edit_menu, True, self.on_upload_action)
+
+        edit_menu.addSeparator()
+
         self.add_action_to_menu("Create Mod Backup", edit_menu, True)
         self.add_action_to_menu("Retrieve Mod Backup", edit_menu, True)
         self.add_action_to_menu("Remove Mod Backup", edit_menu, True)

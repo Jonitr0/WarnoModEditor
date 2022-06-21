@@ -27,13 +27,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
         w = QtWidgets.QWidget()
         main_layout = QtWidgets.QVBoxLayout(self)
-        main_layout.setContentsMargins(0,0,0,0)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
         w.setLayout(main_layout)
 
-        main_layout.addWidget(title_bar.TitleBar())
+        main_layout.addWidget(title_bar.TitleBar(parent=self))
         main_layout.addWidget(main_widget.MainWidget(self.warno_path, self.settings))
 
         self.setCentralWidget(w)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.showNormal()
 
     def validate_warno_path(self, warno_path):
