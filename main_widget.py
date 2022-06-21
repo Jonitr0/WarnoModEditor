@@ -73,18 +73,18 @@ class MainWidget(QtWidgets.QWidget):
 
         file_menu = self.menu_bar.addMenu("File")
 
-        self.new_action = self.add_menu_action("New", file_menu, False, self.on_new_action)
-        self.load_action = self.add_menu_action("Open", file_menu, False, self.on_load_action)
+        self.new_action = self.add_action_to_menu("New", file_menu, False, self.on_new_action)
+        self.load_action = self.add_action_to_menu("Open", file_menu, False, self.on_load_action)
 
         edit_menu = self.menu_bar.addMenu("Edit")
 
-        self.add_menu_action("Generate", edit_menu, True, self.on_generate_action)
-        self.add_menu_action("Edit Configuration", edit_menu, True, self.on_edit_config_action)
-        self.add_menu_action("Update", edit_menu, True)
-        self.add_menu_action("Upload", edit_menu, True)
-        self.add_menu_action("Create Backup", edit_menu, True)
-        self.add_menu_action("Retrieve Backup", edit_menu, True)
-        self.add_menu_action("Remove Backup", edit_menu, True)
+        self.add_action_to_menu("Generate Mod", edit_menu, True, self.on_generate_action)
+        self.add_action_to_menu("Edit Mod Configuration", edit_menu, True, self.on_edit_config_action)
+        self.add_action_to_menu("Update Mod", edit_menu, True)
+        self.add_action_to_menu("Upload Mod", edit_menu, True, self.on_upload_action)
+        self.add_action_to_menu("Create Mod Backup", edit_menu, True)
+        self.add_action_to_menu("Retrieve Mod Backup", edit_menu, True)
+        self.add_action_to_menu("Remove Mod Backup", edit_menu, True)
         self.menu_bar.addSeparator()
         self.menu_bar.addAction("Options")
 
@@ -128,22 +128,9 @@ class MainWidget(QtWidgets.QWidget):
             # generation not requested
             generated = 2
             if dialog.get_mod_generate():
-                if self.generate_mod():
-                    # generation requested and successful
-                    generated = 1
-                else:
-                    # generation requested but failed
-                    generated = 0
-
-            if generated == 2:
-                text = "Your mod " + mod_name + " was successfully created."
-            elif generated == 1:
-                text = "Your mod " + mod_name + " was successfully created and generated."
-            else:
-                text = "Your mod " + mod_name + " was successfully created but the generation appears to have failed."
+                self.generate_mod()
 
             set_status_text("Mod creation for " + mod_name + " finished.")
-            QtWidgets.QMessageBox().information(self, "Mod created", text)
 
     def on_load_action(self):
         if not self.active_tab_ask_to_save():
@@ -173,10 +160,7 @@ class MainWidget(QtWidgets.QWidget):
     def generate_mod(self):
         # for whatever reason, the successful run returns 18?
         ret_code = run_script(self.loaded_mod_path, "GenerateMod.bat", [])
-        if ret_code != 18:
-            print("Error while running GenerateMod.bat, returned " + str(ret_code))
-            return False
-        return True
+        print("GenerateMod.bat executed with return code " + str(ret_code))
 
     def on_generate_action(self):
         self.generate_mod()
@@ -206,13 +190,12 @@ class MainWidget(QtWidgets.QWidget):
 
             # change relevant directory names and update paths
             if new_name != "":
-                new_mod_path = self.loaded_mod_path[:self.loaded_mod_path.rindex('\\') + 1] + new_name + \
-                               "\\"
+                new_mod_path = self.loaded_mod_path[:self.loaded_mod_path.rindex('\\') + 1] + new_name
                 old_config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
-                                  self.loaded_mod_name + "\\"
+                                  self.loaded_mod_name
                 new_config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
-                                  new_name + "\\"
-                config_path = new_config_path + "Config.ini"
+                                  new_name
+                config_path = new_config_path + "\\Config.ini"
 
                 os.rename(self.loaded_mod_path, new_mod_path)
                 os.rename(old_config_path, new_config_path)
@@ -226,8 +209,12 @@ class MainWidget(QtWidgets.QWidget):
                 f.seek(0)
                 f.write(f_content)
 
-    def add_menu_action(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
-                        slot=None) -> QtWidgets.QAction:
+    def on_upload_action(self):
+        ret = run_script(self.loaded_mod_path, "UploadMod.bat", [])
+        print("UploadMod.bat executed with return code " + str(ret))
+
+    def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
+                           slot=None) -> QtWidgets.QAction:
         action = QtWidgets.QAction(name)
         menu.addAction(action)
         action.triggered.connect(slot)
