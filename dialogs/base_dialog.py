@@ -2,15 +2,26 @@
 from PySide2 import QtWidgets
 from PySide2.QtCore import Qt
 
+import title_bar
+
 
 class BaseDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint | Qt.Dialog)
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        # TODO: fix color
+        self.setStyleSheet("QDialog { \
+                                border-width: 1px; \
+                                border-style: solid; \
+                                border-color: black; \
+                            }")
 
         self.main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(self.main_layout)
+
+        self.title_bar = title_bar.TitleBar(self, only_close=True)
+        self.main_layout.addWidget(self.title_bar)
 
         self.setup_ui()
 
@@ -34,3 +45,7 @@ class BaseDialog(QtWidgets.QDialog):
 
     def setup_ui(self):
         raise NotImplementedError("Please Implement this method")
+
+    def setWindowTitle(self, arg__1: str) -> None:
+        super().setWindowTitle(arg__1)
+        self.title_bar.set_title(arg__1)

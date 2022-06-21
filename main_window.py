@@ -1,6 +1,7 @@
 import sys
+import os
 
-from PySide2 import QtWidgets, QtCore
+from PySide2 import QtWidgets, QtCore, QtGui
 from qt_material import apply_stylesheet
 
 import main_widget
@@ -9,6 +10,7 @@ from dialogs import warno_path_dialog
 
 SETTINGS_WARNO_PATH_KEY = "wme_warno_path"
 
+# TODO: move warno path verification to own class
 
 class MainWindow(QtWidgets.QMainWindow):
     quit_app = QtCore.Signal(int)
@@ -36,7 +38,23 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setCentralWidget(w)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        w.setObjectName("w")
+        # TODO: fix color
+        w.setStyleSheet("QWidget#w { \
+                                border-width: 1px; \
+                                border-style: solid; \
+                                border-color: black; \
+                            }")
+
+        self.grip = QtWidgets.QSizeGrip(self)
+        self.grip.resize(16, 16)
+
         self.showNormal()
+
+    def resizeEvent(self, event):
+        QtWidgets.QMainWindow.resizeEvent(self, event)
+        rect = self.rect()
+        self.grip.move(rect.right() - 16, rect.bottom() - 16)
 
     def validate_warno_path(self, warno_path):
         if QtCore.QFile().exists(warno_path + "/WARNO.exe") and QtCore.QDir(warno_path + "/Mods").exists():
@@ -84,9 +102,17 @@ if __name__ == '__main__':
         scale = 2
 
     extra = {'density_scale': scale}
-    apply_stylesheet(app, theme="dark_lightgreen.xml", extra=extra)
+    apply_stylesheet(app, theme="dark_nato.xml", extra=extra)
 
     QtWidgets.QApplication.instance().setAttribute(QtCore.Qt.AA_DisableWindowContextHelpButton)
+
+    app_icon = QtGui.QIcon()
+    app_icon.addFile('resources/img/icon16.png', QtCore.QSize(16, 16))
+    app_icon.addFile('resources/img/icon24.png', QtCore.QSize(24, 24))
+    app_icon.addFile('resources/img/icon32.png', QtCore.QSize(32, 32))
+    app_icon.addFile('resources/img/icon48.png', QtCore.QSize(48, 48))
+    app_icon.addFile('resources/img/icon64.png', QtCore.QSize(64, 64))
+    app.setWindowIcon(app_icon)
 
     main_window = MainWindow()
     sys.exit(app.exec_())
