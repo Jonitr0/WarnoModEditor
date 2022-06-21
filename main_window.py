@@ -4,6 +4,7 @@ from PySide2 import QtWidgets, QtCore
 from qt_material import apply_stylesheet
 
 import main_widget
+import title_bar
 from dialogs import warno_path_dialog
 
 SETTINGS_WARNO_PATH_KEY = "wme_warno_path"
@@ -23,7 +24,16 @@ class MainWindow(QtWidgets.QMainWindow):
     def start_main_window(self):
         self.resize(1152, 648)
         self.setWindowTitle("WARNO Mod Editor")
-        self.setCentralWidget(main_widget.MainWidget(self.warno_path, self.settings))
+
+        w = QtWidgets.QWidget()
+        main_layout = QtWidgets.QVBoxLayout(self)
+        main_layout.setContentsMargins(0,0,0,0)
+        w.setLayout(main_layout)
+
+        main_layout.addWidget(title_bar.TitleBar())
+        main_layout.addWidget(main_widget.MainWidget(self.warno_path, self.settings))
+
+        self.setCentralWidget(w)
         self.showNormal()
 
     def validate_warno_path(self, warno_path):
@@ -64,7 +74,14 @@ class MainWindow(QtWidgets.QMainWindow):
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
 
-    extra = {'density_scale': '-2'}
+    screen = app.screens()[0]
+    dpi = screen.physicalDotsPerInch()
+
+    scale = -2
+    if dpi > 100:
+        scale = 2
+
+    extra = {'density_scale': scale}
     apply_stylesheet(app, theme="dark_lightgreen.xml", extra=extra)
 
     QtWidgets.QApplication.instance().setAttribute(QtCore.Qt.AA_DisableWindowContextHelpButton)
