@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from PySide2 import QtWidgets, QtCore, QtGui
@@ -49,7 +50,7 @@ class MainWidget(QtWidgets.QWidget):
 
     def __init__(self, warno_path: str, settings: QtCore.QSettings):
         super().__init__()
-        self.toolbar = QtWidgets.QToolBar()
+        self.menu_bar = QtWidgets.QMenuBar()
         self.loaded_mod_path = ""
         self.loaded_mod_name = ""
         self.warno_path = warno_path
@@ -68,32 +69,24 @@ class MainWidget(QtWidgets.QWidget):
         main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
 
-        main_layout.addWidget(self.toolbar)
+        main_layout.addWidget(self.menu_bar)
 
-        new_action = self.toolbar.addAction("New")
-        new_action.setToolTip("Create new mod (Ctrl + N)")
-        new_action.setShortcut(QtGui.QKeySequence.New)
-        new_action.triggered.connect(self.on_new_action)
+        file_menu = self.menu_bar.addMenu("File")
 
-        load_action = self.toolbar.addAction("Open")
-        load_action.setToolTip("Open existing mod (Ctrl + O)")
-        load_action.setShortcut(QtGui.QKeySequence.Open)
-        load_action.triggered.connect(self.on_load_action)
+        self.new_action = self.add_menu_action("New", file_menu, False, self.on_new_action)
+        self.load_action = self.add_menu_action("Open", file_menu, False, self.on_load_action)
 
-        self.toolbar.addSeparator()
+        edit_menu = self.menu_bar.addMenu("Edit")
 
-        self.add_script_action("Generate", "Generate mod", self.on_generate_action)
-        self.add_script_action("Edit Configuration", "Edit mod configuration", self.on_edit_config_action)
-        self.add_script_action("Update", "Update mod")
-        self.add_script_action("Upload", "Upload mod")
-        self.add_script_action("Create Backup", "Create mod backup")
-        self.add_script_action("Retrieve Backup", "Retrieve mod backup")
-        self.add_script_action("Remove Backup", "Remove mod backup")
-        self.toolbar.addSeparator()
-        self.toolbar.addAction("Undo")
-        self.toolbar.addAction("Redo")
-        self.toolbar.addSeparator()
-        self.toolbar.addAction("Options")
+        self.add_menu_action("Generate", edit_menu, True, self.on_generate_action)
+        self.add_menu_action("Edit Configuration", edit_menu, True, self.on_edit_config_action)
+        self.add_menu_action("Update", edit_menu, True)
+        self.add_menu_action("Upload", edit_menu, True)
+        self.add_menu_action("Create Backup", edit_menu, True)
+        self.add_menu_action("Retrieve Backup", edit_menu, True)
+        self.add_menu_action("Remove Backup", edit_menu, True)
+        self.menu_bar.addSeparator()
+        self.menu_bar.addAction("Options")
 
         tab_widget = QtWidgets.QTabWidget()
         main_layout.addWidget(tab_widget)
@@ -171,7 +164,7 @@ class MainWidget(QtWidgets.QWidget):
 
     def load_mod(self, mod_path: str):
         self.loaded_mod_path = mod_path
-        self.loaded_mod_name = mod_path[mod_path.rindex('\\')+1:]
+        self.loaded_mod_name = mod_path[mod_path.rindex('\\') + 1:]
         print("loaded mod " + self.loaded_mod_name + " at " + mod_path)
         # TODO: set window title
         self.settings.setValue(SETTINGS_LAST_OPEN_KEY, mod_path)
@@ -185,17 +178,6 @@ class MainWidget(QtWidgets.QWidget):
             return False
         return True
 
-    def add_script_action(self, name: str, tooltip: str, slot=None) -> QtWidgets.QAction:
-        action = QtWidgets.QAction(name)
-        self.toolbar.addAction(action)
-        action.setToolTip(tooltip)
-        action.triggered.connect(slot)
-
-        action.setDisabled(True)
-        self.mod_loaded.connect(lambda: action.setDisabled(False))
-
-        return action
-
     def on_generate_action(self):
         self.generate_mod()
 
@@ -208,12 +190,35 @@ class MainWidget(QtWidgets.QWidget):
             config_values[key] = config.value(key)
         dialog = edit_config_dialog.WarnoPathDialog(config_values)
         result = dialog.exec_()
+
         if result == QtWidgets.QDialog.Accepted:
             config_values = dialog.get_config_values()
+
+            new_name = ""
+
             for key in config.allKeys():
+                if key == "Properties/Name" and config_values[key] != config.value(key):
+                    new_name = config_values[key]
                 config.setValue(key, config_values[key])
 
+            # delete QSettings object so file can be edited
             del config
+
+            # change relevant directory names and update paths
+            if new_name != "":
+                new_mod_path = self.loaded_mod_path[:self.loaded_mod_path.rindex('\\') + 1] + new_name + \
+                               "\\"
+                old_config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
+                                  self.loaded_mod_name + "\\"
+                new_config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
+                                  new_name + "\\"
+                config_path = new_config_path + "Config.ini"
+
+                os.rename(self.loaded_mod_path, new_mod_path)
+                os.rename(old_config_path, new_config_path)
+
+                self.load_mod(new_mod_path)
+
             # replace to make the file readable for Eugen...
             with open(config_path, "r+") as f:
                 f_content = f.read()
@@ -221,6 +226,17 @@ class MainWidget(QtWidgets.QWidget):
                 f.seek(0)
                 f.write(f_content)
 
+    def add_menu_action(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
+                        slot=None) -> QtWidgets.QAction:
+        action = QtWidgets.QAction(name)
+        menu.addAction(action)
+        action.triggered.connect(slot)
+
+        if start_disabled:
+            action.setDisabled(True)
+            self.mod_loaded.connect(lambda: action.setDisabled(False))
+
+        return action
 
     def active_tab_ask_to_save(self):
         # TODO: ask the current tab if progress needs to be saved
