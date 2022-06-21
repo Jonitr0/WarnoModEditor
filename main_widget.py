@@ -73,19 +73,19 @@ class MainWidget(QtWidgets.QWidget):
 
         file_menu = self.menu_bar.addMenu("File")
 
-        self.new_action = self.add_action_to_menu("New", file_menu, False, self.on_new_action)
-        self.load_action = self.add_action_to_menu("Open", file_menu, False, self.on_load_action)
+        self.new_action = self.add_action_to_menu("New Mod", file_menu, False, self.on_new_action)
+        self.load_action = self.add_action_to_menu("Open Mod", file_menu, False, self.on_load_action)
 
         edit_menu = self.menu_bar.addMenu("Edit")
 
         self.add_action_to_menu("Generate Mod", edit_menu, True, self.on_generate_action)
         self.add_action_to_menu("Edit Mod Configuration", edit_menu, True, self.on_edit_config_action)
-        self.add_action_to_menu("Update Mod", edit_menu, True)
+        self.add_action_to_menu("Update Mod", edit_menu, True, self.on_update_action)
         self.add_action_to_menu("Upload Mod", edit_menu, True, self.on_upload_action)
         self.add_action_to_menu("Create Mod Backup", edit_menu, True)
         self.add_action_to_menu("Retrieve Mod Backup", edit_menu, True)
         self.add_action_to_menu("Remove Mod Backup", edit_menu, True)
-        self.menu_bar.addSeparator()
+
         self.menu_bar.addAction("Options")
 
         tab_widget = QtWidgets.QTabWidget()
@@ -208,6 +208,10 @@ class MainWidget(QtWidgets.QWidget):
                 f_content = f_content.replace("=", " = ")
                 f.seek(0)
                 f.write(f_content)
+
+    def on_update_action(self):
+        ret = run_script(self.loaded_mod_path, "UpdateMod.bat", [])
+        print("UpdateMod.bat executed with return code " + str(ret))
 
     def on_upload_action(self):
         ret = run_script(self.loaded_mod_path, "UploadMod.bat", [])
