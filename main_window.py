@@ -10,6 +10,7 @@ from dialogs import warno_path_dialog
 
 SETTINGS_WARNO_PATH_KEY = "wme_warno_path"
 
+
 # TODO: move warno path verification to own class
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -33,18 +34,12 @@ class MainWindow(QtWidgets.QMainWindow):
         main_layout.setSpacing(0)
         w.setLayout(main_layout)
 
-        main_layout.addWidget(title_bar.TitleBar(parent=self))
-        main_layout.addWidget(main_widget.MainWidget(self.warno_path, self.settings))
+        bar = title_bar.TitleBar(parent=self)
+        main_layout.addWidget(bar)
+        main_layout.addWidget(main_widget.MainWidget(self.warno_path, self.settings, bar))
 
         self.setCentralWidget(w)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        w.setObjectName("w")
-        # TODO: fix color
-        w.setStyleSheet("QWidget#w { \
-                                border-width: 1px; \
-                                border-style: solid; \
-                                border-color: black; \
-                            }")
 
         self.grip = QtWidgets.QSizeGrip(self)
         self.grip.resize(16, 16)
@@ -101,8 +96,16 @@ if __name__ == '__main__':
     if dpi > 100:
         scale = 2
 
-    extra = {'density_scale': scale}
+    extra = {'density_scale': scale,
+             'danger': '#dc3545',
+             'warning': '#ffc107',
+             'success': '#17a2b8',
+             }
     apply_stylesheet(app, theme="dark_nato.xml", extra=extra)
+
+    stylesheet = app.styleSheet()
+    with open('resources/custom_style.css') as file:
+        app.setStyleSheet(stylesheet + file.read().format(**os.environ))
 
     QtWidgets.QApplication.instance().setAttribute(QtCore.Qt.AA_DisableWindowContextHelpButton)
 

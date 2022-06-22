@@ -10,18 +10,19 @@ class BaseDialog(QtWidgets.QDialog):
         super().__init__(parent)
 
         self.setWindowFlags(Qt.FramelessWindowHint)
-        # TODO: fix color
-        self.setStyleSheet("QDialog { \
-                                border-width: 1px; \
-                                border-style: solid; \
-                                border-color: black; \
-                            }")
 
-        self.main_layout = QtWidgets.QVBoxLayout(self)
-        self.setLayout(self.main_layout)
+        self.bar_layout = QtWidgets.QVBoxLayout(self)
+        self.bar_layout.setContentsMargins(0, 0, 0, 0)
+        self.bar_layout.setSpacing(0)
+        self.setLayout(self.bar_layout)
 
         self.title_bar = title_bar.TitleBar(self, only_close=True)
-        self.main_layout.addWidget(self.title_bar)
+        self.bar_layout.addWidget(self.title_bar)
+
+        self.main_layout = QtWidgets.QVBoxLayout(self)
+        self.main_layout.setContentsMargins(10, 10, 10, 10)
+        self.main_layout.setSpacing(10)
+        self.bar_layout.addLayout(self.main_layout)
 
         self.setup_ui()
 

@@ -48,7 +48,7 @@ class MainWidget(QtWidgets.QWidget):
     mod_loaded = QtCore.Signal(str)
     instance = None
 
-    def __init__(self, warno_path: str, settings: QtCore.QSettings):
+    def __init__(self, warno_path: str, settings: QtCore.QSettings, title_bar):
         super().__init__()
         self.menu_bar = QtWidgets.QMenuBar()
         self.loaded_mod_path = ""
@@ -58,6 +58,7 @@ class MainWidget(QtWidgets.QWidget):
         self.status_timer = QtCore.QTimer()
         self.status_timer.timeout.connect(lambda: self.status_label.setText(""))
         self.settings = settings
+        self.title_bar = title_bar
         self.setup_ui()
         MainWidget.instance = self
         last_open = self.settings.value(SETTINGS_LAST_OPEN_KEY)
@@ -69,7 +70,7 @@ class MainWidget(QtWidgets.QWidget):
         main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
 
-        main_layout.addWidget(self.menu_bar)
+        self.title_bar.add_widget(self.menu_bar)
 
         file_menu = self.menu_bar.addMenu("File")
 
