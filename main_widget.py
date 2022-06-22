@@ -234,7 +234,7 @@ class MainWidget(QtWidgets.QWidget):
                 f.seek(0)
                 f.write(f_content)
 
-    # TODO: run as python
+    # TODO: run as python or remove pause
     def on_update_action(self):
         ret = run_script(self.loaded_mod_path, "UpdateMod.bat", [])
         print("UpdateMod.bat executed with return code " + str(ret))
@@ -243,7 +243,7 @@ class MainWidget(QtWidgets.QWidget):
         ret = run_script(self.loaded_mod_path, "UploadMod.bat", [])
         print("UploadMod.bat executed with return code " + str(ret))
 
-    # TODO: run as python
+    # TODO: run as python or remove pause
     def on_new_backup_action(self):
         dialog = new_backup_dialog.NewBackupDialog()
         result = dialog.exec_()
@@ -252,7 +252,7 @@ class MainWidget(QtWidgets.QWidget):
 
         args = []
         if dialog.get_name() != "":
-            args.append(dialog.get_name())
+            args = dialog.get_name()
 
         ret = run_script(self.loaded_mod_path, "CreateModBackup.bat", args)
         print("CreateModBackup.bat executed with return code " + str(ret))
@@ -266,7 +266,7 @@ class MainWidget(QtWidgets.QWidget):
         all_backups = backup_dir.entryList(filter)
         print(all_backups)
 
-    # TODO: run as python
+    # TODO: run as python or remove pause
     def on_retrieve_backup_action(self):
         self.find_backups()
 
