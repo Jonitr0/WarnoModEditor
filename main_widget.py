@@ -27,6 +27,8 @@ def run_script(cwd: str, cmd: str, args: list):
         process.setProgram("cmd.exe")
         process.setArguments(["/C", cmd, args])
         process.setWorkingDirectory(cwd)
+        print("at " + cwd + " running: cmd.exe /C " + cmd + " " + str(args))
+
         process.start()
         process.waitForFinished()
         ret = process.exitCode()
@@ -232,6 +234,7 @@ class MainWidget(QtWidgets.QWidget):
                 f.seek(0)
                 f.write(f_content)
 
+    # TODO: run as python
     def on_update_action(self):
         ret = run_script(self.loaded_mod_path, "UpdateMod.bat", [])
         print("UpdateMod.bat executed with return code " + str(ret))
@@ -240,6 +243,7 @@ class MainWidget(QtWidgets.QWidget):
         ret = run_script(self.loaded_mod_path, "UploadMod.bat", [])
         print("UploadMod.bat executed with return code " + str(ret))
 
+    # TODO: run as python
     def on_new_backup_action(self):
         dialog = new_backup_dialog.NewBackupDialog()
         result = dialog.exec_()
@@ -262,10 +266,9 @@ class MainWidget(QtWidgets.QWidget):
         all_backups = backup_dir.entryList(filter)
         print(all_backups)
 
-
+    # TODO: run as python
     def on_retrieve_backup_action(self):
         self.find_backups()
-
 
     def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
                            slot=None) -> QtWidgets.QAction:
