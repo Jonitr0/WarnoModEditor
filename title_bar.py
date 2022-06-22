@@ -24,7 +24,7 @@ class TitleBar(QtWidgets.QWidget):
         button_size = 32
 
         icon = QtWidgets.QLabel()
-        icon.setFixedSize(32, 32)
+        icon.setFixedSize(button_size, button_size)
         icon.setPixmap(QtGui.QPixmap("resources/img/icon32.png"))
         self.main_layout.addWidget(icon)
 
@@ -60,6 +60,9 @@ class TitleBar(QtWidgets.QWidget):
 
     def add_widget(self, widget: QtWidgets.QWidget):
         self.main_layout.insertWidget(1, widget)
+
+    def add_spacing(self, spacing: int):
+        self.main_layout.insertSpacing(1, spacing)
 
     def set_title(self, window_title: str):
         self.title_label.setText(window_title)

@@ -115,6 +115,8 @@ if __name__ == '__main__':
     app_icon.addFile('resources/img/icon32.png', QtCore.QSize(32, 32))
     app_icon.addFile('resources/img/icon48.png', QtCore.QSize(48, 48))
     app_icon.addFile('resources/img/icon64.png', QtCore.QSize(64, 64))
+    app_icon.addFile('resources/img/icon128.png', QtCore.QSize(128, 128))
+    app_icon.addFile('resources/img/icon256.png', QtCore.QSize(256, 256))
     app.setWindowIcon(app_icon)
 
     main_window = MainWindow()

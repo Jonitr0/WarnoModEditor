@@ -1,11 +1,11 @@
 import os
 from pathlib import Path
 
-from PySide2 import QtWidgets, QtCore, QtGui
+from PySide2 import QtWidgets, QtCore
 from PySide2.QtCore import Qt
 
 import ndf_editor_widget
-from dialogs import new_mod_dialog, edit_config_dialog
+from dialogs import new_mod_dialog, edit_config_dialog, new_backup_dialog
 
 # TODO: incorporate Eugen's scripts (CreateMod, GenerateMod, UpdateMod, UploadMod, BackupMod, RemoveBackup)
 # TODO: find mods in dir, switch between mods, remember last worked on
@@ -29,7 +29,9 @@ def run_script(cwd: str, cmd: str, args: list):
         process.setWorkingDirectory(cwd)
         process.start()
         process.waitForFinished()
-        return process.exitCode()
+        ret = process.exitCode()
+        process.close()
+        return ret
     except Exception as ex:
         print(ex)
         return -1
@@ -59,17 +61,21 @@ class MainWidget(QtWidgets.QWidget):
         self.status_timer.timeout.connect(lambda: self.status_label.setText(""))
         self.settings = settings
         self.title_bar = title_bar
+        self.title_label = QtWidgets.QLabel()
         self.setup_ui()
         MainWidget.instance = self
         last_open = self.settings.value(SETTINGS_LAST_OPEN_KEY)
         if not last_open is None:
             if validate_mod_path(str(last_open)):
-                self.load_mod(last_open)
+                self.load_mod(str(last_open))
 
     def setup_ui(self):
         main_layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(main_layout)
 
+        self.title_label.setObjectName("title")
+        self.title_bar.add_widget(self.title_label)
+        self.title_bar.add_spacing(10)
         self.title_bar.add_widget(self.menu_bar)
 
         file_menu = self.menu_bar.addMenu("File")
@@ -86,8 +92,8 @@ class MainWidget(QtWidgets.QWidget):
 
         edit_menu.addSeparator()
 
-        self.add_action_to_menu("Create Mod Backup", edit_menu, True)
-        self.add_action_to_menu("Retrieve Mod Backup", edit_menu, True)
+        self.add_action_to_menu("Create Mod Backup", edit_menu, True, self.on_new_backup_action)
+        self.add_action_to_menu("Retrieve Mod Backup", edit_menu, True, self.on_retrieve_backup_action)
         self.add_action_to_menu("Remove Mod Backup", edit_menu, True)
 
         self.menu_bar.addAction("Options")
@@ -99,6 +105,16 @@ class MainWidget(QtWidgets.QWidget):
         tab_widget.addTab(ndf_editor, ".ndf Editor")
         cheat_sheet = QtWidgets.QWidget()
         tab_widget.addTab(cheat_sheet, "Modding Cheat Sheet")
+
+        # TODO: add menu to select new tabs
+        new_tab_button = QtWidgets.QPushButton("New Tab")
+        new_tab_button.setMinimumHeight(tab_widget.tabBar().height())
+        tab_widget.setCornerWidget(new_tab_button)
+
+        tab_widget.setTabsClosable(True)
+        tab_widget.setMovable(True)
+        # TODO: run save check
+        tab_widget.tabCloseRequested.connect(tab_widget.removeTab)
 
         main_layout.addWidget(self.status_label)
         main_layout.setAlignment(self.status_label, Qt.AlignRight)
@@ -157,7 +173,7 @@ class MainWidget(QtWidgets.QWidget):
         self.loaded_mod_path = mod_path
         self.loaded_mod_name = mod_path[mod_path.rindex('\\') + 1:]
         print("loaded mod " + self.loaded_mod_name + " at " + mod_path)
-        # TODO: set window title
+        self.title_label.setText(self.loaded_mod_name)
         self.settings.setValue(SETTINGS_LAST_OPEN_KEY, mod_path)
         self.mod_loaded.emit(mod_path)
 
@@ -170,6 +186,9 @@ class MainWidget(QtWidgets.QWidget):
         self.generate_mod()
 
     def on_edit_config_action(self):
+        if not self.active_tab_ask_to_save():
+            return
+
         config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
                       self.loaded_mod_name + "\\Config.ini"
         config = QtCore.QSettings(config_path, QtCore.QSettings.IniFormat)
@@ -220,6 +239,33 @@ class MainWidget(QtWidgets.QWidget):
     def on_upload_action(self):
         ret = run_script(self.loaded_mod_path, "UploadMod.bat", [])
         print("UploadMod.bat executed with return code " + str(ret))
+
+    def on_new_backup_action(self):
+        dialog = new_backup_dialog.NewBackupDialog()
+        result = dialog.exec_()
+        if result != QtWidgets.QDialog.Accepted:
+            return
+
+        args = []
+        if dialog.get_name() != "":
+            args.append(dialog.get_name())
+
+        ret = run_script(self.loaded_mod_path, "CreateModBackup.bat", args)
+        print("CreateModBackup.bat executed with return code " + str(ret))
+
+    def find_backups(self):
+        backup_dir = QtCore.QDir(self.loaded_mod_path + "\\Backup")
+        if not backup_dir.exists():
+            return []
+
+        filter = [".zip"]
+        all_backups = backup_dir.entryList(filter)
+        print(all_backups)
+
+
+    def on_retrieve_backup_action(self):
+        self.find_backups()
+
 
     def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
                            slot=None) -> QtWidgets.QAction:

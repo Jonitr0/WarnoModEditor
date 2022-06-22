@@ -7,3 +7,8 @@ QDialog {{
 TitleBar {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
 }}
+
+QLabel#title {{
+  color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
+  font: italic;
+}}
