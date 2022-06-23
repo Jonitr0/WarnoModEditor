@@ -25,7 +25,7 @@ class TitleBar(QtWidgets.QWidget):
 
         icon = QtWidgets.QLabel()
         icon.setFixedSize(button_size, button_size)
-        icon.setPixmap(QtGui.QPixmap("resources/img/icon32.png"))
+        icon.setPixmap(QtGui.QPixmap("resources/img/appIcon32.png"))
         self.main_layout.addWidget(icon)
 
         self.title_label.setText(window_title)
@@ -39,12 +39,20 @@ class TitleBar(QtWidgets.QWidget):
         self.main_layout.addLayout(button_layout)
 
         if not only_close:
-            minimize_button = QtWidgets.QPushButton("_")
+            minimize_button = QtWidgets.QPushButton()
+            minimize_button.setProperty('class', 'titlebar')
+            min_icon = QtGui.QIcon()
+            min_icon.addFile("resources/img/titlebar/showMin.png", QtCore.QSize(32,32))
+            minimize_button.setIcon(min_icon)
             minimize_button.setFixedSize(button_size, button_size)
             minimize_button.clicked.connect(self.on_min_clicked)
             button_layout.addWidget(minimize_button)
 
-            self.maximize_button = QtWidgets.QPushButton("+")
+            self.maximize_button = QtWidgets.QPushButton()
+            self.maximize_button.setProperty('class', 'titlebar')
+            max_icon = QtGui.QIcon()
+            max_icon.addFile("resources/img/titlebar/showMax.png", QtCore.QSize(32,32))
+            self.maximize_button.setIcon(max_icon)
             self.maximize_button.setFixedSize(button_size, button_size)
             self.maximize_button.clicked.connect(self.on_max_clicked)
             button_layout.addWidget(self.maximize_button)
@@ -56,7 +64,10 @@ class TitleBar(QtWidgets.QWidget):
         button_layout.addWidget(close_button)
 
         self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
-        # TODO: button styles
+        # TODO: button styles and icons, make sure png is only loaded once
+
+    def setup_button(self, button: QtWidgets.QPushButton, default_icon: QtGui.QIcon, pressed_icon: QtGui.QIcon):
+        pass
 
     def add_widget(self, widget: QtWidgets.QWidget):
         self.main_layout.insertWidget(1, widget)

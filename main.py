@@ -21,23 +21,13 @@ if __name__ == '__main__':
              'warning': '#ffc107',
              'success': '#17a2b8',
              }
-    apply_stylesheet(app, theme="dark_nato.xml", extra=extra)
+    apply_stylesheet(app, theme="dark_lightgreen.xml", extra=extra)
 
     stylesheet = app.styleSheet()
     with open('resources/custom_style.css') as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
 
     QtWidgets.QApplication.instance().setAttribute(QtCore.Qt.AA_DisableWindowContextHelpButton)
-
-    app_icon = QtGui.QIcon()
-    app_icon.addFile('resources/img/icon16.png', QtCore.QSize(16, 16))
-    app_icon.addFile('resources/img/icon24.png', QtCore.QSize(24, 24))
-    app_icon.addFile('resources/img/icon32.png', QtCore.QSize(32, 32))
-    app_icon.addFile('resources/img/icon48.png', QtCore.QSize(48, 48))
-    app_icon.addFile('resources/img/icon64.png', QtCore.QSize(64, 64))
-    app_icon.addFile('resources/img/icon128.png', QtCore.QSize(128, 128))
-    app_icon.addFile('resources/img/icon256.png', QtCore.QSize(256, 256))
-    app.setWindowIcon(app_icon)
 
     main_window = main_window.MainWindow()
     sys.exit(app.exec_())

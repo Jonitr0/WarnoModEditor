@@ -8,7 +8,20 @@ TitleBar {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
 }}
 
+QMenuBar::item {{
+  height: {{32|density(density_scale)}}px;
+  padding: 10px;
+}}
+
 QLabel#title {{
   color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
   font: italic;
+}}
+
+QPushButton.titlebar {{
+  border-radius: 0px
+}}
+
+QPushButton.titlebarClose {{
+  border-radius: 0px
 }}
