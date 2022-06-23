@@ -10,8 +10,6 @@ SETTINGS_WARNO_PATH_KEY = "wme_warno_path"
 # TODO: move warno path verification to own class
 
 class MainWindow(QtWidgets.QMainWindow):
-    quit_app = QtCore.Signal(int)
-
     def __init__(self):
         super().__init__()
         self.warno_path = ""
