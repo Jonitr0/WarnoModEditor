@@ -19,9 +19,16 @@ QLabel#title {{
 }}
 
 QPushButton.titlebar {{
-  border-radius: 0px
+  border-radius: 0px;
+  border-width: 0px;
+  background-color: transparent;
+}}
+QPushButton.titlebar:pressed {{
+  background-color: {QTMATERIAL_PRIMARYCOLOR};
 }}
 
-QPushButton.titlebarClose {{
-  border-radius: 0px
+QPushButton.danger {{
+  border-radius: 0px;
+  border-width: 0px;
+  background-color: transparent;
 }}

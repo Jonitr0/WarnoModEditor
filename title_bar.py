@@ -2,10 +2,15 @@ import os
 
 from PySide2 import QtWidgets, QtCore, QtGui
 
+import icon_loader
+
 
 class TitleBar(QtWidgets.QWidget):
     def __init__(self, parent=None, window_title: str = "", only_close: bool = False):
         super().__init__(parent)
+        self.close_button = QtWidgets.QPushButton()
+        self.maximize_button = QtWidgets.QPushButton()
+        self.minimize_button = QtWidgets.QPushButton()
         self.title_label = QtWidgets.QLabel()
         self.parent = parent
         self.start = QtCore.QPoint(0, 0)
@@ -38,35 +43,67 @@ class TitleBar(QtWidgets.QWidget):
         button_layout.setSpacing(0)
         self.main_layout.addLayout(button_layout)
 
-        if not only_close:
-            minimize_button = QtWidgets.QPushButton()
-            minimize_button.setProperty('class', 'titlebar')
-            min_icon = QtGui.QIcon()
-            min_icon.addFile("resources/img/titlebar/showMin.png", QtCore.QSize(32,32))
-            minimize_button.setIcon(min_icon)
-            minimize_button.setFixedSize(button_size, button_size)
-            minimize_button.clicked.connect(self.on_min_clicked)
-            button_layout.addWidget(minimize_button)
+        self.minimize_button.setVisible(not only_close)
+        self.minimize_button.installEventFilter(self)
+        self.minimize_button.setProperty('class', 'titlebar')
+        min_icon = icon_loader.load_icon("titlebar/showMin.png")
+        self.minimize_button.setIcon(min_icon)
+        self.minimize_button.setFixedSize(button_size, button_size)
+        self.minimize_button.clicked.connect(self.on_min_clicked)
+        button_layout.addWidget(self.minimize_button)
 
-            self.maximize_button = QtWidgets.QPushButton()
-            self.maximize_button.setProperty('class', 'titlebar')
-            max_icon = QtGui.QIcon()
-            max_icon.addFile("resources/img/titlebar/showMax.png", QtCore.QSize(32,32))
-            self.maximize_button.setIcon(max_icon)
-            self.maximize_button.setFixedSize(button_size, button_size)
-            self.maximize_button.clicked.connect(self.on_max_clicked)
-            button_layout.addWidget(self.maximize_button)
+        self.maximize_button.setVisible(not only_close)
+        self.maximize_button.installEventFilter(self)
+        self.maximize_button.setProperty('class', 'titlebar')
+        max_icon = icon_loader.load_icon("titlebar/showMax.png")
+        self.maximize_button.setIcon(max_icon)
+        self.maximize_button.setFixedSize(button_size, button_size)
+        self.maximize_button.clicked.connect(self.on_max_clicked)
+        button_layout.addWidget(self.maximize_button)
 
-        close_button = QtWidgets.QPushButton("x")
-        close_button.setFixedSize(button_size, button_size)
-        close_button.clicked.connect(self.on_close_clicked)
-        close_button.setProperty('class', 'danger')
-        button_layout.addWidget(close_button)
+        self.close_button.installEventFilter(self)
+        close_icon = icon_loader.load_icon("titlebar/close.png")
+        self.close_button.setIcon(close_icon)
+        self.close_button.setFixedSize(button_size, button_size)
+        self.close_button.clicked.connect(self.on_close_clicked)
+        self.close_button.setProperty('class', 'danger')
+        button_layout.addWidget(self.close_button)
 
         self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
         # TODO: button styles and icons, make sure png is only loaded once
 
-    def setup_button(self, button: QtWidgets.QPushButton, default_icon: QtGui.QIcon, pressed_icon: QtGui.QIcon):
+    def eventFilter(self, object, event):
+        # only capture left click
+        if event.type() is (QtCore.QEvent.MouseButtonPress or QtCore.QEvent.MouseButtonRelease) \
+                and event.button() is not QtCore.Qt.MouseButton.LeftButton:
+            return False
+
+        # TODO: implement leaving, possibly be mouse move
+
+        # min button
+        if object is self.minimize_button and event.type() is QtCore.QEvent.MouseButtonPress:
+            self.minimize_button.setIcon(icon_loader.load_icon("titlebar/showMinInverted.png"))
+        elif object is self.minimize_button and event.type() is QtCore.QEvent.MouseButtonRelease:
+            self.minimize_button.setIcon(icon_loader.load_icon("titlebar/showMin.png"))
+        # max button
+        elif object is self.maximize_button and event.type() is QtCore.QEvent.MouseButtonPress:
+            if self.maximized:
+                self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormalInverted.png"))
+            else:
+                self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMaxInverted.png"))
+        elif object is self.maximize_button and event.type() is QtCore.QEvent.MouseButtonRelease:
+            if self.maximized:
+                self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormal.png"))
+            else:
+                self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMax.png"))
+        # close button
+        elif object is self.close_button and event.type() is QtCore.QEvent.MouseButtonPress:
+            self.close_button.setIcon(icon_loader.load_icon("titlebar/closeInverted.png"))
+        elif object is self.close_button and event.type() is QtCore.QEvent.MouseButtonRelease:
+            self.close_button.setIcon(icon_loader.load_icon("titlebar/close.png"))
+        return False
+
+    def setup_button(self, button: QtWidgets.QPushButton, default_icon_name: str, pressed_icon_name: str):
         pass
 
     def add_widget(self, widget: QtWidgets.QWidget):
@@ -102,12 +139,12 @@ class TitleBar(QtWidgets.QWidget):
     def on_max_clicked(self):
         if not self.maximized:
             self.parent.showMaximized()
-            self.maximize_button.setText("#")
             self.maximized = True
+            self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormal.png"))
         else:
             self.parent.showNormal()
-            self.maximize_button.setText("+")
             self.maximized = False
+            self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMax.png"))
 
     def on_close_clicked(self):
         self.parent.close()
