@@ -4,6 +4,7 @@ from pathlib import Path
 from PySide2 import QtWidgets, QtCore
 from PySide2.QtCore import Qt
 
+import icon_loader
 import ndf_editor_widget
 from dialogs import new_mod_dialog, edit_config_dialog, new_backup_dialog
 
@@ -109,8 +110,10 @@ class MainWidget(QtWidgets.QWidget):
         tab_widget.addTab(cheat_sheet, "Modding Cheat Sheet")
 
         # TODO: add menu to select new tabs
-        new_tab_button = QtWidgets.QPushButton("New Tab")
-        new_tab_button.setMinimumHeight(tab_widget.tabBar().height())
+        # TODO: style button
+        new_tab_button = QtWidgets.QToolButton()
+        new_tab_button.setIcon(icon_loader.load_icon("plusIcon.png"))
+        new_tab_button.setFixedSize(36, 36)
         tab_widget.setCornerWidget(new_tab_button)
 
         tab_widget.setTabsClosable(True)
@@ -144,11 +147,21 @@ class MainWidget(QtWidgets.QWidget):
                 print("Error while running CreateNewMod.bat")
                 return
 
+            # remove all pause lines from .bat files
+            pause_files = ["CreateModBackup.bat", "RetrieveModBackup.bat", "UpdateMod.bat"]
+            for file in pause_files:
+                file = mods_path + mod_name + "\\" + file
+                print(file)
+                with open(file, "r") as f:
+                    lines = f.readlines()
+                with open(file, "w") as f:
+                    for line in lines:
+                        if line.strip("\n") != "pause":
+                            f.write(line)
+
             # load mod
             self.load_mod(mods_path + mod_name)
 
-            # generation not requested
-            generated = 2
             if dialog.get_mod_generate():
                 self.generate_mod()
 
