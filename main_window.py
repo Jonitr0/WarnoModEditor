@@ -3,8 +3,7 @@ from PySide2 import QtWidgets, QtCore
 import main_widget
 import title_bar
 from dialogs import warno_path_dialog
-
-SETTINGS_WARNO_PATH_KEY = "wme_warno_path"
+from utils import settings_manager, path_validator
 
 
 # TODO: move warno path verification to own class
@@ -14,7 +13,6 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__()
         self.warno_path = ""
         self.dialog_finished_once = False
-        self.settings = QtCore.QSettings("jonitro", "WarnoModEditor")
         QtCore.QTimer.singleShot(0, self.load_warno_path_from_settings)
 
     # open actual main window
@@ -30,7 +28,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         bar = title_bar.TitleBar(parent=self)
         main_layout.addWidget(bar)
-        main_layout.addWidget(main_widget.MainWidget(self.warno_path, self.settings, bar))
+        main_layout.addWidget(main_widget.MainWidget(self.warno_path, bar))
 
         self.setCentralWidget(w)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
@@ -46,9 +44,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.grip.move(rect.right() - 16, rect.bottom() - 16)
 
     def validate_warno_path(self, warno_path):
-        if QtCore.QFile().exists(warno_path + "/WARNO.exe") and QtCore.QDir(warno_path + "/Mods").exists():
+        if path_validator.validate_warno_path(warno_path):
             self.warno_path = warno_path
-            self.settings.setValue(SETTINGS_WARNO_PATH_KEY, warno_path)
+            settings_manager.write_settings_value(settings_manager.WARNO_PATH_KEY, warno_path)
             self.start_main_window()
             return
         if self.dialog_finished_once:
@@ -58,7 +56,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.open_warno_path_dialog()
 
     def load_warno_path_from_settings(self):
-        tmp_path = self.settings.value(SETTINGS_WARNO_PATH_KEY)
+        tmp_path = settings_manager.get_settings_value(settings_manager.WARNO_PATH_KEY)
         if tmp_path is None:
             self.open_warno_path_dialog()
         else:

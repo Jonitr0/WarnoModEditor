@@ -11,6 +11,7 @@ if __name__ == '__main__':
 
     screen = app.screens()[0]
     dpi = screen.physicalDotsPerInch()
+    print("Screen dpi: " + str(dpi))
 
     scale = -2
     if dpi > 100:

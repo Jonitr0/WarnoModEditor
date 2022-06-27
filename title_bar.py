@@ -1,8 +1,6 @@
-import os
-
 from PySide2 import QtWidgets, QtCore, QtGui
 
-import icon_loader
+from utils import icon_loader
 
 
 class TitleBar(QtWidgets.QWidget):
