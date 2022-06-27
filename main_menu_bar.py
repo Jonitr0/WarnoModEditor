@@ -3,7 +3,7 @@ from pathlib import Path
 
 from PySide2 import QtWidgets, QtCore
 
-from dialogs import new_mod_dialog, edit_config_dialog, new_backup_dialog, selection_dialog
+from dialogs import new_mod_dialog, edit_config_dialog, new_backup_dialog, selection_dialog, confirmation_dialog
 from utils import path_validator
 
 
@@ -50,7 +50,7 @@ class MainMenuBar(QtWidgets.QMenuBar):
         self.add_action_to_menu("Create Mod Backup", edit_menu, True, self.on_new_backup_action)
         self.add_action_to_menu("Retrieve Mod Backup", edit_menu, True,
                                 self.on_retrieve_backup_action)
-        self.add_action_to_menu("Remove Mod Backup", edit_menu, True)
+        self.add_action_to_menu("Remove Mod Backup", edit_menu, True, self.on_delete_backup_action)
 
         self.addAction("Options")
 
@@ -199,18 +199,45 @@ class MainMenuBar(QtWidgets.QMenuBar):
             print("No backups found")
             return
 
-        dialog = select_backup_dialog.SelectionDialog("Please select a backup to retrieve.",
-                                                         "Select Backup",
-                                                      all_backups)
+        dialog = selection_dialog.SelectionDialog("Please select a backup to retrieve.",
+                                                  "Select Backup",
+                                                  all_backups)
         res = dialog.exec_()
         if res != QtWidgets.QDialog.Accepted:
             return
 
         selection = dialog.get_selection()
-        print(selection)
 
         self.remove_pause_line_from_script("RetrieveModBackup.bat")
-        # TODO: run script
+        ret = run_script(self.main_widget_ref.get_loaded_mod_path(), "RetrieveModBackup.bat", selection)
+        print("RetrieveModBackup.bat executed with return code " + str(ret))
+
+
+    def on_delete_backup_action(self):
+        all_backups = self.find_backups()
+        if len(all_backups) == 0:
+            print("No backups found")
+            return
+
+        dialog = selection_dialog.SelectionDialog("Please select a backup to delete.",
+                                                  "Select Backup",
+                                                  all_backups)
+        if dialog.exec_() != QtWidgets.QDialog.Accepted:
+            return
+
+        selection = dialog.get_selection()
+
+        confirm_dialog = confirmation_dialog.ConfirmationDialog("The backup " + selection +
+                                                                " will be removed and you might not be able to "
+                                                                "restore it! Are you sure you want to continue?",
+                                                                "Warning!")
+        if confirm_dialog.exec_() != QtWidgets.QDialog.Accepted:
+            return
+
+        try:
+            os.remove(self.main_widget_ref.get_loaded_mod_path() + "\\Backup\\" + selection)
+        except Exception as ex:
+            print(ex)
 
     def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
                            slot=None) -> QtWidgets.QAction:
