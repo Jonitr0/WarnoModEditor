@@ -3,7 +3,7 @@ from pathlib import Path
 
 from PySide2 import QtWidgets, QtCore
 
-from dialogs import new_mod_dialog, edit_config_dialog, new_backup_dialog, select_backup_dialog
+from dialogs import new_mod_dialog, edit_config_dialog, new_backup_dialog, selection_dialog
 from utils import path_validator
 
 
@@ -69,18 +69,6 @@ class MainMenuBar(QtWidgets.QMenuBar):
             if run_script(mods_path, "CreateNewMod.bat", mod_name) != 0:
                 print("Error while running CreateNewMod.bat")
                 return
-
-            # remove all pause lines from .bat files
-            pause_files = ["CreateModBackup.bat", "RetrieveModBackup.bat", "UpdateMod.bat"]
-            for file in pause_files:
-                file = mods_path + mod_name + "\\" + file
-                print(file)
-                with open(file, "r") as f:
-                    lines = f.readlines()
-                with open(file, "w") as f:
-                    for line in lines:
-                        if line.strip("\n") != "pause":
-                            f.write(line)
 
             # load mod
             self.request_load_mod.emit(mods_path + mod_name)
@@ -164,8 +152,18 @@ class MainMenuBar(QtWidgets.QMenuBar):
                 f.write(f_content)
 
     def on_update_action(self):
+        self.remove_pause_line_from_script("UpdateMod.bat")
         ret = run_script(self.main_widget_ref.get_loaded_mod_path(), "UpdateMod.bat", [])
         print("UpdateMod.bat executed with return code " + str(ret))
+
+    def remove_pause_line_from_script(self, script_name: str):
+        file = self.main_widget_ref.get_loaded_mod_path() + "\\" + script_name
+        with open(file, "r") as f:
+            lines = f.readlines()
+        with open(file, "w") as f:
+            for line in lines:
+                if line.strip("\n") != "pause":
+                    f.write(line)
 
     def on_upload_action(self):
         ret = run_script(self.main_widget_ref.get_loaded_mod_path(), "UploadMod.bat", [])
@@ -181,20 +179,38 @@ class MainMenuBar(QtWidgets.QMenuBar):
         if dialog.get_name() != "":
             args = dialog.get_name()
 
+        self.remove_pause_line_from_script("CreateModBackup.bat")
         ret = run_script(self.main_widget_ref.get_loaded_mod_path(), "CreateModBackup.bat", args)
         print("CreateModBackup.bat executed with return code " + str(ret))
 
     def find_backups(self):
+        all_backups = []
         backup_dir = QtCore.QDir(self.main_widget_ref.get_loaded_mod_path() + "\\Backup")
         if not backup_dir.exists():
             return []
 
-        file_filter = [".zip"]
+        file_filter = ["*.zip"]
         all_backups = backup_dir.entryList(file_filter)
-        print(all_backups)
+        return all_backups
 
     def on_retrieve_backup_action(self):
-        self.find_backups()
+        all_backups = self.find_backups()
+        if len(all_backups) == 0:
+            print("No backups found")
+            return
+
+        dialog = select_backup_dialog.SelectionDialog("Please select a backup to retrieve.",
+                                                         "Select Backup",
+                                                      all_backups)
+        res = dialog.exec_()
+        if res != QtWidgets.QDialog.Accepted:
+            return
+
+        selection = dialog.get_selection()
+        print(selection)
+
+        self.remove_pause_line_from_script("RetrieveModBackup.bat")
+        # TODO: run script
 
     def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
                            slot=None) -> QtWidgets.QAction:

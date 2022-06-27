@@ -6,9 +6,6 @@ import ndf_editor_widget
 from utils import icon_loader, settings_manager, path_validator
 
 
-# TODO: incorporate Eugen's scripts (CreateMod, GenerateMod, UpdateMod, UploadMod, BackupMod, RemoveBackup)
-
-
 def set_status_text(text: str):
     MainWidget.instance.status_set_text.emit(text)
 
@@ -97,7 +94,7 @@ class MainWidget(QtWidgets.QWidget):
         self.title_label.setText(self.loaded_mod_name)
         settings_manager.write_settings_value(settings_manager.LAST_OPEN_KEY, mod_path)
         self.mod_loaded.emit(mod_path)
-        set_status_text("Mod " + self.loaded_mod_name + " was loaded successfully")
+        set_status_text(self.loaded_mod_name + " was loaded successfully")
 
     def active_tab_ask_to_save(self):
         # TODO: ask the current tab if progress needs to be saved
