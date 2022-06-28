@@ -1,3 +1,7 @@
+# custom window title bar, includes own minimize/maximize/close buttons
+# has a title that can be set, can be used to drag the window around etc.
+# can take widgets (e.g. the wme_menu_bar)
+
 from PySide2 import QtWidgets, QtCore, QtGui
 
 from utils import icon_loader
@@ -70,7 +74,7 @@ class TitleBar(QtWidgets.QWidget):
         self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
         # TODO: button styles and icons, make sure png is only loaded once
 
-    def eventFilter(self, object, event):
+    def eventFilter(self, source, event):
         # only capture left click
         if event.type() is (QtCore.QEvent.MouseButtonPress or QtCore.QEvent.MouseButtonRelease) \
                 and event.button() is not QtCore.Qt.MouseButton.LeftButton:
@@ -79,25 +83,25 @@ class TitleBar(QtWidgets.QWidget):
         # TODO: implement leaving, possibly be mouse move
 
         # min button
-        if object is self.minimize_button and event.type() is QtCore.QEvent.MouseButtonPress:
+        if source is self.minimize_button and event.type() is QtCore.QEvent.MouseButtonPress:
             self.minimize_button.setIcon(icon_loader.load_icon("titlebar/showMinInverted.png"))
-        elif object is self.minimize_button and event.type() is QtCore.QEvent.MouseButtonRelease:
+        elif source is self.minimize_button and event.type() is QtCore.QEvent.MouseButtonRelease:
             self.minimize_button.setIcon(icon_loader.load_icon("titlebar/showMin.png"))
         # max button
-        elif object is self.maximize_button and event.type() is QtCore.QEvent.MouseButtonPress:
+        elif source is self.maximize_button and event.type() is QtCore.QEvent.MouseButtonPress:
             if self.maximized:
                 self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormalInverted.png"))
             else:
                 self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMaxInverted.png"))
-        elif object is self.maximize_button and event.type() is QtCore.QEvent.MouseButtonRelease:
+        elif source is self.maximize_button and event.type() is QtCore.QEvent.MouseButtonRelease:
             if self.maximized:
                 self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormal.png"))
             else:
                 self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMax.png"))
         # close button
-        elif object is self.close_button and event.type() is QtCore.QEvent.MouseButtonPress:
+        elif source is self.close_button and event.type() is QtCore.QEvent.MouseButtonPress:
             self.close_button.setIcon(icon_loader.load_icon("titlebar/closeInverted.png"))
-        elif object is self.close_button and event.type() is QtCore.QEvent.MouseButtonRelease:
+        elif source is self.close_button and event.type() is QtCore.QEvent.MouseButtonRelease:
             self.close_button.setIcon(icon_loader.load_icon("titlebar/close.png"))
         return False
 

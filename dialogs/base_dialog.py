@@ -1,12 +1,14 @@
 # dialog base class for easier styling
+
 from PySide2 import QtWidgets
 from PySide2.QtCore import Qt
 
-import title_bar
+import wme_title_bar
 
+# TODO: Ok on Enter if last widget in layout is selected
 
 class BaseDialog(QtWidgets.QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent = None, ok_only: bool = False):
         super().__init__(parent)
 
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -16,13 +18,12 @@ class BaseDialog(QtWidgets.QDialog):
         self.bar_layout.setSpacing(0)
         self.setLayout(self.bar_layout)
 
-        self.title_bar = title_bar.TitleBar(self, only_close=True)
+        self.title_bar = wme_title_bar.TitleBar(self, only_close=True)
         self.bar_layout.addWidget(self.title_bar)
 
         self.main_layout = QtWidgets.QVBoxLayout(self)
         self.main_layout.setContentsMargins(10, 10, 10, 10)
         self.main_layout.setSpacing(10)
-        self.bar_layout.addLayout(self.main_layout)
 
         self.setup_ui()
 
@@ -38,11 +39,12 @@ class BaseDialog(QtWidgets.QDialog):
         button_layout.addWidget(ok_button)
 
         # setup cancel button
-        cancel_button = QtWidgets.QPushButton()
-        cancel_button.setText("Cancel")
-        cancel_button.setFixedWidth(120)
-        cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(cancel_button)
+        if not ok_only:
+            cancel_button = QtWidgets.QPushButton()
+            cancel_button.setText("Cancel")
+            cancel_button.setFixedWidth(120)
+            cancel_button.clicked.connect(self.reject)
+            button_layout.addWidget(cancel_button)
 
     def setup_ui(self):
         raise NotImplementedError("Please Implement this method")

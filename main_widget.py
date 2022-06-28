@@ -1,7 +1,7 @@
 from PySide2 import QtWidgets, QtCore
 from PySide2.QtCore import Qt
 
-import main_menu_bar
+import wme_menu_bar
 import ndf_editor_widget
 from utils import icon_loader, settings_manager, path_validator
 
@@ -17,7 +17,7 @@ class MainWidget(QtWidgets.QWidget):
 
     def __init__(self, warno_path: str, title_bar):
         super().__init__()
-        self.menu_bar = main_menu_bar.MainMenuBar(main_widget_ref=self)
+        self.menu_bar = wme_menu_bar.MainMenuBar(main_widget_ref=self)
         self.loaded_mod_path = ""
         self.loaded_mod_name = ""
         self.warno_path = warno_path
@@ -96,9 +96,9 @@ class MainWidget(QtWidgets.QWidget):
         self.mod_loaded.emit(mod_path)
         set_status_text(self.loaded_mod_name + " was loaded successfully")
 
-    def active_tab_ask_to_save(self):
-        # TODO: ask the current tab if progress needs to be saved
-        # TODO: open dialog to save, discard, or cancel
-        # TODO: on save/discard perform action and return true
-        # TODO: on cancel return false
+    def ask_all_tabs_to_save(self):
+        # TODO: ask all tabs if progress needs to be saved
+        # TODO: open one dialog to save, discard, or cancel for each with unsaved progress
+        # TODO: if all return save/discard, perform actions and return true
+        # TODO: if one returns cancel, return false
         return True

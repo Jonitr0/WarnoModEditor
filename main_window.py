@@ -1,7 +1,7 @@
 from PySide2 import QtWidgets, QtCore
 
 import main_widget
-import title_bar
+import wme_title_bar
 from dialogs import warno_path_dialog
 from utils import settings_manager, path_validator
 
@@ -13,6 +13,7 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__()
         self.warno_path = ""
         self.dialog_finished_once = False
+        self.main_widget_ref = None
         QtCore.QTimer.singleShot(0, self.load_warno_path_from_settings)
 
     # open actual main window
@@ -26,9 +27,10 @@ class MainWindow(QtWidgets.QMainWindow):
         main_layout.setSpacing(0)
         w.setLayout(main_layout)
 
-        bar = title_bar.TitleBar(parent=self)
+        bar = wme_title_bar.TitleBar(parent=self)
         main_layout.addWidget(bar)
-        main_layout.addWidget(main_widget.MainWidget(self.warno_path, bar))
+        self.main_widget_ref = main_widget.MainWidget(self.warno_path, bar)
+        main_layout.addWidget(self.main_widget_ref)
 
         self.setCentralWidget(w)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
@@ -77,5 +79,8 @@ class MainWindow(QtWidgets.QMainWindow):
         elif result == QtWidgets.QDialog.Rejected:
             QtCore.QCoreApplication.quit()
 
+    def close(self):
+        if self.main_widget_ref.ask_all_tabs_to_save():
+            super().close()
 
 

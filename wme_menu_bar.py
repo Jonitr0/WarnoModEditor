@@ -1,3 +1,5 @@
+# menu bar for the title bar, includes menus and actions for mod management
+
 import os
 from pathlib import Path
 
@@ -55,7 +57,7 @@ class MainMenuBar(QtWidgets.QMenuBar):
         self.addAction("Options")
 
     def on_new_action(self):
-        if not self.main_widget_ref.active_tab_ask_to_save():
+        if not self.main_widget_ref.ask_all_tabs_to_save():
             return
 
         dialog = new_mod_dialog.NewModDialog(self.main_widget_ref.get_warno_path())
@@ -77,7 +79,7 @@ class MainMenuBar(QtWidgets.QMenuBar):
                 self.generate_mod()
 
     def on_load_action(self):
-        if not self.main_widget_ref.active_tab_ask_to_save():
+        if not self.main_widget_ref.ask_all_tabs_to_save():
             return
 
         while True:
@@ -103,7 +105,7 @@ class MainMenuBar(QtWidgets.QMenuBar):
         self.generate_mod()
 
     def on_edit_config_action(self):
-        if not self.main_widget_ref.active_tab_ask_to_save():
+        if not self.main_widget_ref.ask_all_tabs_to_save():
             return
 
         config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
