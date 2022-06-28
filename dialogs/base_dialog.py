@@ -5,10 +5,11 @@ from PySide2.QtCore import Qt
 
 import wme_title_bar
 
+
 # TODO: Ok on Enter if last widget in layout is selected
 
 class BaseDialog(QtWidgets.QDialog):
-    def __init__(self, parent = None, ok_only: bool = False):
+    def __init__(self, parent=None, ok_only: bool = False):
         super().__init__(parent)
 
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -24,6 +25,7 @@ class BaseDialog(QtWidgets.QDialog):
         self.main_layout = QtWidgets.QVBoxLayout(self)
         self.main_layout.setContentsMargins(10, 10, 10, 10)
         self.main_layout.setSpacing(10)
+        self.bar_layout.addLayout(self.main_layout)
 
         self.setup_ui()
 

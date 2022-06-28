@@ -110,6 +110,13 @@ class MainMenuBar(QtWidgets.QMenuBar):
 
         config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
                       self.main_widget_ref.get_loaded_mod_name() + "\\Config.ini"
+
+        if not QtCore.QFile.exists(config_path):
+            QtWidgets.QMessageBox().information(self, "Config.ini not found", "The configuration file for the mod "
+                                                + self.main_widget_ref.get_loaded_mod_name() + " could not be found."
+                                                " You have to generate the mod to create the configuration file.")
+            return
+
         config = QtCore.QSettings(config_path, QtCore.QSettings.IniFormat)
         config_values = {}
         for key in config.allKeys():
