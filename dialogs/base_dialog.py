@@ -1,16 +1,16 @@
 # dialog base class for easier styling
 
-from PySide2 import QtWidgets
+from PySide2 import QtWidgets, QtCore
 from PySide2.QtCore import Qt
 
 import wme_title_bar
 
 
-# TODO: Ok on Enter if last widget in layout is selected
-
 class BaseDialog(QtWidgets.QDialog):
     def __init__(self, parent=None, ok_only: bool = False):
         super().__init__(parent)
+
+        self.widgetList = []
 
         self.setWindowFlags(Qt.FramelessWindowHint)
 
@@ -28,6 +28,11 @@ class BaseDialog(QtWidgets.QDialog):
         self.bar_layout.addLayout(self.main_layout)
 
         self.setup_ui()
+
+        layout_contents = (self.main_layout.itemAt(i) for i in range(self.main_layout.count()))
+        self.createWidgetList(layout_contents)
+        if len(self.widgetList) > 0:
+            self.widgetList[0].setFocus()
 
         button_layout = QtWidgets.QHBoxLayout(self)
         self.main_layout.addLayout(button_layout)
@@ -54,3 +59,27 @@ class BaseDialog(QtWidgets.QDialog):
     def setWindowTitle(self, arg__1: str) -> None:
         super().setWindowTitle(arg__1)
         self.title_bar.set_title(arg__1)
+
+    # put input widgets in a list and make enter press iterate through them (like tab) or accept dialog if it's the last
+    def createWidgetList(self, layout_contents):
+        for layout_item in layout_contents:
+            if type(layout_item) == QtWidgets.QWidgetItem:
+                if type(layout_item.widget()) == QtWidgets.QLineEdit \
+                        or type(layout_item.widget()) == QtWidgets.QSpinBox:
+                    layout_item.widget().installEventFilter(self)
+                    self.widgetList.append(layout_item.widget())
+            elif layout_item.inherits("QLayout"):
+                child_layout_contents = (layout_item.itemAt(i) for i in range(layout_item.count()))
+                self.createWidgetList(child_layout_contents)
+
+    def eventFilter(self, source, event) -> bool:
+        if event.type() == QtCore.QEvent.KeyPress \
+                and event.key() == Qt.Key_Return:
+            index = self.widgetList.index(source)
+            if index == len(self.widgetList) - 1:
+                self.accept()
+                return True
+            else:
+                self.widgetList[index + 1].setFocus()
+
+        return False
