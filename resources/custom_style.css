@@ -4,7 +4,7 @@ QDialog {{
   border-color: {QTMATERIAL_SECONDARYCOLOR};
 }}
 
-TitleBar {{
+WMETitleBar {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
 }}
 

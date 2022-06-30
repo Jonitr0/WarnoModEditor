@@ -20,3 +20,7 @@ class TabPageBase(QtWidgets.QWidget):
     def on_close(self):
         # TODO: ask if changes should be saved
         pass
+
+    def to_json(self) -> str:
+        # TODO: return status as JSON string
+        pass

@@ -27,7 +27,7 @@ def run_script(cwd: str, cmd: str, args: list):
         return -1
 
 
-class MainMenuBar(QtWidgets.QMenuBar):
+class WMEMainMenuBar(QtWidgets.QMenuBar):
     request_load_mod = QtCore.Signal(str)
 
     def __init__(self, main_widget_ref, parent=None):
@@ -55,6 +55,9 @@ class MainMenuBar(QtWidgets.QMenuBar):
         self.add_action_to_menu("Remove Mod Backup", edit_menu, True, self.on_delete_backup_action)
 
         self.addAction("Options")
+        # TODO: add options dialog/menu
+        # TODO: add set warno path option
+        # TODO: add style option (dark/light)
 
     def on_new_action(self):
         if not self.main_widget_ref.ask_all_tabs_to_save():

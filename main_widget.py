@@ -2,8 +2,8 @@ from PySide2 import QtWidgets, QtCore
 from PySide2.QtCore import Qt
 
 import wme_menu_bar
-import ndf_editor_widget
-from utils import icon_loader, settings_manager, path_validator
+import wme_tab_widget
+from utils import settings_manager, path_validator
 
 
 def set_status_text(text: str):
@@ -17,7 +17,7 @@ class MainWidget(QtWidgets.QWidget):
 
     def __init__(self, warno_path: str, title_bar):
         super().__init__()
-        self.menu_bar = wme_menu_bar.MainMenuBar(main_widget_ref=self)
+        self.menu_bar = wme_menu_bar.WMEMainMenuBar(main_widget_ref=self)
         self.loaded_mod_path = ""
         self.loaded_mod_name = ""
         self.warno_path = warno_path
@@ -54,24 +54,8 @@ class MainWidget(QtWidgets.QWidget):
 
         self.menu_bar.request_load_mod.connect(self.load_mod)
 
-        tab_widget = QtWidgets.QTabWidget()
+        tab_widget = wme_tab_widget.WMETabWidget()
         main_layout.addWidget(tab_widget)
-
-        ndf_editor = ndf_editor_widget.NdfEditorWidget()
-        tab_widget.addTab(ndf_editor, ".ndf Editor")
-        cheat_sheet = QtWidgets.QWidget()
-        tab_widget.addTab(cheat_sheet, "Modding Cheat Sheet")
-
-        # TODO: add menu to select new tabs
-        # TODO: style button
-        new_tab_button = QtWidgets.QPushButton("Add Tab")
-        new_tab_button.setIcon(icon_loader.load_icon("plusIcon.png"))
-        tab_widget.setCornerWidget(new_tab_button)
-
-        tab_widget.setTabsClosable(True)
-        tab_widget.setMovable(True)
-        # TODO: run save check
-        tab_widget.tabCloseRequested.connect(tab_widget.removeTab)
 
         main_layout.addWidget(self.status_label)
         main_layout.setAlignment(self.status_label, Qt.AlignRight)

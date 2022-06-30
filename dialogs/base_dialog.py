@@ -19,7 +19,7 @@ class BaseDialog(QtWidgets.QDialog):
         self.bar_layout.setSpacing(0)
         self.setLayout(self.bar_layout)
 
-        self.title_bar = wme_title_bar.TitleBar(self, only_close=True)
+        self.title_bar = wme_title_bar.WMETitleBar(self, only_close=True)
         self.bar_layout.addWidget(self.title_bar)
 
         self.main_layout = QtWidgets.QVBoxLayout(self)

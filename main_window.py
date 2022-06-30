@@ -27,7 +27,7 @@ class MainWindow(QtWidgets.QMainWindow):
         main_layout.setSpacing(0)
         w.setLayout(main_layout)
 
-        bar = wme_title_bar.TitleBar(parent=self)
+        bar = wme_title_bar.WMETitleBar(parent=self)
         main_layout.addWidget(bar)
         self.main_widget_ref = main_widget.MainWidget(self.warno_path, bar)
         main_layout.addWidget(self.main_widget_ref)

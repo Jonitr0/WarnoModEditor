@@ -7,7 +7,7 @@ from PySide2 import QtWidgets, QtCore, QtGui
 from utils import icon_loader
 
 
-class TitleBar(QtWidgets.QWidget):
+class WMETitleBar(QtWidgets.QWidget):
     def __init__(self, parent=None, window_title: str = "", only_close: bool = False):
         super().__init__(parent)
         self.close_button = QtWidgets.QPushButton()
@@ -72,7 +72,6 @@ class TitleBar(QtWidgets.QWidget):
         button_layout.addWidget(self.close_button)
 
         self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
-        # TODO: button styles and icons, make sure png is only loaded once
 
     def eventFilter(self, source, event):
         # only capture left click
