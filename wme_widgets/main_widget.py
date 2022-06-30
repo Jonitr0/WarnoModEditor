@@ -1,3 +1,5 @@
+import logging
+
 from PySide2 import QtWidgets, QtCore
 from PySide2.QtCore import Qt
 
@@ -73,7 +75,7 @@ class MainWidget(QtWidgets.QWidget):
 
         self.loaded_mod_path = mod_path
         self.loaded_mod_name = mod_path[mod_path.rindex('\\') + 1:]
-        print("loaded mod " + self.loaded_mod_name + " at " + mod_path)
+        logging.info("loaded mod " + self.loaded_mod_name + " at " + mod_path)
         self.title_label.setText(self.loaded_mod_name)
         settings_manager.write_settings_value(settings_manager.LAST_OPEN_KEY, mod_path)
         self.mod_loaded.emit(mod_path)

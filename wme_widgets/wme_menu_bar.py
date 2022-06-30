@@ -1,6 +1,7 @@
 # menu bar for the title bar, includes menus and actions for mod management
 
 import os
+import logging
 from pathlib import Path
 
 from PySide2 import QtWidgets, QtCore
@@ -15,7 +16,7 @@ def run_script(cwd: str, cmd: str, args: list):
         process.setProgram("cmd.exe")
         process.setArguments(["/C", cmd, args])
         process.setWorkingDirectory(cwd)
-        print("at " + cwd + " running: cmd.exe /C " + cmd + " " + str(args))
+        logging.info("at " + cwd + " running: cmd.exe /C " + cmd + " " + str(args))
 
         process.start()
         process.waitForFinished()
@@ -23,7 +24,7 @@ def run_script(cwd: str, cmd: str, args: list):
         process.close()
         return ret
     except Exception as ex:
-        print(ex)
+        logging.error(ex)
         return -1
 
 
@@ -72,7 +73,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             mods_path = mods_path.replace("/", "\\")
 
             if run_script(mods_path, "CreateNewMod.bat", mod_name) != 0:
-                print("Error while running CreateNewMod.bat")
+                logging.error("Error while running CreateNewMod.bat")
                 return
 
             # load mod
@@ -102,7 +103,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def generate_mod(self):
         # for whatever reason, the successful run returns 18?
         ret_code = run_script(self.main_widget_ref.get_loaded_mod_path(), "GenerateMod.bat", [])
-        print("GenerateMod.bat executed with return code " + str(ret_code))
+        logging.info("GenerateMod.bat executed with return code " + str(ret_code))
 
     def on_generate_action(self):
         self.generate_mod()
@@ -166,7 +167,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def on_update_action(self):
         self.remove_pause_line_from_script("UpdateMod.bat")
         ret = run_script(self.main_widget_ref.get_loaded_mod_path(), "UpdateMod.bat", [])
-        print("UpdateMod.bat executed with return code " + str(ret))
+        logging.info("UpdateMod.bat executed with return code " + str(ret))
 
     def remove_pause_line_from_script(self, script_name: str):
         file = self.main_widget_ref.get_loaded_mod_path() + "\\" + script_name
@@ -179,7 +180,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
     def on_upload_action(self):
         ret = run_script(self.main_widget_ref.get_loaded_mod_path(), "UploadMod.bat", [])
-        print("UploadMod.bat executed with return code " + str(ret))
+        logging.info("UploadMod.bat executed with return code " + str(ret))
 
     def on_new_backup_action(self):
         dialog = new_backup_dialog.NewBackupDialog()
@@ -193,7 +194,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
         self.remove_pause_line_from_script("CreateModBackup.bat")
         ret = run_script(self.main_widget_ref.get_loaded_mod_path(), "CreateModBackup.bat", args)
-        print("CreateModBackup.bat executed with return code " + str(ret))
+        logging.info("CreateModBackup.bat executed with return code " + str(ret))
 
     def find_backups(self):
         all_backups = []
@@ -208,7 +209,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def on_retrieve_backup_action(self):
         all_backups = self.find_backups()
         if len(all_backups) == 0:
-            print("No backups found")
+            logging.info("No backups found")
             return
 
         dialog = selection_dialog.SelectionDialog("Please select a backup to retrieve.",
@@ -222,13 +223,13 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
         self.remove_pause_line_from_script("RetrieveModBackup.bat")
         ret = run_script(self.main_widget_ref.get_loaded_mod_path(), "RetrieveModBackup.bat", selection)
-        print("RetrieveModBackup.bat executed with return code " + str(ret))
+        logging.info("RetrieveModBackup.bat executed with return code " + str(ret))
 
 
     def on_delete_backup_action(self):
         all_backups = self.find_backups()
         if len(all_backups) == 0:
-            print("No backups found")
+            logging.info("No backups found")
             return
 
         dialog = selection_dialog.SelectionDialog("Please select a backup to delete.",
@@ -249,7 +250,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         try:
             os.remove(self.main_widget_ref.get_loaded_mod_path() + "\\Backup\\" + selection)
         except Exception as ex:
-            print(ex)
+            logging.error(ex)
 
     def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
                            slot=None) -> QtWidgets.QAction:
