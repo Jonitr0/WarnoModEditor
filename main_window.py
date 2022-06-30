@@ -1,7 +1,6 @@
 from PySide2 import QtWidgets, QtCore
 
-import main_widget
-import wme_title_bar
+from wme_widgets import wme_title_bar, main_widget
 from dialogs import warno_path_dialog
 from utils import settings_manager, path_validator
 

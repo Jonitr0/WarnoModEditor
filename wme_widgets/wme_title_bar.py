@@ -1,6 +1,6 @@
 # custom window title bar, includes own minimize/maximize/close buttons
 # has a title that can be set, can be used to drag the window around etc.
-# can take widgets (e.g. the wme_menu_bar)
+# can take wme_widgets (e.g. the wme_menu_bar)
 
 from PySide2 import QtWidgets, QtCore, QtGui
 
@@ -32,7 +32,7 @@ class WMETitleBar(QtWidgets.QWidget):
 
         icon = QtWidgets.QLabel()
         icon.setFixedSize(button_size, button_size)
-        icon.setPixmap(QtGui.QPixmap("resources/img/appIcon32.png"))
+        icon.setPixmap(icon_loader.load_icon("appIcon32.png").pixmap(32))
         self.main_layout.addWidget(icon)
 
         self.title_label.setText(window_title)

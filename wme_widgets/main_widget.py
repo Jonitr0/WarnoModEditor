@@ -1,8 +1,7 @@
 from PySide2 import QtWidgets, QtCore
 from PySide2.QtCore import Qt
 
-import wme_menu_bar
-import wme_tab_widget
+from wme_widgets import wme_menu_bar, wme_tab_widget
 from utils import settings_manager, path_validator
 
 

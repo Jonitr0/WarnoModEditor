@@ -3,7 +3,7 @@
 from PySide2 import QtWidgets, QtCore
 from PySide2.QtCore import Qt
 
-import wme_title_bar
+from wme_widgets import wme_title_bar
 
 
 class BaseDialog(QtWidgets.QDialog):
@@ -60,7 +60,7 @@ class BaseDialog(QtWidgets.QDialog):
         super().setWindowTitle(arg__1)
         self.title_bar.set_title(arg__1)
 
-    # put input widgets in a list and make enter press iterate through them (like tab) or accept dialog if it's the last
+    # put input wme_widgets in a list and make enter press iterate through them (like tab) or accept dialog if it's the last
     def createWidgetList(self, layout_contents):
         for layout_item in layout_contents:
             if type(layout_item) == QtWidgets.QWidgetItem:
