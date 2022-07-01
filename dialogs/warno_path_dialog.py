@@ -28,7 +28,6 @@ class WarnoPathDialog(BaseDialog):
         # setup "browse" button
         browse_button = QtWidgets.QPushButton()
         browse_button.setText("Browse..")
-        # TODO: remove lambda
         browse_button.clicked.connect(self.open_warno_path_dialog)
         text_layout.addWidget(browse_button)
 

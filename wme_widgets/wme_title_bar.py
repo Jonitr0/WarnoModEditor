@@ -21,6 +21,9 @@ class WMETitleBar(QtWidgets.QWidget):
         self.lastPos = QtCore.QPoint(0, 0)
         self.lastSize = QtCore.QSize(0, 0)
         self.main_layout = QtWidgets.QHBoxLayout()
+        self.min_hold = False
+        self.max_hold = False
+        self.close_hold = False
 
         self.setup_ui(window_title, only_close)
 
@@ -79,7 +82,36 @@ class WMETitleBar(QtWidgets.QWidget):
                 and event.button() is not QtCore.Qt.MouseButton.LeftButton:
             return False
 
-        # TODO: implement leaving, possibly be mouse move
+        # behaviour when mouse button is held down
+        if event.type() is QtCore.QEvent.MouseMove:
+            # Leave while pressed
+            if event.pos().x() > 32 or event.pos().x() < 0 or event.pos().y() > 32 or event.pos().y() < 0:
+                if source is self.minimize_button and not self.min_hold:
+                    self.minimize_button.setIcon(icon_loader.load_icon("titlebar/showMin.png"))
+                    self.min_hold = True
+                if source is self.maximize_button and not self.max_hold:
+                    if self.maximized:
+                        self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormal.png"))
+                    else:
+                        self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMax.png"))
+                    self.max_hold = True
+                if source is self.close_button and not self.close_hold:
+                    self.close_button.setIcon(icon_loader.load_icon("titlebar/close.png"))
+                    self.close_hold = True
+            # Enter while pressed
+            else:
+                if source is self.minimize_button and self.min_hold:
+                    self.minimize_button.setIcon(icon_loader.load_icon("titlebar/showMinInverted.png"))
+                    self.min_hold = False
+                if source is self.maximize_button and self.max_hold:
+                    if self.maximized:
+                        self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormalInverted.png"))
+                    else:
+                        self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMaxInverted.png"))
+                    self.max_hold = False
+                if source is self.close_button and self.close_hold:
+                    self.close_button.setIcon(icon_loader.load_icon("titlebar/closeInverted.png"))
+                    self.close_hold = False
 
         # min button
         if source is self.minimize_button and event.type() is QtCore.QEvent.MouseButtonPress:
