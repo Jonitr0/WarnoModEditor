@@ -29,11 +29,11 @@ class WarnoPathDialog(BaseDialog):
         browse_button = QtWidgets.QPushButton()
         browse_button.setText("Browse..")
         # TODO: remove lambda
-        browse_button.clicked.connect(lambda: self.open_warno_path_dialog(self.line_edit.text()))
+        browse_button.clicked.connect(self.open_warno_path_dialog)
         text_layout.addWidget(browse_button)
 
-    def open_warno_path_dialog(self, warno_path):
-        warno_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter WARNO path", warno_path)
+    def open_warno_path_dialog(self):
+        warno_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter WARNO path", self.line_edit.text())
 
         self.line_edit.setText(warno_path)
 

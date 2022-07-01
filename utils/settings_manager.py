@@ -2,6 +2,7 @@ from PySide2 import QtCore
 
 LAST_OPEN_KEY = "wme_last_open"
 WARNO_PATH_KEY = "wme_warno_path"
+THEME_KEY = "wme_theme"
 
 settings = QtCore.QSettings("jonitro", "WarnoModEditor")
 

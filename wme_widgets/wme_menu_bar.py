@@ -6,7 +6,8 @@ from pathlib import Path
 
 from PySide2 import QtWidgets, QtCore
 
-from dialogs import new_mod_dialog, edit_config_dialog, new_backup_dialog, selection_dialog, confirmation_dialog
+from dialogs import new_mod_dialog, edit_config_dialog, new_backup_dialog, \
+    selection_dialog, confirmation_dialog, options_dialog
 from utils import path_validator
 
 
@@ -41,6 +42,10 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.add_action_to_menu("New Mod", file_menu, False, self.on_new_action)
         self.add_action_to_menu("Open Mod", file_menu, False, self.on_load_action)
 
+        file_menu.addSeparator()
+
+        self.add_action_to_menu("Options", file_menu, False, self.on_options_action)
+
         edit_menu = self.addMenu("Edit")
 
         self.add_action_to_menu("Generate Mod", edit_menu, True, self.on_generate_action)
@@ -54,11 +59,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.add_action_to_menu("Retrieve Mod Backup", edit_menu, True,
                                 self.on_retrieve_backup_action)
         self.add_action_to_menu("Remove Mod Backup", edit_menu, True, self.on_delete_backup_action)
-
-        self.addAction("Options")
-        # TODO: add options dialog/menu
-        # TODO: add set warno path option
-        # TODO: add style option (dark/light)
 
     def on_new_action(self):
         if not self.main_widget_ref.ask_all_tabs_to_save():
@@ -99,6 +99,9 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
             QtWidgets.QMessageBox().information(self, "Path invalid", "The given path does not to point to a valid "
                                                                       "WARNO mod directory. Please enter a valid path")
+
+    def on_options_action(self):
+        options_dialog.OptionsDialog().exec_()
 
     def generate_mod(self):
         # for whatever reason, the successful run returns 18?

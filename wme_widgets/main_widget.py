@@ -38,6 +38,9 @@ class MainWidget(QtWidgets.QWidget):
     def get_warno_path(self):
         return self.warno_path
 
+    def set_warno_path(self, warno_path):
+        self.warno_path = warno_path
+
     def get_loaded_mod_path(self):
         return self.loaded_mod_path
 
