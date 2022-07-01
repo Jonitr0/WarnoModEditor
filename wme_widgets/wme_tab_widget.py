@@ -40,9 +40,12 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def add_new_tab_action(self, name: str):
         action = self.tab_menu.addAction(name)
         if name == ".ndf Editor":
-            action.triggered.connect(lambda: self.addTab(ndf_editor_widget.NdfEditorWidget(), name))
+            action.triggered.connect(self.add_ndf_editor)
         elif name == "Cheat Sheet":
             action.triggered.connect(lambda: self.addTab(QtWidgets.QWidget(), name))
         return action
+
+    def add_ndf_editor(self):
+        self.addTab(ndf_editor_widget.NdfEditorWidget(), ".ndf Editor")
 
 

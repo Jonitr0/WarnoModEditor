@@ -2,8 +2,7 @@ from PySide2 import QtWidgets
 
 
 class TabPageBase(QtWidgets.QWidget):
-    def __init__(self, tab: QtWidgets.QWidget):
-        self.tab = tab
+    def __init__(self):
         super().__init__()
 
     def has_unsaved_changes(self) -> bool:

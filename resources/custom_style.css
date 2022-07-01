@@ -14,7 +14,7 @@ QMenuBar::item {{
 }}
 
 QLabel#title {{
-  color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
+  color: {QTMATERIAL_PRIMARYCOLOR};
   font: italic;
 }}
 
@@ -35,4 +35,31 @@ QPushButton.danger {{
 
 QTabBar::tab {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
+}}
+
+QToolButton {{
+  border: 0px;
+  height: 20px;
+}}
+
+QToolButton:hover {{
+  border: 0px;
+  height: 20px;
+}}
+
+QToolButton:pressed {{
+  border: 0px;
+  height: 20px;
+}}
+
+QToolButton:checked {{
+  border: 0px;
+  height: 20px;
+}}
+
+QToolBar::separator:horizontal {{
+  border-right: 0px;
+  border-left: 0px;
+  width: 1px;
+  background-color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
 }}
