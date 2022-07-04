@@ -4,8 +4,6 @@ from wme_widgets import wme_title_bar, main_widget
 from utils import warno_path_loader, settings_manager
 
 
-# TODO: move warno path verification to own class
-
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()

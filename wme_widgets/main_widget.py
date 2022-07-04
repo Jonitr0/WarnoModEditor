@@ -61,8 +61,14 @@ class MainWidget(QtWidgets.QWidget):
         tab_widget = wme_tab_widget.WMETabWidget()
         main_layout.addWidget(tab_widget)
 
-        main_layout.addWidget(self.status_label)
-        main_layout.setAlignment(self.status_label, Qt.AlignRight)
+        label_layout = QtWidgets.QHBoxLayout()
+        main_layout.addLayout(label_layout)
+
+        version_label = QtWidgets.QLabel("WME v0.1.0")
+        label_layout.addWidget(version_label)
+        label_layout.setAlignment(version_label, Qt.AlignLeft)
+        label_layout.addWidget(self.status_label)
+        label_layout.setAlignment(self.status_label, Qt.AlignRight)
 
         self.status_set_text.connect(self.on_status_set_text)
 

@@ -56,9 +56,9 @@ class BaseDialog(QtWidgets.QDialog):
     def setup_ui(self):
         raise NotImplementedError("Please Implement this method")
 
-    def setWindowTitle(self, arg__1: str) -> None:
-        super().setWindowTitle(arg__1)
-        self.title_bar.set_title(arg__1)
+    def setWindowTitle(self, title: str) -> None:
+        super().setWindowTitle(title)
+        self.title_bar.set_title(title)
 
     # put input wme_widgets in a list and make enter press iterate through them (like tab) or accept dialog if it's the last
     def createWidgetList(self, layout_contents):
