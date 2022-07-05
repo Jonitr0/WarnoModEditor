@@ -3,7 +3,8 @@ import logging
 from PySide2 import QtWidgets, QtCore
 from PySide2.QtCore import Qt
 
-from wme_widgets import wme_menu_bar, wme_tab_widget
+from wme_widgets import wme_menu_bar
+from wme_widgets.tab_widget import wme_tab_widget
 from utils import settings_manager, path_validator
 
 
@@ -18,6 +19,7 @@ class MainWidget(QtWidgets.QWidget):
 
     def __init__(self, warno_path: str, title_bar):
         super().__init__()
+        self.tab_widget = wme_tab_widget.WMETabWidget()
         self.menu_bar = wme_menu_bar.WMEMainMenuBar(main_widget_ref=self)
         self.loaded_mod_path = ""
         self.loaded_mod_name = ""
@@ -58,8 +60,7 @@ class MainWidget(QtWidgets.QWidget):
 
         self.menu_bar.request_load_mod.connect(self.load_mod)
 
-        tab_widget = wme_tab_widget.WMETabWidget()
-        main_layout.addWidget(tab_widget)
+        main_layout.addWidget(self.tab_widget)
 
         label_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(label_layout)
@@ -91,6 +92,8 @@ class MainWidget(QtWidgets.QWidget):
         set_status_text(self.loaded_mod_name + " was loaded successfully")
 
     def ask_all_tabs_to_save(self):
+        if not self.tab_widget.ask_all_tabs_to_save():
+            return False
         # TODO: ask all tabs if progress needs to be saved
         # TODO: open one dialog to save, discard, or cancel for each with unsaved progress
         # TODO: if all return save/discard, perform actions and return true
