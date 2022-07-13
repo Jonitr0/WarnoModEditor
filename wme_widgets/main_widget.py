@@ -65,6 +65,7 @@ class MainWidget(QtWidgets.QWidget):
         label_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(label_layout)
 
+        # TODO: set version in settings/as variable somewhere
         version_label = QtWidgets.QLabel("WME v0.1.0")
         label_layout.addWidget(version_label)
         label_layout.setAlignment(version_label, Qt.AlignLeft)
@@ -92,7 +93,7 @@ class MainWidget(QtWidgets.QWidget):
         set_status_text(self.loaded_mod_name + " was loaded successfully")
 
     def ask_all_tabs_to_save(self):
-        if not self.tab_widget.ask_all_tabs_to_save():
+        if not self.tab_widget.ask_all_tabs_to_save(all_windows=True):
             return False
         # TODO: ask all tabs if progress needs to be saved
         # TODO: open one dialog to save, discard, or cancel for each with unsaved progress

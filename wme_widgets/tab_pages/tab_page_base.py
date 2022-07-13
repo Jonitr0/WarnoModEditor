@@ -5,10 +5,6 @@ class TabPageBase(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
 
-    # copy all relevant data from other page
-    def copy_data(self, other):
-        pass
-
     def has_unsaved_changes(self) -> bool:
         pass
 

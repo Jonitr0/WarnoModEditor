@@ -4,13 +4,11 @@ from wme_widgets.tab_pages import tab_page_base
 
 
 class NdfEditorWidget(tab_page_base.TabPageBase):
-    def __init__(self, other=None):
+    def __init__(self):
         super().__init__()
 
         self.text_edit = QtWidgets.QTextEdit()
         self.setup_ui()
-
-        self.copy_data(other)
 
     def setup_ui(self):
         main_layout = QtWidgets.QVBoxLayout()
@@ -27,9 +25,3 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         tool_bar.addAction("Redo")
 
         main_layout.addWidget(self.text_edit)
-
-    def copy_data(self, other):
-        if other is None:
-            return
-
-        self.text_edit.setPlainText(other.text_edit.toPlainText())

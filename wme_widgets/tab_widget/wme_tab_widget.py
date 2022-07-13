@@ -2,7 +2,7 @@
 
 from PySide2 import QtWidgets
 
-from wme_widgets.tab_widget import wme_tab_bar
+from wme_widgets.tab_widget import wme_tab_bar, wme_detached_tab
 from wme_widgets.tab_pages import ndf_editor_widget
 
 
@@ -50,16 +50,14 @@ class WMETabWidget(QtWidgets.QTabWidget):
         # TODO: ask to save progress
         self.removeTab(index)
 
-    def ask_all_tabs_to_save(self):
-        # can be called even when close is later canceled, will be overwritten anyway
-        self.save_state()
-        for detached in self.tabBar().get_detached_list():
-            # TODO: ask each detached to save, cancel on cancel pressed
+    def ask_all_tabs_to_save(self, all_windows: bool = False):
+        # TODO: iterate through tabs
+        if not all_windows:
+            return True
+
+        while len(wme_detached_tab.detached_list) > 0:
+            # TODO: ask each detached to save, break and return False on cancel pressed
+            detached = wme_detached_tab.detached_list[0]
             detached.close()
         # TODO: ask each tab to save
         return True
-
-
-
-
-
