@@ -1,9 +1,8 @@
-from PySide2 import QtWidgets, QtCore
+from PySide2 import QtWidgets
 from PySide2.QtCore import Qt
 
 from wme_widgets import wme_title_bar
 from wme_widgets.tab_widget import wme_tab_widget
-from wme_widgets.tab_pages import tab_page_base
 
 detached_list = []
 

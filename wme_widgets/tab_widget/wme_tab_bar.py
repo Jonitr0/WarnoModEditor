@@ -1,7 +1,6 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 from PySide2.QtCore import Qt
 
-from wme_widgets.tab_pages import ndf_editor_widget
 from wme_widgets.tab_widget import wme_detached_tab
 
 drop_bar = None
@@ -13,10 +12,10 @@ class WMETabBar(QtWidgets.QTabBar):
     def __init__(self, parent=None):
         self.dragStartPos = QtCore.QPoint(0, 0)
         self.dragging_tab_index = -1
+        self.hover_tab_index = -1
 
         super().__init__(parent)
 
-        self.setMinimumWidth(100)
         self.setAcceptDrops(True)
 
     def mousePressEvent(self, event):
@@ -30,17 +29,17 @@ class WMETabBar(QtWidgets.QTabBar):
         detached = wme_detached_tab.WMEDetachedTab()
 
         widget = self.parent().widget(self.dragging_tab_index)
+        title = self.parent().tabText(self.dragging_tab_index)
         self.parent().removeTab(self.dragging_tab_index)
-        detached.add_tab(widget, "TODO title")
+        detached.add_tab(widget, title)
         point = QtGui.QCursor.pos()
+        
         detached.move(point)
-        # TODO: proper size
         detached.resize(640, 480)
         detached.show()
 
         wme_detached_tab.detached_list.append(detached)
 
-        self.parent().removeTab(self.dragging_tab_index)
         self.dragging_tab_index = -1
 
     def mouseMoveEvent(self, event):
@@ -74,35 +73,54 @@ class WMETabBar(QtWidgets.QTabBar):
             mime_data = QtCore.QMimeData()
             mime_data.setProperty('tab_bar', self)
             mime_data.setProperty('index', self.dragging_tab_index)
+            mime_data.setProperty('title', self.tabText(self.dragging_tab_index))
             drag.setMimeData(mime_data)
 
             # Initiate the drag
+            global drop_bar
+            drop_bar = self
             drag.exec_(Qt.MoveAction | Qt.CopyAction)
 
-            global drop_bar
             # outside tab bar
             if drop_bar is None:
-                self.create_detached_window()
                 event.accept()
+                self.create_detached_window()
             # inside drop bar
             else:
-                self.handle_inside_drop(drag.mimeData(), drop_bar)
                 event.accept()
+                self.handle_inside_drop(drag.mimeData(), drop_bar)
 
         else:
             super().mouseMoveEvent(event)
 
+    # handles a drop inside a TabBar or TabWidget
     def handle_inside_drop(self, mime_data: QtCore.QMimeData, trigger):
-        point = self.mapFromGlobal(QtGui.QCursor.pos())
-        new_index = self.tabAt(point)
+        point = trigger.mapFromGlobal(QtGui.QCursor.pos())
+        new_index = trigger.tabAt(point)
         origin_index = mime_data.property('index')
         origin_bar = mime_data.property('tab_bar')
+        title = mime_data.property('title')
 
+        # the drop comes from the own TabBar
         if origin_bar == trigger:
-            print("drop from self")
-            print(new_index)
+            if origin_index == new_index or new_index == -1:
+                return
+            widget = origin_bar.parent().widget(origin_index)
+            origin_bar.parent().removeTab(origin_index)
+            origin_bar.parent().insertTab(new_index, widget, title)
+            origin_bar.parent().setCurrentIndex(new_index)
+        # the drop comes from a different TabBar
         else:
-            print("drop from other")
+            widget = origin_bar.parent().widget(origin_index)
+            origin_bar.parent().removeTab(origin_index)
+            if new_index == -1:
+                trigger.parent().addTab(widget, title)
+                trigger.parent().setCurrentIndex(trigger.parent().count() - 1)
+            else:
+                trigger.parent().insertTab(new_index, widget, title)
+                trigger.parent().setCurrentIndex(new_index)
+
+        self.dragging_tab_index = -1
 
     def dragEnterEvent(self, event):
         mime_data = event.mimeData()
@@ -116,15 +134,18 @@ class WMETabBar(QtWidgets.QTabBar):
         event.accept()
         global drop_bar
         drop_bar = None
+        self.hover_tab_index = -1
         super().dragLeaveEvent(event)
+
+    def dragMoveEvent(self, event):
+        event.accept()
+        # TODO: restyle tab based on position
+        point = self.mapFromGlobal(QtGui.QCursor.pos())
+        current_index = self.tabAt(point)
+        if self.hover_tab_index != current_index:
+            self.hover_tab_index = current_index
+        super().dragMoveEvent(event)
 
     def tabRemoved(self, index: int):
         self.tab_removed.emit()
-        if self.count() < 1:
-            self.setMinimumWidth(100)
         super().tabRemoved(index)
-
-    def tabInserted(self, index: int):
-        if self.count() > 0:
-            self.setMinimumWidth(0)
-        super().tabInserted(index)

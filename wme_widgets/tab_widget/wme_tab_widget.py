@@ -28,6 +28,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.setTabsClosable(True)
         # TODO: run save check
         self.tabCloseRequested.connect(self.on_tab_close_pressed)
+        self.setAcceptDrops(True)
 
     def to_json(self) -> str:
         # TODO: call to_json on all pages
@@ -61,3 +62,15 @@ class WMETabWidget(QtWidgets.QTabWidget):
             detached.close()
         # TODO: ask each tab to save
         return True
+
+    def dragEnterEvent(self, event):
+        mime_data = event.mimeData()
+        event.accept()
+        if mime_data.property('tab_bar') is not None and mime_data.property('index') is not None:
+            wme_tab_bar.drop_bar = self.tabBar()
+        super().dragEnterEvent(event)
+
+    def dragLeaveEvent(self, event):
+        event.accept()
+        wme_tab_bar.drop_bar = None
+        super().dragLeaveEvent(event)
