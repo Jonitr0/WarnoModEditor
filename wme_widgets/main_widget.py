@@ -26,7 +26,7 @@ class MainWidget(QtWidgets.QWidget):
         self.warno_path = warno_path
         self.status_label = QtWidgets.QLabel()
         self.status_timer = QtCore.QTimer()
-        self.status_timer.timeout.connect(lambda: self.status_label.setText(""))
+        self.status_timer.timeout.connect(self.on_status_timeout)
         self.title_bar = title_bar
         self.title_label = QtWidgets.QLabel("No mod loaded")
         self.setup_ui()
@@ -78,6 +78,10 @@ class MainWidget(QtWidgets.QWidget):
         self.status_label.setText(text)
         self.status_timer.setInterval(5000)
         self.status_timer.start()
+
+    def on_status_timeout(self):
+        self.status_label.setText("")
+        self.status_timer.stop()
 
     def load_mod(self, mod_path: str):
         mod_path = mod_path.replace("/", "\\")

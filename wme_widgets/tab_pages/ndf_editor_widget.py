@@ -1,13 +1,14 @@
 from PySide2 import QtWidgets
 
 from wme_widgets.tab_pages import tab_page_base
+from wme_widgets import wme_code_editor
 
 
 class NdfEditorWidget(tab_page_base.TabPageBase):
     def __init__(self):
         super().__init__()
 
-        self.text_edit = QtWidgets.QTextEdit()
+        self.text_edit = wme_code_editor.WMECodeEditor()
         self.setup_ui()
 
     def setup_ui(self):

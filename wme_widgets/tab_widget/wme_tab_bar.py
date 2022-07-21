@@ -17,6 +17,7 @@ class WMETabBar(QtWidgets.QTabBar):
         super().__init__(parent)
 
         self.setAcceptDrops(True)
+        self.setUsesScrollButtons(False)
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
