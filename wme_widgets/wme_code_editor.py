@@ -1,5 +1,6 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 from PySide2.QtCore import Qt
+from utils import color_manager
 
 
 class LineNumberArea(QtWidgets.QWidget):
@@ -19,6 +20,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
     def __init__(self):
         super().__init__()
         self.lineNumberArea = LineNumberArea(self)
+        self.setObjectName("code_editor")
 
         self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
         self.updateRequest.connect(self.updateLineNumberArea)

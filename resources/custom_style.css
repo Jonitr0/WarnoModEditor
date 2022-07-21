@@ -23,6 +23,7 @@ QPushButton.titlebar {{
   border-width: 0px;
   background-color: transparent;
 }}
+
 QPushButton.titlebar:pressed {{
   background-color: {QTMATERIAL_PRIMARYCOLOR};
 }}
@@ -62,4 +63,10 @@ QToolBar::separator:horizontal {{
   border-left: 0px;
   width: 1px;
   background-color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
+}}
+
+QPlainTextEdit#code_editor {{
+  border-radius: 0px;
+  border-width: 0px;
+  background-color: {QTMATERIAL_SECONDARYCOLOR};
 }}

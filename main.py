@@ -22,10 +22,7 @@ if __name__ == '__main__':
 
     # load theme
     theme_name = settings_manager.get_settings_value(settings_manager.THEME_KEY)
-    theme = theme_manager.get_theme_file(theme_name)
-    invert_secondary = False
-    if theme.startswith("light"):
-        invert_secondary = True
+    theme, invert_secondary = theme_manager.get_theme_file(theme_name)
 
     app = QtWidgets.QApplication(sys.argv)
 
