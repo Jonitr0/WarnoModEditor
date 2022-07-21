@@ -148,7 +148,6 @@ class WMETabBar(QtWidgets.QTabBar):
 
     def dragMoveEvent(self, event):
         event.accept()
-        # TODO: restyle tab based on position
         point = self.mapFromGlobal(QtGui.QCursor.pos())
         current_index = self.tabAt(point)
         if self.hover_tab_index != current_index:

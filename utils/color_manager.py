@@ -17,9 +17,15 @@ def get_color(key: str):
 
 def load_colors():
     theme_name = settings_manager.get_settings_value(settings_manager.THEME_KEY)
-    path, _ = theme_manager.get_theme_file(theme_name)
+    path, invert_secondary = theme_manager.get_theme_file(theme_name)
     colors_xml = ET.parse(path)
     root = colors_xml.getroot()
     for child in root:
-        colors[child.attrib['name']] = child.text
+        color_name = child.attrib['name']
+        if invert_secondary and color_name == 'secondaryLightColor':
+            colors['secondaryDarkColor'] = child.text
+        elif invert_secondary and color_name == 'secondaryDarkColor':
+            colors['secondaryLightColor'] = child.text
+        else:
+            colors[color_name] = child.text
 

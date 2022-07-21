@@ -88,7 +88,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         if not self.isReadOnly():
             selection = QtWidgets.QTextEdit.ExtraSelection()
 
-            line_color = QtGui.QColor(Qt.yellow).lighter(160)
+            line_color = QtGui.QColor(color_manager.get_color("secondaryLightColor"))
 
             selection.format.setBackground(line_color)
             selection.format.setProperty(QtGui.QTextFormat.FullWidthSelection, True)
