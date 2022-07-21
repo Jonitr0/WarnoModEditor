@@ -181,3 +181,8 @@ class WMETitleBar(QtWidgets.QWidget):
 
     def on_close_clicked(self):
         self.parent.close()
+
+    def mouseDoubleClickEvent(self, event):
+        super().mouseDoubleClickEvent(event)
+        if self.maximize_button.isVisible():
+            self.on_max_clicked()

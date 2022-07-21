@@ -40,8 +40,6 @@ class WMETabBar(QtWidgets.QTabBar):
 
         wme_detached_tab.detached_list.append(detached)
 
-        self.dragging_tab_index = -1
-
     def mouseMoveEvent(self, event):
         # Determine if the current movement is detected as a drag
         if not self.dragStartPos.isNull() and (
@@ -79,6 +77,8 @@ class WMETabBar(QtWidgets.QTabBar):
             # Initiate the drag
             global drop_bar
             drop_bar = self
+            self.hover_tab_index = self.dragging_tab_index
+            self.update()
             drag.exec_(Qt.MoveAction | Qt.CopyAction)
 
             # outside tab bar
@@ -89,6 +89,11 @@ class WMETabBar(QtWidgets.QTabBar):
             else:
                 event.accept()
                 self.handle_inside_drop(drag.mimeData(), drop_bar)
+
+            # reset all relevant members and repaint
+            self.dragging_tab_index = -1
+            self.hover_tab_index = -1
+            self.update()
 
         else:
             super().mouseMoveEvent(event)
@@ -120,7 +125,9 @@ class WMETabBar(QtWidgets.QTabBar):
                 trigger.parent().insertTab(new_index, widget, title)
                 trigger.parent().setCurrentIndex(new_index)
 
-        self.dragging_tab_index = -1
+            # repaint the triggering TabBar
+            trigger.hover_tab_index = -1
+            trigger.update()
 
     def dragEnterEvent(self, event):
         mime_data = event.mimeData()
@@ -135,6 +142,7 @@ class WMETabBar(QtWidgets.QTabBar):
         global drop_bar
         drop_bar = None
         self.hover_tab_index = -1
+        self.update()
         super().dragLeaveEvent(event)
 
     def dragMoveEvent(self, event):
@@ -144,8 +152,24 @@ class WMETabBar(QtWidgets.QTabBar):
         current_index = self.tabAt(point)
         if self.hover_tab_index != current_index:
             self.hover_tab_index = current_index
+            self.update()
         super().dragMoveEvent(event)
 
     def tabRemoved(self, index: int):
         self.tab_removed.emit()
         super().tabRemoved(index)
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        if self.hover_tab_index < 0:
+            return
+
+        painter = QtGui.QPainter(self)
+        option = QtWidgets.QStyleOptionTab()
+        palette = option.palette
+
+        # TODO: make this draw proper colors
+        self.initStyleOption(option, self.hover_tab_index)
+        palette.setColor(palette.Button, QtGui.QColor(Qt.blue))
+        option.palette = palette
+        self.style().drawControl(QtWidgets.QStyle.CE_TabBarTab, option, painter)
