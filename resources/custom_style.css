@@ -69,4 +69,5 @@ QPlainTextEdit#code_editor {{
   border-radius: 0px;
   border-width: 0px;
   background-color: {QTMATERIAL_SECONDARYCOLOR};
+  padding: 0px 0px;
 }}

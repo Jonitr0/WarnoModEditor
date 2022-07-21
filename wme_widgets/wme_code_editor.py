@@ -1,6 +1,8 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 from PySide2.QtCore import Qt
-from utils import color_manager
+from utils.color_manager import *
+
+# Based on: https://stackoverflow.com/questions/33243852/codeeditor-example-in-pyqt
 
 
 class LineNumberArea(QtWidgets.QWidget):
@@ -34,8 +36,8 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         while count >= 10:
             count /= 10
             digits += 1
-        space = 3 + self.fontMetrics().width('9') * digits
-        return space
+        space = 4 + self.fontMetrics().width('9') * digits
+        return max(32, space)
 
     def updateLineNumberAreaWidth(self, _):
         self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
@@ -61,7 +63,8 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
     def lineNumberAreaPaintEvent(self, event):
         painter = QtGui.QPainter(self.lineNumberArea)
 
-        painter.fillRect(event.rect(), Qt.lightGray)
+        line_number_area_color = get_color(COLORS.SECONDARY_DARK.value)
+        painter.fillRect(event.rect(), line_number_area_color)
 
         block = self.firstVisibleBlock()
         block_number = block.blockNumber()
@@ -73,9 +76,10 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         while block.isValid() and (top <= event.rect().bottom()):
             if block.isVisible() and (bottom >= event.rect().top()):
                 number = str(block_number + 1)
-                painter.setPen(Qt.black)
+                line_number_text_color = get_color(COLORS.SECONDARY_TEXT.value)
+                painter.setPen(line_number_text_color)
                 painter.drawText(0, top, self.lineNumberArea.width(), height,
-                                 Qt.AlignRight, number)
+                                 Qt.AlignLeft, number)
 
             block = block.next()
             top = bottom
@@ -88,7 +92,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         if not self.isReadOnly():
             selection = QtWidgets.QTextEdit.ExtraSelection()
 
-            line_color = QtGui.QColor(color_manager.get_color("secondaryLightColor"))
+            line_color = QtGui.QColor(get_color(COLORS.SECONDARY_LIGHT.value))
 
             selection.format.setBackground(line_color)
             selection.format.setProperty(QtGui.QTextFormat.FullWidthSelection, True)

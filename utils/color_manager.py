@@ -1,9 +1,19 @@
-from PySide2 import QtGui
 from utils import theme_manager, settings_manager
+from enum import Enum
 import logging
 import xml.etree.ElementTree as ET
 
 colors = {}
+
+
+class COLORS(Enum):
+    PRIMARY = "primaryColor"
+    PRIMARY_LIGHT = "primaryLightColor"
+    SECONDARY = "secondaryColor"
+    SECONDARY_LIGHT = "secondaryLightColor"
+    SECONDARY_DARK = "secondaryDarkColor"
+    PRIMARY_TEXT = "primaryTextColor"
+    SECONDARY_TEXT = "secondaryTextColor"
 
 
 def get_color(key: str):
@@ -11,7 +21,7 @@ def get_color(key: str):
         load_colors()
     if not colors.__contains__(key):
         logging.warning("No color found for key " + key)
-        return QtGui.QColor.red
+        return "#ff0000"
     return colors[key]
 
 
@@ -28,4 +38,3 @@ def load_colors():
             colors['secondaryLightColor'] = child.text
         else:
             colors[color_name] = child.text
-
