@@ -6,6 +6,7 @@ from dialogs.base_dialog import BaseDialog
 
 class WarnoPathDialog(BaseDialog):
     def __init__(self, config_values: dict):
+        self.description_text_edit = QtWidgets.QTextEdit()
         self.icon_path_line_edit = QtWidgets.QLineEdit()
         self.config_values = config_values
 
@@ -23,10 +24,9 @@ class WarnoPathDialog(BaseDialog):
         name_line_edit.textChanged.connect(self.on_name_changed)
         form_layout.addRow("Name", name_line_edit)
 
-        description_line_edit = QtWidgets.QLineEdit()
-        description_line_edit.setText(str(self.config_values["Properties/Description"]))
-        description_line_edit.textChanged.connect(self.on_description_changed)
-        form_layout.addRow("Description", description_line_edit)
+        self.description_text_edit.setPlainText(str(self.config_values["Properties/Description"]))
+        self.description_text_edit.textChanged.connect(self.on_description_changed)
+        form_layout.addRow("Description", self.description_text_edit)
 
         self.icon_path_line_edit.setText(str(self.config_values["Properties/PreviewImagePath"]))
         self.icon_path_line_edit.textChanged.connect(self.on_icon_path_changed)
@@ -58,8 +58,8 @@ class WarnoPathDialog(BaseDialog):
     def on_name_changed(self, name: str):
         self.config_values["Properties/Name"] = name
 
-    def on_description_changed(self, desc: str):
-        self.config_values["Properties/Description"] = desc
+    def on_description_changed(self):
+        self.config_values["Properties/Description"] = self.description_text_edit.toPlainText()
 
     def on_icon_path_changed(self, icon_path: str):
         self.config_values["Properties/PreviewImagePath"] = icon_path
