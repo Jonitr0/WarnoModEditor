@@ -2,7 +2,8 @@
 # has a title that can be set, can be used to drag the window around etc.
 # can take wme_widgets (e.g. the wme_menu_bar)
 
-from PySide2 import QtWidgets, QtCore, QtGui
+from PySide2 import QtWidgets, QtCore
+from PySide2.QtCore import Qt
 
 from utils import icon_loader
 
@@ -184,5 +185,5 @@ class WMETitleBar(QtWidgets.QWidget):
 
     def mouseDoubleClickEvent(self, event):
         super().mouseDoubleClickEvent(event)
-        if self.maximize_button.isVisible():
+        if self.maximize_button.isVisible() and event.button() == Qt.LeftButton:
             self.on_max_clicked()

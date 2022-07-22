@@ -60,8 +60,6 @@ class MainWidget(QtWidgets.QWidget):
 
         self.menu_bar.request_load_mod.connect(self.load_mod)
 
-        # TODO: add splitter
-        workspace_layout = QtWidgets.QHBoxLayout(self)
         splitter = QtWidgets.QSplitter(self)
         splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         explorer = wme_project_explorer.WMEProjectExplorer(self)
@@ -69,11 +67,9 @@ class MainWidget(QtWidgets.QWidget):
         splitter.addWidget(explorer)
         splitter.addWidget(self.tab_widget)
         splitter.setCollapsible(1, False)
-        workspace_layout.addWidget(splitter)
+        main_layout.addWidget(splitter)
 
         explorer.open_ndf_editor.connect(self.tab_widget.on_open_ndf_editor)
-
-        main_layout.addLayout(workspace_layout)
 
         label_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(label_layout)

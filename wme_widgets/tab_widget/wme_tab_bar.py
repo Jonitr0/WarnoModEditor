@@ -13,6 +13,7 @@ class WMETabBar(QtWidgets.QTabBar):
         self.dragStartPos = QtCore.QPoint(0, 0)
         self.dragging_tab_index = -1
         self.hover_tab_index = -1
+        self.dragInitiated = False
 
         super().__init__(parent)
 
@@ -25,7 +26,7 @@ class WMETabBar(QtWidgets.QTabBar):
             self.dragStartPos = event.pos()
             self.dragging_tab_index = self.tabAt(self.dragStartPos)
 
-        QtWidgets.QTabBar.mousePressEvent(self, event)
+        super().mousePressEvent(event)
 
     def create_detached_window(self):
         detached = wme_detached_tab.WMEDetachedTab()
@@ -174,3 +175,33 @@ class WMETabBar(QtWidgets.QTabBar):
         palette.setColor(palette.Button, QtGui.QColor(Qt.blue))
         option.palette = palette
         self.style().drawControl(QtWidgets.QStyle.CE_TabBarTab, option, painter)
+
+    def mouseReleaseEvent(self, event):
+        if not event.button() == Qt.RightButton:
+            return
+        index = self.tabAt(event.pos())
+        if index < 0:
+            return
+
+        context_menu = QtWidgets.QMenu(self)
+        close_self_action = context_menu.addAction("Close Tab")
+        close_all_action = None
+        close_others_action = None
+        if self.count() > 1:
+            close_all_action = context_menu.addAction("Close All Tabs")
+            close_others_action = context_menu.addAction("Close Other Tabs")
+
+        action = context_menu.exec_(self.mapToGlobal(event.pos()))
+        start_count = self.count()
+
+        if action == close_self_action:
+            self.tabCloseRequested.emit(index)
+        elif action == close_all_action:
+            for i in range(start_count):
+                self.tabCloseRequested.emit(start_count - i - 1)
+        elif action == close_others_action:
+            for i in range(start_count):
+                if start_count- i - 1 is not index:
+                    self.tabCloseRequested.emit(start_count - i - 1)
+
+        super().mouseReleaseEvent(event)

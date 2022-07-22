@@ -1,4 +1,5 @@
 from PySide2 import QtWidgets, QtCore
+from PySide2.QtCore import Qt
 
 
 class WMEProjectExplorer(QtWidgets.QTreeView):
@@ -8,6 +9,7 @@ class WMEProjectExplorer(QtWidgets.QTreeView):
         super().__init__(parent)
 
         self.doubleClicked.connect(self.on_double_click)
+        self.setHeaderHidden(True)
         self.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Expanding)
         self.setMinimumWidth(160)
 
@@ -28,4 +30,8 @@ class WMEProjectExplorer(QtWidgets.QTreeView):
         file_path = QtWidgets.QFileSystemModel.filePath(self.model(), index)
         if file_path.endswith(".ndf"):
             self.open_ndf_editor.emit(file_path)
+
+    def mouseDoubleClickEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            super().mouseDoubleClickEvent(event)
 
