@@ -1,6 +1,7 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 from PySide2.QtCore import Qt
 from utils.color_manager import *
+from utils import ndf_syntax_highlighter
 
 # Based on: https://stackoverflow.com/questions/33243852/codeeditor-example-in-pyqt
 
@@ -29,6 +30,8 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.cursorPositionChanged.connect(self.highlightCurrentLine)
 
         self.updateLineNumberAreaWidth(0)
+
+        highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
 
     def lineNumberAreaWidth(self):
         digits = 1
