@@ -70,4 +70,5 @@ QPlainTextEdit#code_editor {{
   border-width: 0px;
   background-color: {QTMATERIAL_SECONDARYCOLOR};
   padding: 0px 0px;
+  font: 10pt 'Courier New';
 }}

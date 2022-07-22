@@ -27,18 +27,28 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        # TODO: set colors from color manager
+
         # keywords
-        for keyword in self.keywords:
-            self.add_rule("\\b" + keyword + "\\b", Qt.red, case_insensitive=True)
+        keyword_pattern = "\\b(" + self.keywords[0]
+        for i in range(len(self.keywords)-1):
+            keyword_pattern += "|" + self.keywords[i + 1]
+        keyword_pattern += ")\\b"
+
+        self.add_rule("\\b" + keyword_pattern + "\\b", Qt.red, case_insensitive=True)
 
         # single line comment
-        self.add_rule("//[^\n]*", Qt.lightGray, italic=True, single_line_comment=True)
+        self.add_rule("//[^\n]*", Qt.gray, italic=True, single_line_comment=True)
 
         # integers
-        self.add_rule("\\b[0-9]+\\b", Qt.blue)
+        self.add_rule("\\b[0-9]+\\b", Qt.cyan)
+
+        # GUID
+        self.add_rule("GUID:{[\\w-]+}", Qt.darkCyan)
 
         # strings
         self.add_rule("'.*?'", Qt.green)
+        self.add_rule("\".*?\"", Qt.green)
 
         self.multiline_comment_format.setFontItalic(True)
         self.multiline_comment_format.setForeground(Qt.green)
