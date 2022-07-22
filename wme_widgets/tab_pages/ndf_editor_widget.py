@@ -33,5 +33,8 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
                                                                "Select .ndf File",
                                                                main_widget.MainWidget.instance.get_loaded_mod_path(),
                                                                "*.ndf")
+        self.open_file(file_path)
+
+    def open_file(self, file_path):
         with open(file_path) as f:
             self.code_editor.setPlainText(f.read())

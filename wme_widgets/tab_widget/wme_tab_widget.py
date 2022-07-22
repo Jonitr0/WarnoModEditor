@@ -30,6 +30,9 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.tabCloseRequested.connect(self.on_tab_close_pressed)
         self.setAcceptDrops(True)
 
+        # make sure explorer isn't so big
+        self.resize(1000, self.height())
+
     def to_json(self) -> str:
         # TODO: call to_json on all pages
         pass
@@ -50,6 +53,14 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_tab_close_pressed(self, index: int):
         # TODO: ask to save progress
         self.removeTab(index)
+
+    def on_open_ndf_editor(self, file_path: str):
+        file_path = file_path.replace("/", "\\")
+        file_name = file_path[file_path.rindex('\\') + 1:]
+        editor = ndf_editor_widget.NdfEditorWidget()
+        self.addTab(editor, file_name)
+        editor.open_file(file_path)
+
 
     def ask_all_tabs_to_save(self, all_windows: bool = False):
         # TODO: iterate through tabs

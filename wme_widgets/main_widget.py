@@ -3,7 +3,7 @@ import logging
 from PySide2 import QtWidgets, QtCore
 from PySide2.QtCore import Qt
 
-from wme_widgets import wme_menu_bar
+from wme_widgets import wme_menu_bar, wme_project_explorer
 from wme_widgets.tab_widget import wme_tab_widget
 from utils import settings_manager, path_validator
 
@@ -60,7 +60,20 @@ class MainWidget(QtWidgets.QWidget):
 
         self.menu_bar.request_load_mod.connect(self.load_mod)
 
-        main_layout.addWidget(self.tab_widget)
+        # TODO: add splitter
+        workspace_layout = QtWidgets.QHBoxLayout(self)
+        splitter = QtWidgets.QSplitter(self)
+        splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        explorer = wme_project_explorer.WMEProjectExplorer(self)
+        self.mod_loaded.connect(explorer.update_model)
+        splitter.addWidget(explorer)
+        splitter.addWidget(self.tab_widget)
+        splitter.setCollapsible(1, False)
+        workspace_layout.addWidget(splitter)
+
+        explorer.open_ndf_editor.connect(self.tab_widget.on_open_ndf_editor)
+
+        main_layout.addLayout(workspace_layout)
 
         label_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(label_layout)
