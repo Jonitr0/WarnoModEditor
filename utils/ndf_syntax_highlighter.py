@@ -5,10 +5,13 @@ from PySide2.QtCore import Qt
 # Based on: https://doc.qt.io/qt-6/qtwidgets-richtext-syntaxhighlighter-example.html
 
 class HighlightingRule:
-    pattern = QtCore.QRegularExpression()
-    format = QtGui.QTextCharFormat()
+    pattern = None
+    format = None
     single_line_comment = False
-    name = ""
+
+    def __init__(self):
+        self.pattern = QtCore.QRegularExpression()
+        self.format = QtGui.QTextCharFormat()
 
 
 class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
@@ -24,30 +27,38 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        # keywords
         for keyword in self.keywords:
-            rule = HighlightingRule()
-            rule.pattern = QtCore.QRegularExpression("\\b" + keyword + "\\b",
-                                                     QtCore.QRegularExpression.CaseInsensitiveOption)
-            rule.format.setForeground(Qt.red)
-            rule.name = keyword
-            self.highlighting_rules.append(rule)
+            self.add_rule("\\b" + keyword + "\\b", Qt.red, case_insensitive=True)
 
-        single_comment_rule = HighlightingRule()
-        single_comment_rule.format.setFontItalic(True)
-        single_comment_rule.format.setForeground(Qt.lightGray)
-        single_comment_rule.pattern = QtCore.QRegularExpression("//[^\n]*")
-        single_comment_rule.single_line_comment = True
-        self.highlighting_rules.append(single_comment_rule)
+        # single line comment
+        self.add_rule("//[^\n]*", Qt.lightGray, italic=True, single_line_comment=True)
+
+        # integers
+        self.add_rule("\\b[0-9]+\\b", Qt.blue)
+
+        # strings
+        self.add_rule("'.*?'", Qt.green)
 
         self.multiline_comment_format.setFontItalic(True)
         self.multiline_comment_format.setForeground(Qt.green)
+
+    def add_rule(self, pattern: str, color: QtGui.QColor, italic: bool = False, single_line_comment: bool = False,
+                 case_insensitive: bool = False):
+        rule = HighlightingRule()
+        rule.format.setFontItalic(italic)
+        rule.format.setForeground(color)
+        rule.pattern = QtCore.QRegularExpression(pattern)
+        if case_insensitive:
+            rule.pattern.setPatternOptions(QtCore.QRegularExpression.CaseInsensitiveOption)
+        rule.single_line_comment = single_line_comment
+        self.highlighting_rules.append(rule)
 
     def highlightBlock(self, text: str):
         # save potential single line comment start
         single_line_comment_start = -1
         # apply basic rules
         for rule in self.highlighting_rules:
-            print(rule.name)
             iterator = rule.pattern.globalMatch(text)
             while iterator.hasNext():
                 match = iterator.next()
