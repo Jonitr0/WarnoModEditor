@@ -8,6 +8,8 @@ class WMEProjectExplorer(QtWidgets.QTreeView):
         super().__init__(parent)
 
         self.doubleClicked.connect(self.on_double_click)
+        self.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Expanding)
+        self.setMinimumWidth(160)
 
     def update_model(self, mod_path: str):
         data_model = QtWidgets.QFileSystemModel()

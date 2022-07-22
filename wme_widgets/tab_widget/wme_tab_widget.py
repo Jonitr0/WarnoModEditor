@@ -61,6 +61,17 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.addTab(editor, file_name)
         editor.open_file(file_path)
 
+    def addTab(self, widget, title: str) -> int:
+        ret = super().addTab(widget, title)
+        self.setCurrentIndex(ret)
+        self.setTabToolTip(ret, title)
+        return ret
+
+    def insertTab(self, index: int, widget, title: str) -> int:
+        ret = super().insertTab(index, widget, title)
+        self.setCurrentIndex(ret)
+        self.setTabToolTip(ret,title)
+        return ret
 
     def ask_all_tabs_to_save(self, all_windows: bool = False):
         # TODO: iterate through tabs

@@ -1,4 +1,4 @@
-from PySide2 import QtWidgets
+from PySide2 import QtWidgets, QtCore
 
 from wme_widgets.tab_pages import tab_page_base
 from wme_widgets import wme_code_editor, main_widget
@@ -33,8 +33,10 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
                                                                "Select .ndf File",
                                                                main_widget.MainWidget.instance.get_loaded_mod_path(),
                                                                "*.ndf")
+        if not QtCore.QFile.exists(file_path):
+            return
         self.open_file(file_path)
 
     def open_file(self, file_path):
-        with open(file_path) as f:
+        with open(file_path, encoding="UTF-8") as f:
             self.code_editor.setPlainText(f.read())

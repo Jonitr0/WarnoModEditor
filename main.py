@@ -30,7 +30,7 @@ if __name__ == '__main__':
     dpi = screen.physicalDotsPerInch()
     logging.info("WME started with screen dpi: " + str(dpi))
 
-    scale = -2
+    scale = 0
     if dpi > 100:
         scale = 2
 
