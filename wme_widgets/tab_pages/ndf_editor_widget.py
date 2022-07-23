@@ -5,6 +5,8 @@ from wme_widgets import wme_code_editor, main_widget
 
 
 class FindBar(QtWidgets.QWidget):
+    request_find_pattern = QtCore.Signal(str)
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -19,6 +21,7 @@ class FindBar(QtWidgets.QWidget):
     def setup_ui(self):
         self.setLayout(self.main_layout)
 
+        self.find_line_edit.textChanged.connect(self.on_text_changed)
         self.main_layout.addWidget(self.find_line_edit)
         self.main_layout.addWidget(self.find_results_label)
         self.find_prev_button.setText("<")
@@ -28,6 +31,9 @@ class FindBar(QtWidgets.QWidget):
         self.find_close_button.setText("X")
         self.find_close_button.clicked.connect(self.on_close)
         self.main_layout.addWidget(self.find_close_button)
+
+    def on_text_changed(self, text: str):
+        self.request_find_pattern.emit(text)
 
     def on_close(self):
         # TODO: remove find highlighting
@@ -63,6 +69,8 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
 
         main_layout.addWidget(self.find_bar)
         self.find_bar.setHidden(True)
+        self.find_bar.request_find_pattern.connect(self.code_editor.find_pattern)
+
         main_layout.addWidget(self.code_editor)
 
     def on_open(self):

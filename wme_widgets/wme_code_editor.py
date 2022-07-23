@@ -30,6 +30,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.cursorPositionChanged.connect(self.highlightCurrentLine)
 
         self.updateLineNumberAreaWidth(0)
+        self.find_list = []
 
         highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
 
@@ -103,3 +104,41 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             selection.cursor.clearSelection()
             extra_selections.append(selection)
         self.setExtraSelections(extra_selections)
+
+    def find_pattern(self, pattern):
+        self.reset_find()
+
+        if pattern == "":
+            return
+
+        cursor = self.textCursor()
+        # Setup the desired format for matches
+        find_format = QtGui.QTextCharFormat()
+        find_format.setBackground(Qt.darkGreen)
+
+        # Setup the regex engine
+        re = QtCore.QRegularExpression(pattern)
+        i = re.globalMatch(self.toPlainText())  # QRegularExpressionMatchIterator
+
+        # iterate through all the matches and highlight
+        while i.hasNext():
+            match = i.next()  # QRegularExpressionMatch
+
+            self.find_list.append([match.capturedStart(), match.capturedEnd()])
+
+            # Select the matched text and apply the desired format
+            cursor.setPosition(match.capturedStart(), QtGui.QTextCursor.MoveAnchor)
+            cursor.setPosition(match.capturedEnd(), QtGui.QTextCursor.KeepAnchor)
+            cursor.mergeCharFormat(find_format)
+
+    def reset_find(self):
+        cursor = self.textCursor()
+        clear_format = QtGui.QTextCharFormat()
+        clear_format.setBackground(Qt.transparent)
+
+        for find in self.find_list:
+            cursor.setPosition(find[0], QtGui.QTextCursor.MoveAnchor)
+            cursor.setPosition(find[1], QtGui.QTextCursor.KeepAnchor)
+            cursor.mergeCharFormat(clear_format)
+
+        self.find_list = []
