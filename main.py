@@ -26,15 +26,7 @@ if __name__ == '__main__':
 
     app = QtWidgets.QApplication(sys.argv)
 
-    screen = app.screens()[0]
-    dpi = screen.physicalDotsPerInch()
-    logging.info("WME started with screen dpi: " + str(dpi))
-
-    scale = 0
-    if dpi > 100:
-        scale = 2
-
-    extra = {'density_scale': scale,
+    extra = {'density_scale': 0,
              'danger': '#dc3545',
              'warning': '#ffc107',
              'success': '#17a2b8',
