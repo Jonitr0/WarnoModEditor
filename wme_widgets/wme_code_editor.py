@@ -25,6 +25,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         super().__init__()
         self.lineNumberArea = LineNumberArea(self)
         self.setObjectName("code_editor")
+        self.setWordWrapMode(QtGui.QTextOption.NoWrap)
 
         self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
         self.updateRequest.connect(self.updateLineNumberArea)
@@ -32,6 +33,12 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
         self.updateLineNumberAreaWidth(0)
         self.find_results = []
+        self.drawn_results = []
+
+        self.find_format = QtGui.QTextCharFormat()
+        self.find_format.setBackground(Qt.darkGreen)
+
+        self.verticalScrollBar().valueChanged.connect(self.mark_finds_in_viewport)
 
         highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
 
@@ -64,6 +71,8 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         cr = self.contentsRect()
         self.lineNumberArea.setGeometry(QtCore.QRect(cr.left(), cr.top(),
                                                      self.lineNumberAreaWidth(), cr.height()))
+
+        self.mark_finds_in_viewport()
 
     def lineNumberAreaPaintEvent(self, event):
         painter = QtGui.QPainter(self.lineNumberArea)
@@ -107,15 +116,10 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.setExtraSelections(extra_selections)
 
     def find_pattern(self, pattern):
-        # TODO: maks sure pattern is not interpreted as regex
         self.reset_find()
 
         if pattern == "":
             return
-
-        cursor = self.textCursor()
-        find_format = QtGui.QTextCharFormat()
-        find_format.setBackground(Qt.darkGreen)
 
         start = 0
         text = self.toPlainText()
@@ -127,12 +131,9 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
             self.find_results.append((start, start + len(pattern)))
 
-            cursor.setPosition(start, QtGui.QTextCursor.MoveAnchor)
-            cursor.setPosition(start + len(pattern), QtGui.QTextCursor.KeepAnchor)
-            cursor.mergeCharFormat(find_format)
-
             start += len(pattern)
 
+        self.mark_finds_in_viewport()
         self.search_complete.emit()
 
     def reset_find(self):
@@ -146,7 +147,32 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             cursor.mergeCharFormat(clear_format)
 
         self.find_results = []
+        self.drawn_results = []
 
     def get_find_results(self):
         return self.find_results
-    
+
+    def mark_finds_in_viewport(self):
+        # nothing to do if all results are drawn
+        if len(self.find_results) == len(self.drawn_results):
+            return
+
+        cursor = self.cursorForPosition(QtCore.QPoint(0,0))
+        bottom_right = QtCore.QPoint(self.viewport().width() - 1, self.viewport().height() - 1)
+        end_pos = self.cursorForPosition(bottom_right).position()
+        cursor.setPosition(end_pos, QtGui.QTextCursor.KeepAnchor)
+
+        start = cursor.selectionStart()
+        end = cursor.selectionEnd()
+
+        # check all results
+        for find in self.find_results:
+            if find[0] > end:
+                break
+            # draw those in viewport that are not already drawn
+            elif find[0] >= start and not self.drawn_results.__contains__(find[0]):
+                cursor.setPosition(find[0], QtGui.QTextCursor.MoveAnchor)
+                cursor.setPosition(find[1], QtGui.QTextCursor.KeepAnchor)
+                cursor.mergeCharFormat(self.find_format)
+
+                self.drawn_results.append(find[0])
