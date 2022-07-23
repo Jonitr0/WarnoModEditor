@@ -4,6 +4,7 @@ from utils.color_manager import *
 from utils import ndf_syntax_highlighter
 
 # Based on: https://stackoverflow.com/questions/33243852/codeeditor-example-in-pyqt
+# and https://stackoverflow.com/a/70881305
 
 
 class LineNumberArea(QtWidgets.QWidget):
@@ -20,6 +21,8 @@ class LineNumberArea(QtWidgets.QWidget):
 
 
 class WMECodeEditor(QtWidgets.QPlainTextEdit):
+    search_complete = QtCore.Signal()
+
     def __init__(self):
         super().__init__()
         self.lineNumberArea = LineNumberArea(self)
@@ -30,7 +33,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.cursorPositionChanged.connect(self.highlightCurrentLine)
 
         self.updateLineNumberAreaWidth(0)
-        self.find_list = []
+        self.find_results = []
 
         highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
 
@@ -124,21 +127,26 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         while i.hasNext():
             match = i.next()  # QRegularExpressionMatch
 
-            self.find_list.append([match.capturedStart(), match.capturedEnd()])
+            self.find_results.append((match.capturedStart(), match.capturedEnd()))
 
             # Select the matched text and apply the desired format
             cursor.setPosition(match.capturedStart(), QtGui.QTextCursor.MoveAnchor)
             cursor.setPosition(match.capturedEnd(), QtGui.QTextCursor.KeepAnchor)
             cursor.mergeCharFormat(find_format)
 
+        self.search_complete.emit()
+
     def reset_find(self):
         cursor = self.textCursor()
         clear_format = QtGui.QTextCharFormat()
         clear_format.setBackground(Qt.transparent)
 
-        for find in self.find_list:
+        for find in self.find_results:
             cursor.setPosition(find[0], QtGui.QTextCursor.MoveAnchor)
             cursor.setPosition(find[1], QtGui.QTextCursor.KeepAnchor)
             cursor.mergeCharFormat(clear_format)
 
-        self.find_list = []
+        self.find_results = []
+
+    def get_find_results(self):
+        return self.find_results

@@ -22,7 +22,8 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
     multiline_comment_ends = ["*)", "*/"]
     multiline_comment_format = QtGui.QTextCharFormat()
 
-    keywords = ["export", "is", "template", "unnamed", "nil", "private", "int", "string", "true", "false", "div", "map"]
+    keywords = ["export", "is", "template", "unnamed", "nil", "private", "div"]
+    types = ["vector", "map", "list", "int", "string", "true", "false", "bool"]
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -34,11 +35,14 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
         for i in range(len(self.keywords)-1):
             keyword_pattern += "|" + self.keywords[i + 1]
         keyword_pattern += ")\\b"
-
         self.add_rule("\\b" + keyword_pattern + "\\b", Qt.red, case_insensitive=True)
 
-        # single line comment
-        self.add_rule("//[^\n]*", Qt.gray, italic=True, single_line_comment=True)
+        # types
+        type_pattern = "\\b(" + self.types[0]
+        for i in range(len(self.types) - 1):
+            type_pattern += "|" + self.types[i + 1]
+        type_pattern += ")\\b"
+        self.add_rule("\\b" + type_pattern + "\\b", Qt.yellow, case_insensitive=True)
 
         # integers
         self.add_rule("\\b[0-9]+\\b", Qt.cyan)
@@ -49,6 +53,9 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
         # strings
         self.add_rule("'.*?'", Qt.green)
         self.add_rule("\".*?\"", Qt.green)
+
+        # single line comment
+        self.add_rule("//[^\n]*", Qt.gray, italic=True, single_line_comment=True)
 
         self.multiline_comment_format.setFontItalic(True)
         self.multiline_comment_format.setForeground(Qt.green)
