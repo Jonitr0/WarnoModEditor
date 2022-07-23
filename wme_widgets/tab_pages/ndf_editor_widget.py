@@ -30,7 +30,7 @@ class FindBar(QtWidgets.QWidget):
         self.find_enter_button.setText("Go")
         self.find_enter_button.clicked.connect(self.on_search)
         self.main_layout.addWidget(self.find_results_label)
-        self.find_results_label.setFixedWidth(200)
+        self.find_results_label.setMinimumWidth(100)
         self.find_prev_button.setText("<")
         self.main_layout.addWidget(self.find_prev_button)
         self.find_next_button.setText(">")
@@ -41,6 +41,9 @@ class FindBar(QtWidgets.QWidget):
 
     def on_search(self):
         if self.find_line_edit.text() == "":
+            self.request_find_reset.emit()
+            self.find_line_edit.setText("")
+            self.find_results_label.setText("")
             return
 
         self.find_results_label.setText("searching...")
@@ -55,7 +58,7 @@ class FindBar(QtWidgets.QWidget):
         self.find_results_label.setText("")
         self.setHidden(True)
 
-    def set_label_text(self, text:str):
+    def set_label_text(self, text: str):
         self.find_results_label.setText(text)
 
 
@@ -116,4 +119,4 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         if results == 0:
             self.find_bar.set_label_text("0 results")
         else:
-            self.find_bar.set_label_text(str(results) + " results")
+            self.find_bar.set_label_text(str(results) + " results for \"" + self.find_bar.current_search + "\"")

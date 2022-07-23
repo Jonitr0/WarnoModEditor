@@ -1,6 +1,8 @@
 from PySide2 import QtGui, QtCore
 from PySide2.QtCore import Qt
 
+from utils.color_manager import *
+
 
 # Based on: https://doc.qt.io/qt-6/qtwidgets-richtext-syntaxhighlighter-example.html
 
@@ -23,7 +25,7 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
     multiline_comment_format = QtGui.QTextCharFormat()
 
     keywords = ["export", "is", "template", "unnamed", "nil", "private", "div"]
-    types = ["vector", "map", "list", "int", "string", "true", "false", "bool"]
+    types = ["vector", "map", "list", "int", "string", "true", "false", "bool", "rgba"]
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -35,36 +37,36 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
         for i in range(len(self.keywords)-1):
             keyword_pattern += "|" + self.keywords[i + 1]
         keyword_pattern += ")\\b"
-        self.add_rule("\\b" + keyword_pattern + "\\b", Qt.red, case_insensitive=True)
+        self.add_rule("\\b" + keyword_pattern + "\\b", COLORS.KEYWORDS, case_insensitive=True)
 
         # types
         type_pattern = "\\b(" + self.types[0]
         for i in range(len(self.types) - 1):
             type_pattern += "|" + self.types[i + 1]
         type_pattern += ")\\b"
-        self.add_rule("\\b" + type_pattern + "\\b", Qt.yellow, case_insensitive=True)
+        self.add_rule("\\b" + type_pattern + "\\b", COLORS.TYPES, case_insensitive=True)
 
         # integers
-        self.add_rule("\\b[0-9]+\\b", Qt.cyan)
+        self.add_rule("\\b[0-9]+\\b", COLORS.NUMBERS)
 
         # GUID
-        self.add_rule("GUID:{[\\w-]+}", Qt.darkCyan)
+        self.add_rule("GUID:{[\\w-]+}", COLORS.NUMBERS)
 
         # strings
-        self.add_rule("'.*?'", Qt.green)
-        self.add_rule("\".*?\"", Qt.green)
+        self.add_rule("'.*?'", COLORS.STRINGS)
+        self.add_rule("\".*?\"", COLORS.STRINGS)
 
         # single line comment
-        self.add_rule("//[^\n]*", Qt.gray, italic=True, single_line_comment=True)
+        self.add_rule("//[^\n]*", COLORS.SINGLE_COMMENT, italic=True, single_line_comment=True)
 
         self.multiline_comment_format.setFontItalic(True)
-        self.multiline_comment_format.setForeground(Qt.green)
+        self.multiline_comment_format.setForeground(QtGui.QColor(get_color(COLORS.MULTI_COMMENT.value)))
 
-    def add_rule(self, pattern: str, color: QtGui.QColor, italic: bool = False, single_line_comment: bool = False,
+    def add_rule(self, pattern: str, color: COLORS, italic: bool = False, single_line_comment: bool = False,
                  case_insensitive: bool = False):
         rule = HighlightingRule()
         rule.format.setFontItalic(italic)
-        rule.format.setForeground(color)
+        rule.format.setForeground(QtGui.QColor(get_color(color.value)))
         rule.pattern = QtCore.QRegularExpression(pattern)
         if case_insensitive:
             rule.pattern.setPatternOptions(QtCore.QRegularExpression.CaseInsensitiveOption)

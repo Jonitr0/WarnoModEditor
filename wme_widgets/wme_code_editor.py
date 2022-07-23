@@ -109,6 +109,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.setExtraSelections(extra_selections)
 
     def find_pattern(self, pattern):
+        # TODO: maks sure pattern is not interpreted as regex
         self.reset_find()
 
         if pattern == "":

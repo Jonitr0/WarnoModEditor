@@ -1,0 +1,9 @@
+<!--?xml version="1.0" encoding="UTF-8"?-->
+<resources>
+  <color name="keywordsColor">#c158dc</color>
+  <color name="typesColor">#ff9d3f</color>
+  <color name="numbersColor">#5eb8ff</color>
+  <color name="stringsColor">#aee571</color>
+  <color name="singleCommentColor">#8e8e8e</color>
+  <color name="multiCommentColor">#d2ce56</color>
+</resources>

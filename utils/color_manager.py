@@ -14,6 +14,12 @@ class COLORS(Enum):
     SECONDARY_DARK = "secondaryDarkColor"
     PRIMARY_TEXT = "primaryTextColor"
     SECONDARY_TEXT = "secondaryTextColor"
+    KEYWORDS = "keywordsColor"
+    TYPES = "typesColor"
+    NUMBERS = "numbersColor"
+    STRINGS = "stringsColor"
+    SINGLE_COMMENT = "singleCommentColor"
+    MULTI_COMMENT = "multiCommentColor"
 
 
 def get_color(key: str):
@@ -38,3 +44,14 @@ def load_colors():
             colors['secondaryLightColor'] = child.text
         else:
             colors[color_name] = child.text
+    # load editor colors
+    if invert_secondary:
+        path = "resources/light_highlight.xml"
+    else:
+        path = "resources/dark_highlight.xml"
+    colors_xml = ET.parse(path)
+    root = colors_xml.getroot()
+    for child in root:
+        color_name = child.attrib['name']
+        colors[color_name] = child.text
+
