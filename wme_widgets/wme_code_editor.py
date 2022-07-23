@@ -4,8 +4,6 @@ from utils.color_manager import *
 from utils import ndf_syntax_highlighter
 
 # Based on: https://stackoverflow.com/questions/33243852/codeeditor-example-in-pyqt
-# and https://stackoverflow.com/a/70881305
-
 
 class LineNumberArea(QtWidgets.QWidget):
 
@@ -116,24 +114,24 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             return
 
         cursor = self.textCursor()
-        # Setup the desired format for matches
         find_format = QtGui.QTextCharFormat()
         find_format.setBackground(Qt.darkGreen)
 
-        # Setup the regex engine
-        re = QtCore.QRegularExpression(pattern)
-        i = re.globalMatch(self.toPlainText())  # QRegularExpressionMatchIterator
+        start = 0
+        text = self.toPlainText()
 
-        # iterate through all the matches and highlight
-        while i.hasNext():
-            match = i.next()  # QRegularExpressionMatch
+        while True:
+            start = text.find(pattern, start)
+            if start < 0:
+                break
 
-            self.find_results.append((match.capturedStart(), match.capturedEnd()))
+            self.find_results.append((start, start + len(pattern)))
 
-            # Select the matched text and apply the desired format
-            cursor.setPosition(match.capturedStart(), QtGui.QTextCursor.MoveAnchor)
-            cursor.setPosition(match.capturedEnd(), QtGui.QTextCursor.KeepAnchor)
+            cursor.setPosition(start, QtGui.QTextCursor.MoveAnchor)
+            cursor.setPosition(start + len(pattern), QtGui.QTextCursor.KeepAnchor)
             cursor.mergeCharFormat(find_format)
+
+            start += len(pattern)
 
         self.search_complete.emit()
 
@@ -151,3 +149,4 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
     def get_find_results(self):
         return self.find_results
+    
