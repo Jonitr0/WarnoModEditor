@@ -30,8 +30,6 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        # TODO: set colors from color manager
-
         # keywords
         keyword_pattern = "\\b(" + self.keywords[0]
         for i in range(len(self.keywords)-1):

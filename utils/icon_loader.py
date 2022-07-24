@@ -5,6 +5,7 @@ from utils.color_manager import *
 
 loadedIcons = {}
 
+
 def load_icon(name: str, color: COLORS):
     if loadedIcons.__contains__((name, color)):
         return loadedIcons[(name, color)]

@@ -9,7 +9,6 @@ from wme_widgets.tab_pages import ndf_editor_widget
 class WMETabWidget(QtWidgets.QTabWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        # TODO: add tab context menu (close all, close all but this, close all saved)
 
         tab_bar = wme_tab_bar.WMETabBar(self)
         self.setTabBar(tab_bar)
