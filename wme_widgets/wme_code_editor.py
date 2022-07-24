@@ -31,6 +31,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
         self.updateRequest.connect(self.updateLineNumberArea)
         self.cursorPositionChanged.connect(self.highlightCurrentLine)
+        self.cursorPositionChanged.connect(self.mark_finds_in_viewport)
 
         self.updateLineNumberAreaWidth(0)
         self.find_results = []
@@ -136,6 +137,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
         self.mark_finds_in_viewport()
         self.search_complete.emit()
+        self.goto_next_find()
 
     def reset_find(self):
         if len(self.find_results) == 0:
@@ -182,3 +184,41 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
                 cursor.mergeCharFormat(self.find_format)
 
                 self.drawn_results.append(find[0])
+
+    def goto_next_find(self):
+        if len(self.find_results) == 0:
+            return
+
+        cursor = self.textCursor()
+        index = cursor.position()
+
+        for find in self.find_results:
+            if index < find[0]:
+                cursor.setPosition(find[0], QtGui.QTextCursor.MoveAnchor)
+                self.setTextCursor(cursor)
+                return
+
+        # if no position was set yet, set it to the first find
+        cursor.setPosition(self.find_results[0][0], QtGui.QTextCursor.MoveAnchor)
+        self.setTextCursor(cursor)
+
+    def goto_prev_find(self):
+        if len(self.find_results) == 0:
+            return
+
+        cursor = self.textCursor()
+        index = cursor.position()
+
+        # if index is lower than first find, set it to the last one
+        if index <= self.find_results[0][1]:
+            cursor.setPosition(self.find_results[len(self.find_results) - 1][0], QtGui.QTextCursor.MoveAnchor)
+            self.setTextCursor(cursor)
+            return
+
+        last_find = -1
+        for find in self.find_results:
+            if index <= find[1] and last_find > 0:
+                cursor.setPosition(last_find, QtGui.QTextCursor.MoveAnchor)
+                self.setTextCursor(cursor)
+                return
+            last_find = find[0]

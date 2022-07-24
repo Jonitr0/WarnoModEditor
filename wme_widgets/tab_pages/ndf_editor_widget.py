@@ -9,6 +9,9 @@ class FindBar(QtWidgets.QWidget):
     request_find_reset = QtCore.Signal()
     request_uncheck = QtCore.Signal(bool)
 
+    request_prev = QtCore.Signal()
+    request_next = QtCore.Signal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -34,8 +37,10 @@ class FindBar(QtWidgets.QWidget):
         self.main_layout.addWidget(self.results_label)
         self.results_label.setMinimumWidth(100)
         self.prev_button.setText("<")
+        self.prev_button.clicked.connect(self.on_prev)
         self.main_layout.addWidget(self.prev_button)
         self.next_button.setText(">")
+        self.next_button.clicked.connect(self.on_next)
         self.main_layout.addWidget(self.next_button)
         self.close_button.setText("X")
         self.close_button.clicked.connect(self.on_close)
@@ -56,6 +61,12 @@ class FindBar(QtWidgets.QWidget):
     def on_close(self):
         self.reset()
         self.request_uncheck.emit(False)
+
+    def on_next(self):
+        self.request_next.emit()
+
+    def on_prev(self):
+        self.request_prev.emit()
 
     def reset(self):
         self.request_find_reset.emit()
@@ -100,6 +111,8 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         self.find_bar.request_find_pattern.connect(self.code_editor.find_pattern)
         self.find_bar.request_find_reset.connect(self.code_editor.reset_find)
         self.find_bar.request_uncheck.connect(find_action.setChecked)
+        self.find_bar.request_next.connect(self.code_editor.goto_next_find)
+        self.find_bar.request_prev.connect(self.code_editor.goto_prev_find)
 
         main_layout.addWidget(self.code_editor)
         self.code_editor.search_complete.connect(self.on_search_complete)
