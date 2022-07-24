@@ -6,6 +6,7 @@ from PySide2 import QtWidgets, QtCore
 from PySide2.QtCore import Qt
 
 from utils import icon_loader
+from utils.color_manager import *
 
 
 class WMETitleBar(QtWidgets.QWidget):
@@ -36,7 +37,7 @@ class WMETitleBar(QtWidgets.QWidget):
 
         icon = QtWidgets.QLabel()
         icon.setFixedSize(button_size, button_size)
-        icon.setPixmap(icon_loader.load_icon("appIcon32.png").pixmap(32))
+        icon.setPixmap(icon_loader.load_icon("appIcon32.png", COLORS.PRIMARY).pixmap(32))
         self.main_layout.addWidget(icon)
 
         self.title_label.setText(window_title)
@@ -52,7 +53,7 @@ class WMETitleBar(QtWidgets.QWidget):
         self.minimize_button.setVisible(not only_close)
         self.minimize_button.installEventFilter(self)
         self.minimize_button.setProperty('class', 'titlebar')
-        min_icon = icon_loader.load_icon("titlebar/showMin.png")
+        min_icon = icon_loader.load_icon("titlebar/showMin.png", COLORS.PRIMARY)
         self.minimize_button.setIcon(min_icon)
         self.minimize_button.setFixedSize(button_size, button_size)
         self.minimize_button.clicked.connect(self.on_min_clicked)
@@ -61,14 +62,14 @@ class WMETitleBar(QtWidgets.QWidget):
         self.maximize_button.setVisible(not only_close)
         self.maximize_button.installEventFilter(self)
         self.maximize_button.setProperty('class', 'titlebar')
-        max_icon = icon_loader.load_icon("titlebar/showMax.png")
+        max_icon = icon_loader.load_icon("titlebar/showMax.png", COLORS.PRIMARY)
         self.maximize_button.setIcon(max_icon)
         self.maximize_button.setFixedSize(button_size, button_size)
         self.maximize_button.clicked.connect(self.on_max_clicked)
         button_layout.addWidget(self.maximize_button)
 
         self.close_button.installEventFilter(self)
-        close_icon = icon_loader.load_icon("titlebar/close.png")
+        close_icon = icon_loader.load_icon("titlebar/close.png", COLORS.DANGER)
         self.close_button.setIcon(close_icon)
         self.close_button.setFixedSize(button_size, button_size)
         self.close_button.clicked.connect(self.on_close_clicked)
@@ -88,53 +89,56 @@ class WMETitleBar(QtWidgets.QWidget):
             # Leave while pressed
             if event.pos().x() > 32 or event.pos().x() < 0 or event.pos().y() > 32 or event.pos().y() < 0:
                 if source is self.minimize_button and not self.min_hold:
-                    self.minimize_button.setIcon(icon_loader.load_icon("titlebar/showMin.png"))
+                    self.minimize_button.setIcon(icon_loader.load_icon("titlebar/showMin.png", COLORS.PRIMARY))
                     self.min_hold = True
                 if source is self.maximize_button and not self.max_hold:
                     if self.maximized:
-                        self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormal.png"))
+                        self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormal.png", COLORS.PRIMARY))
                     else:
-                        self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMax.png"))
+                        self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMax.png", COLORS.PRIMARY))
                     self.max_hold = True
                 if source is self.close_button and not self.close_hold:
-                    self.close_button.setIcon(icon_loader.load_icon("titlebar/close.png"))
+                    self.close_button.setIcon(icon_loader.load_icon("titlebar/close.png", COLORS.DANGER))
                     self.close_hold = True
             # Enter while pressed
             else:
                 if source is self.minimize_button and self.min_hold:
-                    self.minimize_button.setIcon(icon_loader.load_icon("titlebar/showMinInverted.png"))
+                    self.minimize_button.setIcon(
+                        icon_loader.load_icon("titlebar/showMin.png", COLORS.SECONDARY))
                     self.min_hold = False
                 if source is self.maximize_button and self.max_hold:
                     if self.maximized:
-                        self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormalInverted.png"))
+                        self.maximize_button.setIcon(
+                            icon_loader.load_icon("titlebar/showNormal.png", COLORS.SECONDARY))
                     else:
-                        self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMaxInverted.png"))
+                        self.maximize_button.setIcon(
+                            icon_loader.load_icon("titlebar/showMax.png", COLORS.SECONDARY))
                     self.max_hold = False
                 if source is self.close_button and self.close_hold:
-                    self.close_button.setIcon(icon_loader.load_icon("titlebar/closeInverted.png"))
+                    self.close_button.setIcon(icon_loader.load_icon("titlebar/close.png", COLORS.SECONDARY))
                     self.close_hold = False
 
         # min button
         if source is self.minimize_button and event.type() is QtCore.QEvent.MouseButtonPress:
-            self.minimize_button.setIcon(icon_loader.load_icon("titlebar/showMinInverted.png"))
+            self.minimize_button.setIcon(icon_loader.load_icon("titlebar/showMin.png", COLORS.SECONDARY))
         elif source is self.minimize_button and event.type() is QtCore.QEvent.MouseButtonRelease:
-            self.minimize_button.setIcon(icon_loader.load_icon("titlebar/showMin.png"))
+            self.minimize_button.setIcon(icon_loader.load_icon("titlebar/showMin.png", COLORS.PRIMARY))
         # max button
         elif source is self.maximize_button and event.type() is QtCore.QEvent.MouseButtonPress:
             if self.maximized:
-                self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormalInverted.png"))
+                self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormal.png", COLORS.SECONDARY))
             else:
-                self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMaxInverted.png"))
+                self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMax.png", COLORS.SECONDARY))
         elif source is self.maximize_button and event.type() is QtCore.QEvent.MouseButtonRelease:
             if self.maximized:
-                self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormal.png"))
+                self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormal.png", COLORS.PRIMARY))
             else:
-                self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMax.png"))
+                self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMax.png", COLORS.PRIMARY))
         # close button
         elif source is self.close_button and event.type() is QtCore.QEvent.MouseButtonPress:
-            self.close_button.setIcon(icon_loader.load_icon("titlebar/closeInverted.png"))
+            self.close_button.setIcon(icon_loader.load_icon("titlebar/close.png", COLORS.SECONDARY))
         elif source is self.close_button and event.type() is QtCore.QEvent.MouseButtonRelease:
-            self.close_button.setIcon(icon_loader.load_icon("titlebar/close.png"))
+            self.close_button.setIcon(icon_loader.load_icon("titlebar/close.png", COLORS.DANGER))
         return False
 
     def setup_button(self, button: QtWidgets.QPushButton, default_icon_name: str, pressed_icon_name: str):
@@ -174,11 +178,11 @@ class WMETitleBar(QtWidgets.QWidget):
         if not self.maximized:
             self.parent.showMaximized()
             self.maximized = True
-            self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormal.png"))
+            self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showNormal.png", COLORS.PRIMARY))
         else:
             self.parent.showNormal()
             self.maximized = False
-            self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMax.png"))
+            self.maximize_button.setIcon(icon_loader.load_icon("titlebar/showMax.png", COLORS.PRIMARY))
 
     def on_close_clicked(self):
         self.parent.close()

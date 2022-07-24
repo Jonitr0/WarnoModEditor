@@ -1,16 +1,19 @@
-from PySide2 import QtGui, QtCore
+from PySide2 import QtGui
+from PySide2.QtCore import Qt
+
+from utils.color_manager import *
 
 loadedIcons = {}
 
-
-# TODO: select icons based on theme
-# TODO: recolor icons dynamically
-
-def load_icon(name: str, size: int = 32):
-    if loadedIcons.__contains__(name):
-        return loadedIcons[name]
+def load_icon(name: str, color: COLORS):
+    if loadedIcons.__contains__((name, color)):
+        return loadedIcons[(name, color)]
     else:
-        icon = QtGui.QIcon()
-        icon.addFile("resources/img/" + name, QtCore.QSize(size, size))
-        loadedIcons[name] = icon
+        pixmap = QtGui.QPixmap("resources/img/" + name)
+        mask = pixmap.createMaskFromColor(Qt.white, Qt.MaskOutColor)
+        pixmap.fill(QtGui.QColor(get_color(color.value)))
+        pixmap.setMask(mask)
+
+        icon = QtGui.QIcon(pixmap)
+        loadedIcons[(name, color)] = icon
         return icon

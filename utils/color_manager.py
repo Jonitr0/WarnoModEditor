@@ -3,8 +3,13 @@ from enum import Enum
 import logging
 import xml.etree.ElementTree as ET
 
-colors = {}
+colors = {
+            'danger': '#dc3545',
+            'warning': '#ffc107',
+            'success': '#17a2b8',
+}
 
+loaded = False
 
 class COLORS(Enum):
     PRIMARY = "primaryColor"
@@ -20,11 +25,16 @@ class COLORS(Enum):
     STRINGS = "stringsColor"
     SINGLE_COMMENT = "singleCommentColor"
     MULTI_COMMENT = "multiCommentColor"
+    DANGER = "danger"
+    WARNING = "warning"
+    SUCCESS = "success"
 
 
 def get_color(key: str):
-    if not colors:
+    global loaded
+    if not loaded:
         load_colors()
+        loaded = True
     if not colors.__contains__(key):
         logging.warning("No color found for key " + key)
         return "#ff0000"
