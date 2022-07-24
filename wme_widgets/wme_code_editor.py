@@ -3,6 +3,7 @@ from PySide2.QtCore import Qt
 from utils.color_manager import *
 from utils import ndf_syntax_highlighter
 
+
 # Based on: https://stackoverflow.com/questions/33243852/codeeditor-example-in-pyqt
 
 class LineNumberArea(QtWidgets.QWidget):
@@ -137,13 +138,18 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.search_complete.emit()
 
     def reset_find(self):
+        if len(self.find_results) == 0:
+            return
+
         cursor = self.textCursor()
         clear_format = QtGui.QTextCharFormat()
         clear_format.setBackground(Qt.transparent)
 
-        for find in self.find_results:
-            cursor.setPosition(find[0], QtGui.QTextCursor.MoveAnchor)
-            cursor.setPosition(find[1], QtGui.QTextCursor.KeepAnchor)
+        length = self.find_results[0][1] - self.find_results[0][0]
+
+        for drawn in self.drawn_results:
+            cursor.setPosition(drawn, QtGui.QTextCursor.MoveAnchor)
+            cursor.setPosition(drawn + length, QtGui.QTextCursor.KeepAnchor)
             cursor.mergeCharFormat(clear_format)
 
         self.find_results = []
@@ -157,7 +163,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         if len(self.find_results) == len(self.drawn_results):
             return
 
-        cursor = self.cursorForPosition(QtCore.QPoint(0,0))
+        cursor = self.cursorForPosition(QtCore.QPoint(0, 0))
         bottom_right = QtCore.QPoint(self.viewport().width() - 1, self.viewport().height() - 1)
         end_pos = self.cursorForPosition(bottom_right).position()
         cursor.setPosition(end_pos, QtGui.QTextCursor.KeepAnchor)
