@@ -9,9 +9,11 @@ from PySide2 import QtWidgets, QtCore
 from dialogs import new_mod_dialog, edit_config_dialog, new_backup_dialog, \
     selection_dialog, confirmation_dialog, options_dialog
 from utils import path_validator
+from wme_widgets import main_widget
 
 
 def run_script(cwd: str, cmd: str, args: list):
+    main_widget.MainWidget.instance.show_loading_screen("running command " + cmd + "...")
     try:
         process = QtCore.QProcess()
         process.setProgram("cmd.exe")
@@ -23,9 +25,11 @@ def run_script(cwd: str, cmd: str, args: list):
         process.waitForFinished()
         ret = process.exitCode()
         process.close()
+        main_widget.MainWidget.instance.hide_loading_screen()
         return ret
     except Exception as ex:
         logging.error(ex)
+        main_widget.MainWidget.instance.hide_loading_screen()
         return -1
 
 

@@ -129,5 +129,4 @@ class MainWidget(QtWidgets.QWidget):
     def hide_loading_screen(self):
         self.load_screen.setHidden(True)
         self.splitter.setHidden(False)
-        self.load_screen.movie().stop()
         QtWidgets.QApplication.processEvents()
