@@ -52,3 +52,11 @@ class WMEDetachedTab(QtWidgets.QDialog):
     def setWindowTitle(self, title: str):
         super().setWindowTitle(title)
         self.title_bar.set_title(title)
+
+    def keyPressEvent(self, event):
+        key = event.key()
+        if key == Qt.Key_Return or key == Qt.Key_Enter:
+            event.ignore()
+        else:
+            super().keyPressEvent(event)
+            
