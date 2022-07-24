@@ -114,8 +114,10 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         self.open_file(file_path)
 
     def open_file(self, file_path):
+        main_widget.MainWidget.instance.show_loading_screen("opening file...")
         with open(file_path, encoding="UTF-8") as f:
             self.code_editor.setPlainText(f.read())
+        main_widget.MainWidget.instance.hide_loading_screen()
 
     def on_find(self, checked):
         if checked:

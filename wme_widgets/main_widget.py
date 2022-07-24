@@ -1,6 +1,6 @@
 import logging
 
-from PySide2 import QtWidgets, QtCore
+from PySide2 import QtWidgets, QtCore, QtGui
 from PySide2.QtCore import Qt
 
 from wme_widgets import wme_menu_bar, wme_project_explorer
@@ -19,6 +19,8 @@ class MainWidget(QtWidgets.QWidget):
 
     def __init__(self, warno_path: str, title_bar):
         super().__init__()
+        self.load_screen = QtWidgets.QLabel("loading...")
+        self.splitter = QtWidgets.QSplitter(self)
         self.tab_widget = wme_tab_widget.WMETabWidget()
         self.menu_bar = wme_menu_bar.WMEMainMenuBar(main_widget_ref=self)
         self.loaded_mod_path = ""
@@ -60,14 +62,18 @@ class MainWidget(QtWidgets.QWidget):
 
         self.menu_bar.request_load_mod.connect(self.load_mod)
 
-        splitter = QtWidgets.QSplitter(self)
-        splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         explorer = wme_project_explorer.WMEProjectExplorer(self)
         self.mod_loaded.connect(explorer.update_model)
-        splitter.addWidget(explorer)
-        splitter.addWidget(self.tab_widget)
-        splitter.setCollapsible(1, False)
-        main_layout.addWidget(splitter)
+        self.splitter.addWidget(explorer)
+        self.splitter.addWidget(self.tab_widget)
+        self.splitter.setCollapsible(1, False)
+        main_layout.addWidget(self.splitter)
+
+        self.load_screen.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.load_screen.setAlignment(Qt.AlignCenter)
+        self.load_screen.setHidden(True)
+        main_layout.addWidget(self.load_screen)
 
         explorer.open_ndf_editor.connect(self.tab_widget.on_open_ndf_editor)
 
@@ -113,3 +119,15 @@ class MainWidget(QtWidgets.QWidget):
         # TODO: if all return save/discard, perform actions and return true
         # TODO: if one returns cancel, return false
         return True
+
+    def show_loading_screen(self, text: str = "loading..."):
+        self.load_screen.setText(text)
+        self.load_screen.setHidden(False)
+        self.splitter.setHidden(True)
+        QtWidgets.QApplication.processEvents()
+
+    def hide_loading_screen(self):
+        self.load_screen.setHidden(True)
+        self.splitter.setHidden(False)
+        self.load_screen.movie().stop()
+        QtWidgets.QApplication.processEvents()
