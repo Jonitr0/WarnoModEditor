@@ -25,6 +25,7 @@ class COLORS(Enum):
     STRINGS = "stringsColor"
     SINGLE_COMMENT = "singleCommentColor"
     MULTI_COMMENT = "multiCommentColor"
+    FIND_HIGHLIGHT = "findHighlightColor"
     DANGER = "danger"
     WARNING = "warning"
     SUCCESS = "success"

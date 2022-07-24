@@ -6,4 +6,5 @@
   <color name="stringsColor">#4b830d</color>
   <color name="singleCommentColor">#8d8d8d</color>
   <color name="multiCommentColor">#6c6f00</color>
+  <color name="findHighlightColor">#76d275</color>
 </resources>

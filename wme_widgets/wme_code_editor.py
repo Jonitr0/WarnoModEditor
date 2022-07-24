@@ -38,7 +38,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.drawn_results = []
 
         self.find_format = QtGui.QTextCharFormat()
-        self.find_format.setBackground(Qt.darkGreen)
+        self.find_format.setBackground(QtGui.QColor(get_color(COLORS.FIND_HIGHLIGHT.value)))
 
         self.verticalScrollBar().valueChanged.connect(self.mark_finds_in_viewport)
 
