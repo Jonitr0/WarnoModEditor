@@ -143,8 +143,8 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             start += len(pattern)
 
         self.mark_finds_in_viewport()
+        self.search_complete.emit()
         if not updating:
-            self.search_complete.emit()
             self.goto_next_find()
 
     def reset_find(self):
