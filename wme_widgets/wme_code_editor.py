@@ -34,6 +34,10 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.cursorPositionChanged.connect(self.mark_finds_in_viewport)
 
         self.updateLineNumberAreaWidth(0)
+        self.pattern = ""
+        self.change_length = 0
+        self.change_pos = -1
+        self.about_to_change_format = False
         self.find_results = []
         self.drawn_results = []
 
@@ -41,8 +45,10 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.find_format.setBackground(QtGui.QColor(get_color(COLORS.FIND_HIGHLIGHT.value)))
 
         self.verticalScrollBar().valueChanged.connect(self.mark_finds_in_viewport)
+        self.document().contentsChange.connect(self.update_search)
 
         highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
+        # TODO: update search on text changed
 
     def lineNumberAreaWidth(self):
         digits = 1
@@ -117,8 +123,9 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             extra_selections.append(selection)
         self.setExtraSelections(extra_selections)
 
-    def find_pattern(self, pattern):
+    def find_pattern(self, pattern, updating=False):
         self.reset_find()
+        self.pattern = pattern
 
         if pattern == "":
             return
@@ -136,8 +143,9 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             start += len(pattern)
 
         self.mark_finds_in_viewport()
-        self.search_complete.emit()
-        self.goto_next_find()
+        if not updating:
+            self.search_complete.emit()
+            self.goto_next_find()
 
     def reset_find(self):
         if len(self.find_results) == 0:
@@ -150,9 +158,18 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         length = self.find_results[0][1] - self.find_results[0][0]
 
         for drawn in self.drawn_results:
+            # if we changed an existing find, make the clear area longer
+            if drawn <= self.change_pos <= drawn + length:
+                length += self.change_length
+
             cursor.setPosition(drawn, QtGui.QTextCursor.MoveAnchor)
             cursor.setPosition(drawn + length, QtGui.QTextCursor.KeepAnchor)
+            self.about_to_change_format = True
             cursor.mergeCharFormat(clear_format)
+
+            # reset length
+            if drawn <= self.change_pos <= drawn + length:
+                length -= self.change_length
 
         self.find_results = []
         self.drawn_results = []
@@ -181,6 +198,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             elif find[0] >= start and not self.drawn_results.__contains__(find[0]):
                 cursor.setPosition(find[0], QtGui.QTextCursor.MoveAnchor)
                 cursor.setPosition(find[1], QtGui.QTextCursor.KeepAnchor)
+                self.about_to_change_format = True
                 cursor.mergeCharFormat(self.find_format)
 
                 self.drawn_results.append(find[0])
@@ -226,3 +244,18 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
                 self.setFocus()
                 return
             last_find = find[0]
+
+    def update_search(self, pos: int, _: int, added: int):
+        if self.about_to_change_format:
+            self.about_to_change_format = False
+            return
+
+        self.change_length = added
+        self.change_pos = pos
+
+        self.find_pattern(self.pattern, updating=True)
+        self.mark_finds_in_viewport()
+        self.about_to_change_format = False
+
+        self.change_length = 0
+        self.change_pos = -1
