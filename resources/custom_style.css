@@ -40,22 +40,18 @@ WMETabBar::tab {{
 
 QToolButton {{
   border: 0px;
-  height: 20px;
 }}
 
 QToolButton:hover {{
   border: 0px;
-  height: 20px;
 }}
 
 QToolButton:pressed {{
   border: 0px;
-  height: 20px;
 }}
 
 QToolButton:checked {{
   border: 0px;
-  height: 20px;
 }}
 
 QToolBar::separator:horizontal {{
