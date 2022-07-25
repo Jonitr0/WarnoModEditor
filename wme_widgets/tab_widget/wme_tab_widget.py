@@ -21,8 +21,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
 
         self.tab_menu = QtWidgets.QMenu()
         new_tab_button.setMenu(self.tab_menu)
-
-        self.add_new_tab_action(".ndf Editor")
+        self.tab_menu.addAction("bla")
 
         self.setTabsClosable(True)
         # TODO: run save check
@@ -40,15 +39,6 @@ class WMETabWidget(QtWidgets.QTabWidget):
         # TODO: call to_json and save to settings
         pass
 
-    def add_new_tab_action(self, name: str):
-        action = self.tab_menu.addAction(name)
-        if name == ".ndf Editor":
-            action.triggered.connect(self.add_ndf_editor)
-        return action
-
-    def add_ndf_editor(self):
-        self.addTab(ndf_editor_widget.NdfEditorWidget(), ".ndf Editor")
-
     def on_tab_close_pressed(self, index: int):
         # TODO: ask to save progress
         self.removeTab(index)
@@ -59,9 +49,12 @@ class WMETabWidget(QtWidgets.QTabWidget):
         editor = ndf_editor_widget.NdfEditorWidget()
         self.addTab(editor, file_name)
         editor.open_file(file_path)
+        editor.unsaved_status_change.connect(self.on_save_status_changed)
+        editor.unsaved_changes = False
 
     def addTab(self, widget, title: str) -> int:
         ret = super().addTab(widget, title)
+        widget.tab_name = title
         self.setCurrentIndex(ret)
         self.setTabToolTip(ret, title)
         return ret
@@ -95,3 +88,12 @@ class WMETabWidget(QtWidgets.QTabWidget):
         event.accept()
         wme_tab_bar.drop_bar = None
         super().dragLeaveEvent(event)
+
+    def on_save_status_changed(self, status: bool, widget: QtWidgets.QWidget):
+        index = self.indexOf(widget)
+        # if it has unsaved changes
+        if status:
+            self.setTabText(index, widget.tab_name + "(*)")
+        else:
+            self.setTabText(index, widget.tab_name)
+

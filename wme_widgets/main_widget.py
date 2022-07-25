@@ -19,7 +19,7 @@ class MainWidget(QtWidgets.QWidget):
 
     def __init__(self, warno_path: str, title_bar):
         super().__init__()
-        self.load_screen = QtWidgets.QLabel("loading...")
+        self.load_screen = QtWidgets.QLabel("Open the \"File\" menu to create or load a mod.")
         self.splitter = QtWidgets.QSplitter(self)
         self.tab_widget = wme_tab_widget.WMETabWidget()
         self.menu_bar = wme_menu_bar.WMEMainMenuBar(main_widget_ref=self)
@@ -68,11 +68,11 @@ class MainWidget(QtWidgets.QWidget):
         self.splitter.addWidget(explorer)
         self.splitter.addWidget(self.tab_widget)
         self.splitter.setCollapsible(1, False)
+        self.splitter.setHidden(True)
         main_layout.addWidget(self.splitter)
 
         self.load_screen.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.load_screen.setAlignment(Qt.AlignCenter)
-        self.load_screen.setHidden(True)
         main_layout.addWidget(self.load_screen)
 
         explorer.open_ndf_editor.connect(self.tab_widget.on_open_ndf_editor)
@@ -110,6 +110,7 @@ class MainWidget(QtWidgets.QWidget):
         settings_manager.write_settings_value(settings_manager.LAST_OPEN_KEY, mod_path)
         self.mod_loaded.emit(mod_path)
         set_status_text(self.loaded_mod_name + " was loaded successfully")
+        self.hide_loading_screen()
 
     def ask_all_tabs_to_save(self):
         if not self.tab_widget.ask_all_tabs_to_save(all_windows=True):

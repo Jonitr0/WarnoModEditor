@@ -113,6 +113,8 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
     def __init__(self):
         super().__init__()
 
+        self.file_path = ""
+
         self.find_bar = FindBar()
         self.code_editor = wme_code_editor.WMECodeEditor()
         self.setup_ui()
@@ -127,12 +129,16 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
 
         open_action = tool_bar.addAction("Open")
         open_action.triggered.connect(self.on_open)
+
         save_action = tool_bar.addAction(icon_manager.load_icon("save.png", COLORS.PRIMARY), "Save (Ctrl + S)")
         save_action.setShortcut("Ctrl+S")
+        save_action.triggered.connect(self.on_save)
+
         tool_bar.addSeparator()
         tool_bar.addAction("Undo")
         tool_bar.addAction("Redo")
         tool_bar.addSeparator()
+
         find_action = tool_bar.addAction(icon_manager.load_icon("magnify.png", COLORS.PRIMARY), "Find (Ctrl + F)")
         find_action.setShortcut("Ctrl+F")
         find_action.setCheckable(True)
@@ -148,6 +154,7 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
 
         main_layout.addWidget(self.code_editor)
         self.code_editor.search_complete.connect(self.on_search_complete)
+        self.code_editor.unsaved_changes.connect(self.set_unsaved_changes)
 
     def on_open(self):
         file_path, _ = QtWidgets.QFileDialog().getOpenFileName(self,
@@ -160,9 +167,34 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
 
     def open_file(self, file_path):
         main_widget.MainWidget.instance.show_loading_screen("opening file...")
-        with open(file_path, encoding="UTF-8") as f:
-            self.code_editor.setPlainText(f.read())
+        try:
+            with open(file_path, encoding="UTF-8") as f:
+                self.code_editor.setPlainText(f.read())
+                self.file_path = file_path
+        except Exception as e:
+            logging.error("Could not open file " + file_path + "\n" + str(e))
         main_widget.MainWidget.instance.hide_loading_screen()
+
+    def on_save(self):
+        # TODO: check if other widgets have unsaved changes on the file
+        if False:
+            # TODO: some warning popup
+            return
+
+        if self.save_file():
+            self.unsaved_changes = False
+
+    def save_file(self):
+        main_widget.MainWidget.instance.show_loading_screen("saving file...")
+        ret = False
+        try:
+            with open(self.file_path, "w", encoding="UTF-8") as f:
+                f.write(self.code_editor.toPlainText())
+            ret = True
+        except Exception as e:
+            logging.error("Could not save to file " + self.file_path + "\n" + str(e))
+        main_widget.MainWidget.instance.hide_loading_screen()
+        return ret
 
     def on_find(self, checked):
         if checked:

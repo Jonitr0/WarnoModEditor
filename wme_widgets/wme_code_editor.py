@@ -21,6 +21,7 @@ class LineNumberArea(QtWidgets.QWidget):
 
 class WMECodeEditor(QtWidgets.QPlainTextEdit):
     search_complete = QtCore.Signal()
+    unsaved_changes = QtCore.Signal(bool)
 
     def __init__(self):
         super().__init__()
@@ -34,6 +35,8 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.cursorPositionChanged.connect(self.mark_finds_in_viewport)
 
         self.updateLineNumberAreaWidth(0)
+
+        # variables needed for search management
         self.pattern = ""
         self.change_length = 0
         self.change_pos = -1
@@ -48,7 +51,6 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.document().contentsChange.connect(self.update_search)
 
         highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
-        # TODO: update search on text changed
 
     def lineNumberAreaWidth(self):
         digits = 1
@@ -259,3 +261,5 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
         self.change_length = 0
         self.change_pos = -1
+
+        self.unsaved_changes.emit(True)
