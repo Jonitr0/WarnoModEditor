@@ -83,9 +83,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             # load mod
             self.request_load_mod.emit(mods_path + mod_name)
 
-            if dialog.get_mod_generate():
-                self.generate_mod()
-
     def on_load_action(self):
         if not self.main_widget_ref.ask_all_tabs_to_save():
             return

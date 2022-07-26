@@ -5,9 +5,6 @@ from PySide2 import QtWidgets, QtGui
 from wme_widgets.tab_widget import wme_tab_bar, wme_detached_tab
 from wme_widgets.tab_pages import ndf_editor_widget
 
-from utils import icon_manager
-from utils.color_manager import *
-
 
 class WMETabWidget(QtWidgets.QTabWidget):
     def __init__(self, parent=None):

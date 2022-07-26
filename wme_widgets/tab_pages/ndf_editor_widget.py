@@ -127,7 +127,8 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         tool_bar = QtWidgets.QToolBar()
         main_layout.addWidget(tool_bar)
 
-        open_action = tool_bar.addAction("Open")
+        open_action = tool_bar.addAction(icon_manager.load_icon("open.png", COLORS.PRIMARY), "Open (Ctrl + O)")
+        open_action.setShortcut("Ctrl+O")
         open_action.triggered.connect(self.on_open)
 
         save_action = tool_bar.addAction(icon_manager.load_icon("save.png", COLORS.PRIMARY), "Save (Ctrl + S)")
