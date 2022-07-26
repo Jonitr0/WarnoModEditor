@@ -65,13 +65,13 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.add_action_to_menu("Remove Mod Backup", edit_menu, True, self.on_delete_backup_action)
 
     def on_new_action(self):
-        if not self.main_widget_ref.ask_all_tabs_to_save():
-            return
-
         dialog = new_mod_dialog.NewModDialog(self.main_widget_ref.get_warno_path())
         result = dialog.exec_()
 
         if result == QtWidgets.QDialog.Accepted:
+            if not self.main_widget_ref.ask_all_tabs_to_save():
+                return
+
             mod_name = dialog.get_mod_name()
             mods_path = self.main_widget_ref.get_warno_path() + "/Mods/"
             mods_path = mods_path.replace("/", "\\")
@@ -84,9 +84,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             self.request_load_mod.emit(mods_path + mod_name)
 
     def on_load_action(self):
-        if not self.main_widget_ref.ask_all_tabs_to_save():
-            return
-
         while True:
             mod_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter mod path",
                                                                     self.main_widget_ref.get_warno_path() + "/Mods")
@@ -94,7 +91,13 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                 return
 
             mod_path = mod_path.removesuffix("/")
+            mod_path = mod_path.replace("/", "\\")
             if path_validator.validate_mod_path(mod_path):
+                if mod_path == main_widget.MainWidget.instance.get_loaded_mod_path():
+                    print("here")
+                    return
+                if not self.main_widget_ref.ask_all_tabs_to_save():
+                    return
                 self.request_load_mod.emit(mod_path)
                 return
 
@@ -113,9 +116,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.generate_mod()
 
     def on_edit_config_action(self):
-        if not self.main_widget_ref.ask_all_tabs_to_save():
-            return
-
         config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
                       self.main_widget_ref.get_loaded_mod_name() + "\\Config.ini"
 
