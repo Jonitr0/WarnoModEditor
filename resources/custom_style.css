@@ -1,9 +1,3 @@
-QDialog {{
-  border-width: 1px;
-  border-style: solid;
-  border-color: {QTMATERIAL_SECONDARYCOLOR};
-}}
-
 WMETitleBar {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
 }}

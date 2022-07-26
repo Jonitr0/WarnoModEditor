@@ -9,6 +9,20 @@ from wme_widgets import wme_title_bar
 class BaseDialog(QtWidgets.QDialog):
     def __init__(self, parent=None, ok_only: bool = False):
         super().__init__(parent)
+        self.shadow_layout = QtWidgets.QHBoxLayout()
+        self.shadow_effect = QtWidgets.QGraphicsDropShadowEffect()
+
+        shadow_widget = QtWidgets.QWidget()
+        self.shadow_layout.setMargin(4)
+        shadow_widget.setLayout(self.shadow_layout)
+
+        self.shadow_effect.setOffset(0, 0)
+        self.shadow_effect.setBlurRadius(4)
+        self.shadow_effect.setColor(Qt.black)
+        shadow_widget.setGraphicsEffect(self.shadow_effect)
+
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        shadow_widget.setAttribute(Qt.WA_TranslucentBackground)
 
         self.widgetList = []
 
@@ -17,7 +31,15 @@ class BaseDialog(QtWidgets.QDialog):
         self.bar_layout = QtWidgets.QVBoxLayout(self)
         self.bar_layout.setContentsMargins(0, 0, 0, 0)
         self.bar_layout.setSpacing(0)
-        self.setLayout(self.bar_layout)
+
+        bar_widget = QtWidgets.QWidget()
+        self.shadow_layout.addWidget(bar_widget)
+        bar_widget.setLayout(self.bar_layout)
+
+        dialog_layout = QtWidgets.QHBoxLayout()
+        dialog_layout.setMargin(0)
+        dialog_layout.addWidget(shadow_widget)
+        self.setLayout(dialog_layout)
 
         self.title_bar = wme_title_bar.WMETitleBar(self, only_close=True)
         self.bar_layout.addWidget(self.title_bar)
@@ -60,7 +82,8 @@ class BaseDialog(QtWidgets.QDialog):
         super().setWindowTitle(title)
         self.title_bar.set_title(title)
 
-    # put input wme_widgets in a list and make enter press iterate through them (like tab) or accept dialog if it's the last
+    # put input wme_widgets in a list and make enter press iterate through them (like tab)
+    # or accept dialog if it's the last
     def createWidgetList(self, layout_contents):
         for layout_item in layout_contents:
             if type(layout_item) == QtWidgets.QWidgetItem:
@@ -83,3 +106,16 @@ class BaseDialog(QtWidgets.QDialog):
                 self.widgetList[index + 1].setFocus()
 
         return False
+
+    def changeEvent(self, event):
+        if event.type() == QtCore.QEvent.WindowStateChange:
+            if (self.windowState() == (Qt.WindowMaximized or Qt.WindowFullScreen)) or int(self.windowState()) == 6:
+                self.shadow_layout.setMargin(0)
+                self.shadow_effect.setEnabled(False)
+            else:
+                self.shadow_layout.setMargin(4)
+                # stupid but needed to fix shadow effect
+                self.resize(self.size().width() + 1, self.size().height() + 1)
+                self.resize(self.size().width() - 1, self.size().height() - 1)
+                self.shadow_effect.setEnabled(True)
+        super().changeEvent(event)

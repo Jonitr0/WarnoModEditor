@@ -8,7 +8,6 @@ from utils import warno_path_loader, settings_manager
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        # TODO: make the shadow stuff own class that others can inherit
         self.shadow_layout = QtWidgets.QHBoxLayout()
         self.shadow_effect = QtWidgets.QGraphicsDropShadowEffect()
         self.main_widget_ref = None

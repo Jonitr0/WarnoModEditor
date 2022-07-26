@@ -1,4 +1,4 @@
-from PySide2 import QtWidgets
+from PySide2 import QtWidgets, QtCore
 from PySide2.QtCore import Qt
 
 from wme_widgets import wme_title_bar
@@ -10,6 +10,20 @@ detached_list = []
 class WMEDetachedTab(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.shadow_layout = QtWidgets.QHBoxLayout()
+        self.shadow_effect = QtWidgets.QGraphicsDropShadowEffect()
+
+        shadow_widget = QtWidgets.QWidget()
+        self.shadow_layout.setMargin(4)
+        shadow_widget.setLayout(self.shadow_layout)
+
+        self.shadow_effect.setOffset(0, 0)
+        self.shadow_effect.setBlurRadius(4)
+        self.shadow_effect.setColor(Qt.black)
+        shadow_widget.setGraphicsEffect(self.shadow_effect)
+
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        shadow_widget.setAttribute(Qt.WA_TranslucentBackground)
 
         self.setModal(False)
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -17,7 +31,17 @@ class WMEDetachedTab(QtWidgets.QDialog):
         self.bar_layout = QtWidgets.QVBoxLayout(self)
         self.bar_layout.setContentsMargins(0, 0, 0, 0)
         self.bar_layout.setSpacing(0)
-        self.setLayout(self.bar_layout)
+
+        bar_widget = QtWidgets.QWidget()
+        self.shadow_layout.addWidget(bar_widget)
+        bar_widget.setLayout(self.bar_layout)
+
+        dialog_layout = QtWidgets.QHBoxLayout()
+        dialog_layout.setMargin(0)
+        dialog_layout.addWidget(shadow_widget)
+        self.setLayout(dialog_layout)
+
+        print(self.contentsMargins())
 
         self.title_bar = wme_title_bar.WMETitleBar(self)
         self.bar_layout.addWidget(self.title_bar)
@@ -59,4 +83,16 @@ class WMEDetachedTab(QtWidgets.QDialog):
             event.ignore()
         else:
             super().keyPressEvent(event)
-            
+
+    def changeEvent(self, event):
+        if event.type() == QtCore.QEvent.WindowStateChange:
+            if (self.windowState() == (Qt.WindowMaximized or Qt.WindowFullScreen)) or int(self.windowState()) == 6:
+                self.shadow_layout.setMargin(0)
+                self.shadow_effect.setEnabled(False)
+            else:
+                self.shadow_layout.setMargin(4)
+                # stupid but needed to fix shadow effect
+                self.resize(self.size().width() + 1, self.size().height() + 1)
+                self.resize(self.size().width() - 1, self.size().height() - 1)
+                self.shadow_effect.setEnabled(True)
+        super().changeEvent(event)
