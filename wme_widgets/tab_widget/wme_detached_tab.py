@@ -1,4 +1,4 @@
-from PySide2 import QtWidgets, QtCore
+from PySide2 import QtWidgets, QtCore, QtGui
 from PySide2.QtCore import Qt
 
 from wme_widgets import wme_title_bar
@@ -19,7 +19,7 @@ class WMEDetachedTab(QtWidgets.QDialog):
 
         self.shadow_effect.setOffset(0, 0)
         self.shadow_effect.setBlurRadius(4)
-        self.shadow_effect.setColor(Qt.black)
+        self.shadow_effect.setColor(QtGui.QColor(0, 0, 0, 150))
         shadow_widget.setGraphicsEffect(self.shadow_effect)
 
         self.setAttribute(Qt.WA_TranslucentBackground)

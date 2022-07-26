@@ -136,8 +136,19 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         save_action.triggered.connect(self.on_save)
 
         tool_bar.addSeparator()
-        tool_bar.addAction("Undo")
-        tool_bar.addAction("Redo")
+
+        undo_icon = QtGui.QIcon()
+        undo_icon.addPixmap(icon_manager.load_pixmap("undo.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
+        undo_icon.addPixmap(icon_manager.load_pixmap("undo.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
+        undo_action = tool_bar.addAction(undo_icon, "Undo (Ctrl + Z)")
+        undo_action.setShortcut("Ctrl+Z")
+        redo_icon = QtGui.QIcon()
+
+        redo_icon.addPixmap(icon_manager.load_pixmap("redo.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
+        redo_icon.addPixmap(icon_manager.load_pixmap("redo.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
+        redo_action = tool_bar.addAction(redo_icon, "Redo (Ctrl + Y)")
+        redo_action.setShortcut("Ctrl+Y")
+
         tool_bar.addSeparator()
 
         find_action = tool_bar.addAction(icon_manager.load_icon("magnify.png", COLORS.PRIMARY), "Find (Ctrl + F)")
