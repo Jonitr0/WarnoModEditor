@@ -41,8 +41,6 @@ class WMEDetachedTab(QtWidgets.QDialog):
         dialog_layout.addWidget(shadow_widget)
         self.setLayout(dialog_layout)
 
-        print(self.contentsMargins())
-
         self.title_bar = wme_title_bar.WMETitleBar(self)
         self.bar_layout.addWidget(self.title_bar)
 

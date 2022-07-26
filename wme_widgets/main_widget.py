@@ -19,12 +19,14 @@ class MainWidget(QtWidgets.QWidget):
 
     def __init__(self, warno_path: str, title_bar):
         super().__init__()
+        self.explorer = wme_project_explorer.WMEProjectExplorer(self)
         self.load_screen = QtWidgets.QLabel("Open the \"File\" menu to create or load a mod.")
         self.splitter = QtWidgets.QSplitter(self)
         self.tab_widget = wme_tab_widget.WMETabWidget()
         self.menu_bar = wme_menu_bar.WMEMainMenuBar(main_widget_ref=self)
         self.loaded_mod_path = ""
         self.loaded_mod_name = ""
+        self.explorer_width = 0
         self.warno_path = warno_path
         self.status_label = QtWidgets.QLabel()
         self.status_timer = QtCore.QTimer()
@@ -63,10 +65,10 @@ class MainWidget(QtWidgets.QWidget):
         self.menu_bar.request_load_mod.connect(self.load_mod)
 
         self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        explorer = wme_project_explorer.WMEProjectExplorer(self)
-        self.mod_loaded.connect(explorer.update_model)
-        self.splitter.addWidget(explorer)
+        self.mod_loaded.connect(self.explorer.update_model)
+        self.splitter.addWidget(self.explorer)
         self.splitter.addWidget(self.tab_widget)
+        self.splitter.handle(1).installEventFilter(self)
         self.splitter.setCollapsible(1, False)
         self.splitter.setHidden(True)
         main_layout.addWidget(self.splitter)
@@ -75,7 +77,7 @@ class MainWidget(QtWidgets.QWidget):
         self.load_screen.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(self.load_screen)
 
-        explorer.open_ndf_editor.connect(self.tab_widget.on_open_ndf_editor)
+        self.explorer.open_ndf_editor.connect(self.tab_widget.on_open_ndf_editor)
 
         label_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(label_layout)
@@ -131,3 +133,16 @@ class MainWidget(QtWidgets.QWidget):
         self.load_screen.setHidden(True)
         self.splitter.setHidden(False)
         QtWidgets.QApplication.processEvents()
+
+    def eventFilter(self, source, event) -> bool:
+        if event.type() == QtCore.QEvent.MouseButtonDblClick:
+            if self.splitter.sizes()[0] > 0:
+                self.explorer_width = self.explorer.width()
+                self.splitter.setSizes([0, self.tab_widget.width() + self.explorer_width])
+            else:
+                self.splitter.setSizes([self.explorer_width, self.tab_widget.width() - self.explorer_width])
+        return False
+
+
+
+
