@@ -1,9 +1,12 @@
 # TabWidget that manages pages such as editors, etc.
 
-from PySide2 import QtWidgets
+from PySide2 import QtWidgets, QtGui
 
 from wme_widgets.tab_widget import wme_tab_bar, wme_detached_tab
 from wme_widgets.tab_pages import ndf_editor_widget
+
+from utils import icon_manager
+from utils.color_manager import *
 
 
 class WMETabWidget(QtWidgets.QTabWidget):
@@ -16,7 +19,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         # TODO: style button
         new_tab_button = QtWidgets.QPushButton()
         new_tab_button.setText("Add Tab..")
-        new_tab_button.setMinimumHeight(20)
+        new_tab_button.setMinimumHeight(32)
         self.setCornerWidget(new_tab_button)
 
         self.tab_menu = QtWidgets.QMenu()
@@ -94,6 +97,8 @@ class WMETabWidget(QtWidgets.QTabWidget):
         # if it has unsaved changes
         if status:
             self.setTabText(index, widget.tab_name + "(*)")
+            self.setTabToolTip(index, widget.tab_name + "(*)")
         else:
             self.setTabText(index, widget.tab_name)
+            self.setTabToolTip(index, widget.tab_name)
 

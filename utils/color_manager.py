@@ -31,7 +31,7 @@ class COLORS(Enum):
     SUCCESS = "success"
 
 
-def get_color(key: str):
+def get_color_key(key: str):
     global loaded
     if not loaded:
         load_colors()

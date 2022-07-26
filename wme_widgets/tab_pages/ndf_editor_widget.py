@@ -172,7 +172,7 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
                 self.code_editor.setPlainText(f.read())
                 self.file_path = file_path
         except Exception as e:
-            logging.error("Could not open file " + file_path + "\n" + str(e))
+            logging.error("Could not open file " + file_path + ": " + str(e))
         main_widget.MainWidget.instance.hide_loading_screen()
 
     def on_save(self):
@@ -192,7 +192,7 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
                 f.write(self.code_editor.toPlainText())
             ret = True
         except Exception as e:
-            logging.error("Could not save to file " + self.file_path + "\n" + str(e))
+            logging.error("Could not save to file " + self.file_path + ": " + str(e))
         main_widget.MainWidget.instance.hide_loading_screen()
         return ret
 

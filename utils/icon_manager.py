@@ -20,7 +20,7 @@ def load_pixmap(name: str, color: COLORS):
         if pixmap.isNull():
             logging.warning("No icon found for " + name)
         mask = pixmap.createMaskFromColor(Qt.white, Qt.MaskOutColor)
-        pixmap.fill(QtGui.QColor(get_color(color.value)))
+        pixmap.fill(QtGui.QColor(get_color_key(color.value)))
         pixmap.setMask(mask)
         loadedIcons[(name, color)] = pixmap
 
