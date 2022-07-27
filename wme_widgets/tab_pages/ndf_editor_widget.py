@@ -140,14 +140,18 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         undo_icon = QtGui.QIcon()
         undo_icon.addPixmap(icon_manager.load_pixmap("undo.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
         undo_icon.addPixmap(icon_manager.load_pixmap("undo.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
-        undo_action = tool_bar.addAction(undo_icon, "Undo (Ctrl + Z)")
-        undo_action.setShortcut("Ctrl+Z")
-        redo_icon = QtGui.QIcon()
+        self.undo_action = tool_bar.addAction(undo_icon, "Undo (Ctrl + Z)")
+        self.undo_action.setShortcut("Ctrl+Z")
+        self.undo_action.setDisabled(True)
+        self.undo_action.triggered.connect(self.on_undo)
 
+        redo_icon = QtGui.QIcon()
         redo_icon.addPixmap(icon_manager.load_pixmap("redo.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
         redo_icon.addPixmap(icon_manager.load_pixmap("redo.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
-        redo_action = tool_bar.addAction(redo_icon, "Redo (Ctrl + Y)")
-        redo_action.setShortcut("Ctrl+Y")
+        self.redo_action = tool_bar.addAction(redo_icon, "Redo (Ctrl + Y)")
+        self.redo_action.setShortcut("Ctrl+Y")
+        self.redo_action.setDisabled(True)
+        self.redo_action.triggered.connect(self.on_redo)
 
         tool_bar.addSeparator()
 
@@ -167,6 +171,8 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         main_layout.addWidget(self.code_editor)
         self.code_editor.search_complete.connect(self.on_search_complete)
         self.code_editor.unsaved_changes.connect(self.set_unsaved_changes)
+        self.code_editor.document().undoAvailable.connect(self.on_undo_available)
+        self.code_editor.document().redoAvailable.connect(self.on_redo_available)
 
     def on_open(self):
         file_path, _ = QtWidgets.QFileDialog().getOpenFileName(self,
@@ -223,3 +229,16 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         else:
             self.find_bar.set_label_text(str(results) + " results for \"" + self.find_bar.current_search + "\"")
             self.find_bar.enable_find_buttons(True)
+
+    def on_undo_available(self, available: bool):
+        self.undo_action.setDisabled(not available)
+
+    def on_redo_available(self, available: bool):
+        self.redo_action.setDisabled(not available)
+
+    def on_undo(self):
+        self.code_editor.document().undo()
+
+    def on_redo(self):
+        self.code_editor.document().redo()
+
