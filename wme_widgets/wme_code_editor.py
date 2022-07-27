@@ -31,16 +31,13 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
         self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
         self.updateRequest.connect(self.updateLineNumberArea)
-        self.cursorPositionChanged.connect(self.highlightCurrentLine)
+        self.cursorPositionChanged.connect(self.update)
         self.cursorPositionChanged.connect(self.mark_finds_in_viewport)
 
         self.updateLineNumberAreaWidth(0)
 
         # variables needed for search management
         self.pattern = ""
-        self.change_length = 0
-        self.change_pos = -1
-        self.about_to_change_format = False
         self.find_results = []
         self.drawn_results = []
 
@@ -110,20 +107,16 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             bottom = top + self.blockBoundingRect(block).height()
             block_number += 1
 
-    def highlightCurrentLine(self):
-        extra_selections = []
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self.viewport())
+        rect = self.cursorRect()
+        rect.setLeft(0)
+        rect.setRight(self.width() - 1)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QtGui.QColor(get_color_key(COLORS.SECONDARY_LIGHT.value)))
+        painter.drawRect(rect)
 
-        if not self.isReadOnly():
-            selection = QtWidgets.QTextEdit.ExtraSelection()
-
-            line_color = QtGui.QColor(get_color_key(COLORS.SECONDARY_LIGHT.value))
-
-            selection.format.setBackground(line_color)
-            selection.format.setProperty(QtGui.QTextFormat.FullWidthSelection, True)
-            selection.cursor = self.textCursor()
-            selection.cursor.clearSelection()
-            extra_selections.append(selection)
-        self.setExtraSelections(extra_selections)
+        super().paintEvent(event)
 
     def find_pattern(self, pattern, updating=False):
         self.reset_find()
@@ -153,25 +146,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         if len(self.find_results) == 0:
             return
 
-        cursor = self.textCursor()
-        clear_format = QtGui.QTextCharFormat()
-        clear_format.setBackground(Qt.transparent)
-
-        length = self.find_results[0][1] - self.find_results[0][0]
-
-        for drawn in self.drawn_results:
-            # if we changed an existing find, make the clear area longer
-            if drawn <= self.change_pos <= drawn + length:
-                length += self.change_length
-
-            cursor.setPosition(drawn, QtGui.QTextCursor.MoveAnchor)
-            cursor.setPosition(drawn + length, QtGui.QTextCursor.KeepAnchor)
-            self.about_to_change_format = True
-            cursor.mergeCharFormat(clear_format)
-
-            # reset length
-            if drawn <= self.change_pos <= drawn + length:
-                length -= self.change_length
+        self.setExtraSelections([])
 
         self.find_results = []
         self.drawn_results = []
@@ -192,18 +167,25 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         start = cursor.selectionStart()
         end = cursor.selectionEnd()
 
+        extra_selections = self.extraSelections()
+
         # check all results
         for find in self.find_results:
             if find[0] > end:
                 break
             # draw those in viewport that are not already drawn
             elif find[0] >= start and not self.drawn_results.__contains__(find[0]):
-                cursor.setPosition(find[0], QtGui.QTextCursor.MoveAnchor)
-                cursor.setPosition(find[1], QtGui.QTextCursor.KeepAnchor)
-                self.about_to_change_format = True
-                cursor.mergeCharFormat(self.find_format)
+                selection = QtWidgets.QTextEdit.ExtraSelection()
+
+                selection.format = self.find_format
+                selection.cursor = self.textCursor()
+                selection.cursor.setPosition(find[0], QtGui.QTextCursor.MoveAnchor)
+                selection.cursor.setPosition(find[1], QtGui.QTextCursor.KeepAnchor)
+                extra_selections.append(selection)
 
                 self.drawn_results.append(find[0])
+
+        self.setExtraSelections(extra_selections)
 
     def goto_next_find(self):
         if len(self.find_results) == 0:
@@ -248,18 +230,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             last_find = find[0]
 
     def update_search(self, pos: int, _: int, added: int):
-        if self.about_to_change_format:
-            self.about_to_change_format = False
-            return
-
-        self.change_length = added
-        self.change_pos = pos
-
         self.find_pattern(self.pattern, updating=True)
         self.mark_finds_in_viewport()
-        self.about_to_change_format = False
-
-        self.change_length = 0
-        self.change_pos = -1
 
         self.unsaved_changes.emit(True)
