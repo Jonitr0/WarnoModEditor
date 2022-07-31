@@ -98,7 +98,6 @@ class WMETabBar(QtWidgets.QTabBar):
             self.dragging_tab_index = -1
             self.hover_tab_index = -1
             self.update()
-            self.updateGeometry()
 
         else:
             super().mouseMoveEvent(event)

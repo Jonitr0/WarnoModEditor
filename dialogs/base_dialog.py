@@ -7,7 +7,7 @@ from wme_widgets import wme_title_bar
 
 
 class BaseDialog(QtWidgets.QDialog):
-    def __init__(self, parent=None, ok_only: bool = False):
+    def __init__(self, parent=None, ok_only: bool = False, urgent: bool = False):
         super().__init__(parent)
         self.shadow_layout = QtWidgets.QHBoxLayout()
         self.shadow_effect = QtWidgets.QGraphicsDropShadowEffect()
@@ -74,6 +74,9 @@ class BaseDialog(QtWidgets.QDialog):
             cancel_button.setFixedWidth(120)
             cancel_button.clicked.connect(self.reject)
             button_layout.addWidget(cancel_button)
+
+        if urgent:
+            QtWidgets.QApplication.beep()
 
     def setup_ui(self):
         raise NotImplementedError("Please Implement this method")

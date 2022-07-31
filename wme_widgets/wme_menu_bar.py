@@ -7,7 +7,7 @@ from pathlib import Path
 from PySide6 import QtWidgets, QtCore, QtGui
 
 from dialogs import new_mod_dialog, edit_config_dialog, new_backup_dialog, \
-    selection_dialog, confirmation_dialog, options_dialog
+    selection_dialog, confirmation_dialog, options_dialog, message_dialog
 from utils import path_validator
 from wme_widgets import main_widget
 
@@ -101,11 +101,11 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                 self.request_load_mod.emit(mod_path)
                 return
 
-            QtWidgets.QMessageBox().information(self, "Path invalid", "The given path does not to point to a valid "
-                                                                      "WARNO mod directory. Please enter a valid path")
+            message_dialog.MessageDialog("Path invalid", "The given path does not to point to a valid "
+                                                         "WARNO mod directory. Please enter a valid path").exec()
 
     def on_options_action(self):
-        options_dialog.OptionsDialog().exec_()
+        options_dialog.OptionsDialog().exec()
 
     def generate_mod(self):
         # for whatever reason, the successful run returns 18?
@@ -120,9 +120,11 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                       self.main_widget_ref.get_loaded_mod_name() + "\\Config.ini"
 
         if not QtCore.QFile.exists(config_path):
-            QtWidgets.QMessageBox().information(self, "Config.ini not found", "The configuration file for the mod "
-                                                + self.main_widget_ref.get_loaded_mod_name() + " could not be found."
-                                                " You have to generate the mod to create the configuration file.")
+            message_dialog.MessageDialog("Config.ini not found", "The configuration file for the mod "
+                                         + self.main_widget_ref.get_loaded_mod_name() + " could not be found."
+                                                                                        "You have to generate the mod "
+                                                                                        "to create the configuration "
+                                                                                        "file.")
             return
 
         config = QtCore.QSettings(config_path, QtCore.QSettings.IniFormat)
@@ -188,7 +190,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
     def on_new_backup_action(self):
         dialog = new_backup_dialog.NewBackupDialog()
-        result = dialog.exec_()
+        result = dialog.exec()
         if result != QtWidgets.QDialog.Accepted:
             return
 
@@ -213,7 +215,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def on_retrieve_backup_action(self):
         all_backups = self.find_backups()
         if len(all_backups) == 0:
-            logging.info("No backups found")
+            message_dialog.MessageDialog("No backups found",
+                                         "No backups could be found for the currently loaded mod.").exec()
             return
 
         dialog = selection_dialog.SelectionDialog("Please select a backup to retrieve.",
@@ -229,11 +232,11 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         ret = run_script(self.main_widget_ref.get_loaded_mod_path(), "RetrieveModBackup.bat", selection)
         logging.info("RetrieveModBackup.bat executed with return code " + str(ret))
 
-
     def on_delete_backup_action(self):
         all_backups = self.find_backups()
         if len(all_backups) == 0:
-            logging.info("No backups found")
+            message_dialog.MessageDialog("No backups found",
+                                         "No backups could be found for the currently loaded mod.").exec()
             return
 
         dialog = selection_dialog.SelectionDialog("Please select a backup to delete.",
