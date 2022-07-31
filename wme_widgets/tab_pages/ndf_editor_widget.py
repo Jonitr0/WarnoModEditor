@@ -133,7 +133,7 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
 
         save_action = tool_bar.addAction(icon_manager.load_icon("save.png", COLORS.PRIMARY), "Save (Ctrl + S)")
         save_action.setShortcut("Ctrl+S")
-        save_action.triggered.connect(self.on_save)
+        save_action.triggered.connect(self.save_changes)
 
         tool_bar.addSeparator()
 
@@ -188,18 +188,14 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         try:
             with open(file_path, encoding="UTF-8") as f:
                 self.code_editor.setPlainText(f.read())
-                self.file_path = file_path
+            self.file_path = file_path
+            self.unsaved_changes = False
         except Exception as e:
             logging.error("Could not open file " + file_path + ": " + str(e))
         main_widget.MainWidget.instance.hide_loading_screen()
 
-    def on_save(self):
-        # TODO: check if other widgets have unsaved changes on the file
-        if False:
-            # TODO: some warning popup
-            return
-
     def save_changes(self):
+        # TODO: check if other widgets have unsaved changes on the file, ask to progress
         main_widget.MainWidget.instance.show_loading_screen("saving file...")
         ret = False
         try:
@@ -212,6 +208,10 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         if ret:
             self.unsaved_changes = False
         return ret
+
+    def discard_changes(self):
+        # TODO: there might be a better way
+        self.open_file(self.file_path)
 
     def on_find(self, checked):
         if checked:

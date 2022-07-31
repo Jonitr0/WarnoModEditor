@@ -7,6 +7,7 @@ dialog_finished_once = False
 
 def validate_warno_path(warno_path):
     if path_validator.validate_warno_path(warno_path):
+        warno_path = warno_path.replace("/", "\\")
         settings_manager.write_settings_value(settings_manager.WARNO_PATH_KEY, warno_path)
         return True
     if dialog_finished_once:
@@ -25,7 +26,7 @@ def load_warno_path_from_settings():
 
 
 def open_warno_path_dialog():
-    tmp_path = "C:\Program Files (x86)\Steam\steamapps\common\WARNO"
+    tmp_path = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\WARNO"
     if not QtCore.QDir(tmp_path).exists():
         tmp_path = QtCore.QDir().currentPath()
 

@@ -2,6 +2,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from wme_widgets import wme_title_bar, main_widget
+from wme_widgets.tab_widget import wme_detached_tab
 from utils import warno_path_loader, settings_manager
 
 
@@ -63,6 +64,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.main_widget_ref is None:
             super().close()
         if self.main_widget_ref.ask_all_tabs_to_save():
+            wme_detached_tab.clear_detached_list()
             super().close()
 
     def changeEvent(self, event):

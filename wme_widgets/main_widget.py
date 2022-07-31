@@ -4,7 +4,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from wme_widgets import wme_menu_bar, wme_project_explorer
-from wme_widgets.tab_widget import wme_tab_widget
+from wme_widgets.tab_widget import wme_tab_widget, wme_detached_tab
 from utils import settings_manager, path_validator
 
 
@@ -115,13 +115,8 @@ class MainWidget(QtWidgets.QWidget):
         self.hide_loading_screen()
 
     def ask_all_tabs_to_save(self):
-        if not self.tab_widget.ask_all_tabs_to_save(all_windows=True):
-            return False
-        # TODO: ask all tabs if progress needs to be saved
-        # TODO: open one dialog to save, discard, or cancel for each with unsaved progress
-        # TODO: if all return save/discard, perform actions and return true
-        # TODO: if one returns cancel, return false
-        return True
+        # ask all tabs on all windows to save/discard, return False on cancel
+        return self.tab_widget.ask_all_tabs_to_save(all_windows=True)
 
     def show_loading_screen(self, text: str = "loading..."):
         self.load_screen.setText(text)

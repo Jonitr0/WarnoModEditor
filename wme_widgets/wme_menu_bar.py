@@ -94,7 +94,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             mod_path = mod_path.replace("/", "\\")
             if path_validator.validate_mod_path(mod_path):
                 if mod_path == main_widget.MainWidget.instance.get_loaded_mod_path():
-                    print("here")
                     return
                 if not self.main_widget_ref.ask_all_tabs_to_save():
                     return

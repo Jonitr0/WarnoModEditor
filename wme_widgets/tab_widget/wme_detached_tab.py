@@ -3,8 +3,16 @@ from PySide6.QtCore import Qt
 
 from wme_widgets import wme_title_bar
 from wme_widgets.tab_widget import wme_tab_widget
+from dialogs import essential_dialogs
 
 detached_list = []
+
+
+def clear_detached_list():
+    orig_len = len(detached_list)
+    for i in range(len(detached_list)):
+        detached = detached_list[orig_len - i - 1]
+        detached.close()
 
 
 class WMEDetachedTab(QtWidgets.QDialog):
@@ -48,7 +56,7 @@ class WMEDetachedTab(QtWidgets.QDialog):
         content_layout.setContentsMargins(10, 10, 10, 10)
         self.bar_layout.addLayout(content_layout)
         self.tab_widget = wme_tab_widget.WMETabWidget(self)
-        self.tab_widget.tabBar().tab_removed.connect(self.on_tab_removed)
+        self.tab_widget.tab_removed_by_button.connect(self.on_tab_removed)
         content_layout.addWidget(self.tab_widget)
 
         self.grip = QtWidgets.QSizeGrip(self)
@@ -63,7 +71,32 @@ class WMEDetachedTab(QtWidgets.QDialog):
         self.grip.move(rect.right() - 16 - 4, rect.bottom() - 16 - 4)
 
     def close(self):
-        # TODO: ask to save progress
+        # close all tabs with no unsaved changes
+        orig_count = self.tab_widget.count()
+        for i in range(orig_count):
+            page = self.tab_widget.widget(orig_count - i - 1)
+            if not page.unsaved_changes:
+                self.tab_widget.removeTab(orig_count - i - 1)
+        # check for each unsaved tab if it should be saved
+        while self.tab_widget.count() > 0:
+            page = self.tab_widget.widget(0)
+            dialog = essential_dialogs.AskToSaveDialog()
+            result = dialog.exec()
+
+            # don't close on cancel
+            if not result == QtWidgets.QDialog.Accepted:
+                return
+            # on save
+            elif dialog.save_changes:
+                if not page.save_changes():
+                    return
+            # on revert
+            else:
+                page.discard_changes()
+            # close tab
+            self.tab_widget.removeTab(0)
+
+        # remove window from list of detached windows
         detached_list.remove(self)
         return super().close()
 

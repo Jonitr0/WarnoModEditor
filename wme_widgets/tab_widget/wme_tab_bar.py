@@ -29,6 +29,9 @@ class WMETabBar(QtWidgets.QTabBar):
         super().mousePressEvent(event)
 
     def create_detached_window(self):
+        # make sure window is closed if needed
+        self.parent().tab_removed_by_button.emit()
+
         detached = wme_detached_tab.WMEDetachedTab()
 
         widget = self.parent().widget(self.dragging_tab_index)
@@ -122,6 +125,8 @@ class WMETabBar(QtWidgets.QTabBar):
         else:
             widget = origin_bar.parent().widget(origin_index)
             origin_bar.parent().removeTab(origin_index)
+            # make sure window is closed if needed
+            self.parent().tab_removed_by_button.emit()
             if new_index == -1:
                 trigger.parent().addTab(widget, title)
                 trigger.parent().setCurrentIndex(trigger.parent().count() - 1)

@@ -1,6 +1,6 @@
 # TabWidget that manages pages such as editors, etc.
 
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtCore
 
 from wme_widgets.tab_widget import wme_tab_bar, wme_detached_tab
 from wme_widgets.tab_pages import ndf_editor_widget
@@ -8,6 +8,8 @@ from dialogs import essential_dialogs
 
 
 class WMETabWidget(QtWidgets.QTabWidget):
+    tab_removed_by_button = QtCore.Signal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -25,7 +27,6 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.tab_menu.addAction("bla")
 
         self.setTabsClosable(True)
-        # TODO: run save check
         self.tabCloseRequested.connect(self.on_tab_close_pressed)
         self.setAcceptDrops(True)
 
@@ -41,7 +42,6 @@ class WMETabWidget(QtWidgets.QTabWidget):
         pass
 
     def on_tab_close_pressed(self, index: int):
-        # TODO: ask to save progress
         page = self.widget(index)
         if page.unsaved_changes:
             dialog = essential_dialogs.AskToSaveDialog()
@@ -52,9 +52,11 @@ class WMETabWidget(QtWidgets.QTabWidget):
                 return
             # on save
             elif dialog.save_changes:
-                page.save_changes()
+                if not page.save_changes():
+                    return
 
         self.removeTab(index)
+        self.tab_removed_by_button.emit()
 
     def on_open_ndf_editor(self, file_path: str):
         file_path = file_path.replace("/", "\\")
@@ -70,24 +72,41 @@ class WMETabWidget(QtWidgets.QTabWidget):
         widget.tab_name = title
         self.setCurrentIndex(ret)
         self.setTabToolTip(ret, title)
+        widget.unsaved_status_change.connect(self.on_save_status_changed)
         return ret
 
     def insertTab(self, index: int, widget, title: str) -> int:
         ret = super().insertTab(index, widget, title)
         self.setCurrentIndex(ret)
-        self.setTabToolTip(ret,title)
+        self.setTabToolTip(ret, title)
         return ret
 
-    def ask_all_tabs_to_save(self, all_windows: bool = False):
-        # TODO: iterate through tabs
-        if not all_windows:
-            return True
+    def ask_all_tabs_to_save(self, all_windows: bool = False) -> bool:
+        # iterate through own tabs
+        for i in range(self.count()):
+            page = self.widget(i)
+            if page.unsaved_changes:
+                dialog = essential_dialogs.AskToSaveDialog()
+                result = dialog.exec()
 
-        while len(wme_detached_tab.detached_list) > 0:
-            # TODO: ask each detached to save, break and return False on cancel pressed
-            detached = wme_detached_tab.detached_list[0]
-            detached.close()
-        # TODO: ask each tab to save
+                # don't close on cancel
+                if not result == QtWidgets.QDialog.Accepted:
+                    return False
+                # on save
+                elif dialog.save_changes:
+                    if not page.save_changes():
+                        return False
+                # on discard
+                else:
+                    page.discard_changes()
+
+        if all_windows:
+            # call function on other windows
+            for detached in wme_detached_tab.detached_list:
+                if not detached.tab_widget.ask_all_tabs_to_save(False):
+                    return False
+
+        # if cancel is never pressed, return True
         return True
 
     def dragEnterEvent(self, event):
