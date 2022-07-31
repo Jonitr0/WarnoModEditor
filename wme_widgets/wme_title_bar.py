@@ -155,6 +155,8 @@ class WMETitleBar(QtWidgets.QWidget):
         self.title_label.setVisible(window_title != "")
 
     def mousePressEvent(self, event):
+        if event.button() is not QtCore.Qt.MouseButton.LeftButton:
+            return
         self.start = self.mapToGlobal(event.pos())
         self.pressing = True
 
@@ -169,7 +171,13 @@ class WMETitleBar(QtWidgets.QWidget):
             self.start = end
 
     def mouseReleaseEvent(self, event):
+        if event.button() is not QtCore.Qt.MouseButton.LeftButton:
+            return
         self.pressing = False
+
+        self.max_hold = False
+        self.min_hold = False
+        self.close_hold = False
 
     def on_min_clicked(self):
         self.parent.showMinimized()

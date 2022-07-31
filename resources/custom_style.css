@@ -35,6 +35,7 @@ WMETabBar::tab {{
 QToolButton {{
   height: 16px;
   border: 0px;
+  background-color: transparent;
 }}
 
 QToolButton:hover {{
