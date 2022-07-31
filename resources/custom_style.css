@@ -28,6 +28,10 @@ QPushButton.danger {{
   background-color: transparent;
 }}
 
+WMETabBar {{
+  text-transform: none;
+}}
+
 WMETabBar::tab {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
 }}

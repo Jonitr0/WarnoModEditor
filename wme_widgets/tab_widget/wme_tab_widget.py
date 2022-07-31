@@ -44,7 +44,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_tab_close_pressed(self, index: int):
         page = self.widget(index)
         if page.unsaved_changes:
-            dialog = essential_dialogs.AskToSaveDialog()
+            dialog = essential_dialogs.AskToSaveDialog(page.tab_name)
             result = dialog.exec()
 
             # don't close on cancel
@@ -86,7 +86,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         for i in range(self.count()):
             page = self.widget(i)
             if page.unsaved_changes:
-                dialog = essential_dialogs.AskToSaveDialog()
+                dialog = essential_dialogs.AskToSaveDialog(page.tab_name)
                 result = dialog.exec()
 
                 # don't close on cancel

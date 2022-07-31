@@ -80,7 +80,7 @@ class WMEDetachedTab(QtWidgets.QDialog):
         # check for each unsaved tab if it should be saved
         while self.tab_widget.count() > 0:
             page = self.tab_widget.widget(0)
-            dialog = essential_dialogs.AskToSaveDialog()
+            dialog = essential_dialogs.AskToSaveDialog(page.tab_name)
             result = dialog.exec()
 
             # don't close on cancel

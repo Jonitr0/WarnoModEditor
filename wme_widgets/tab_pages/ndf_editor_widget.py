@@ -108,6 +108,8 @@ class FindBar(QtWidgets.QWidget):
         self.next_button.setDisabled(not enable)
         self.prev_button.setDisabled(not enable)
 
+# TODO: add replace bar
+
 
 class NdfEditorWidget(tab_page_base.TabPageBase):
     def __init__(self):
@@ -196,6 +198,7 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
 
     def save_changes(self):
         # TODO: check if other widgets have unsaved changes on the file, ask to progress
+        # TODO: do this in super()
         main_widget.MainWidget.instance.show_loading_screen("saving file...")
         ret = False
         try:
@@ -210,7 +213,7 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         return ret
 
     def discard_changes(self):
-        # TODO: there might be a better way
+        # TODO: there might be a better way, maybe keep a set of changed blocks and only reload those?
         self.open_file(self.file_path)
 
     def on_find(self, checked):
