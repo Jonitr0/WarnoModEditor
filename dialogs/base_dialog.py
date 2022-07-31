@@ -56,24 +56,24 @@ class BaseDialog(QtWidgets.QDialog):
         if len(self.widgetList) > 0:
             self.widgetList[0].setFocus()
 
-        button_layout = QtWidgets.QHBoxLayout(self)
-        self.main_layout.addLayout(button_layout)
-        self.main_layout.setAlignment(button_layout, Qt.AlignCenter)
+        self.button_layout = QtWidgets.QHBoxLayout(self)
+        self.main_layout.addLayout(self.button_layout)
+        self.main_layout.setAlignment(self.button_layout, Qt.AlignCenter)
 
         # setup ok button
-        ok_button = QtWidgets.QPushButton()
-        ok_button.setText("OK")
-        ok_button.setFixedWidth(120)
-        ok_button.clicked.connect(self.accept)
-        button_layout.addWidget(ok_button)
+        self.ok_button = QtWidgets.QPushButton()
+        self.ok_button.setText("OK")
+        self.ok_button.setFixedWidth(120)
+        self.ok_button.clicked.connect(self.accept)
+        self.button_layout.addWidget(self.ok_button)
 
         # setup cancel button
         if not ok_only:
-            cancel_button = QtWidgets.QPushButton()
-            cancel_button.setText("Cancel")
-            cancel_button.setFixedWidth(120)
-            cancel_button.clicked.connect(self.reject)
-            button_layout.addWidget(cancel_button)
+            self.cancel_button = QtWidgets.QPushButton()
+            self.cancel_button.setText("Cancel")
+            self.cancel_button.setFixedWidth(120)
+            self.cancel_button.clicked.connect(self.reject)
+            self.button_layout.addWidget(self.cancel_button)
 
         if urgent:
             QtWidgets.QApplication.beep()

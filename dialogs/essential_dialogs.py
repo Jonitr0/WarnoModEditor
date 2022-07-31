@@ -45,3 +45,28 @@ class MessageDialog(base_dialog.BaseDialog):
 
     def setup_ui(self):
         self.main_layout.addWidget(self.label)
+
+
+# dialog that asks user to save/discard unsaved changes or to cancel
+class AskToSaveDialog(base_dialog.BaseDialog):
+    def __init__(self, title: str = "Unsaved Changes", text: str =
+    "The file contains unsaved changes. Would you like to save them?"):
+        self.label = QtWidgets.QLabel(text)
+        self.discard_button = QtWidgets.QPushButton("Discard")
+        self.save_changes = True
+
+        super().__init__(urgent=True)
+        self.setWindowTitle(title)
+
+        self.ok_button.setText("Save")
+
+        self.discard_button.setFixedWidth(120)
+        self.discard_button.clicked.connect(self.on_discard)
+        self.button_layout.insertWidget(1, self.discard_button)
+
+    def setup_ui(self):
+        self.main_layout.addWidget(self.label)
+
+    def on_discard(self):
+        self.save_changes = False
+        self.accept()

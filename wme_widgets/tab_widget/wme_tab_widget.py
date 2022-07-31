@@ -1,9 +1,10 @@
 # TabWidget that manages pages such as editors, etc.
 
-from PySide6 import QtWidgets, QtGui
+from PySide6 import QtWidgets
 
 from wme_widgets.tab_widget import wme_tab_bar, wme_detached_tab
 from wme_widgets.tab_pages import ndf_editor_widget
+from dialogs import essential_dialogs
 
 
 class WMETabWidget(QtWidgets.QTabWidget):
@@ -41,6 +42,18 @@ class WMETabWidget(QtWidgets.QTabWidget):
 
     def on_tab_close_pressed(self, index: int):
         # TODO: ask to save progress
+        page = self.widget(index)
+        if page.unsaved_changes:
+            dialog = essential_dialogs.AskToSaveDialog()
+            result = dialog.exec()
+
+            # don't close on cancel
+            if not result == QtWidgets.QDialog.Accepted:
+                return
+            # on save
+            elif dialog.save_changes:
+                page.save_changes()
+
         self.removeTab(index)
 
     def on_open_ndf_editor(self, file_path: str):

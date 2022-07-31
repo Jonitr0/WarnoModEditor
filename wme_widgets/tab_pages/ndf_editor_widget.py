@@ -199,10 +199,7 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
             # TODO: some warning popup
             return
 
-        if self.save_file():
-            self.unsaved_changes = False
-
-    def save_file(self):
+    def save_changes(self):
         main_widget.MainWidget.instance.show_loading_screen("saving file...")
         ret = False
         try:
@@ -212,6 +209,8 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         except Exception as e:
             logging.error("Could not save to file " + self.file_path + ": " + str(e))
         main_widget.MainWidget.instance.hide_loading_screen()
+        if ret:
+            self.unsaved_changes = False
         return ret
 
     def on_find(self, checked):

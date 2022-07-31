@@ -24,8 +24,8 @@ class TabPageBase(QtWidgets.QWidget):
     def set_unsaved_changes(self, value: bool):
         self.unsaved_changes = value
 
-    # write changes to file
-    def save_changes(self):
+    # write changes to file. Return True on success
+    def save_changes(self) -> bool:
         pass
 
     # restore widget to match file status
