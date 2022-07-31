@@ -1,5 +1,5 @@
-from PySide2 import QtWidgets, QtCore, QtGui
-from PySide2.QtCore import Qt
+from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6.QtCore import Qt
 
 from wme_widgets.tab_widget import wme_detached_tab
 
@@ -61,7 +61,8 @@ class WMETabBar(QtWidgets.QTabBar):
             drag = QtGui.QDrag(self)
 
             # Create the appearance of dragging the tab content
-            pixmap = QtGui.QPixmap.grabWindow(self.parentWidget().currentWidget().winId())
+            pixmap = QtGui.QPixmap(self.parent().size())
+            self.parent().render(pixmap)
             pixmap = pixmap.scaledToHeight(100)
             target_pixmap = QtGui.QPixmap(pixmap.size())
             target_pixmap.fill(QtCore.Qt.transparent)

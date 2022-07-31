@@ -1,7 +1,7 @@
 import logging
 
-from PySide2 import QtGui
-from PySide2.QtCore import Qt
+from PySide6 import QtGui
+from PySide6.QtCore import Qt
 
 from utils.color_manager import *
 

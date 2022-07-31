@@ -2,7 +2,7 @@ import sys
 import os
 import logging
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 from qt_material import apply_stylesheet
 
 import main_window
@@ -37,7 +37,5 @@ if __name__ == '__main__':
     with open('resources/custom_style.css') as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
 
-    QtWidgets.QApplication.instance().setAttribute(QtCore.Qt.AA_DisableWindowContextHelpButton)
-
     main_window = main_window.MainWindow()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

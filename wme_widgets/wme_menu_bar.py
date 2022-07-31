@@ -4,7 +4,7 @@ import os
 import logging
 from pathlib import Path
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 
 from dialogs import new_mod_dialog, edit_config_dialog, new_backup_dialog, \
     selection_dialog, confirmation_dialog, options_dialog
@@ -257,8 +257,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             logging.error(ex)
 
     def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
-                           slot=None) -> QtWidgets.QAction:
-        action = QtWidgets.QAction(name)
+                           slot=None) -> QtGui.QAction:
+        action = QtGui.QAction(name)
         menu.addAction(action)
         action.triggered.connect(slot)
 

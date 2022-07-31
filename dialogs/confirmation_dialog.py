@@ -1,6 +1,6 @@
 # dialog asking user to confirm or cancel something
 
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
 from dialogs import base_dialog
 

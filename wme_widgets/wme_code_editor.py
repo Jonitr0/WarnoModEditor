@@ -1,5 +1,5 @@
-from PySide2 import QtWidgets, QtCore, QtGui
-from PySide2.QtCore import Qt
+from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6.QtCore import Qt
 from utils.color_manager import *
 from utils import ndf_syntax_highlighter
 
@@ -55,7 +55,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         while count >= 10:
             count /= 10
             digits += 1
-        space = 4 + self.fontMetrics().width('9') * digits
+        space = 4 + self.fontMetrics().boundingRect('9').width() * digits
         return max(32, space)
 
     def updateLineNumberAreaWidth(self, _):

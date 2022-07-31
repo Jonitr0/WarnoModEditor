@@ -1,4 +1,4 @@
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 from dialogs import warno_path_dialog
 from utils import path_validator, settings_manager
 

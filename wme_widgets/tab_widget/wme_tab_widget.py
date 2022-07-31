@@ -1,6 +1,6 @@
 # TabWidget that manages pages such as editors, etc.
 
-from PySide2 import QtWidgets, QtGui
+from PySide6 import QtWidgets, QtGui
 
 from wme_widgets.tab_widget import wme_tab_bar, wme_detached_tab
 from wme_widgets.tab_pages import ndf_editor_widget

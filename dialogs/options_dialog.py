@@ -1,4 +1,4 @@
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
 from dialogs.base_dialog import BaseDialog
 from utils import theme_manager, path_validator, settings_manager

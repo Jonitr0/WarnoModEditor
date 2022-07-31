@@ -1,5 +1,5 @@
-from PySide2 import QtGui, QtCore
-from PySide2.QtCore import Qt
+from PySide6 import QtGui, QtCore
+from PySide6.QtCore import Qt
 
 from utils.color_manager import *
 

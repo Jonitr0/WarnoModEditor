@@ -1,4 +1,4 @@
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 LAST_OPEN_KEY = "wme_last_open"
 WARNO_PATH_KEY = "wme_warno_path"

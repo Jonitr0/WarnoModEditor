@@ -2,8 +2,8 @@
 # has a title that can be set, can be used to drag the window around etc.
 # can take wme_widgets (e.g. the wme_menu_bar)
 
-from PySide2 import QtWidgets, QtCore
-from PySide2.QtCore import Qt
+from PySide6 import QtWidgets, QtCore
+from PySide6.QtCore import Qt
 
 from utils import icon_manager
 from utils.color_manager import *

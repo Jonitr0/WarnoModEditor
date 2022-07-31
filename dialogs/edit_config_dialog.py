@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 from dialogs.base_dialog import BaseDialog
 
 

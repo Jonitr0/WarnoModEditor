@@ -1,5 +1,5 @@
-from PySide2 import QtWidgets, QtCore, QtGui
-from PySide2.QtCore import Qt
+from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6.QtCore import Qt
 
 from wme_widgets import wme_title_bar, main_widget
 from utils import warno_path_loader, settings_manager
@@ -23,7 +23,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("WARNO Mod Editor")
 
         shadow_widget = QtWidgets.QWidget()
-        self.shadow_layout.setMargin(4)
+        self.shadow_layout.setContentsMargins(4, 4, 4, 4)
         shadow_widget.setLayout(self.shadow_layout)
 
         self.shadow_effect.setOffset(0, 0)
@@ -36,7 +36,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         w = QtWidgets.QWidget()
         main_layout = QtWidgets.QVBoxLayout(self)
-        main_layout.setMargin(0)
+        main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
         w.setLayout(main_layout)
         self.shadow_layout.addWidget(w)
@@ -68,10 +68,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def changeEvent(self, event):
         if event.type() == QtCore.QEvent.WindowStateChange:
             if (self.windowState() == (Qt.WindowMaximized or Qt.WindowFullScreen)) or int(self.windowState()) == 6:
-                self.shadow_layout.setMargin(0)
+                self.shadow_layout.setContentsMargins(0, 0, 0, 0)
                 self.shadow_effect.setEnabled(False)
             else:
-                self.shadow_layout.setMargin(4)
+                self.shadow_layout.setContentsMargins(4, 4, 4, 4)
                 # stupid but needed to fix shadow effect
                 self.resize(self.size().width() + 1, self.size().height() + 1)
                 self.resize(self.size().width() - 1, self.size().height() - 1)
