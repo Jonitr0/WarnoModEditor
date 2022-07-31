@@ -29,7 +29,7 @@ class WMEDetachedTab(QtWidgets.QDialog):
         self.setWindowFlags(Qt.FramelessWindowHint)
 
         self.bar_layout = QtWidgets.QVBoxLayout(self)
-        self.bar_layout.setContentsMargins(0, 0, 0, 0)
+        self.bar_layout.setContentsMargins(0, 0, 0, 6)
         self.bar_layout.setSpacing(0)
 
         bar_widget = QtWidgets.QWidget()
@@ -58,9 +58,9 @@ class WMEDetachedTab(QtWidgets.QDialog):
         self.tab_widget.addTab(widget, title)
 
     def resizeEvent(self, event):
-        QtWidgets.QDialog.resizeEvent(self, event)
+        super().resizeEvent(event)
         rect = self.rect()
-        self.grip.move(rect.right() - 16, rect.bottom() - 16)
+        self.grip.move(rect.right() - 16 - 4, rect.bottom() - 16 - 4)
 
     def close(self):
         # TODO: ask to save progress

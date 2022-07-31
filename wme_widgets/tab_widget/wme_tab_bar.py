@@ -55,7 +55,7 @@ class WMETabBar(QtWidgets.QTabBar):
             # Stop the move event
             finish_move_event = QtGui.QMouseEvent(QtCore.QEvent.MouseMove, event.pos(), Qt.NoButton,
                                                   Qt.NoButton, Qt.NoModifier)
-            QtWidgets.QTabBar.mouseMoveEvent(self, finish_move_event)
+            super().mouseMoveEvent(finish_move_event)
 
             # Convert the move event into a drag
             drag = QtGui.QDrag(self)
@@ -97,6 +97,7 @@ class WMETabBar(QtWidgets.QTabBar):
             self.dragging_tab_index = -1
             self.hover_tab_index = -1
             self.update()
+            self.updateGeometry()
 
         else:
             super().mouseMoveEvent(event)
