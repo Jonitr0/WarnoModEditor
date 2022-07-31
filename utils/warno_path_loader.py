@@ -1,5 +1,5 @@
 from PySide6 import QtCore, QtWidgets
-from dialogs import warno_path_dialog, message_dialog
+from dialogs import warno_path_dialog, essential_dialogs
 from utils import path_validator, settings_manager
 
 dialog_finished_once = False
@@ -10,9 +10,9 @@ def validate_warno_path(warno_path):
         settings_manager.write_settings_value(settings_manager.WARNO_PATH_KEY, warno_path)
         return True
     if dialog_finished_once:
-        message_dialog.MessageDialog("Path invalid",
-                                     "The WARNO path appears to be invalid. "
-                                     "Please enter the correct path.").exec()
+        essential_dialogs.MessageDialog("Path invalid",
+                                        "The WARNO path appears to be invalid. "
+                                        "Please enter the correct path.").exec()
     return open_warno_path_dialog()
 
 

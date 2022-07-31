@@ -1,7 +1,7 @@
 from PySide6 import QtWidgets
 
 from dialogs.base_dialog import BaseDialog
-from dialogs import message_dialog
+from dialogs import essential_dialogs
 from utils import theme_manager, path_validator, settings_manager
 from wme_widgets import main_widget
 
@@ -39,9 +39,9 @@ class OptionsDialog(BaseDialog):
     def accept(self):
         warno_path = self.path_line_edit.text()
         if not path_validator.validate_warno_path(warno_path):
-            message_dialog.MessageDialog("Path invalid",
-                                         "The WARNO path appears to be invalid. "
-                                         "Please enter the correct path.").exec()
+            essential_dialogs.MessageDialog("Path invalid",
+                                            "The WARNO path appears to be invalid. "
+                                            "Please enter the correct path.").exec()
             return
 
         settings_manager.write_settings_value(settings_manager.WARNO_PATH_KEY, warno_path)

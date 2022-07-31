@@ -1,7 +1,7 @@
 from PySide6 import QtWidgets, QtCore
 
 from dialogs.base_dialog import BaseDialog
-from dialogs import message_dialog
+from dialogs import essential_dialogs
 
 
 class NewModDialog(BaseDialog):
@@ -20,12 +20,12 @@ class NewModDialog(BaseDialog):
     def accept(self):
         mod_name = self.name_line_edit.text()
         if mod_name == "":
-            message_dialog.MessageDialog("Name empty",
-                                         "The name of your mod cannot be empty.").exec()
+            essential_dialogs.MessageDialog("Name empty",
+                                            "The name of your mod cannot be empty.").exec()
             return
         elif QtCore.QDir(self.warno_path + "/Mods/" + mod_name).exists():
-            message_dialog.MessageDialog("Directory already exists",
-                                         "A mod directory with this name already exists.").exec()
+            essential_dialogs.MessageDialog("Directory already exists",
+                                            "A mod directory with this name already exists.").exec()
             return
 
         super().accept()

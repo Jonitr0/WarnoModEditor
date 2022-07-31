@@ -7,7 +7,7 @@ from pathlib import Path
 from PySide6 import QtWidgets, QtCore, QtGui
 
 from dialogs import new_mod_dialog, edit_config_dialog, new_backup_dialog, \
-    selection_dialog, confirmation_dialog, options_dialog, message_dialog
+    options_dialog, essential_dialogs
 from utils import path_validator
 from wme_widgets import main_widget
 
@@ -101,8 +101,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                 self.request_load_mod.emit(mod_path)
                 return
 
-            message_dialog.MessageDialog("Path invalid", "The given path does not to point to a valid "
-                                                         "WARNO mod directory. Please enter a valid path").exec()
+            essential_dialogs.MessageDialog("Path invalid", "The given path does not to point to a valid "
+                                                            "WARNO mod directory. Please enter a valid path").exec()
 
     def on_options_action(self):
         options_dialog.OptionsDialog().exec()
@@ -120,11 +120,10 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                       self.main_widget_ref.get_loaded_mod_name() + "\\Config.ini"
 
         if not QtCore.QFile.exists(config_path):
-            message_dialog.MessageDialog("Config.ini not found", "The configuration file for the mod "
-                                         + self.main_widget_ref.get_loaded_mod_name() + " could not be found."
-                                                                                        "You have to generate the mod "
-                                                                                        "to create the configuration "
-                                                                                        "file.")
+            essential_dialogs.MessageDialog("Config.ini not found", "The configuration file for the mod "
+                                            + self.main_widget_ref.get_loaded_mod_name() +
+                                            " could not be found. You have to generate the mod to "
+                                            "create the configuration file.").exec()
             return
 
         config = QtCore.QSettings(config_path, QtCore.QSettings.IniFormat)
@@ -203,7 +202,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         logging.info("CreateModBackup.bat executed with return code " + str(ret))
 
     def find_backups(self):
-        all_backups = []
         backup_dir = QtCore.QDir(self.main_widget_ref.get_loaded_mod_path() + "\\Backup")
         if not backup_dir.exists():
             return []
@@ -215,13 +213,13 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def on_retrieve_backup_action(self):
         all_backups = self.find_backups()
         if len(all_backups) == 0:
-            message_dialog.MessageDialog("No backups found",
-                                         "No backups could be found for the currently loaded mod.").exec()
+            essential_dialogs.MessageDialog("No backups found",
+                                            "No backups could be found for the currently loaded mod.").exec()
             return
 
-        dialog = selection_dialog.SelectionDialog("Please select a backup to retrieve.",
-                                                  "Select Backup",
-                                                  all_backups)
+        dialog = essential_dialogs.SelectionDialog("Please select a backup to retrieve.",
+                                                   "Select Backup",
+                                                   all_backups)
         res = dialog.exec_()
         if res != QtWidgets.QDialog.Accepted:
             return
@@ -235,22 +233,22 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def on_delete_backup_action(self):
         all_backups = self.find_backups()
         if len(all_backups) == 0:
-            message_dialog.MessageDialog("No backups found",
-                                         "No backups could be found for the currently loaded mod.").exec()
+            essential_dialogs.MessageDialog("No backups found",
+                                            "No backups could be found for the currently loaded mod.").exec()
             return
 
-        dialog = selection_dialog.SelectionDialog("Please select a backup to delete.",
-                                                  "Select Backup",
-                                                  all_backups)
+        dialog = essential_dialogs.SelectionDialog("Please select a backup to delete.",
+                                                   "Select Backup",
+                                                   all_backups)
         if dialog.exec_() != QtWidgets.QDialog.Accepted:
             return
 
         selection = dialog.get_selection()
 
-        confirm_dialog = confirmation_dialog.ConfirmationDialog("The backup " + selection +
-                                                                " will be removed and you might not be able to "
-                                                                "restore it! Are you sure you want to continue?",
-                                                                "Warning!")
+        confirm_dialog = essential_dialogs.ConfirmationDialog("The backup " + selection +
+                                                              " will be removed and you might not be able to "
+                                                              "restore it! Are you sure you want to continue?",
+                                                              "Warning!")
         if confirm_dialog.exec_() != QtWidgets.QDialog.Accepted:
             return
 
