@@ -1,6 +1,9 @@
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
+from utils import icon_manager
+from utils.color_manager import *
+
 
 class WMEProjectExplorer(QtWidgets.QTreeView):
     open_ndf_editor = QtCore.Signal(str)
@@ -18,6 +21,7 @@ class WMEProjectExplorer(QtWidgets.QTreeView):
         data_model.setRootPath(mod_path)
         data_model.setNameFilters(["*.ndf"])
         data_model.setNameFilterDisables(False)
+        data_model.setIconProvider(FileIconProvider())
 
         self.setModel(data_model)
         self.setRootIndex(data_model.index(mod_path))
@@ -35,3 +39,14 @@ class WMEProjectExplorer(QtWidgets.QTreeView):
         if event.button() == Qt.LeftButton:
             super().mouseDoubleClickEvent(event)
 
+
+class FileIconProvider(QtWidgets.QFileIconProvider):
+
+    def icon(self, file_info):
+        if isinstance(file_info, QtCore.QFileInfo):
+            if file_info.fileName().endswith(".ndf"):
+                return icon_manager.load_icon("file.png", COLORS.PRIMARY)
+            elif file_info.isDir():
+                return icon_manager.load_icon("dir.png", COLORS.SECONDARY_LIGHT)
+
+        return super().icon(file_info)
