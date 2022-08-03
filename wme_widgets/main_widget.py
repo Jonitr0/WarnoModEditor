@@ -26,7 +26,7 @@ class MainWidget(QtWidgets.QWidget):
         self.menu_bar = wme_menu_bar.WMEMainMenuBar(main_widget_ref=self)
         self.loaded_mod_path = ""
         self.loaded_mod_name = ""
-        self.explorer_width = 0
+        self.explorer_width = 200
         self.warno_path = warno_path
         self.status_label = QtWidgets.QLabel()
         self.status_timer = QtCore.QTimer()

@@ -2,7 +2,7 @@ import sys
 import os
 import logging
 
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets
 from qt_material import apply_stylesheet
 
 import main_window

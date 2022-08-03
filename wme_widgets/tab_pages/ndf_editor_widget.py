@@ -115,8 +115,6 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
     def __init__(self):
         super().__init__()
 
-        self.file_path = ""
-
         self.find_bar = FindBar()
         self.code_editor = wme_code_editor.WMECodeEditor()
         self.setup_ui()
@@ -190,8 +188,7 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         try:
             with open(file_path, encoding="UTF-8") as f:
                 self.code_editor.setPlainText(f.read())
-            self.file_path = file_path
-            self.unsaved_changes = False
+            super().open_file(file_path)
         except Exception as e:
             logging.error("Could not open file " + file_path + ": " + str(e))
         main_widget.MainWidget.instance.hide_loading_screen()
