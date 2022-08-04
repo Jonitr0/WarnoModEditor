@@ -115,6 +115,8 @@ class MainWidget(QtWidgets.QWidget):
         self.tab_widget.close_all(all_windows=True)
         self.hide_loading_screen()
 
+        # TODO: load open pages from config
+
     def ask_all_tabs_to_save(self):
         # ask all tabs on all windows to save/discard, return False on cancel
         return self.tab_widget.ask_all_tabs_to_save(all_windows=True)

@@ -57,6 +57,7 @@ class WMEDetachedTab(QtWidgets.QDialog):
         self.bar_layout.addLayout(content_layout)
         self.tab_widget = wme_tab_widget.WMETabWidget(self)
         self.tab_widget.tab_removed_by_button.connect(self.on_tab_removed)
+        self.tab_widget.currentChanged.connect(self.on_tab_changed)
         content_layout.addWidget(self.tab_widget)
 
         self.grip = QtWidgets.QSizeGrip(self)
@@ -103,6 +104,11 @@ class WMEDetachedTab(QtWidgets.QDialog):
     def on_tab_removed(self):
         if self.tab_widget.tabBar().count() < 1:
             self.close()
+
+    def on_tab_changed(self, index: int):
+        # set Window title to current tab title
+        title = self.tab_widget.tabText(index)
+        self.setWindowTitle(title)
 
     def setWindowTitle(self, title: str):
         super().setWindowTitle(title)
