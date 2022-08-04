@@ -114,6 +114,8 @@ class MainWidget(QtWidgets.QWidget):
         set_status_text(self.loaded_mod_name + " was loaded successfully")
         self.hide_loading_screen()
 
+        # TODO: clear tab_widgets
+
     def ask_all_tabs_to_save(self):
         # ask all tabs on all windows to save/discard, return False on cancel
         return self.tab_widget.ask_all_tabs_to_save(all_windows=True)

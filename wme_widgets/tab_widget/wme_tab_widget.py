@@ -3,7 +3,7 @@
 from PySide6 import QtWidgets, QtCore
 
 from wme_widgets.tab_widget import wme_tab_bar, wme_detached_tab
-from wme_widgets.tab_pages import ndf_editor_widget
+from wme_widgets.tab_pages import ndf_editor_widget, tab_page_base
 from dialogs import essential_dialogs
 
 
@@ -64,7 +64,6 @@ class WMETabWidget(QtWidgets.QTabWidget):
         editor = ndf_editor_widget.NdfEditorWidget()
         self.addTab(editor, file_name)
         editor.open_file(file_path)
-        editor.unsaved_status_change.connect(self.on_save_status_changed)
         editor.unsaved_changes = False
 
     def addTab(self, widget, title: str) -> int:
@@ -73,13 +72,22 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.setCurrentIndex(ret)
         self.setTabToolTip(ret, title)
         widget.unsaved_status_change.connect(self.on_save_status_changed)
+        tab_page_base.all_pages.add(widget)
         return ret
 
     def insertTab(self, index: int, widget, title: str) -> int:
         ret = super().insertTab(index, widget, title)
+        widget.tab_name = title
         self.setCurrentIndex(ret)
         self.setTabToolTip(ret, title)
+        widget.unsaved_status_change.connect(self.on_save_status_changed)
+        tab_page_base.all_pages.add(widget)
         return ret
+
+    def removeTab(self, index: int):
+        widget = self.widget(index)
+        tab_page_base.all_pages.remove(widget)
+        super().removeTab(index)
 
     def ask_all_tabs_to_save(self, all_windows: bool = False) -> bool:
         # iterate through own tabs

@@ -193,9 +193,7 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
             logging.error("Could not open file " + file_path + ": " + str(e))
         main_widget.MainWidget.instance.hide_loading_screen()
 
-    def save_changes(self):
-        # TODO: check if other widgets have unsaved changes on the file, ask to progress
-        # TODO: do this in super()
+    def save_changes_overwrite(self):
         main_widget.MainWidget.instance.show_loading_screen("saving file...")
         ret = False
         try:
@@ -209,7 +207,7 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
             self.unsaved_changes = False
         return ret
 
-    def discard_changes(self):
+    def update_page(self):
         # TODO: there might be a better way, maybe keep a set of changed blocks and only reload those?
         self.open_file(self.file_path)
 
