@@ -1,4 +1,5 @@
-from utils import theme_manager, settings_manager
+from src.utils import settings_manager
+from src.utils import theme_manager
 from enum import Enum
 import logging
 import xml.etree.ElementTree as ET

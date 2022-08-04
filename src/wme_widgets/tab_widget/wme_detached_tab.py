@@ -1,9 +1,9 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
-from wme_widgets import wme_title_bar
-from wme_widgets.tab_widget import wme_tab_widget
-from dialogs import essential_dialogs
+from src.wme_widgets import wme_title_bar
+from src.wme_widgets.tab_widget import wme_tab_widget
+from src.dialogs import essential_dialogs
 
 detached_list = []
 

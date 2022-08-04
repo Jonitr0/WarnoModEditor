@@ -1,7 +1,7 @@
 from PySide6 import QtGui, QtCore
 from PySide6.QtCore import Qt
 
-from utils.color_manager import *
+from src.utils.color_manager import *
 
 
 # Based on: https://doc.qt.io/qt-6/qtwidgets-richtext-syntaxhighlighter-example.html

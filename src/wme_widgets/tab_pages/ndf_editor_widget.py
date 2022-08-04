@@ -1,10 +1,10 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 
-from wme_widgets.tab_pages import tab_page_base
-from wme_widgets import wme_code_editor, main_widget
+from src.wme_widgets.tab_pages import tab_page_base
+from src.wme_widgets import wme_code_editor, main_widget
 
-from utils import icon_manager
-from utils.color_manager import *
+from src.utils import icon_manager
+from src.utils.color_manager import *
 
 
 class FindBar(QtWidgets.QWidget):

@@ -2,9 +2,9 @@
 
 from PySide6 import QtWidgets, QtCore
 
-from wme_widgets.tab_widget import wme_tab_bar, wme_detached_tab
-from wme_widgets.tab_pages import ndf_editor_widget, tab_page_base
-from dialogs import essential_dialogs
+from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
+from src.wme_widgets.tab_pages import ndf_editor_widget, tab_page_base
+from src.dialogs import essential_dialogs
 
 
 class WMETabWidget(QtWidgets.QTabWidget):

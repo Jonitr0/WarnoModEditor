@@ -3,7 +3,7 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
-from wme_widgets import wme_title_bar
+from src.wme_widgets import wme_title_bar
 
 
 class BaseDialog(QtWidgets.QDialog):

@@ -1,7 +1,7 @@
 from PySide6 import QtWidgets, QtCore
 
-from dialogs.base_dialog import BaseDialog
-from dialogs import essential_dialogs
+from src.dialogs.base_dialog import BaseDialog
+from src.dialogs import essential_dialogs
 
 
 class NewModDialog(BaseDialog):

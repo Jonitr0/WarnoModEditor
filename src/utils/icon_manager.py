@@ -3,7 +3,7 @@ import logging
 from PySide6 import QtGui
 from PySide6.QtCore import Qt
 
-from utils.color_manager import *
+from src.utils.color_manager import *
 
 loadedIcons = {}
 

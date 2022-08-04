@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from PySide6 import QtWidgets, QtCore
-from dialogs.base_dialog import BaseDialog
+from src.dialogs.base_dialog import BaseDialog
 
 
 class WarnoPathDialog(BaseDialog):

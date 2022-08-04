@@ -1,4 +1,4 @@
-from utils import settings_manager
+from src.utils import settings_manager
 
 themes = {
     "light green": "dark_lightgreen.xml",

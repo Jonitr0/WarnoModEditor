@@ -1,7 +1,7 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
-from wme_widgets.tab_widget import wme_detached_tab
+from src.wme_widgets.tab_widget import wme_detached_tab
 
 drop_bar = None
 

@@ -1,5 +1,5 @@
 from PySide6 import QtWidgets, QtCore
-from dialogs import essential_dialogs
+from src.dialogs import essential_dialogs
 
 # key: file_path, value: reference to page
 # stores references to all pages that have unsaved changes on a file

@@ -1,9 +1,10 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
-from wme_widgets import wme_title_bar, main_widget
-from wme_widgets.tab_widget import wme_detached_tab
-from utils import warno_path_loader, settings_manager
+from src.wme_widgets import wme_title_bar, main_widget
+from src.wme_widgets.tab_widget import wme_detached_tab
+from src.utils import settings_manager
+from src.utils import warno_path_loader
 
 
 class MainWindow(QtWidgets.QMainWindow):

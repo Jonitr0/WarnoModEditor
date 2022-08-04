@@ -1,6 +1,6 @@
 from PySide6 import QtWidgets
 
-from dialogs import base_dialog
+from src.dialogs import base_dialog
 
 
 class NewBackupDialog(base_dialog.BaseDialog):

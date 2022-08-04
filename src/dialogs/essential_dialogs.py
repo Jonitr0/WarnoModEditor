@@ -2,7 +2,7 @@
 
 from PySide6 import QtWidgets
 
-from dialogs import base_dialog
+from src.dialogs import base_dialog
 
 
 # dialog asking user to select an item from a combobox

@@ -1,8 +1,8 @@
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
-from utils import icon_manager
-from utils.color_manager import *
+from src.utils import icon_manager
+from src.utils.color_manager import *
 
 
 class WMEProjectExplorer(QtWidgets.QTreeView):

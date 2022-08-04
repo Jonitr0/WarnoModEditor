@@ -1,11 +1,11 @@
 import logging
 
-from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
-from wme_widgets import wme_menu_bar, wme_project_explorer
-from wme_widgets.tab_widget import wme_tab_widget
-from utils import settings_manager, path_validator
+from src.wme_widgets import wme_menu_bar, wme_project_explorer
+from src.wme_widgets.tab_widget import wme_tab_widget
+from src.utils import settings_manager, path_validator
 
 
 def set_status_text(text: str):

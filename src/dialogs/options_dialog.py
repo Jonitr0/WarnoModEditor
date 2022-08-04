@@ -1,9 +1,10 @@
 from PySide6 import QtWidgets
 
-from dialogs.base_dialog import BaseDialog
-from dialogs import essential_dialogs
-from utils import theme_manager, path_validator, settings_manager
-from wme_widgets import main_widget
+from src.dialogs.base_dialog import BaseDialog
+from src.dialogs import essential_dialogs
+from src.utils import path_validator, settings_manager
+from src.utils import theme_manager
+from src.wme_widgets import main_widget
 
 
 class OptionsDialog(BaseDialog):

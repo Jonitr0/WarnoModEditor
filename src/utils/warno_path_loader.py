@@ -1,6 +1,7 @@
 from PySide6 import QtCore, QtWidgets
-from dialogs import warno_path_dialog, essential_dialogs
-from utils import path_validator, settings_manager
+from src.dialogs import warno_path_dialog
+from src.dialogs import essential_dialogs
+from src.utils import path_validator, settings_manager
 
 dialog_finished_once = False
 

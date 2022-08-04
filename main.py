@@ -5,8 +5,9 @@ import logging
 from PySide6 import QtWidgets
 from qt_material import apply_stylesheet
 
-import main_window
-from utils import settings_manager, theme_manager
+from src import main_window
+from src.utils import settings_manager
+from src.utils import theme_manager
 
 if __name__ == '__main__':
     # setup logging

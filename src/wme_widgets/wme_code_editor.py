@@ -1,7 +1,8 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
-from utils.color_manager import *
-from utils import ndf_syntax_highlighter
+
+from src.utils.color_manager import *
+from src.utils import ndf_syntax_highlighter
 
 
 # Based on: https://stackoverflow.com/questions/33243852/codeeditor-example-in-pyqt

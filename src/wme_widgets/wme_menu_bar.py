@@ -6,10 +6,10 @@ from pathlib import Path
 
 from PySide6 import QtWidgets, QtCore, QtGui
 
-from dialogs import new_mod_dialog, edit_config_dialog, new_backup_dialog, \
-    options_dialog, essential_dialogs
-from utils import path_validator
-from wme_widgets import main_widget
+from src.dialogs import new_mod_dialog, edit_config_dialog
+from src.dialogs import essential_dialogs, options_dialog, new_backup_dialog
+from src.utils import path_validator
+from src.wme_widgets import main_widget
 
 
 def run_script(cwd: str, cmd: str, args: list):
