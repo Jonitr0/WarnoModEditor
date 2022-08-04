@@ -4,7 +4,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from wme_widgets import wme_menu_bar, wme_project_explorer
-from wme_widgets.tab_widget import wme_tab_widget, wme_detached_tab
+from wme_widgets.tab_widget import wme_tab_widget
 from utils import settings_manager, path_validator
 
 
@@ -112,9 +112,8 @@ class MainWidget(QtWidgets.QWidget):
         settings_manager.write_settings_value(settings_manager.LAST_OPEN_KEY, mod_path)
         self.mod_loaded.emit(mod_path)
         set_status_text(self.loaded_mod_name + " was loaded successfully")
+        self.tab_widget.close_all(all_windows=True)
         self.hide_loading_screen()
-
-        # TODO: clear tab_widgets
 
     def ask_all_tabs_to_save(self):
         # ask all tabs on all windows to save/discard, return False on cancel

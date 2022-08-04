@@ -106,7 +106,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
                         return False
                 # on discard
                 else:
-                    page.discard_changes()
+                    page.update_page()
 
         if all_windows:
             # call function on other windows
@@ -116,6 +116,13 @@ class WMETabWidget(QtWidgets.QTabWidget):
 
         # if cancel is never pressed, return True
         return True
+
+    def close_all(self, all_windows: bool = False):
+        self.clear()
+        if all_windows:
+            for detached in wme_detached_tab.detached_list:
+                detached.tab_widget.clear()
+                detached.close()
 
     def dragEnterEvent(self, event):
         mime_data = event.mimeData()

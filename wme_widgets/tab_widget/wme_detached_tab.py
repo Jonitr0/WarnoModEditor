@@ -92,7 +92,7 @@ class WMEDetachedTab(QtWidgets.QDialog):
                     return
             # on revert
             else:
-                page.discard_changes()
+                page.update_page()
             # close tab
             self.tab_widget.removeTab(0)
 
