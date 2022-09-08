@@ -156,10 +156,13 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                                   new_name
                 config_path = new_config_path + "\\Config.ini"
 
-                os.rename(loaded_mod_path, new_mod_path)
-                os.rename(old_config_path, new_config_path)
+                try:
+                    os.rename(loaded_mod_path, new_mod_path)
+                    os.rename(old_config_path, new_config_path)
 
-                self.request_load_mod.emit(new_mod_path)
+                    self.request_load_mod.emit(new_mod_path)
+                except Exception as e:
+                    logging.error(e)
 
             # replace to make the file readable for Eugen...
             with open(config_path, "r+") as f:
