@@ -32,6 +32,8 @@ class FindBar(QtWidgets.QWidget):
 
         self.main_layout.addWidget(self.line_edit)
         self.line_edit.returnPressed.connect(self.on_search)
+        self.line_edit.setPlaceholderText("Find...")
+        self.line_edit.setMaximumWidth(500)
 
         self.enter_button.setIcon(icon_manager.load_icon("magnify.png", COLORS.PRIMARY))
         self.enter_button.setToolTip("Start search")
@@ -41,6 +43,8 @@ class FindBar(QtWidgets.QWidget):
 
         self.main_layout.addWidget(self.results_label)
         self.results_label.setMinimumWidth(120)
+
+        self.main_layout.addStretch(1)
 
         prev_icon = QtGui.QIcon()
         prev_icon.addPixmap(icon_manager.load_pixmap("arrowUp.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
@@ -64,7 +68,7 @@ class FindBar(QtWidgets.QWidget):
 
         self.close_button.setIcon(icon_manager.load_icon("titlebar/close.png", COLORS.PRIMARY))
         self.close_button.clicked.connect(self.on_close)
-        self.close_button.setToolTip("Close search")
+        self.close_button.setToolTip("Close search bar")
         self.close_button.setFixedSize(32, 32)
         self.main_layout.addWidget(self.close_button)
 
@@ -105,4 +109,46 @@ class FindBar(QtWidgets.QWidget):
         self.next_button.setDisabled(not enable)
         self.prev_button.setDisabled(not enable)
 
+
 # TODO: add replace bar
+class ReplaceBar(QtWidgets.QWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.close_button = QtWidgets.QToolButton()
+        self.replace_button = QtWidgets.QPushButton("Replace")
+        self.replace_all_button = QtWidgets.QPushButton("Replace All")
+        self.line_edit = QtWidgets.QLineEdit()
+        self.main_layout = QtWidgets.QHBoxLayout()
+        self.current_search = ""
+        self.setup_ui()
+
+    def setup_ui(self):
+        self.setLayout(self.main_layout)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setSpacing(4)
+
+        self.main_layout.addWidget(self.line_edit)
+        self.line_edit.returnPressed.connect(self.on_replace)
+        self.line_edit.setPlaceholderText("Replace...")
+        self.line_edit.setMaximumWidth(500)
+
+        self.main_layout.addWidget(self.replace_button)
+        self.replace_button.clicked.connect(self.on_replace)
+
+        self.main_layout.addWidget(self.replace_all_button)
+
+        self.main_layout.addStretch(1)
+
+        self.main_layout.addWidget(self.close_button)
+        self.close_button.setIcon(icon_manager.load_icon("titlebar/close.png", COLORS.PRIMARY))
+        self.close_button.clicked.connect(self.on_close)
+        self.close_button.setToolTip("Close replace bar")
+        self.close_button.setFixedSize(32, 32)
+
+    def on_replace(self):
+        pass
+
+    def on_close(self):
+        pass

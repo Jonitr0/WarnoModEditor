@@ -12,6 +12,7 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         super().__init__()
 
         self.find_bar = wme_find_replace_bar.FindBar()
+        self.replace_bar = wme_find_replace_bar.ReplaceBar()
         self.code_editor = wme_code_editor.WMECodeEditor()
         self.setup_ui()
 
@@ -67,6 +68,8 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         self.find_bar.request_uncheck.connect(find_action.setChecked)
         self.find_bar.request_next.connect(self.code_editor.goto_next_find)
         self.find_bar.request_prev.connect(self.code_editor.goto_prev_find)
+
+        main_layout.addWidget(self.replace_bar)
 
         main_layout.addWidget(self.code_editor)
         self.code_editor.search_complete.connect(self.on_search_complete)
