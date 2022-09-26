@@ -5,12 +5,13 @@ from src.dialogs import essential_dialogs
 from src.utils import path_validator, settings_manager
 from src.utils import theme_manager
 from src.wme_widgets import main_widget
+from src.wme_widgets import wme_lineedit
 
 
 class OptionsDialog(BaseDialog):
     def __init__(self):
         self.theme_combobox = QtWidgets.QComboBox()
-        self.path_line_edit = QtWidgets.QLineEdit()
+        self.path_line_edit = wme_lineedit.WMELineEdit()
 
         super().__init__()
         self.setWindowTitle("Options")

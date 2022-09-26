@@ -2,12 +2,13 @@ from pathlib import Path
 
 from PySide6 import QtWidgets, QtCore
 from src.dialogs.base_dialog import BaseDialog
+from src.wme_widgets import wme_lineedit
 
 
 class WarnoPathDialog(BaseDialog):
     def __init__(self, config_values: dict):
         self.description_text_edit = QtWidgets.QTextEdit()
-        self.icon_path_line_edit = QtWidgets.QLineEdit()
+        self.icon_path_line_edit = wme_lineedit.WMELineEdit()
         self.config_values = config_values
 
         super().__init__()
@@ -19,7 +20,7 @@ class WarnoPathDialog(BaseDialog):
 
         # TODO: Add tooltips for all labels
 
-        name_line_edit = QtWidgets.QLineEdit()
+        name_line_edit = wme_lineedit.WMELineEdit()
         name_line_edit.setText(str(self.config_values["Properties/Name"]))
         name_line_edit.textChanged.connect(self.on_name_changed)
         form_layout.addRow("Name", name_line_edit)

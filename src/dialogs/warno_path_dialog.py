@@ -1,10 +1,11 @@
 from PySide6 import QtWidgets
 from src.dialogs.base_dialog import BaseDialog
+from src.wme_widgets import wme_lineedit
 
 
 class WarnoPathDialog(BaseDialog):
     def __init__(self, warno_path):
-        self.line_edit = QtWidgets.QLineEdit()
+        self.line_edit = wme_lineedit.WMELineEdit()
         self.warno_path = warno_path
 
         super().__init__()

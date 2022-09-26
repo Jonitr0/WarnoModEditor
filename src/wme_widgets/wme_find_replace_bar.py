@@ -2,6 +2,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 
 from src.utils import icon_manager
 from src.utils.color_manager import *
+from src.wme_widgets import wme_lineedit
 
 
 class FindBar(QtWidgets.QWidget):
@@ -20,7 +21,7 @@ class FindBar(QtWidgets.QWidget):
         self.next_button = QtWidgets.QToolButton()
         self.prev_button = QtWidgets.QToolButton()
         self.results_label = QtWidgets.QLabel()
-        self.line_edit = QtWidgets.QLineEdit()
+        self.line_edit = wme_lineedit.WMELineEdit()
         self.main_layout = QtWidgets.QHBoxLayout()
         self.current_search = ""
         self.setup_ui()
@@ -119,7 +120,7 @@ class ReplaceBar(QtWidgets.QWidget):
         self.close_button = QtWidgets.QToolButton()
         self.replace_button = QtWidgets.QPushButton("Replace")
         self.replace_all_button = QtWidgets.QPushButton("Replace All")
-        self.line_edit = QtWidgets.QLineEdit()
+        self.line_edit = wme_lineedit.WMELineEdit()
         self.main_layout = QtWidgets.QHBoxLayout()
         self.current_search = ""
         self.setup_ui()
