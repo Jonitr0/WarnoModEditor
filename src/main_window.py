@@ -60,6 +60,7 @@ class MainWindow(QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.resizeEvent(self, event)
         rect = self.rect()
         self.grip.move(rect.right() - 16 - 6, rect.bottom() - 16 - 6)
+        # TODO: add borders that allow resize, in shadow area
 
     def close(self):
         if self.main_widget_ref is None:

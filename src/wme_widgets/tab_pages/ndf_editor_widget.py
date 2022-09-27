@@ -52,24 +52,26 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
 
         tool_bar.addSeparator()
 
-        find_action = tool_bar.addAction(icon_manager.load_icon("magnify.png", COLORS.PRIMARY), "Find (Ctrl + F)")
-        find_action.setShortcut("Ctrl+F")
-        find_action.setCheckable(True)
-        find_action.toggled.connect(self.on_find)
+        self.find_action = tool_bar.addAction(icon_manager.load_icon("magnify.png", COLORS.PRIMARY), "Find (Ctrl + F)")
+        self.find_action.setShortcut("Ctrl+F")
+        self.find_action.setCheckable(True)
+        self.find_action.toggled.connect(self.on_find)
 
-        replace_action = tool_bar.addAction(icon_manager.load_icon("replace.png", COLORS.PRIMARY), "Replace (Ctrl + R)")
-        replace_action.setShortcut("Ctrl+R")
-        replace_action.setCheckable(True)
+        self.replace_action = tool_bar.addAction(icon_manager.load_icon("replace.png", COLORS.PRIMARY), "Replace (Ctrl + R)")
+        self.replace_action.setShortcut("Ctrl+R")
+        self.replace_action.setCheckable(True)
+        self.replace_action.toggled.connect(self.on_replace)
 
         main_layout.addWidget(self.find_bar)
         self.find_bar.setHidden(True)
         self.find_bar.request_find_pattern.connect(self.code_editor.find_pattern)
         self.find_bar.request_find_reset.connect(self.code_editor.reset_find)
-        self.find_bar.request_uncheck.connect(find_action.setChecked)
+        self.find_bar.request_uncheck.connect(self.find_action.setChecked)
         self.find_bar.request_next.connect(self.code_editor.goto_next_find)
         self.find_bar.request_prev.connect(self.code_editor.goto_prev_find)
 
         main_layout.addWidget(self.replace_bar)
+        self.replace_bar.setHidden(True)
 
         main_layout.addWidget(self.code_editor)
         self.code_editor.search_complete.connect(self.on_search_complete)
@@ -118,8 +120,22 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         if checked:
             self.find_bar.setHidden(False)
             self.find_bar.line_edit.setFocus()
-        else:
+            if self.replace_action.isChecked():
+                self.find_action.setChecked(False)
+        elif not self.replace_action.isChecked():
             self.find_bar.reset()
+
+    def on_replace(self, checked):
+        if checked:
+            self.find_bar.setHidden(False)
+            self.find_action.setChecked(False)
+            self.replace_bar.setHidden(False)
+            self.replace_bar.line_edit.setFocus()
+        else:
+            # TODO: reset replace bar contents
+            self.replace_bar.setHidden(True)
+            if not self.find_bar.isHidden():
+                self.find_action.setChecked(True)
 
     def on_search_complete(self):
         results = len(self.code_editor.get_find_results())

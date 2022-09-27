@@ -34,7 +34,7 @@ class FindBar(QtWidgets.QWidget):
         self.main_layout.addWidget(self.line_edit)
         self.line_edit.returnPressed.connect(self.on_search)
         self.line_edit.setPlaceholderText("Find...")
-        self.line_edit.setMaximumWidth(500)
+        self.line_edit.setMaximumWidth(800)
 
         self.enter_button.setIcon(icon_manager.load_icon("magnify.png", COLORS.PRIMARY))
         self.enter_button.setToolTip("Start search")
@@ -44,8 +44,6 @@ class FindBar(QtWidgets.QWidget):
 
         self.main_layout.addWidget(self.results_label)
         self.results_label.setMinimumWidth(120)
-
-        self.main_layout.addStretch(1)
 
         prev_icon = QtGui.QIcon()
         prev_icon.addPixmap(icon_manager.load_pixmap("arrowUp.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
@@ -64,6 +62,8 @@ class FindBar(QtWidgets.QWidget):
         self.next_button.setToolTip("Next search result")
         self.next_button.setFixedSize(32, 32)
         self.main_layout.addWidget(self.next_button)
+
+        self.main_layout.addStretch(0)
 
         self.enable_find_buttons(False)
 
@@ -133,14 +133,15 @@ class ReplaceBar(QtWidgets.QWidget):
         self.main_layout.addWidget(self.line_edit)
         self.line_edit.returnPressed.connect(self.on_replace)
         self.line_edit.setPlaceholderText("Replace...")
-        self.line_edit.setMaximumWidth(500)
+        self.line_edit.setMaximumWidth(800)
 
         self.main_layout.addWidget(self.replace_button)
         self.replace_button.clicked.connect(self.on_replace)
 
         self.main_layout.addWidget(self.replace_all_button)
+        self.replace_all_button.clicked.connect(self.on_replace_all)
 
-        self.main_layout.addStretch(1)
+        self.main_layout.addStretch(0)
 
         self.main_layout.addWidget(self.close_button)
         self.close_button.setIcon(icon_manager.load_icon("titlebar/close.png", COLORS.PRIMARY))
@@ -149,6 +150,9 @@ class ReplaceBar(QtWidgets.QWidget):
         self.close_button.setFixedSize(32, 32)
 
     def on_replace(self):
+        pass
+
+    def on_replace_all(self):
         pass
 
     def on_close(self):
