@@ -72,6 +72,9 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
 
         main_layout.addWidget(self.replace_bar)
         self.replace_bar.setHidden(True)
+        self.replace_bar.request_uncheck.connect(self.replace_action.setChecked)
+        self.replace_bar.request_replace.connect(self.replace_next)
+        self.replace_bar.request_replace_all.connect(self.replace_all)
 
         main_layout.addWidget(self.code_editor)
         self.code_editor.search_complete.connect(self.on_search_complete)
@@ -140,10 +143,10 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
     def on_search_complete(self):
         results = len(self.code_editor.get_find_results())
         if results == 0:
-            self.find_bar.set_label_text("0 results for \"" + self.find_bar.current_search + "\"")
+            self.find_bar.set_label_text("0 results for \"" + self.find_bar.line_edit.text() + "\"")
             self.find_bar.enable_find_buttons(False)
         else:
-            self.find_bar.set_label_text(str(results) + " results for \"" + self.find_bar.current_search + "\"")
+            self.find_bar.set_label_text(str(results) + " results for \"" + self.find_bar.line_edit.text() + "\"")
             self.find_bar.enable_find_buttons(True)
 
     def on_undo_available(self, available: bool):
@@ -158,3 +161,10 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
     def on_redo(self):
         self.code_editor.document().redo()
 
+    def replace_next(self, replace_pattern):
+        find_pattern = self.find_bar.line_edit.text()
+        self.code_editor.replace_next(find_pattern, replace_pattern)
+
+    def replace_all(self, replace_pattern):
+        find_pattern = self.find_bar.line_edit.text()
+        self.code_editor.replace_all(find_pattern, replace_pattern)

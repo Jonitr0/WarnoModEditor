@@ -23,7 +23,7 @@ class FindBar(QtWidgets.QWidget):
         self.results_label = QtWidgets.QLabel()
         self.line_edit = wme_lineedit.WMELineEdit()
         self.main_layout = QtWidgets.QHBoxLayout()
-        self.current_search = ""
+        self.last_search = None
         self.setup_ui()
 
     def setup_ui(self):
@@ -32,18 +32,18 @@ class FindBar(QtWidgets.QWidget):
         self.main_layout.setSpacing(0)
 
         self.main_layout.addWidget(self.line_edit)
-        self.line_edit.returnPressed.connect(self.on_search)
+        self.line_edit.returnPressed.connect(self.on_next)
         self.line_edit.setPlaceholderText("Find...")
         self.line_edit.setMaximumWidth(800)
 
-        self.enter_button.setIcon(icon_manager.load_icon("magnify.png", COLORS.PRIMARY))
-        self.enter_button.setToolTip("Start search")
-        self.enter_button.clicked.connect(self.on_search)
-        self.enter_button.setFixedSize(32, 32)
-        self.main_layout.addWidget(self.enter_button)
-
-        self.main_layout.addWidget(self.results_label)
-        self.results_label.setMinimumWidth(120)
+        next_icon = QtGui.QIcon()
+        next_icon.addPixmap(icon_manager.load_pixmap("arrowDown.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
+        next_icon.addPixmap(icon_manager.load_pixmap("arrowDown.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
+        self.next_button.setIcon(next_icon)
+        self.next_button.clicked.connect(self.on_next)
+        self.next_button.setToolTip("Next search result")
+        self.next_button.setFixedSize(32, 32)
+        self.main_layout.addWidget(self.next_button)
 
         prev_icon = QtGui.QIcon()
         prev_icon.addPixmap(icon_manager.load_pixmap("arrowUp.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
@@ -54,14 +54,8 @@ class FindBar(QtWidgets.QWidget):
         self.prev_button.setFixedSize(32, 32)
         self.main_layout.addWidget(self.prev_button)
 
-        next_icon = QtGui.QIcon()
-        next_icon.addPixmap(icon_manager.load_pixmap("arrowDown.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
-        next_icon.addPixmap(icon_manager.load_pixmap("arrowDown.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
-        self.next_button.setIcon(next_icon)
-        self.next_button.clicked.connect(self.on_next)
-        self.next_button.setToolTip("Next search result")
-        self.next_button.setFixedSize(32, 32)
-        self.main_layout.addWidget(self.next_button)
+        self.main_layout.addWidget(self.results_label)
+        self.results_label.setMinimumWidth(120)
 
         self.main_layout.addStretch(0)
 
@@ -74,6 +68,8 @@ class FindBar(QtWidgets.QWidget):
         self.main_layout.addWidget(self.close_button)
 
     def on_search(self):
+        self.last_search = self.line_edit.text()
+
         if self.line_edit.text() == "":
             self.request_find_reset.emit()
             self.results_label.setText("")
@@ -83,15 +79,17 @@ class FindBar(QtWidgets.QWidget):
         self.results_label.setText("searching...")
 
         QtCore.QCoreApplication.processEvents()
-        self.current_search = self.line_edit.text()
-        self.request_find_pattern.emit(self.current_search)
+        self.request_find_pattern.emit(self.line_edit.text())
 
     def on_close(self):
         self.reset()
         self.request_uncheck.emit(False)
 
     def on_next(self):
-        self.request_next.emit()
+        if (self.last_search != self.line_edit.text()) or not self.last_search:
+            self.on_search()
+        else:
+            self.request_next.emit()
 
     def on_prev(self):
         self.request_prev.emit()
@@ -107,12 +105,13 @@ class FindBar(QtWidgets.QWidget):
         self.results_label.setText(text)
 
     def enable_find_buttons(self, enable: bool = True):
-        self.next_button.setDisabled(not enable)
         self.prev_button.setDisabled(not enable)
 
 
-# TODO: add replace bar
 class ReplaceBar(QtWidgets.QWidget):
+    request_replace = QtCore.Signal(str)
+    request_replace_all = QtCore.Signal(str)
+    request_uncheck = QtCore.Signal(bool)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -122,7 +121,6 @@ class ReplaceBar(QtWidgets.QWidget):
         self.replace_all_button = QtWidgets.QPushButton("Replace All")
         self.line_edit = wme_lineedit.WMELineEdit()
         self.main_layout = QtWidgets.QHBoxLayout()
-        self.current_search = ""
         self.setup_ui()
 
     def setup_ui(self):
@@ -132,7 +130,7 @@ class ReplaceBar(QtWidgets.QWidget):
 
         self.main_layout.addWidget(self.line_edit)
         self.line_edit.returnPressed.connect(self.on_replace)
-        self.line_edit.setPlaceholderText("Replace...")
+        self.line_edit.setPlaceholderText("Replace with...")
         self.line_edit.setMaximumWidth(800)
 
         self.main_layout.addWidget(self.replace_button)
@@ -150,10 +148,10 @@ class ReplaceBar(QtWidgets.QWidget):
         self.close_button.setFixedSize(32, 32)
 
     def on_replace(self):
-        pass
+        self.request_replace.emit(self.line_edit.text())
 
     def on_replace_all(self):
-        pass
+        self.request_replace_all.emit(self.line_edit.text())
 
     def on_close(self):
-        pass
+        self.request_uncheck.emit(False)
