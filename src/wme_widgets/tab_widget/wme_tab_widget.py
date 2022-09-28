@@ -105,6 +105,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
                     if not page.save_changes():
                         return False
                 # on discard
+                # TODO: find way to not update pages when closing
                 else:
                     page.update_page()
 

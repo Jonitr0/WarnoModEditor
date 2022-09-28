@@ -13,6 +13,17 @@ class FindBar(QtWidgets.QWidget):
     request_prev = QtCore.Signal()
     request_next = QtCore.Signal()
 
+    tab_pressed = QtCore.Signal()
+
+    def eventFilter(self, obj, event) -> bool:
+        if obj == self.line_edit and \
+                event.type() == QtCore.QEvent.KeyPress and \
+                event.key() == QtCore.Qt.Key_Tab:
+            self.tab_pressed.emit()
+            return True
+
+        return super().eventFilter(obj, event)
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -25,6 +36,7 @@ class FindBar(QtWidgets.QWidget):
         self.main_layout = QtWidgets.QHBoxLayout()
         self.last_search = None
         self.setup_ui()
+        self.line_edit.installEventFilter(self)
 
     def setup_ui(self):
         self.setLayout(self.main_layout)
@@ -113,6 +125,17 @@ class ReplaceBar(QtWidgets.QWidget):
     request_replace_all = QtCore.Signal(str)
     request_uncheck = QtCore.Signal(bool)
 
+    tab_pressed = QtCore.Signal()
+
+    def eventFilter(self, obj, event) -> bool:
+        if obj == self.line_edit and \
+                event.type() == QtCore.QEvent.KeyPress and \
+                event.key() == QtCore.Qt.Key_Tab:
+            self.tab_pressed.emit()
+            return True
+
+        return super().eventFilter(obj, event)
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -122,6 +145,7 @@ class ReplaceBar(QtWidgets.QWidget):
         self.line_edit = wme_lineedit.WMELineEdit()
         self.main_layout = QtWidgets.QHBoxLayout()
         self.setup_ui()
+        self.line_edit.installEventFilter(self)
 
     def setup_ui(self):
         self.setLayout(self.main_layout)

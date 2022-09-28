@@ -234,17 +234,31 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.unsaved_changes.emit(True)
 
     def replace_next(self, search_pattern: str, replace_pattern: str):
-        if search_pattern == "" or replace_pattern == "":
+        if search_pattern == "" or replace_pattern == "" or search_pattern == replace_pattern:
             return
-        if search_pattern is not self.pattern:
+        if search_pattern != self.pattern:
             self.find_pattern(search_pattern)
-        # TODO: replace next find after cursor
-        # TODO: update find list and marked finds
-        # TODO: move cursor to next find, if possible
+        # replace next find after cursor
+        cursor = self.textCursor()
+        index = cursor.position()
+        for find in self.find_results:
+            if find[0] >= index:
+                cursor.clearSelection()
+                cursor.setPosition(find[0], QtGui.QTextCursor.MoveAnchor)
+                cursor.setPosition(find[1], QtGui.QTextCursor.KeepAnchor)
+                cursor.insertText(replace_pattern)
+                break
+
+        self.goto_next_find()
 
     def replace_all(self, search_pattern: str, replace_pattern: str):
-        if search_pattern == "" or replace_pattern == "":
+        if search_pattern == "" or replace_pattern == "" or search_pattern == replace_pattern:
             return
-        if search_pattern is not self.pattern:
+        if search_pattern != self.pattern:
             self.find_pattern(search_pattern)
-        # TODO: replace all and update search
+        initial_pos = self.textCursor().position()
+        text = self.toPlainText()
+        text = text.replace(search_pattern, replace_pattern)
+        self.setPlainText(text)
+        # TODO: make this work
+        self.textCursor().setPosition(initial_pos, QtGui.QTextCursor.MoveAnchor)

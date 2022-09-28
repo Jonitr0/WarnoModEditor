@@ -69,12 +69,14 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         self.find_bar.request_uncheck.connect(self.find_action.setChecked)
         self.find_bar.request_next.connect(self.code_editor.goto_next_find)
         self.find_bar.request_prev.connect(self.code_editor.goto_prev_find)
+        self.find_bar.tab_pressed.connect(self.replace_bar.setFocus)
 
         main_layout.addWidget(self.replace_bar)
         self.replace_bar.setHidden(True)
         self.replace_bar.request_uncheck.connect(self.replace_action.setChecked)
         self.replace_bar.request_replace.connect(self.replace_next)
         self.replace_bar.request_replace_all.connect(self.replace_all)
+        self.replace_bar.tab_pressed.connect(self.find_bar.setFocus)
 
         main_layout.addWidget(self.code_editor)
         self.code_editor.search_complete.connect(self.on_search_complete)
