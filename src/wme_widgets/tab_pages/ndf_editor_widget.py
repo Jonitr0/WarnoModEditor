@@ -137,8 +137,8 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
             self.replace_bar.setHidden(False)
             self.replace_bar.line_edit.setFocus()
         else:
-            # TODO: reset replace bar contents
             self.replace_bar.setHidden(True)
+            self.replace_bar.line_edit.setText("")
             if not self.find_bar.isHidden():
                 self.find_action.setChecked(True)
 

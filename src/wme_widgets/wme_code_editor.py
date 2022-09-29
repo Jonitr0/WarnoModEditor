@@ -260,5 +260,8 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         text = self.toPlainText()
         text = text.replace(search_pattern, replace_pattern)
         self.setPlainText(text)
-        # TODO: make this work
-        self.textCursor().setPosition(initial_pos, QtGui.QTextCursor.MoveAnchor)
+
+        # move cursor to initial position
+        cursor = self.textCursor()
+        cursor.setPosition(initial_pos, QtGui.QTextCursor.MoveAnchor)
+        self.setTextCursor(cursor)
