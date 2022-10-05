@@ -26,7 +26,7 @@ class WMETitleBar(QtWidgets.QWidget):
         self.min_hold = False
         self.max_hold = False
         self.close_hold = False
-        self.button_height = 32
+        self.button_height = 36
         self.button_width = 48
 
         self.setup_ui(window_title, only_close)

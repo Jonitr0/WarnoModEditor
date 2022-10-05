@@ -94,6 +94,7 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         self.open_file(file_path)
 
     def open_file(self, file_path):
+        # TODO: change tab name when opening successful
         main_widget.MainWidget.instance.show_loading_screen("opening file...")
         try:
             with open(file_path, encoding="UTF-8") as f:
