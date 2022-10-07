@@ -94,7 +94,6 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         self.open_file(file_path)
 
     def open_file(self, file_path):
-        # TODO: change tab name when opening successful
         main_widget.MainWidget.instance.show_loading_screen("opening file...")
         try:
             with open(file_path, encoding="UTF-8") as f:
@@ -102,6 +101,11 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
             super().open_file(file_path)
         except Exception as e:
             logging.error("Could not open file " + file_path + ": " + str(e))
+        # update tab name
+        file_path = file_path.replace("/", "\\")
+        self.tab_name = file_path[file_path.rindex('\\') + 1:]
+        self.unsaved_status_change.emit(False, self)
+
         main_widget.MainWidget.instance.hide_loading_screen()
 
     def save_changes_overwrite(self):
