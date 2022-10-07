@@ -65,7 +65,7 @@ class MainWidget(QtWidgets.QWidget):
         self.menu_bar.request_load_mod.connect(self.load_mod)
 
         self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        self.mod_loaded.connect(self.explorer.update_model)
+        self.mod_loaded.connect(self.explorer.tree_view.update_model)
         self.splitter.addWidget(self.explorer)
         self.splitter.addWidget(self.tab_widget)
         self.splitter.handle(1).installEventFilter(self)
@@ -77,7 +77,7 @@ class MainWidget(QtWidgets.QWidget):
         self.load_screen.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(self.load_screen)
 
-        self.explorer.open_ndf_editor.connect(self.tab_widget.on_open_ndf_editor)
+        self.explorer.tree_view.open_ndf_editor.connect(self.tab_widget.on_open_ndf_editor)
 
         label_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(label_layout)
