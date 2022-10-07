@@ -66,7 +66,7 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
         self.find_bar.setHidden(True)
         self.find_bar.request_find_pattern.connect(self.code_editor.find_pattern)
         self.find_bar.request_find_reset.connect(self.code_editor.reset_find)
-        self.find_bar.request_uncheck.connect(self.find_action.setChecked)
+        self.find_bar.request_uncheck.connect(self.on_find_bar_close)
         self.find_bar.request_next.connect(self.code_editor.goto_next_find)
         self.find_bar.request_prev.connect(self.code_editor.goto_prev_find)
         self.find_bar.tab_pressed.connect(self.replace_bar.setFocus)
@@ -121,6 +121,10 @@ class NdfEditorWidget(tab_page_base.TabPageBase):
     def update_page(self):
         # TODO: there might be a better way, maybe keep a set of changed blocks and only reload those?
         self.open_file(self.file_path)
+
+    def on_find_bar_close(self, _):
+        self.find_action.setChecked(False)
+        self.replace_bar.on_close()
 
     def on_find(self, checked):
         if checked:
