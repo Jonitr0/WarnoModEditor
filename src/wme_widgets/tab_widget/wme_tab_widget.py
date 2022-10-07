@@ -90,24 +90,34 @@ class WMETabWidget(QtWidgets.QTabWidget):
         super().removeTab(index)
 
     def ask_all_tabs_to_save(self, all_windows: bool = False) -> bool:
-        # iterate through own tabs
-        for i in range(self.count()):
+        # close all tabs with no unsaved changes
+        i = 0
+        while i < self.count():
             page = self.widget(i)
-            if page.unsaved_changes:
-                dialog = essential_dialogs.AskToSaveDialog(page.tab_name)
-                result = dialog.exec()
+            if not page.unsaved_changes:
+                self.removeTab(i)
+                i -= 1
+            i += 1
 
-                # don't close on cancel
-                if not result == QtWidgets.QDialog.Accepted:
+        # iterate through own tabs with unsaved changes
+        i = 0
+        while i < self.count():
+            page = self.widget(i)
+            dialog = essential_dialogs.AskToSaveDialog(page.tab_name)
+            result = dialog.exec()
+
+            # don't close on cancel
+            if not result == QtWidgets.QDialog.Accepted:
+                return False
+            # on save
+            elif dialog.save_changes:
+                if not page.save_changes():
                     return False
-                # on save
-                elif dialog.save_changes:
-                    if not page.save_changes():
-                        return False
-                # on discard
-                # TODO: find way to not update pages when closing
-                else:
-                    page.update_page()
+            # on discard, remove tab
+            else:
+                self.removeTab(i)
+                i -= 1
+            i += 1
 
         if all_windows:
             # call function on other windows
@@ -146,4 +156,3 @@ class WMETabWidget(QtWidgets.QTabWidget):
         else:
             self.setTabText(index, widget.tab_name)
             self.setTabToolTip(index, widget.tab_name)
-
