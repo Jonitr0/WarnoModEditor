@@ -37,21 +37,13 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         self.mod_path = ""
 
     def update_model(self, mod_path: str):
-        data_model = QtWidgets.QFileSystemModel()
+        data_model = FileSystemModel()
         data_model.setRootPath(mod_path)
         data_model.setNameFilters(["*.ndf"])
         data_model.setNameFilterDisables(False)
         data_model.setIconProvider(FileIconProvider())
 
-        #proxy_model = QtCore.QSortFilterProxyModel()
-        #proxy_model.setSourceModel(data_model)
-        #proxy_model.setRecursiveFilteringEnabled(True)
-        # TODO: make this filter stuff
-
-        #self.setModel(proxy_model)
         self.setModel(data_model)
-        #root_index = proxy_model.mapFromSource(data_model.index(mod_path))
-        #self.setRootIndex(root_index)
         self.setRootIndex(data_model.index(mod_path))
         self.mod_path = mod_path
 
@@ -61,8 +53,6 @@ class FileSystemTreeView(QtWidgets.QTreeView):
 
     def on_double_click(self, index):
         # map index to source
-        #index = self.model().mapToSource(index)
-        #file_path = QtWidgets.QFileSystemModel.filePath(self.model().sourceModel(), index)
         file_path = QtWidgets.QFileSystemModel.filePath(self.model(), index)
         if file_path.endswith(".ndf"):
             self.open_ndf_editor.emit(file_path)
@@ -80,12 +70,8 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.model().setNameFilters(["*" + text + "*.ndf"])
             self.expandRecursively(self.model().index(self.mod_path))
 
-        #reg_exp = QtCore.QRegularExpression(text, QtCore.QRegularExpression.CaseInsensitiveOption)
-        #self.model().setFilterRegularExpression(reg_exp)
-
 
 class FileIconProvider(QtWidgets.QFileIconProvider):
-
     def icon(self, file_info):
         if isinstance(file_info, QtCore.QFileInfo):
             if file_info.fileName().endswith(".ndf"):
@@ -94,3 +80,35 @@ class FileIconProvider(QtWidgets.QFileIconProvider):
                 return icon_manager.load_icon("dir.png", COLORS.SECONDARY_LIGHT)
 
         return super().icon(file_info)
+
+
+class FileSystemModel(QtWidgets.QFileSystemModel):
+    def hasChildren(self, parent) -> bool:
+        # no possible children
+        if parent.flags() & Qt.ItemNeverHasChildren:
+            return False
+
+        name_filters = self.nameFilters()
+        # iterate through children
+        file_path = QtWidgets.QFileSystemModel.filePath(self, parent)
+        dir_iter = QtCore.QDirIterator(file_path)
+        result = False
+        while dir_iter.hasNext():
+            dir = dir_iter.next()
+            if dir_iter.fileInfo().isDir() and not dir.endswith("."):
+                result = result | self.hasChildren(self.index(dir))
+            elif dir_iter.fileInfo().isFile():
+                # check each name filter
+                for filter in name_filters:
+                    # split name filter
+                    filter_list = filter.split("*")
+                    for filter_part in filter_list:
+                        if not dir.__contains__(filter_part):
+                            break
+                    # sort out .ndfbin files
+                    if not dir.endswith(filter_list[len(filter_list)-1]):
+                        continue
+                    # return True if at least one filter is satisfied
+                    return True
+        return result
+
