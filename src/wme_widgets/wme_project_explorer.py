@@ -41,7 +41,6 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         data_model.setRootPath(mod_path)
         data_model.setNameFilters(["*.ndf"])
         data_model.setNameFilterDisables(False)
-        data_model.setFilter(QtCore.QDir.Files | QtCore.QDir.Dirs)
         data_model.setIconProvider(FileIconProvider())
 
         #proxy_model = QtCore.QSortFilterProxyModel()
@@ -62,7 +61,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
 
     def on_double_click(self, index):
         # map index to source
-        index = self.model().mapToSource(index)
+        #index = self.model().mapToSource(index)
         #file_path = QtWidgets.QFileSystemModel.filePath(self.model().sourceModel(), index)
         file_path = QtWidgets.QFileSystemModel.filePath(self.model(), index)
         if file_path.endswith(".ndf"):
