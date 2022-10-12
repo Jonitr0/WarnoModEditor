@@ -14,14 +14,14 @@ class WMEProjectExplorer(QtWidgets.QWidget):
         self.setLayout(main_layout)
 
         # create minimalistic search bar
-        search_bar = wme_lineedit.WMELineEdit()
-        search_bar.setPlaceholderText("Find in Directory...")
-        main_layout.addWidget(search_bar)
+        self.search_bar = wme_lineedit.WMELineEdit()
+        self.search_bar.setPlaceholderText("Find in Directory...")
+        main_layout.addWidget(self.search_bar)
 
         self.tree_view = FileSystemTreeView(self)
         main_layout.addWidget(self.tree_view)
 
-        search_bar.textChanged.connect(self.tree_view.on_find_text_changed)
+        self.search_bar.returnPressed.connect(lambda: self.tree_view.on_find_text_changed(self.search_bar.text()))
 
 
 class FileSystemTreeView(QtWidgets.QTreeView):
@@ -61,7 +61,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.collapseAll()
         else:
             self.model().setNameFilters(["*" + text + "*.ndf"])
-            self.expandAll()
+            self.expandToDepth(10)
 
 
 class FileIconProvider(QtWidgets.QFileIconProvider):
@@ -114,12 +114,19 @@ class DirProxy(QtCore.QSortFilterProxyModel):
                 qdir = QtCore.QDir(self.dirModel.filePath(source))
                 if self.nameFilters:
                     qdir.setNameFilters(self.nameFilters)
-                # TODO: check recursively if these dirs contain relevant files
-                return bool(qdir.entryInfoList(qdir.NoDotAndDotDot | qdir.AllEntries | qdir.AllDirs))
+                return self.contains_filter_file(qdir)
 
             elif self.nameFilters:  # <- index refers to a file
                 qdir = QtCore.QDir(self.dirModel.filePath(source))
                 return qdir.match(self.nameFilters,
                                   self.dirModel.fileName(source))  # <- returns true if the file matches the nameFilters
         return True
+
+    def contains_filter_file(self, qdir: QtCore.QDir) -> bool:
+        qdir_iter = QtCore.QDirIterator(qdir, QtCore.QDirIterator.Subdirectories)
+        if qdir_iter.hasNext():
+            return True
+        else:
+            return False
+
 
