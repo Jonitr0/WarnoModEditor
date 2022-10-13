@@ -91,24 +91,11 @@ class FileSystemModel(QtWidgets.QFileSystemModel):
         name_filters = self.nameFilters()
         # iterate through children
         file_path = QtWidgets.QFileSystemModel.filePath(self, parent)
-        dir_iter = QtCore.QDirIterator(file_path)
-        result = False
-        while dir_iter.hasNext():
-            dir = dir_iter.next()
-            if dir_iter.fileInfo().isDir() and not dir.endswith("."):
-                result = result | self.hasChildren(self.index(dir))
-            elif dir_iter.fileInfo().isFile():
-                # check each name filter
-                for filter in name_filters:
-                    # split name filter
-                    filter_list = filter.split("*")
-                    for filter_part in filter_list:
-                        if not dir.__contains__(filter_part):
-                            break
-                    # sort out .ndfbin files
-                    if not dir.endswith(filter_list[len(filter_list)-1]):
-                        continue
-                    # return True if at least one filter is satisfied
-                    return True
-        return result
+        qdir = QtCore.QDir(file_path)
+        qdir.setNameFilters(name_filters)
+        dir_iter = QtCore.QDirIterator(qdir, QtCore.QDirIterator.Subdirectories)
+        if dir_iter.hasNext():
+            return True
+        else:
+            return False
 
