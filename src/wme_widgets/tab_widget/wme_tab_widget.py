@@ -3,7 +3,7 @@
 from PySide6 import QtWidgets, QtCore
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
-from src.wme_widgets.tab_pages import ndf_editor_widget, tab_page_base
+from src.wme_widgets.tab_pages import ndf_editor_page, tab_page_base, diff_page
 from src.dialogs import essential_dialogs
 
 
@@ -23,8 +23,11 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.setCornerWidget(new_tab_button)
 
         self.tab_menu = QtWidgets.QMenu()
+        self.tab_menu.setToolTipsVisible(True)
         new_tab_button.setMenu(self.tab_menu)
-        self.tab_menu.addAction("bla")
+        diff_page_action = self.tab_menu.addAction("Comparison Tool")
+        diff_page_action.setToolTip("Show differences between a mod and the game files or another mod.")
+        diff_page_action.triggered.connect(self.on_diff_page_action)
 
         self.setTabsClosable(True)
         self.tabCloseRequested.connect(self.on_tab_close_pressed)
@@ -61,7 +64,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_open_ndf_editor(self, file_path: str):
         file_path = file_path.replace("/", "\\")
         file_name = file_path[file_path.rindex('\\') + 1:]
-        editor = ndf_editor_widget.NdfEditorWidget()
+        editor = ndf_editor_page.NdfEditorPage()
         self.addTab(editor, file_name)
         editor.open_file(file_path)
         editor.unsaved_changes = False
@@ -156,3 +159,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         else:
             self.setTabText(index, widget.tab_name)
             self.setTabToolTip(index, widget.tab_name)
+
+    def on_diff_page_action(self, _):
+        diff_page_widget = diff_page.DiffPage()
+        self.addTab(diff_page_widget, "Comparison Tool")

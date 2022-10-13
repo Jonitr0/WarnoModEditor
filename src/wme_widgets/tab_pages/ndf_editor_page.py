@@ -7,7 +7,7 @@ from src.utils import icon_manager
 from src.utils.color_manager import *
 
 
-class NdfEditorWidget(tab_page_base.TabPageBase):
+class NdfEditorPage(tab_page_base.TabPageBase):
     def __init__(self):
         super().__init__()
 
