@@ -1,13 +1,18 @@
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtCore
 
 from src.wme_widgets.tab_pages import tab_page_base
 from src.wme_widgets import main_widget
+
+from filecmp import dircmp
 
 
 class DiffPage(tab_page_base.TabPageBase):
     def __init__(self):
         super().__init__()
+        self.compare_button = QtWidgets.QPushButton("Compare")
+        self.target_combobox = QtWidgets.QComboBox()
         self.setup_ui()
+        self.load_mods_to_combobox()
 
     def setup_ui(self):
         main_layout = QtWidgets.QVBoxLayout()
@@ -21,16 +26,46 @@ class DiffPage(tab_page_base.TabPageBase):
                                              main_widget.MainWidget.instance.get_loaded_mod_name() + " with: ")
         target_info_label.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         target_selection_layout.addWidget(target_info_label)
-        target_combobox = QtWidgets.QComboBox()
-        target_combobox.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        target_combobox.setMaximumWidth(500)
-        target_selection_layout.addWidget(target_combobox)
-        compare_button = QtWidgets.QPushButton("Compare")
-        compare_button.setFixedWidth(100)
-        target_selection_layout.addWidget(compare_button)
+        self.target_combobox.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.target_combobox.setMaximumWidth(500)
+        target_selection_layout.addWidget(self.target_combobox)
+        self.compare_button.setFixedWidth(100)
+        self.compare_button.pressed.connect(self.on_compare)
+        target_selection_layout.addWidget(self.compare_button)
         target_selection_layout.addStretch(0)
 
         results_area = QtWidgets.QScrollArea()
         main_layout.addWidget(results_area)
         results_list_widget = QtWidgets.QWidget()
         results_area.setWidget(results_list_widget)
+
+    def load_mods_to_combobox(self):
+        # get Mods dir
+        mod_dir = main_widget.MainWidget.instance.get_loaded_mod_path()
+        mod_dir = mod_dir[:mod_dir.rindex('\\')]
+
+        self.target_combobox.addItem("Unmodded game files", "unmodded")
+        # list of items that can't be compared with
+        exclude_list = ["Utils", "ModData", main_widget.MainWidget.instance.get_loaded_mod_name()]
+        dir_iter = QtCore.QDirIterator(mod_dir, (QtCore.QDir.NoDotAndDotDot | QtCore.QDir.Dirs))
+        while dir_iter.hasNext():
+            next = dir_iter.next()
+            next_name = next[next.rindex('/') + 1:]
+            if not exclude_list.__contains__(next_name):
+                self.target_combobox.addItem(next_name, next)
+
+    def on_compare(self):
+        target = self.target_combobox.currentData()
+        mod_dir = main_widget.MainWidget.instance.get_loaded_mod_path()
+        if target != "unmodded":
+            res = dircmp(mod_dir, target)
+            print(self.compare_subdirs(res, []))
+
+    def compare_subdirs(self, dcmp: dircmp, diffs: list[str]) -> list[str]:
+        # TODO: make this work
+        if not len(dcmp.diff_files) < 1:
+            diffs += dcmp.diff_files
+        for sub_dcmp in dcmp.subdirs.values():
+            diffs += self.compare_subdirs(sub_dcmp, [])
+        return diffs
+
