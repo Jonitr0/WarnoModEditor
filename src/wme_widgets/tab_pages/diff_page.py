@@ -5,6 +5,12 @@ from src.wme_widgets import main_widget
 
 from filecmp import dircmp
 
+import os
+import shutil
+import zipfile
+import string
+import random
+
 
 class DiffPage(tab_page_base.TabPageBase):
     def __init__(self):
@@ -55,17 +61,37 @@ class DiffPage(tab_page_base.TabPageBase):
                 self.target_combobox.addItem(next_name, next)
 
     def on_compare(self):
+        main_widget.MainWidget.instance.show_loading_screen("Running comparison...")
         target = self.target_combobox.currentData()
         mod_dir = main_widget.MainWidget.instance.get_loaded_mod_path()
-        if target != "unmodded":
-            res = dircmp(mod_dir, target)
-            print(self.compare_subdirs(res, []))
+        delete = False
+        # comparison with original files
+        if target == "unmodded":
+            mods_base_dir = mod_dir[:mod_dir.rindex('\\')]
+            target = mods_base_dir + "\\" + ''.join(random.choice(string.ascii_letters) for i in range(8))
+            shutil.copytree(mods_base_dir + "\\ModData", target)
+            newbase = os.path.join(mods_base_dir + "\\ModData", "base.zip")
+            with zipfile.ZipFile(newbase, 'r') as archive:
+                archive.extractall(target)
+            delete = True
+        res = dircmp(mod_dir, target)
+        res_d, res_l, res_r = self.compare_subdirs(res, [], [], [])
+        print(res_d)
+        print(res_l)
+        print(res_r)
+        if delete:
+            shutil.rmtree(target)
+        main_widget.MainWidget.instance.hide_loading_screen()
 
-    def compare_subdirs(self, dcmp: dircmp, diffs: list[str]) -> list[str]:
-        # TODO: make this work
-        if not len(dcmp.diff_files) < 1:
-            diffs += dcmp.diff_files
+    def compare_subdirs(self, dcmp: dircmp, diffs: list[str], left: list[str], right: list[str]):
+        # TODO: add full path
+        diffs += dcmp.diff_files
+        left += dcmp.left_only
+        right += dcmp.right_only
         for sub_dcmp in dcmp.subdirs.values():
-            diffs += self.compare_subdirs(sub_dcmp, [])
-        return diffs
+            sub_diffs, sub_left, sub_right = self.compare_subdirs(sub_dcmp, [], [], [])
+            diffs += sub_diffs
+            left += sub_left
+            right += sub_right
+        return diffs, left, right
 
