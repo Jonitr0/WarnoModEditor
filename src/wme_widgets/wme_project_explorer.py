@@ -14,14 +14,14 @@ class WMEProjectExplorer(QtWidgets.QWidget):
         self.setLayout(main_layout)
 
         # create minimalistic search bar
-        self.search_bar = wme_lineedit.WMELineEdit()
-        self.search_bar.setPlaceholderText("Find in Directory...")
-        main_layout.addWidget(self.search_bar)
+        search_bar = wme_lineedit.WMELineEdit()
+        search_bar.setPlaceholderText("Find in Directory...")
+        main_layout.addWidget(search_bar)
 
         self.tree_view = FileSystemTreeView(self)
         main_layout.addWidget(self.tree_view)
 
-        self.search_bar.returnPressed.connect(lambda: self.tree_view.on_find_text_changed(self.search_bar.text()))
+        search_bar.textChanged.connect(self.tree_view.on_find_text_changed)
 
 
 class FileSystemTreeView(QtWidgets.QTreeView):
@@ -34,11 +34,18 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         self.setHeaderHidden(True)
         self.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Expanding)
         self.setMinimumWidth(160)
+        self.mod_path = ""
 
     def update_model(self, mod_path: str):
-        data_model = DirProxy(mod_path)
+        data_model = FileSystemModel()
+        data_model.setRootPath(mod_path)
+        data_model.setNameFilters(["*.ndf"])
+        data_model.setNameFilterDisables(False)
+        data_model.setIconProvider(FileIconProvider())
+
         self.setModel(data_model)
-        self.setRootIndex(data_model.get_root_index())
+        self.setRootIndex(data_model.index(mod_path))
+        self.mod_path = mod_path
 
         self.hideColumn(1)
         self.hideColumn(2)
@@ -46,8 +53,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
 
     def on_double_click(self, index):
         # map index to source
-        source_index = self.model().mapToSource(index)
-        file_path = QtWidgets.QFileSystemModel.filePath(self.model().dirModel, source_index)
+        file_path = QtWidgets.QFileSystemModel.filePath(self.model(), index)
         if file_path.endswith(".ndf"):
             self.open_ndf_editor.emit(file_path)
 
@@ -61,7 +67,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.collapseAll()
         else:
             self.model().setNameFilters(["*" + text + "*.ndf"])
-            self.expandToDepth(10)
+            self.expandRecursively(self.model().index(self.mod_path))
 
 
 class FileIconProvider(QtWidgets.QFileIconProvider):
@@ -75,58 +81,20 @@ class FileIconProvider(QtWidgets.QFileIconProvider):
         return super().icon(file_info)
 
 
-# from: https://stackoverflow.com/questions/38609516/hide-empty-parent-folders-qtreeview-qfilesystemmodel
-class DirProxy(QtCore.QSortFilterProxyModel):
-    nameFilters = ["*.ndf"]
-    mod_path = ''
-
-    def __init__(self, mod_path: str):
-        super().__init__()
-        self.dirModel = QtWidgets.QFileSystemModel()
-        self.dirModel.setFilter(
-            QtCore.QDir.NoDotAndDotDot | QtCore.QDir.AllDirs | QtCore.QDir.Files)
-        self.dirModel.setRootPath(mod_path)
-        self.dirModel.setNameFilterDisables(False)
-        self.dirModel.setIconProvider(FileIconProvider())
-        self.setSourceModel(self.dirModel)
-        self.mod_path = mod_path
-
-    def get_root_index(self):
-        return self.mapFromSource(self.dirModel.index(self.mod_path))
-
-    def setNameFilters(self, filters):
-        if not isinstance(filters, (tuple, list)):
-            filters = [filters]
-        self.nameFilters = filters
-        self.invalidateFilter()
-
-    def hasChildren(self, parent):
-        sourceParent = self.mapToSource(parent)
-        if not self.dirModel.hasChildren(sourceParent):
+class FileSystemModel(QtWidgets.QFileSystemModel):
+    def hasChildren(self, parent) -> bool:
+        # no possible children
+        if parent.flags() & Qt.ItemNeverHasChildren:
             return False
-        qdir = QtCore.QDir(self.dirModel.filePath(sourceParent))
-        return self.contains_filter_file(qdir)
 
-    def filterAcceptsRow(self, row, parent):
-        source = self.dirModel.index(row, 0, parent)
-        if source.isValid():
-            if self.dirModel.isDir(source):
-                qdir = QtCore.QDir(self.dirModel.filePath(source))
-                if self.nameFilters:
-                    qdir.setNameFilters(self.nameFilters)
-                return self.contains_filter_file(qdir)
-
-            elif self.nameFilters:  # <- index refers to a file
-                qdir = QtCore.QDir(self.dirModel.filePath(source))
-                return qdir.match(self.nameFilters,
-                                  self.dirModel.fileName(source))  # <- returns true if the file matches the nameFilters
-        return True
-
-    def contains_filter_file(self, qdir: QtCore.QDir) -> bool:
-        qdir_iter = QtCore.QDirIterator(qdir, QtCore.QDirIterator.Subdirectories)
-        if qdir_iter.hasNext():
+        name_filters = self.nameFilters()
+        # iterate through children
+        file_path = QtWidgets.QFileSystemModel.filePath(self, parent)
+        qdir = QtCore.QDir(file_path)
+        qdir.setNameFilters(name_filters)
+        dir_iter = QtCore.QDirIterator(qdir, QtCore.QDirIterator.Subdirectories)
+        if dir_iter.hasNext():
             return True
         else:
             return False
-
 
