@@ -43,6 +43,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
         file_menu = self.addMenu("File")
 
+        # TODO: add tooltips for all actions
+
         self.add_action_to_menu("New Mod", file_menu, False, self.on_new_action)
         self.add_action_to_menu("Open Mod", file_menu, False, self.on_load_action)
         # TODO: add delete mod function

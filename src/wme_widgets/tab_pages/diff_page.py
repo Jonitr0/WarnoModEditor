@@ -62,11 +62,13 @@ class DiffPage(tab_page_base.TabPageBase):
 
     def on_compare(self):
         main_widget.MainWidget.instance.show_loading_screen("Running comparison...")
+
         target = self.target_combobox.currentData()
         mod_dir = main_widget.MainWidget.instance.get_loaded_mod_path()
         delete = False
         # comparison with original files
         if target == "unmodded":
+            # copy and unzip mod data to randomly named dir, delete it afterwards
             mods_base_dir = mod_dir[:mod_dir.rindex('\\')]
             target = mods_base_dir + "\\" + ''.join(random.choice(string.ascii_letters) for i in range(8))
             shutil.copytree(mods_base_dir + "\\ModData", target)
@@ -76,11 +78,14 @@ class DiffPage(tab_page_base.TabPageBase):
             delete = True
         res = dircmp(mod_dir, target)
         res_d, res_l, res_r = self.compare_subdirs(res, [], [], [])
+        # TODO: process results
         print(res_d)
         print(res_l)
         print(res_r)
+
         if delete:
             shutil.rmtree(target)
+
         main_widget.MainWidget.instance.hide_loading_screen()
 
     def compare_subdirs(self, dcmp: dircmp, diffs: list[str], left: list[str], right: list[str]):
