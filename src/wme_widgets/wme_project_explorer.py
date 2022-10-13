@@ -66,7 +66,6 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.model().setNameFilters(["*.ndf"])
             self.collapseAll()
         else:
-            text = text.replace(".", "\\.")
             self.model().setNameFilters(["*" + text + "*.ndf"])
             self.expandRecursively(self.model().index(self.mod_path))
 
