@@ -6,7 +6,9 @@ def validate_mod_path(mod_path):
            QtCore.QFile().exists(mod_path + "/GenerateMod.bat") and \
            QtCore.QFile().exists(mod_path + "/RetrieveModBackup.bat") and \
            QtCore.QFile().exists(mod_path + "/UpdateMod.bat") and \
-           QtCore.QFile().exists(mod_path + "/UploadMod.bat")
+           QtCore.QFile().exists(mod_path + "/UploadMod.bat") and \
+           QtCore.QDir(mod_path + "/CommonData").exists() and \
+           QtCore.QDir(mod_path + "/GameData").exists()
 
 
 def validate_warno_path(warno_path):

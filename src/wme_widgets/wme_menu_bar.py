@@ -2,6 +2,7 @@
 
 import os
 import logging
+import shutil
 from pathlib import Path
 
 from PySide6 import QtWidgets, QtCore, QtGui
@@ -41,31 +42,31 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.actions = []
         self.main_widget_ref = main_widget_ref
 
-        file_menu = self.addMenu("File")
+        self.file_menu = self.addMenu("File")
 
         # TODO: add tooltips for all actions
 
-        self.add_action_to_menu("New Mod", file_menu, False, self.on_new_action)
-        self.add_action_to_menu("Open Mod", file_menu, False, self.on_load_action)
-        # TODO: add delete mod function
+        self.add_action_to_menu("New Mod", self.file_menu, False, self.on_new_action)
+        self.add_action_to_menu("Open Mod", self.file_menu, False, self.on_load_action)
+        self.add_action_to_menu("Delete Mod", self.file_menu, False, self.on_delete_action)
 
-        file_menu.addSeparator()
+        self.file_menu.addSeparator()
 
-        self.add_action_to_menu("Options", file_menu, False, self.on_options_action)
+        self.add_action_to_menu("Options", self.file_menu, False, self.on_options_action)
 
-        edit_menu = self.addMenu("Edit")
+        self.edit_menu = self.addMenu("Edit")
 
-        self.add_action_to_menu("Generate Mod", edit_menu, True, self.on_generate_action)
-        self.add_action_to_menu("Edit Mod Configuration", edit_menu, True, self.on_edit_config_action)
-        self.add_action_to_menu("Update Mod", edit_menu, True, self.on_update_action)
-        self.add_action_to_menu("Upload Mod", edit_menu, True, self.on_upload_action)
+        self.add_action_to_menu("Generate Mod", self.edit_menu, True, self.on_generate_action)
+        self.add_action_to_menu("Edit Mod Configuration", self.edit_menu, True, self.on_edit_config_action)
+        self.add_action_to_menu("Update Mod", self.edit_menu, True, self.on_update_action)
+        self.add_action_to_menu("Upload Mod", self.edit_menu, True, self.on_upload_action)
 
-        edit_menu.addSeparator()
+        self.edit_menu.addSeparator()
 
-        self.add_action_to_menu("Create Mod Backup", edit_menu, True, self.on_new_backup_action)
-        self.add_action_to_menu("Retrieve Mod Backup", edit_menu, True,
+        self.add_action_to_menu("Create Mod Backup", self.edit_menu, True, self.on_new_backup_action)
+        self.add_action_to_menu("Retrieve Mod Backup", self.edit_menu, True,
                                 self.on_retrieve_backup_action)
-        self.add_action_to_menu("Remove Mod Backup", edit_menu, True, self.on_delete_backup_action)
+        self.add_action_to_menu("Delete Mod Backup", self.edit_menu, True, self.on_delete_backup_action)
 
     def on_new_action(self):
         dialog = new_mod_dialog.NewModDialog(self.main_widget_ref.get_warno_path())
@@ -105,6 +106,40 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
             essential_dialogs.MessageDialog("Path invalid", "The given path does not to point to a valid "
                                                             "WARNO mod directory. Please enter a valid path").exec()
+
+    def on_delete_action(self):
+        # let user select a mod
+        while True:
+            mod_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter mod path",
+                                                                    self.main_widget_ref.get_warno_path() + "/Mods")
+            if mod_path == "":
+                return
+
+            mod_path = mod_path.removesuffix("/")
+            mod_path = mod_path.replace("/", "\\")
+            if path_validator.validate_mod_path(mod_path):
+                break
+
+            essential_dialogs.MessageDialog("Path invalid", "The given path does not to point to a valid "
+                                                            "WARNO mod directory. Please enter a valid path").exec()
+        # ask to really delete
+        ret = essential_dialogs.ConfirmationDialog("The selected mod including all backups in its directory"
+                                                   " will be deleted. You might be unable to recover it.\n"
+                                                   "Do you really want to continue?", "Warning!").exec()
+        if ret != QtWidgets.QDialog.Accepted:
+            return
+
+        try:
+            shutil.rmtree(mod_path)
+        except Exception as e:
+            logging.error(e)
+
+        if mod_path == self.main_widget_ref.get_loaded_mod_path():
+            # disable all edit actions
+            for action in self.edit_menu.actions():
+                if not (action.isSeparator() or action.menu()):
+                    action.setDisabled(True)
+            self.main_widget_ref.unload_mod()
 
     def on_options_action(self):
         options_dialog.OptionsDialog().exec()
@@ -251,7 +286,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         selection = dialog.get_selection()
 
         confirm_dialog = essential_dialogs.ConfirmationDialog("The backup " + selection +
-                                                              " will be removed and you might not be able to "
+                                                              " will be deleted and you might not be able to "
                                                               "restore it! Are you sure you want to continue?",
                                                               "Warning!")
         if confirm_dialog.exec_() != QtWidgets.QDialog.Accepted:

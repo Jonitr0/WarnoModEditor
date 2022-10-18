@@ -32,7 +32,7 @@ class MainWidget(QtWidgets.QWidget):
         self.status_timer = QtCore.QTimer()
         self.status_timer.timeout.connect(self.on_status_timeout)
         self.title_bar = title_bar
-        self.title_label = QtWidgets.QLabel("No mod loaded")
+        self.title_label = QtWidgets.QLabel("")
         self.setup_ui()
         MainWidget.instance = self
         last_open = settings_manager.get_settings_value(settings_manager.LAST_OPEN_KEY)
@@ -117,6 +117,12 @@ class MainWidget(QtWidgets.QWidget):
 
         # TODO: load open pages from config
 
+    def unload_mod(self):
+        self.loaded_mod_path = ""
+        self.loaded_mod_name = ""
+        self.title_label.setText("")
+        self.show_loading_screen("Open the \"File\" menu to create or load a mod.")
+
     def ask_all_tabs_to_save(self):
         # ask all tabs on all windows to save/discard, return False on cancel
         return self.tab_widget.ask_all_tabs_to_save(all_windows=True)
@@ -140,7 +146,3 @@ class MainWidget(QtWidgets.QWidget):
             else:
                 self.splitter.setSizes([self.explorer_width, self.tab_widget.width() - self.explorer_width])
         return False
-
-
-
-
