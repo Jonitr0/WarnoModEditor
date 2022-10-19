@@ -188,25 +188,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             # delete QSettings object so file can be edited
             del config
 
-            # change relevant directory names and update paths
-            if new_name != "":
-                loaded_mod_path = self.main_widget_ref.get_loaded_mod_path()
-                new_mod_path = loaded_mod_path[
-                               :loaded_mod_path.rindex('\\') + 1] + new_name
-                old_config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
-                                  self.main_widget_ref.get_loaded_mod_name()
-                new_config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
-                                  new_name
-                config_path = new_config_path + "\\Config.ini"
-
-                try:
-                    os.rename(loaded_mod_path, new_mod_path)
-                    os.rename(old_config_path, new_config_path)
-
-                    self.request_load_mod.emit(new_mod_path)
-                except Exception as e:
-                    logging.error(e)
-
             # replace to make the file readable for Eugen...
             with open(config_path, "r+") as f:
                 f_content = f.read()
