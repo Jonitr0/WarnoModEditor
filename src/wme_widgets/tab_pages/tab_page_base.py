@@ -74,7 +74,8 @@ class TabPageBase(QtWidgets.QWidget):
         # restore changes for other pages after successful save
         page_list = get_pages_for_file(self.file_path, unsaved_only=False)
         for page in page_list:
-            page.update_page()
+            if page != self:
+                page.update_page()
 
         return True
 
