@@ -1,3 +1,5 @@
+import difflib
+
 from PySide6 import QtWidgets, QtCore
 
 from src.wme_widgets.tab_pages import tab_page_base
@@ -38,7 +40,7 @@ class DiffPage(tab_page_base.TabPageBase):
         self.target_combobox.setMaximumWidth(500)
         target_selection_layout.addWidget(self.target_combobox)
         self.compare_button.setFixedWidth(100)
-        self.compare_button.pressed.connect(self.on_compare)
+        self.compare_button.clicked.connect(self.on_compare)
         target_selection_layout.addWidget(self.compare_button)
         target_selection_layout.addStretch(0)
 
@@ -67,6 +69,7 @@ class DiffPage(tab_page_base.TabPageBase):
             if not exclude_list.__contains__(next_name):
                 self.target_combobox.addItem(next_name, next)
 
+    # TODO: split this in smaller functions
     def on_compare(self):
         # clear results layout
         for i in reversed(range(self.results_layout.count())):
@@ -96,7 +99,6 @@ class DiffPage(tab_page_base.TabPageBase):
             delete = True
         res = dircmp(mod_dir, target)
         res_d, res_l, res_r = self.compare_subdirs(res, [], [], [])
-        # TODO: process results
 
         left_name = main_widget.MainWidget.instance.get_loaded_mod_name()
         if delete:
@@ -108,15 +110,33 @@ class DiffPage(tab_page_base.TabPageBase):
         print(res_l)
         print(res_r)
 
-        for diff in res_l:
+        for diff_file in res_l:
             diff_w = DiffWidget(self)
-            diff_w.left_only(diff, left_name)
-            self.results_layout.insertWidget(self.results_layout.count()-1, diff_w)
+            diff_w.left_only(diff_file, left_name)
+            self.results_layout.insertWidget(self.results_layout.count() - 1, diff_w)
 
-        for diff in res_r:
+        for diff_file in res_r:
             diff_w = DiffWidget(self)
-            diff_w.right_only(diff, right_name)
-            self.results_layout.insertWidget(self.results_layout.count()-1, diff_w)
+            diff_w.right_only(diff_file, right_name)
+            self.results_layout.insertWidget(self.results_layout.count() - 1, diff_w)
+
+        for diff_file in res_d:
+            path1 = str(mod_dir + "\\" + diff_file).replace("/", "\\")
+            path2 = str(target + "\\" + diff_file).replace("/", "\\")
+
+            with open(path1, 'r') as file1, open(path2, 'r') as file2:
+                d = difflib.Differ()
+                diff = d.compare(file1.readlines(), file2.readlines())
+
+                line_number = 0
+                for line in diff:
+                    code = line[:2]
+                    if code in ("  ", "+ "):
+                        line_number += 1
+                    if code == "- ":
+                        print("new " + str(line_number) + ": " + line.removesuffix("\n"))
+                    elif code == "+ ":
+                        print("old " + str(line_number) + ": " + line.removesuffix("\n"))
 
         if delete:
             try:
@@ -125,7 +145,7 @@ class DiffPage(tab_page_base.TabPageBase):
                 logging.error(e)
 
         if len(res_d) < 1 and len(res_l) < 1 and len(res_r) < 1:
-            self.results_layout.insertWidget(self.results_layout.count()-1, QtWidgets.QLabel("No differences found."))
+            self.results_layout.insertWidget(self.results_layout.count() - 1, QtWidgets.QLabel("No differences found."))
 
         main_widget.MainWidget.instance.hide_loading_screen()
 
@@ -150,6 +170,9 @@ class DiffPage(tab_page_base.TabPageBase):
             right += sub_right
 
         return diffs, left, right
+
+    def compare_files(self):
+        pass
 
 
 # TODO: add colored icon for faster readability
