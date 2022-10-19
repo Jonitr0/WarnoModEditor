@@ -10,6 +10,7 @@ import shutil
 import zipfile
 import string
 import random
+import logging
 
 
 class DiffPage(tab_page_base.TabPageBase):
@@ -41,7 +42,6 @@ class DiffPage(tab_page_base.TabPageBase):
         target_selection_layout.addWidget(self.compare_button)
         target_selection_layout.addStretch(0)
 
-        # TODO: check if this is shown
         results_area = QtWidgets.QScrollArea(self)
         results_area.setWidgetResizable(True)
         main_layout.addWidget(results_area)
@@ -50,6 +50,7 @@ class DiffPage(tab_page_base.TabPageBase):
         results_list_widget.setLayout(self.results_layout)
 
         self.results_layout.addStretch(1)
+        self.results_layout.setSpacing(0)
 
     def load_mods_to_combobox(self):
         # get Mods dir
@@ -88,6 +89,10 @@ class DiffPage(tab_page_base.TabPageBase):
             newbase = os.path.join(mods_base_dir + "\\ModData", "base.zip")
             with zipfile.ZipFile(newbase, 'r') as archive:
                 archive.extractall(target)
+            try:
+                shutil.rmtree(target + "/.base")
+            except Exception as e:
+                logging.error(e)
             delete = True
         res = dircmp(mod_dir, target)
         res_d, res_l, res_r = self.compare_subdirs(res, [], [], [])
@@ -114,7 +119,10 @@ class DiffPage(tab_page_base.TabPageBase):
             self.results_layout.insertWidget(self.results_layout.count()-1, diff_w)
 
         if delete:
-            shutil.rmtree(target)
+            try:
+                shutil.rmtree(target)
+            except Exception as e:
+                logging.error(e)
 
         if len(res_d) < 1 and len(res_l) < 1 and len(res_r) < 1:
             self.results_layout.insertWidget(self.results_layout.count()-1, QtWidgets.QLabel("No differences found."))
@@ -144,13 +152,16 @@ class DiffPage(tab_page_base.TabPageBase):
         return diffs, left, right
 
 
-class DiffWidget(QtWidgets.QWidget):
+# TODO: add colored icon for faster readability
+class DiffWidget(QtWidgets.QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        # TODO: make this a layout to list multiple potential diffs
         self.text_edit = QtWidgets.QTextEdit()
         self.open_in_editor_button = QtWidgets.QPushButton("Open in text editor")
         self.info_label = QtWidgets.QLabel()
+        self.setObjectName("diff_widget")
         self.setup_ui()
 
     def setup_ui(self):
@@ -172,4 +183,5 @@ class DiffWidget(QtWidgets.QWidget):
 
     def right_only(self, diff_name: str, right_name: str):
         self.info_label.setText(diff_name + " only exists in " + right_name)
+        self.open_in_editor_button.setDisabled(True)
         self.text_edit.setHidden(True)

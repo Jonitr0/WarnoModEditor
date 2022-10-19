@@ -77,3 +77,9 @@ QPlainTextEdit#code_editor {{
   padding: 0px 0px;
   font: 10pt 'Courier New';
 }}
+
+QFrame#diff_widget {{
+  border-radius: 0px;
+  border-width: 1px;
+  border-color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
+}}

@@ -84,6 +84,11 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                 logging.error("Error while running CreateNewMod.bat")
                 return
 
+            try:
+                shutil.rmtree(mods_path + mod_name + "/.base")
+            except Exception as e:
+                logging.error(e)
+
             # load mod
             self.request_load_mod.emit(mods_path + mod_name)
 
