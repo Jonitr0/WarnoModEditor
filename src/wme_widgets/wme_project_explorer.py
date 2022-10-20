@@ -98,3 +98,15 @@ class FileSystemModel(QtWidgets.QFileSystemModel):
         else:
             return False
 
+    def data(self, index, role=Qt.DisplayRole):
+        if role == Qt.ToolTipRole:
+            return index.data()
+        else:
+            return super().data(index, role)
+
+    def flags(self, index):
+        if not index.isValid():
+            return Qt.NoItemFlags  # 0
+        return Qt.ItemIsEditable | Qt.ItemIsEnabled |\
+               Qt.ItemIsSelectable | Qt.ToolTip
+
