@@ -3,7 +3,8 @@
 from PySide6 import QtWidgets, QtCore
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
-from src.wme_widgets.tab_pages import ndf_editor_page, tab_page_base, diff_page
+from src.wme_widgets.tab_pages import tab_page_base, diff_page
+from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.dialogs import essential_dialogs
 
 

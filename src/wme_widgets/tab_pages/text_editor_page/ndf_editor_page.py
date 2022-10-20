@@ -1,7 +1,8 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 
 from src.wme_widgets.tab_pages import tab_page_base
-from src.wme_widgets import wme_code_editor, main_widget, wme_find_replace_bar
+from src.wme_widgets import main_widget
+from src.wme_widgets.tab_pages.text_editor_page import wme_find_replace_bar, wme_code_editor
 
 from src.utils import icon_manager
 from src.utils.color_manager import *
