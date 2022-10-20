@@ -92,10 +92,6 @@ class DiffPage(tab_page_base.TabPageBase):
             newbase = os.path.join(mods_base_dir + "\\ModData", "base.zip")
             with zipfile.ZipFile(newbase, 'r') as archive:
                 archive.extractall(target)
-            try:
-                shutil.rmtree(target + "/.base")
-            except Exception as e:
-                logging.error(e)
             delete = True
         res = dircmp(mod_dir, target)
         res_d, res_l, res_r = self.compare_subdirs(res, [], [], [])
@@ -128,15 +124,16 @@ class DiffPage(tab_page_base.TabPageBase):
                 d = difflib.Differ()
                 diff = d.compare(file1.readlines(), file2.readlines())
 
+                # TODO: count lines separately for old/new
                 line_number = 0
                 for line in diff:
                     code = line[:2]
-                    if code in ("  ", "+ "):
+                    if code in ("  ", "- "):
                         line_number += 1
                     if code == "- ":
-                        print("new " + str(line_number) + ": " + line.removesuffix("\n"))
+                        print("new " + str(line_number) + ": " + line.removesuffix("\n")[2:])
                     elif code == "+ ":
-                        print("old " + str(line_number) + ": " + line.removesuffix("\n"))
+                        print("old " + str(line_number) + ": " + line.removesuffix("\n")[2:])
 
         if delete:
             try:
