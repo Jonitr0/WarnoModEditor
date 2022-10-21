@@ -203,5 +203,5 @@ class DiffWidget(QtWidgets.QFrame):
 
     def right_only(self, diff_name: str, right_name: str):
         self.info_label.setText(diff_name + " only exists in " + right_name)
-        self.open_in_editor_button.setDisabled(True)
+        self.open_in_editor_button.setHidden(True)
         self.text_edit.setHidden(True)

@@ -54,7 +54,8 @@ class FindBar(QtWidgets.QWidget):
         self.next_button.setIcon(next_icon)
         self.next_button.clicked.connect(self.on_next)
         self.next_button.setToolTip("Next search result")
-        self.next_button.setFixedSize(32, 32)
+        self.next_button.setFixedSize(36, 36)
+        self.next_button.setIconSize(QtCore.QSize(36, 36))
         self.main_layout.addWidget(self.next_button)
 
         prev_icon = QtGui.QIcon()
@@ -63,7 +64,8 @@ class FindBar(QtWidgets.QWidget):
         self.prev_button.setIcon(prev_icon)
         self.prev_button.clicked.connect(self.on_prev)
         self.prev_button.setToolTip("Previous search result")
-        self.prev_button.setFixedSize(32, 32)
+        self.prev_button.setFixedSize(36, 36)
+        self.prev_button.setIconSize(QtCore.QSize(36, 36))
         self.main_layout.addWidget(self.prev_button)
 
         self.main_layout.addWidget(self.results_label)
