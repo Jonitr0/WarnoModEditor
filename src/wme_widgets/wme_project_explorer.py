@@ -35,6 +35,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         self.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Expanding)
         self.setMinimumWidth(160)
         self.mod_path = ""
+        self.setIconSize(QtCore.QSize(20, 20))
 
     def update_model(self, mod_path: str):
         data_model = FileSystemModel()
@@ -107,6 +108,5 @@ class FileSystemModel(QtWidgets.QFileSystemModel):
     def flags(self, index):
         if not index.isValid():
             return Qt.NoItemFlags  # 0
-        return Qt.ItemIsEditable | Qt.ItemIsEnabled |\
-               Qt.ItemIsSelectable | Qt.ToolTip
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ToolTip
 
