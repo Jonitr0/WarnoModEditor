@@ -3,7 +3,7 @@
 from PySide6 import QtWidgets, QtCore
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
-from src.wme_widgets.tab_pages import tab_page_base, diff_page
+from src.wme_widgets.tab_pages import tab_page_base
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.dialogs import essential_dialogs
 
@@ -26,9 +26,8 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.tab_menu = QtWidgets.QMenu()
         self.tab_menu.setToolTipsVisible(True)
         new_tab_button.setMenu(self.tab_menu)
-        diff_page_action = self.tab_menu.addAction("Comparison Tool")
-        diff_page_action.setToolTip("Show differences between a mod and the game files or another mod.")
-        diff_page_action.triggered.connect(self.on_diff_page_action)
+        # TODO: add guides, tooltips on actions
+        example_action = self.tab_menu.addAction("Example")
 
         self.setTabsClosable(True)
         self.tabCloseRequested.connect(self.on_tab_close_pressed)
@@ -160,7 +159,3 @@ class WMETabWidget(QtWidgets.QTabWidget):
         else:
             self.setTabText(index, widget.tab_name)
             self.setTabToolTip(index, widget.tab_name)
-
-    def on_diff_page_action(self, _):
-        diff_page_widget = diff_page.DiffPage()
-        self.addTab(diff_page_widget, "Comparison Tool")
