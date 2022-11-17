@@ -9,6 +9,8 @@ from src import main_window
 from src.utils import settings_manager
 from src.utils import theme_manager
 
+# TODO: move to src, implement qrc-based resource system
+
 if __name__ == '__main__':
     # setup logging
     logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s',

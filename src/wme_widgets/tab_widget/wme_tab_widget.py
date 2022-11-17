@@ -15,6 +15,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         super().__init__(parent)
 
         tab_bar = wme_tab_bar.WMETabBar(self)
+        tab_bar.help_requested.connect(self.on_help_requested)
         self.setTabBar(tab_bar)
 
         # TODO: style button
@@ -159,3 +160,6 @@ class WMETabWidget(QtWidgets.QTabWidget):
         else:
             self.setTabText(index, widget.tab_name)
             self.setTabToolTip(index, widget.tab_name)
+
+    def on_help_requested(self, index: int):
+        self.widget(index).on_help()

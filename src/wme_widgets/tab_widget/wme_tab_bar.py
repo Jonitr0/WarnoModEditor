@@ -8,6 +8,7 @@ drop_bar = None
 
 class WMETabBar(QtWidgets.QTabBar):
     tab_removed = QtCore.Signal()
+    help_requested = QtCore.Signal(int)
 
     def __init__(self, parent=None):
         self.dragStartPos = QtCore.QPoint(0, 0)
@@ -197,6 +198,8 @@ class WMETabBar(QtWidgets.QTabBar):
             close_all_action = context_menu.addAction("Close All Tabs")
             close_others_action = context_menu.addAction("Close Other Tabs")
         # TODO: add help action, which opens a page/popup with some help for the selected page
+        context_menu.addSeparator()
+        help_action = context_menu.addAction("Help")
 
         action = context_menu.exec_(self.mapToGlobal(event.pos()))
         start_count = self.count()
@@ -210,5 +213,7 @@ class WMETabBar(QtWidgets.QTabBar):
             for i in range(start_count):
                 if start_count- i - 1 is not index:
                     self.tabCloseRequested.emit(start_count - i - 1)
+        elif action == help_action:
+            self.help_requested.emit(index)
 
         super().mouseReleaseEvent(event)

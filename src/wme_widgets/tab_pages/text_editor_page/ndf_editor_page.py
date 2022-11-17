@@ -7,6 +7,7 @@ from src.wme_widgets.tab_pages.text_editor_page import wme_find_replace_bar, wme
 from src.utils import icon_manager
 from src.utils.color_manager import *
 
+# TODO: add help file path
 
 class NdfEditorPage(tab_page_base.TabPageBase):
     def __init__(self):

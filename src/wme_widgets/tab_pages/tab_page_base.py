@@ -27,6 +27,7 @@ class TabPageBase(QtWidgets.QWidget):
         self._unsaved_changes = False
         self.tab_name = ""
         self.file_path = ""
+        self.help_file_path = ""
 
     @property
     def unsaved_changes(self) -> bool:
@@ -95,4 +96,7 @@ class TabPageBase(QtWidgets.QWidget):
 
     def to_json(self) -> str:
         # TODO: return status as JSON string
+        pass
+
+    def on_help(self):
         pass
