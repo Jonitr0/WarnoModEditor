@@ -1,8 +1,6 @@
 # class for loading markdown strings from file
 import logging
 
-# TODO: correct relative path
-
 def get_md_text(file_name: str) -> str:
     try:
         with open("resources/markdown/" + file_name) as f:

@@ -7,8 +7,6 @@ from src.wme_widgets.tab_pages.text_editor_page import wme_find_replace_bar, wme
 from src.utils import icon_manager
 from src.utils.color_manager import *
 
-# TODO: add help file path
-
 class NdfEditorPage(tab_page_base.TabPageBase):
     def __init__(self):
         super().__init__()
@@ -16,7 +14,7 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         self.find_bar = wme_find_replace_bar.FindBar()
         self.replace_bar = wme_find_replace_bar.ReplaceBar()
         self.code_editor = wme_code_editor.WMECodeEditor()
-        self.help_file_path = "test.md"
+        self.help_file_path = "Help_NdfEditor.md"
         self.setup_ui()
 
     def setup_ui(self):

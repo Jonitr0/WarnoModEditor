@@ -1,0 +1,1 @@
+The **text editor** is a tool to view and edit .ndf text files.
