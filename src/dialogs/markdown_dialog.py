@@ -13,7 +13,7 @@ class MarkdownDialog(BaseDialog):
         self.md_label.setTextFormat(Qt.MarkdownText)
         self.md_label.setText(markdown_loader.get_md_text(md_file_path))
 
-        super().__init__()
+        super().__init__(ok_only=True)
         self.setWindowTitle(title)
 
     def setup_ui(self):

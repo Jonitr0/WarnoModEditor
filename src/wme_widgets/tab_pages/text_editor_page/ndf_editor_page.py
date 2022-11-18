@@ -16,6 +16,7 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         self.find_bar = wme_find_replace_bar.FindBar()
         self.replace_bar = wme_find_replace_bar.ReplaceBar()
         self.code_editor = wme_code_editor.WMECodeEditor()
+        self.help_file_path = "test.md"
         self.setup_ui()
 
     def setup_ui(self):
