@@ -155,14 +155,16 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         logging.info("GenerateMod.bat executed with return code " + str(ret_code))
 
     def on_generate_action(self):
-        # backup old config
+        # backup old config, if applicable
         config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
                       self.main_widget_ref.get_loaded_mod_name() + "\\"
-        os.rename(config_path + "Config.ini", config_path + "Config_tmp.ini")
+        if QtCore.QFile.exists(config_path + "Config.ini"):
+            os.rename(config_path + "Config.ini", config_path + "Config_tmp.ini")
         self.generate_mod()
-        # restore old config
-        os.remove(config_path + "Config.ini")
-        os.rename(config_path + "Config_tmp.ini", config_path + "Config.ini")
+        # restore old config, if applicable
+        if QtCore.QFile.exists(config_path + "Config_tmp.ini"):
+            os.remove(config_path + "Config.ini")
+            os.rename(config_path + "Config_tmp.ini", config_path + "Config.ini")
 
     def on_edit_config_action(self):
         config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
