@@ -110,11 +110,9 @@ class FileSystemTreeView(QtWidgets.QTreeView):
 
     def on_show_size_changed(self, state: int):
         if state == 0:
-            print("hide")
             self.hideColumn(1)
             settings_manager.write_settings_value(settings_manager.SHOW_EXPLORER_FILESIZE_KEY, 0)
         else:
-            print("show")
             self.showColumn(1)
             settings_manager.write_settings_value(settings_manager.SHOW_EXPLORER_FILESIZE_KEY, 1)
 
