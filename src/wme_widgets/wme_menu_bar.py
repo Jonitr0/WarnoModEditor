@@ -43,30 +43,37 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.main_widget_ref = main_widget_ref
 
         self.file_menu = self.addMenu("File")
+        self.file_menu.setToolTipsVisible(True)
 
-        # TODO: add tooltips for all actions
-
-        self.add_action_to_menu("New Mod", self.file_menu, False, self.on_new_action)
-        self.add_action_to_menu("Open Mod", self.file_menu, False, self.on_load_action)
-        self.add_action_to_menu("Delete Mod", self.file_menu, False, self.on_delete_action)
+        self.add_action_to_menu("New Mod", self.file_menu, False, self.on_new_action, "Create a new mod")
+        self.add_action_to_menu("Open Mod", self.file_menu, False, self.on_load_action, "Open an existing mod")
+        self.add_action_to_menu("Delete Mod", self.file_menu, False, self.on_delete_action, "Delete an existing mod")
 
         self.file_menu.addSeparator()
 
-        self.add_action_to_menu("Options", self.file_menu, False, self.on_options_action)
+        self.add_action_to_menu("Options", self.file_menu, False, self.on_options_action, "Change WME settings")
 
         self.edit_menu = self.addMenu("Edit")
+        self.edit_menu.setToolTipsVisible(True)
 
-        self.add_action_to_menu("Generate Mod", self.edit_menu, True, self.on_generate_action)
-        self.add_action_to_menu("Edit Mod Configuration", self.edit_menu, True, self.on_edit_config_action)
-        self.add_action_to_menu("Update Mod", self.edit_menu, True, self.on_update_action)
-        self.add_action_to_menu("Upload Mod", self.edit_menu, True, self.on_upload_action)
+        self.add_action_to_menu("Generate Mod", self.edit_menu, True, self.on_generate_action,
+                                "Generate the binary files for the mod.\n"
+                                "This step is required to apply changes made to the mods files ingame")
+        self.add_action_to_menu("Edit Mod Configuration", self.edit_menu, True, self.on_edit_config_action,
+                                "Edit the mods Config.ini file")
+        self.add_action_to_menu("Update Mod", self.edit_menu, True, self.on_update_action,
+                                "Update the mod to a new version of WARNO")
+        self.add_action_to_menu("Upload Mod", self.edit_menu, True, self.on_upload_action,
+                                "Upload the mod to your Steam Workshop")
 
         self.edit_menu.addSeparator()
 
-        self.add_action_to_menu("Create Mod Backup", self.edit_menu, True, self.on_new_backup_action)
+        self.add_action_to_menu("Create Mod Backup", self.edit_menu, True, self.on_new_backup_action,
+                                "Create a backup from the current state of the mod")
         self.add_action_to_menu("Retrieve Mod Backup", self.edit_menu, True,
-                                self.on_retrieve_backup_action)
-        self.add_action_to_menu("Delete Mod Backup", self.edit_menu, True, self.on_delete_backup_action)
+                                self.on_retrieve_backup_action, "Restore an existing mod backup")
+        self.add_action_to_menu("Delete Mod Backup", self.edit_menu, True, self.on_delete_backup_action,
+                                "Delete an existing mod backup")
 
     def on_new_action(self):
         dialog = new_mod_dialog.NewModDialog(self.main_widget_ref.get_warno_path())
@@ -309,10 +316,11 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             logging.error(ex)
 
     def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
-                           slot=None) -> QtGui.QAction:
+                           slot=None, tooltip: str="") -> QtGui.QAction:
         action = QtGui.QAction(name)
         menu.addAction(action)
         action.triggered.connect(slot)
+        action.setToolTip(tooltip)
 
         if start_disabled:
             action.setDisabled(True)

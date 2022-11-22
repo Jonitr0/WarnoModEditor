@@ -15,5 +15,6 @@ if __name__ == '__main__':
                               "--add-data=resources/markdown;resources/markdown",
                               "--add-data=resources/themes;resources/themes",
                               "--add-data=resources;resources",
-                              "--noconsole"
+                              "--noconsole",
+                              "-n WarnoModEditor"
                               ])

@@ -86,6 +86,7 @@ class MainWidget(QtWidgets.QWidget):
         version_label = QtWidgets.QLabel("WME v0.1.0")
         label_layout.addWidget(version_label)
         label_layout.setAlignment(version_label, Qt.AlignLeft)
+        # TODO: add log instead of status label
         label_layout.addWidget(self.status_label)
         label_layout.setAlignment(self.status_label, Qt.AlignRight)
 
