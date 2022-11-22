@@ -22,7 +22,7 @@ class WarnoPathDialog(BaseDialog):
         name_line_edit.setText(str(self.config_values["Properties/Name"]))
         name_line_edit.textChanged.connect(self.on_name_changed)
         name_label = QtWidgets.QLabel("Name")
-        name_label.setToolTip("The name of the mod as it will be displayed ingame and on Steam Workshop.")
+        name_label.setToolTip("The name of the mod as it will be displayed in game and on Steam Workshop.")
         form_layout.addRow(name_label, name_line_edit)
 
         self.description_text_edit.setPlainText(str(self.config_values["Properties/Description"]))

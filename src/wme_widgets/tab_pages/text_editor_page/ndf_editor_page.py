@@ -124,7 +124,6 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         return ret
 
     def update_page(self):
-        # TODO: there might be a better way, maybe keep a set of changed blocks and only reload those?
         self.open_file(self.file_path)
 
     def on_find_bar_close(self, _):

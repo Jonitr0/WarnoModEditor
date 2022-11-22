@@ -94,3 +94,16 @@ QTabBar::tab:top:selected:hover {{
   border-bottom: 2px solid {QTMATERIAL_PRIMARYCOLOR};
 }}
 
+QToolTip {{
+  border: 1px solid {QTMATERIAL_SECONDARYDARKCOLOR};
+  border-radius: 0px;
+  color: {QTMATERIAL_SECONDARYTEXTCOLOR};
+  background-color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
+}}
+
+QMenu {{
+  background-color: {QTMATERIAL_SECONDARYCOLOR};
+  border: 2px solid {QTMATERIAL_SECONDARYLIGHTCOLOR};
+  border-radius: 0px;
+}}
+
