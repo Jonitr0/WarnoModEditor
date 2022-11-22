@@ -31,6 +31,8 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         super().__init__(parent)
 
         self.doubleClicked.connect(self.on_double_click)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.on_context_menu)
         self.setHeaderHidden(True)
         self.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Expanding)
         self.setMinimumWidth(160)
@@ -61,6 +63,19 @@ class FileSystemTreeView(QtWidgets.QTreeView):
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.LeftButton:
             super().mouseDoubleClickEvent(event)
+
+    def on_context_menu(self, point: QtCore.QPoint):
+        index = self.indexAt(point)
+
+        file_path = QtWidgets.QFileSystemModel.filePath(self.model(), index)
+        # .ndf context menu
+        if file_path.endswith(".ndf"):
+            context_menu = QtWidgets.QMenu(self)
+            ndf_editor_action = context_menu.addAction("Open in text editor")
+
+            action = context_menu.exec_(self.mapToGlobal(point))
+            if action == ndf_editor_action:
+                self.open_ndf_editor.emit(file_path)
 
     def on_find_text_changed(self, text: str):
         if text == "":
