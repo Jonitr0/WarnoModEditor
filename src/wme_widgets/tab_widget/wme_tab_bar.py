@@ -197,7 +197,7 @@ class WMETabBar(QtWidgets.QTabBar):
         if self.count() > 1:
             close_all_action = context_menu.addAction("Close All Tabs")
             close_others_action = context_menu.addAction("Close Other Tabs")
-        # TODO: add help action, which opens a page/popup with some help for the selected page
+
         context_menu.addSeparator()
         help_action = context_menu.addAction("Help")
 
