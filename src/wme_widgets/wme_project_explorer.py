@@ -1,7 +1,7 @@
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
-from src.utils import icon_manager
+from src.utils import icon_manager, settings_manager
 from src.utils.color_manager import *
 from src.wme_widgets import wme_lineedit
 
@@ -18,10 +18,29 @@ class WMEProjectExplorer(QtWidgets.QWidget):
         search_bar.setPlaceholderText("Find in Directory...")
         main_layout.addWidget(search_bar)
 
+        # file size checkbox
+        file_size_label = QtWidgets.QLabel("Show file sizes: ")
+        self.file_size_checkbox = QtWidgets.QCheckBox()
+        check_status = settings_manager.get_settings_value(settings_manager.SHOW_EXPLORER_FILESIZE_KEY)
+        if check_status != None:
+            self.file_size_checkbox.setChecked(check_status)
+        else:
+            self.file_size_checkbox.setChecked(False)
+        file_size_layout = QtWidgets.QHBoxLayout()
+        file_size_layout.addWidget(file_size_label)
+        file_size_layout.addWidget(self.file_size_checkbox)
+        file_size_layout.addStretch()
+        main_layout.addLayout(file_size_layout)
+
         self.tree_view = FileSystemTreeView(self)
         main_layout.addWidget(self.tree_view)
+        self.file_size_checkbox.stateChanged.connect(self.tree_view.on_show_size_changed)
 
         search_bar.textChanged.connect(self.tree_view.on_find_text_changed)
+        
+    def update_model(self, mod_path: str):
+        self.tree_view.update_model(mod_path)
+        self.file_size_checkbox.stateChanged.emit(self.file_size_checkbox.checkState())
 
 
 class FileSystemTreeView(QtWidgets.QTreeView):
@@ -50,7 +69,11 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         self.setRootIndex(data_model.index(mod_path))
         self.mod_path = mod_path
 
-        self.hideColumn(1)
+        self.header().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        self.header().setSectionResizeMode(1, QtWidgets.QHeaderView.Fixed)
+        self.header().setStretchLastSection(False)
+        self.setColumnWidth(1, 80)
+
         self.hideColumn(2)
         self.hideColumn(3)
 
@@ -85,6 +108,16 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.model().setNameFilters(["*" + text + "*.ndf"])
             self.expandRecursively(self.model().index(self.mod_path))
 
+    def on_show_size_changed(self, state: int):
+        if state == 0:
+            print("hide")
+            self.hideColumn(1)
+            settings_manager.write_settings_value(settings_manager.SHOW_EXPLORER_FILESIZE_KEY, 0)
+        else:
+            print("show")
+            self.showColumn(1)
+            settings_manager.write_settings_value(settings_manager.SHOW_EXPLORER_FILESIZE_KEY, 1)
+
 
 class FileIconProvider(QtWidgets.QFileIconProvider):
     def icon(self, file_info):
@@ -97,6 +130,7 @@ class FileIconProvider(QtWidgets.QFileIconProvider):
         return super().icon(file_info)
 
 
+# TODO: hide empty dirs
 class FileSystemModel(QtWidgets.QFileSystemModel):
     def hasChildren(self, parent) -> bool:
         # no possible children
@@ -124,4 +158,3 @@ class FileSystemModel(QtWidgets.QFileSystemModel):
         if not index.isValid():
             return Qt.NoItemFlags  # 0
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ToolTip
-
