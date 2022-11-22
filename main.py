@@ -6,8 +6,8 @@ from PySide6 import QtWidgets
 from qt_material import apply_stylesheet
 
 from src import main_window
-from src.utils import settings_manager
-from src.utils import theme_manager
+from src.utils import settings_manager, theme_manager
+from src.utils.resource_loader import get_resource_path
 
 # TODO: move to src, implement qrc-based resource system
 
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     apply_stylesheet(app, theme=theme, extra=extra, invert_secondary=invert_secondary)
 
     stylesheet = app.styleSheet()
-    with open('resources/custom_style.css') as file:
+    with open(get_resource_path('resources/custom_style.css')) as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
 
     main_window = main_window.MainWindow()

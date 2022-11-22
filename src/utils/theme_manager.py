@@ -21,8 +21,8 @@ def get_all_themes():
 def get_theme_file(theme_name: str):
     if not themes.__contains__(theme_name):
         settings_manager.write_settings_value(settings_manager.THEME_KEY, "light green")
-        return "resources/themes/" + themes["light green"], False
+        return themes["light green"], False
     invert_secondary = False
     if themes[theme_name].startswith("light"):
         invert_secondary = True
-    return "resources/themes/" + themes[theme_name], invert_secondary
+    return themes[theme_name], invert_secondary

@@ -122,3 +122,8 @@ class BaseDialog(QtWidgets.QDialog):
                 self.resize(self.size().width() - 1, self.size().height() - 1)
                 self.shadow_effect.setEnabled(True)
         super().changeEvent(event)
+
+    def set_button_texts(self, ok: str = "Ok", cancel: str = "Cancel"):
+        self.ok_button.setText(ok)
+        if self.cancel_button:
+            self.cancel_button.setText(cancel)

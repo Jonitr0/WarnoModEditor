@@ -145,8 +145,10 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
         # ask to remove config dir
         if QtCore.QDir(config_dir).exists():
-            ret = essential_dialogs.ConfirmationDialog("Delete config file and generated binaries?",
-                                                       "Delete Mod", urgent=False).exec()
+            dialog = essential_dialogs.ConfirmationDialog("Delete config file and generated binaries?",
+                                                          "Delete Mod", urgent=False)
+            dialog.set_button_texts(ok="Yes", cancel="No")
+            ret = dialog.exec()
             if ret == QtWidgets.QDialog.Accepted:
                 try:
                     shutil.rmtree(config_dir)

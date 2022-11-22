@@ -4,6 +4,7 @@ from PySide6 import QtGui
 from PySide6.QtCore import Qt
 
 from src.utils.color_manager import *
+from src.utils.resource_loader import get_resource_path
 
 loadedIcons = {}
 
@@ -16,7 +17,7 @@ def load_pixmap(name: str, color: COLORS):
     if loadedIcons.__contains__((name, color)):
         return loadedIcons[(name, color)]
     else:
-        pixmap = QtGui.QPixmap("resources/img/" + name)
+        pixmap = QtGui.QPixmap(get_resource_path("resources/img/" + name))
         if pixmap.isNull():
             logging.warning("No icon found for " + name)
         mask = pixmap.createMaskFromColor(Qt.white, Qt.MaskOutColor)
