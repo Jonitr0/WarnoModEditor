@@ -139,6 +139,20 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         except Exception as e:
             logging.error(e)
 
+        # find config dir
+        mod_name = mod_path[mod_path.rindex('\\') + 1:]
+        config_dir = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + mod_name
+
+        # ask to remove config dir
+        if QtCore.QDir(config_dir).exists():
+            ret = essential_dialogs.ConfirmationDialog("Delete config file and generated binaries?",
+                                                       "Delete Mod", urgent=False).exec()
+            if ret == QtWidgets.QDialog.Accepted:
+                try:
+                    shutil.rmtree(config_dir)
+                except Exception as e:
+                    logging.error(e)
+
         if mod_path == self.main_widget_ref.get_loaded_mod_path():
             # disable all edit actions
             for action in self.edit_menu.actions():
