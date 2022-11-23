@@ -5,11 +5,8 @@ from PySide6.QtCore import Qt
 
 from src.wme_widgets import wme_menu_bar, wme_project_explorer
 from src.wme_widgets.tab_widget import wme_tab_widget
-from src.utils import settings_manager, path_validator
-
-
-def set_status_text(text: str):
-    MainWidget.instance.status_set_text.emit(text)
+from src.utils import settings_manager, path_validator, icon_manager
+from src.utils.color_manager import *
 
 
 class MainWidget(QtWidgets.QWidget):
@@ -28,9 +25,8 @@ class MainWidget(QtWidgets.QWidget):
         self.loaded_mod_name = ""
         self.explorer_width = 200
         self.warno_path = warno_path
-        self.status_label = QtWidgets.QLabel()
+        self.log_button = QtWidgets.QToolButton()
         self.status_timer = QtCore.QTimer()
-        self.status_timer.timeout.connect(self.on_status_timeout)
         self.title_bar = title_bar
         self.title_label = QtWidgets.QLabel("")
         self.setup_ui()
@@ -80,25 +76,20 @@ class MainWidget(QtWidgets.QWidget):
         self.explorer.tree_view.open_ndf_editor.connect(self.tab_widget.on_open_ndf_editor)
 
         label_layout = QtWidgets.QHBoxLayout()
+        label_layout.setContentsMargins(0, 0, 8, 0)
         main_layout.addLayout(label_layout)
 
         version_label = QtWidgets.QLabel("WME v" + settings_manager.get_settings_value(settings_manager.VERSION_KEY))
         label_layout.addWidget(version_label)
         label_layout.setAlignment(version_label, Qt.AlignLeft)
+
         # TODO: add log instead of status label
-        label_layout.addWidget(self.status_label)
-        label_layout.setAlignment(self.status_label, Qt.AlignRight)
-
-        self.status_set_text.connect(self.on_status_set_text)
-
-    def on_status_set_text(self, text: str):
-        self.status_label.setText(text)
-        self.status_timer.setInterval(5000)
-        self.status_timer.start()
-
-    def on_status_timeout(self):
-        self.status_label.setText("")
-        self.status_timer.stop()
+        self.log_button.setText("Event Log")
+        self.log_button.setIcon(icon_manager.load_icon("message_empty.png", COLORS.SECONDARY_TEXT))
+        self.log_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.log_button.setFixedHeight(36)
+        label_layout.addWidget(self.log_button)
+        label_layout.setAlignment(self.log_button, Qt.AlignRight)
 
     def load_mod(self, mod_path: str):
         mod_path = mod_path.replace("/", "\\")
@@ -111,7 +102,6 @@ class MainWidget(QtWidgets.QWidget):
         self.title_label.setText(self.loaded_mod_name)
         settings_manager.write_settings_value(settings_manager.LAST_OPEN_KEY, mod_path)
         self.mod_loaded.emit(mod_path)
-        set_status_text(self.loaded_mod_name + " was loaded successfully")
         self.tab_widget.close_all(all_windows=True)
         self.hide_loading_screen()
 
