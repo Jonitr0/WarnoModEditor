@@ -84,6 +84,7 @@ class MainWidget(QtWidgets.QWidget):
         label_layout.setAlignment(version_label, Qt.AlignLeft)
 
         # TODO: add log instead of status label
+        # TODO: change icon on unread and error
         self.log_button.setText("Event Log")
         self.log_button.setIcon(icon_manager.load_icon("message_empty.png", COLORS.SECONDARY_TEXT))
         self.log_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
@@ -99,7 +100,7 @@ class MainWidget(QtWidgets.QWidget):
         self.loaded_mod_path = mod_path
         self.loaded_mod_name = mod_path[mod_path.rindex('\\') + 1:]
         logging.info("loaded mod " + self.loaded_mod_name + " at " + mod_path)
-        self.title_label.setText(self.loaded_mod_name)
+        self.title_label.setText(" " + self.loaded_mod_name)
         settings_manager.write_settings_value(settings_manager.LAST_OPEN_KEY, mod_path)
         self.mod_loaded.emit(mod_path)
         self.tab_widget.close_all(all_windows=True)

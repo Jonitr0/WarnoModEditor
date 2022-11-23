@@ -33,7 +33,9 @@ class WarnoPathDialog(BaseDialog):
         text_layout.addWidget(browse_button)
 
     def open_warno_path_dialog(self):
-        warno_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter WARNO path", self.line_edit.text())
+        warno_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter WARNO path", self.line_edit.text(),
+                                                                  options=(QtWidgets.QFileDialog.ShowDirsOnly |
+                                                                           QtWidgets.QFileDialog.ReadOnly))
 
         self.line_edit.setText(warno_path)
 

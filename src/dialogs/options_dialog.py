@@ -35,7 +35,9 @@ class OptionsDialog(BaseDialog):
         form_layout.addRow("WARNO path:", warno_path_layout)
 
     def on_browse_clicked(self):
-        warno_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter WARNO path", self.path_line_edit.text())
+        warno_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter WARNO path", self.path_line_edit.text(),
+                                                                  options=(QtWidgets.QFileDialog.ShowDirsOnly |
+                                                                           QtWidgets.QFileDialog.ReadOnly))
         self.path_line_edit.setText(warno_path)
 
     def accept(self):

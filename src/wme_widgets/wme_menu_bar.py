@@ -92,7 +92,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                 return
 
             try:
-                shutil.rmtree(mods_path + mod_name + "/.base")
+                if os.path.exists(mods_path + mod_name + "\\.base"):
+                    shutil.rmtree(mods_path + mod_name + "\\.base")
             except Exception as e:
                 logging.error(e)
 
@@ -102,7 +103,9 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def on_load_action(self):
         while True:
             mod_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter mod path",
-                                                                    self.main_widget_ref.get_warno_path() + "/Mods")
+                                                                    self.main_widget_ref.get_warno_path() + "/Mods",
+                                                                    options=(QtWidgets.QFileDialog.ShowDirsOnly |
+                                                                             QtWidgets.QFileDialog.ReadOnly))
             if mod_path == "":
                 return
 
@@ -122,8 +125,11 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def on_delete_action(self):
         # let user select a mod
         while True:
+            # TODO: make this actually read-only
             mod_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter mod path",
-                                                                    self.main_widget_ref.get_warno_path() + "/Mods")
+                                                                    self.main_widget_ref.get_warno_path() + "/Mods",
+                                                                    options=(QtWidgets.QFileDialog.ShowDirsOnly |
+                                                                             QtWidgets.QFileDialog.ReadOnly))
             if mod_path == "":
                 return
 
@@ -316,7 +322,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             logging.error(ex)
 
     def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
-                           slot=None, tooltip: str="") -> QtGui.QAction:
+                           slot=None, tooltip: str = "") -> QtGui.QAction:
         action = QtGui.QAction(name)
         menu.addAction(action)
         action.triggered.connect(slot)

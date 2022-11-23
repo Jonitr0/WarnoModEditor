@@ -81,7 +81,8 @@ class WarnoPathDialog(BaseDialog):
         icon_path = self.icon_path_line_edit.text()
         if not QtCore.QDir(icon_path).exists():
             icon_path = str(Path.home())
-        icon_path, _ = QtWidgets.QFileDialog().getOpenFileName(self, "Enter WARNO path", icon_path)
+        icon_path, _ = QtWidgets.QFileDialog().getOpenFileName(self, "Select preview image", icon_path,
+                                                               options=QtWidgets.QFileDialog.ReadOnly)
         self.icon_path_line_edit.setText(icon_path)
 
     def on_cosmetic_changed(self, state):
