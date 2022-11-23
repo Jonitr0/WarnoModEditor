@@ -201,8 +201,9 @@ class WMETabBar(QtWidgets.QTabBar):
             close_all_action = context_menu.addAction("Close All Tabs")
             close_others_action = context_menu.addAction("Close Other Tabs")
 
-        context_menu.addSeparator()
-        help_action = context_menu.addAction("Help")
+        if self.parent().widget(index).help_file_path != "":
+            context_menu.addSeparator()
+            help_action = context_menu.addAction("Help")
 
         action = context_menu.exec_(self.mapToGlobal(event.pos()))
         start_count = self.count()

@@ -12,6 +12,8 @@ class MarkdownDialog(BaseDialog):
         self.md_label = QtWidgets.QLabel()
         self.md_label.setTextFormat(Qt.MarkdownText)
         self.md_label.setText(markdown_loader.get_md_text(md_file_path))
+        self.md_label.setMaximumWidth(500)
+        self.md_label.setWordWrap(True)
 
         super().__init__(ok_only=True)
         self.setWindowTitle(title)
