@@ -107,3 +107,4 @@ QMenu {{
   border-radius: 0px;
 }}
 
+QToolButton::menu-indicator {{ image: none; }}

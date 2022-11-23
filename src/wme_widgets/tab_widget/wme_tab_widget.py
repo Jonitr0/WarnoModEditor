@@ -1,6 +1,7 @@
 # TabWidget that manages pages such as editors, etc.
 
 from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
 from src.wme_widgets.tab_pages import tab_page_base
@@ -20,11 +21,13 @@ class WMETabWidget(QtWidgets.QTabWidget):
         tab_bar.help_requested.connect(self.on_help_requested)
         self.setTabBar(tab_bar)
 
-        # TODO: style button
-        new_tab_button = QtWidgets.QPushButton()
-        new_tab_button.setText("Add Tab..")
-        new_tab_button.setMinimumHeight(32)
-        self.setCornerWidget(new_tab_button)
+        new_tab_button = QtWidgets.QToolButton(self)
+        new_tab_button.setIcon(icon_manager.load_icon("plus.png", COLORS.SECONDARY_TEXT))
+        new_tab_button.setText("Add Tab")
+        new_tab_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        new_tab_button.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+        new_tab_button.setMinimumHeight(36)
+        self.setCornerWidget(new_tab_button, Qt.TopRightCorner)
 
         self.tab_menu = QtWidgets.QMenu()
         self.tab_menu.setToolTipsVisible(True)
