@@ -70,7 +70,7 @@ class WMEDetachedTab(QtWidgets.QDialog):
         super().resizeEvent(event)
         rect = self.rect()
         self.grip.move(rect.right() - 16 - 4, rect.bottom() - 16 - 4)
-        # TODO: add borders that allow resize, in shadow area
+        # TODO (0.1.1): add borders that allow resize, in shadow area
 
     def close(self):
         # close all tabs with no unsaved changes

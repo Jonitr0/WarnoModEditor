@@ -24,6 +24,7 @@ if __name__ == '__main__':
     # load theme
     theme_name = settings_manager.get_settings_value(settings_manager.THEME_KEY)
     theme, invert_secondary = theme_manager.get_theme_file(theme_name)
+    theme = get_resource_path("resources\\themes\\" + theme)
 
     app = QtWidgets.QApplication(sys.argv)
 

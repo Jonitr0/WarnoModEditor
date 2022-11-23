@@ -131,6 +131,7 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         self.replace_bar.on_close()
 
     def on_find(self, checked):
+        # TODO: if editor has selection, search for it
         if checked:
             self.find_bar.setHidden(False)
             self.find_bar.line_edit.setFocus()

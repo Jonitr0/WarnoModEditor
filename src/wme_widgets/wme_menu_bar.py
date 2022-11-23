@@ -125,7 +125,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def on_delete_action(self):
         # let user select a mod
         while True:
-            # TODO: make this actually read-only
             mod_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter mod path",
                                                                     self.main_widget_ref.get_warno_path() + "/Mods",
                                                                     options=(QtWidgets.QFileDialog.ShowDirsOnly |

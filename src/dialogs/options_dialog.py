@@ -22,6 +22,7 @@ class OptionsDialog(BaseDialog):
 
         self.theme_combobox.addItems(theme_manager.get_all_themes())
         self.theme_combobox.setCurrentText(settings_manager.get_settings_value(settings_manager.THEME_KEY))
+        # TODO: split in theme (light/dark) and accent color
         form_layout.addRow("Theme:", self.theme_combobox)
         form_layout.addWidget(
             QtWidgets.QLabel("Changes to the theme will be applied when the application is restarted."))

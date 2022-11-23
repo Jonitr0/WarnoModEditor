@@ -106,7 +106,7 @@ class MainWidget(QtWidgets.QWidget):
         self.tab_widget.close_all(all_windows=True)
         self.hide_loading_screen()
 
-        # TODO: load open pages from config
+        # TODO (0.1.1): load open pages from config
 
     def unload_mod(self):
         self.loaded_mod_path = ""

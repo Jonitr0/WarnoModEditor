@@ -22,10 +22,12 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.setTabBar(tab_bar)
 
         new_tab_button = QtWidgets.QToolButton(self)
-        new_tab_button.setIcon(icon_manager.load_icon("plus.png", COLORS.SECONDARY_TEXT))
+        new_tab_button.setIcon(icon_manager.load_icon("add_tab.png", COLORS.SECONDARY_TEXT))
         new_tab_button.setText("Add Tab")
         new_tab_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         new_tab_button.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+        new_tab_button.setShortcut("Ctrl+T")
+        new_tab_button.setToolTip("Add a new tab page (Ctrl + T)")
         new_tab_button.setMinimumHeight(36)
         self.setCornerWidget(new_tab_button, Qt.TopRightCorner)
 
@@ -43,11 +45,11 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.resize(1000, self.height())
 
     def to_json(self) -> str:
-        # TODO: call to_json on all pages
+        # TODO (0.1.1): call to_json on all pages
         pass
 
     def save_state(self):
-        # TODO: call to_json and save to settings
+        # TODO (0.1.1): call to_json and save to settings
         pass
 
     def on_tab_close_pressed(self, index: int):

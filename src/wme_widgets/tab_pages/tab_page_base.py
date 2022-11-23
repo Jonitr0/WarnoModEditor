@@ -95,7 +95,7 @@ class TabPageBase(QtWidgets.QWidget):
         pass
 
     def to_json(self) -> str:
-        # TODO: return status as JSON string
+        # TODO (0.1.1): return status as JSON string
         pass
 
     def on_help(self):
