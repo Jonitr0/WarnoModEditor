@@ -41,6 +41,7 @@ class WMEProjectExplorer(QtWidgets.QWidget):
     def update_model(self, mod_path: str):
         self.tree_view.update_model(mod_path)
         self.file_size_checkbox.stateChanged.emit(self.file_size_checkbox.checkState())
+        # TODO: add function to expand the entire filesystem once
 
 
 class FileSystemTreeView(QtWidgets.QTreeView):
@@ -91,14 +92,25 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         index = self.indexAt(point)
 
         file_path = QtWidgets.QFileSystemModel.filePath(self.model(), index)
+        context_menu = QtWidgets.QMenu(self)
+
         # .ndf context menu
         if file_path.endswith(".ndf"):
-            context_menu = QtWidgets.QMenu(self)
             ndf_editor_action = context_menu.addAction("Open in text editor")
 
-            action = context_menu.exec_(self.mapToGlobal(point))
-            if action == ndf_editor_action:
-                self.open_ndf_editor.emit(file_path)
+        context_menu.addSeparator()
+        expand_all_action = context_menu.addAction("Expand All")
+        collapse_all_action = context_menu.addAction("Collapse All")
+
+        action = context_menu.exec_(self.mapToGlobal(point))
+
+        # resolve
+        if file_path.endswith(".ndf") and action == ndf_editor_action:
+            self.open_ndf_editor.emit(file_path)
+        elif action == expand_all_action:
+            self.expandRecursively(self.model().index(self.mod_path))
+        elif action == collapse_all_action:
+            self.collapseAll()
 
     def on_find_text_changed(self, text: str):
         if text == "":
