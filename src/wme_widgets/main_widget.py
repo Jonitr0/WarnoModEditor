@@ -82,8 +82,7 @@ class MainWidget(QtWidgets.QWidget):
         label_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(label_layout)
 
-        # TODO: set version in settings/as variable somewhere
-        version_label = QtWidgets.QLabel("WME v0.1.0")
+        version_label = QtWidgets.QLabel("WME v" + settings_manager.get_settings_value(settings_manager.VERSION_KEY))
         label_layout.addWidget(version_label)
         label_layout.setAlignment(version_label, Qt.AlignLeft)
         # TODO: add log instead of status label

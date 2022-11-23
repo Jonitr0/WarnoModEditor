@@ -38,5 +38,10 @@ if __name__ == '__main__':
     with open(get_resource_path('resources/custom_style.css')) as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
 
+    version = "0.1.0"
+    settings_manager.write_settings_value(settings_manager.VERSION_KEY, version)
+    logging.info("\n\n")
+    logging.info("Starting WME " + version)
+
     main_window = main_window.MainWindow()
     sys.exit(app.exec())
