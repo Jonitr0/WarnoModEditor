@@ -63,8 +63,8 @@ class WMEDetachedTab(QtWidgets.QDialog):
         self.grip = QtWidgets.QSizeGrip(self)
         self.grip.resize(16, 16)
 
-    def add_tab(self, widget, title: str):
-        self.tab_widget.addTab(widget, title)
+    def add_tab(self, widget, icon, title: str):
+        self.tab_widget.addTab(widget, icon, title)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)

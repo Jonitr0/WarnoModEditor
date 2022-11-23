@@ -49,8 +49,8 @@ class FindBar(QtWidgets.QWidget):
         self.line_edit.setMaximumWidth(800)
 
         next_icon = QtGui.QIcon()
-        next_icon.addPixmap(icon_manager.load_pixmap("arrowDown.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
-        next_icon.addPixmap(icon_manager.load_pixmap("arrowDown.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
+        next_icon.addPixmap(icon_manager.load_pixmap("arrow_down.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
+        next_icon.addPixmap(icon_manager.load_pixmap("arrow_down.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
         self.next_button.setIcon(next_icon)
         self.next_button.clicked.connect(self.on_next)
         self.next_button.setToolTip("Next search result")
@@ -59,8 +59,8 @@ class FindBar(QtWidgets.QWidget):
         self.main_layout.addWidget(self.next_button)
 
         prev_icon = QtGui.QIcon()
-        prev_icon.addPixmap(icon_manager.load_pixmap("arrowUp.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
-        prev_icon.addPixmap(icon_manager.load_pixmap("arrowUp.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
+        prev_icon.addPixmap(icon_manager.load_pixmap("arrow_up.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
+        prev_icon.addPixmap(icon_manager.load_pixmap("arrow_up.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
         self.prev_button.setIcon(prev_icon)
         self.prev_button.clicked.connect(self.on_prev)
         self.prev_button.setToolTip("Previous search result")

@@ -36,9 +36,10 @@ class WMETabBar(QtWidgets.QTabBar):
         detached = wme_detached_tab.WMEDetachedTab()
 
         widget = self.parent().widget(self.dragging_tab_index)
+        icon = self.parent().tabIcon(self.dragging_tab_index)
         title = self.parent().tabText(self.dragging_tab_index)
         self.parent().removeTab(self.dragging_tab_index)
-        detached.add_tab(widget, title)
+        detached.add_tab(widget, icon, title)
         point = QtGui.QCursor.pos()
         
         detached.move(point)
@@ -79,6 +80,7 @@ class WMETabBar(QtWidgets.QTabBar):
             mime_data = QtCore.QMimeData()
             mime_data.setProperty('tab_bar', self)
             mime_data.setProperty('index', self.dragging_tab_index)
+            mime_data.setProperty('icon', self.tabIcon(self.dragging_tab_index))
             mime_data.setProperty('title', self.tabText(self.dragging_tab_index))
             drag.setMimeData(mime_data)
 
@@ -112,6 +114,7 @@ class WMETabBar(QtWidgets.QTabBar):
         new_index = trigger.tabAt(point)
         origin_index = mime_data.property('index')
         origin_bar = mime_data.property('tab_bar')
+        icon = mime_data.property('icon')
         title = mime_data.property('title')
 
         # the drop comes from the own TabBar
@@ -120,7 +123,7 @@ class WMETabBar(QtWidgets.QTabBar):
                 return
             widget = origin_bar.parent().widget(origin_index)
             origin_bar.parent().removeTab(origin_index)
-            origin_bar.parent().insertTab(new_index, widget, title)
+            origin_bar.parent().insertTab(new_index, widget, icon, title)
             origin_bar.parent().setCurrentIndex(new_index)
         # the drop comes from a different TabBar
         else:
@@ -129,10 +132,10 @@ class WMETabBar(QtWidgets.QTabBar):
             # make sure window is closed if needed
             self.parent().tab_removed_by_button.emit()
             if new_index == -1:
-                trigger.parent().addTab(widget, title)
+                trigger.parent().addTab(widget, icon, title)
                 trigger.parent().setCurrentIndex(trigger.parent().count() - 1)
             else:
-                trigger.parent().insertTab(new_index, widget, title)
+                trigger.parent().insertTab(new_index, widget, icon, title)
                 trigger.parent().setCurrentIndex(new_index)
 
             # repaint the triggering TabBar

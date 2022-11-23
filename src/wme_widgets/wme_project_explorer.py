@@ -121,7 +121,7 @@ class FileIconProvider(QtWidgets.QFileIconProvider):
     def icon(self, file_info):
         if isinstance(file_info, QtCore.QFileInfo):
             if file_info.fileName().endswith(".ndf"):
-                return icon_manager.load_icon("file.png", COLORS.PRIMARY)
+                return icon_manager.load_icon("text_file.png", COLORS.PRIMARY)
             elif file_info.isDir():
                 return icon_manager.load_icon("dir.png", COLORS.SECONDARY_LIGHT)
 
