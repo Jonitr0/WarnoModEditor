@@ -10,7 +10,8 @@ from src.wme_widgets import wme_lineedit
 
 class OptionsDialog(BaseDialog):
     def __init__(self):
-        self.theme_combobox = QtWidgets.QComboBox()
+        self.color_combobox = QtWidgets.QComboBox()
+        self.theme_checkbox = QtWidgets.QCheckBox()
         self.path_line_edit = wme_lineedit.WMELineEdit()
 
         super().__init__()
@@ -20,10 +21,22 @@ class OptionsDialog(BaseDialog):
         form_layout = QtWidgets.QFormLayout()
         self.main_layout.addLayout(form_layout)
 
-        self.theme_combobox.addItems(theme_manager.get_all_themes())
-        self.theme_combobox.setCurrentText(settings_manager.get_settings_value(settings_manager.THEME_KEY))
-        # TODO: split in theme (light/dark) and accent color
-        form_layout.addRow("Theme:", self.theme_combobox)
+        color_list = theme_manager.get_all_themes()
+        color_list = color_list[:len(color_list) // 2]
+        for i in range(len(color_list)):
+            color_list[i] = color_list[i].removeprefix("dark ")
+
+        self.color_combobox.addItems(color_list)
+
+        theme = settings_manager.get_settings_value(settings_manager.THEME_KEY)
+        if theme.startswith("dark"):
+            self.theme_checkbox.setChecked(True)
+        else:
+            self.theme_checkbox.setChecked(False)
+        self.color_combobox.setCurrentText(theme[theme.index(" ") + 1:])
+
+        form_layout.addRow("Dark Theme:", self.theme_checkbox)
+        form_layout.addRow("Accent Color:", self.color_combobox)
         form_layout.addWidget(
             QtWidgets.QLabel("Changes to the theme will be applied when the application is restarted."))
 
@@ -51,6 +64,11 @@ class OptionsDialog(BaseDialog):
 
         settings_manager.write_settings_value(settings_manager.WARNO_PATH_KEY, warno_path)
         main_widget.MainWidget.instance.set_warno_path(warno_path)
-        settings_manager.write_settings_value(settings_manager.THEME_KEY, str(self.theme_combobox.currentText()))
+
+        theme = "light "
+        if self.theme_checkbox.isChecked():
+            theme = "dark "
+        theme += str(self.color_combobox.currentText())
+        settings_manager.write_settings_value(settings_manager.THEME_KEY, theme)
 
         super().accept()

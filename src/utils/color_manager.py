@@ -32,13 +32,13 @@ class COLORS(Enum):
     SUCCESS = "success"
 
 
-def get_color_key(key: str):
+def get_color_for_key(key: str):
     global loaded
     if not loaded:
         load_colors()
         loaded = True
     if not colors.__contains__(key):
-        logging.warning("No color found for key " + key)
+        logging.warning("No color found for key " + str(key))
         return "#ff0000"
     return colors[key]
 

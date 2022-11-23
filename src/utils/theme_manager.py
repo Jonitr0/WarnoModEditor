@@ -18,7 +18,6 @@ def get_all_themes():
     return theme_names
 
 
-# TODO: fix light themes (darker secondary_dark, maybe different color on titlebar)
 def get_theme_file(theme_name: str):
     if not themes.__contains__(theme_name):
         settings_manager.write_settings_value(settings_manager.THEME_KEY, "dark light green")
@@ -27,3 +26,8 @@ def get_theme_file(theme_name: str):
     if themes[theme_name].startswith("light"):
         invert_secondary = True
     return themes[theme_name], invert_secondary
+
+
+def is_light_theme():
+    _, light = get_theme_file(settings_manager.get_settings_value(settings_manager.THEME_KEY))
+    return light

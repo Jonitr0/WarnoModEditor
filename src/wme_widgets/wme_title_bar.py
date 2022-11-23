@@ -29,6 +29,13 @@ class WMETitleBar(QtWidgets.QWidget):
         self.button_height = 36
         self.button_width = 48
 
+        self.background_color = COLORS.SECONDARY
+        # change for light theme
+        if theme_manager.is_light_theme():
+            self.background_color = COLORS.SECONDARY_LIGHT
+            self.setStyleSheet("WMETitleBar, QMenuBar { background-color: "
+                               + get_color_for_key(COLORS.SECONDARY_LIGHT.value) + ";}")
+
         self.setup_ui(window_title, only_close)
 
     def setup_ui(self, window_title, only_close):
@@ -105,31 +112,31 @@ class WMETitleBar(QtWidgets.QWidget):
             else:
                 if source is self.minimize_button and self.min_hold:
                     self.minimize_button.setIcon(
-                        icon_manager.load_icon("titlebar/showMin.png", COLORS.SECONDARY))
+                        icon_manager.load_icon("titlebar/showMin.png", self.background_color))
                     self.min_hold = False
                 if source is self.maximize_button and self.max_hold:
                     if self.maximized:
                         self.maximize_button.setIcon(
-                            icon_manager.load_icon("titlebar/showNormal.png", COLORS.SECONDARY))
+                            icon_manager.load_icon("titlebar/showNormal.png", self.background_color))
                     else:
                         self.maximize_button.setIcon(
-                            icon_manager.load_icon("titlebar/showMax.png", COLORS.SECONDARY))
+                            icon_manager.load_icon("titlebar/showMax.png", self.background_color))
                     self.max_hold = False
                 if source is self.close_button and self.close_hold:
-                    self.close_button.setIcon(icon_manager.load_icon("titlebar/close.png", COLORS.SECONDARY))
+                    self.close_button.setIcon(icon_manager.load_icon("titlebar/close.png", self.background_color))
                     self.close_hold = False
 
         # min button
         if source is self.minimize_button and event.type() is QtCore.QEvent.MouseButtonPress:
-            self.minimize_button.setIcon(icon_manager.load_icon("titlebar/showMin.png", COLORS.SECONDARY))
+            self.minimize_button.setIcon(icon_manager.load_icon("titlebar/showMin.png", self.background_color))
         elif source is self.minimize_button and event.type() is QtCore.QEvent.MouseButtonRelease:
             self.minimize_button.setIcon(icon_manager.load_icon("titlebar/showMin.png", COLORS.PRIMARY))
         # max button
         elif source is self.maximize_button and event.type() is QtCore.QEvent.MouseButtonPress:
             if self.maximized:
-                self.maximize_button.setIcon(icon_manager.load_icon("titlebar/showNormal.png", COLORS.SECONDARY))
+                self.maximize_button.setIcon(icon_manager.load_icon("titlebar/showNormal.png", self.background_color))
             else:
-                self.maximize_button.setIcon(icon_manager.load_icon("titlebar/showMax.png", COLORS.SECONDARY))
+                self.maximize_button.setIcon(icon_manager.load_icon("titlebar/showMax.png", self.background_color))
         elif source is self.maximize_button and event.type() is QtCore.QEvent.MouseButtonRelease:
             if self.maximized:
                 self.maximize_button.setIcon(icon_manager.load_icon("titlebar/showNormal.png", COLORS.PRIMARY))
@@ -137,7 +144,7 @@ class WMETitleBar(QtWidgets.QWidget):
                 self.maximize_button.setIcon(icon_manager.load_icon("titlebar/showMax.png", COLORS.PRIMARY))
         # close button
         elif source is self.close_button and event.type() is QtCore.QEvent.MouseButtonPress:
-            self.close_button.setIcon(icon_manager.load_icon("titlebar/close.png", COLORS.SECONDARY))
+            self.close_button.setIcon(icon_manager.load_icon("titlebar/close.png", self.background_color))
         elif source is self.close_button and event.type() is QtCore.QEvent.MouseButtonRelease:
             self.close_button.setIcon(icon_manager.load_icon("titlebar/close.png", COLORS.DANGER))
         return False
