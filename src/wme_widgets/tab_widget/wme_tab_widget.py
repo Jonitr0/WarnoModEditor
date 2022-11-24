@@ -34,9 +34,16 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.tab_menu = QtWidgets.QMenu()
         self.tab_menu.setToolTipsVisible(True)
         new_tab_button.setMenu(self.tab_menu)
-        # TODO: add guides, tooltips on actions
-        quickstart = self.tab_menu.addAction("Quickstart Guide")
-        quickstart.triggered.connect(self.on_open_quickstart)
+
+        quickstart_action = self.tab_menu.addAction("Quickstart Guide")
+        quickstart_action.setToolTip("The Quickstart Guide walks you through the basics of using WME.")
+        quickstart_action.triggered.connect(self.on_open_quickstart)
+        ndf_reference_action = self.tab_menu.addAction("NDF Reference")
+        ndf_reference_action.setToolTip("The NDF Reference contains rules and conventions of the NDF language.")
+        ndf_reference_action.triggered.connect(self.on_open_ndf_reference)
+        manual_action = self.tab_menu.addAction("User Manual")
+        manual_action.setToolTip("The User Manual explains WME features in depth.")
+        manual_action.triggered.connect(self.on_open_manual)
 
         self.setTabsClosable(True)
         self.tabCloseRequested.connect(self.on_tab_close_pressed)
@@ -82,7 +89,20 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_open_quickstart(self):
         quickstart_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
         viewer = md_viewer_page.MdViewerPage("Quickstart.md")
-        self.addTab(viewer, quickstart_icon, "Quickstart")
+        # TODO: add proper md file
+        self.addTab(viewer, quickstart_icon, "Quickstart Guide")
+
+    def on_open_ndf_reference(self):
+        reference_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
+        viewer = md_viewer_page.MdViewerPage("Quickstart.md")
+        # TODO: add proper md file
+        self.addTab(viewer, reference_icon, "NDF Reference")
+
+    def on_open_manual(self):
+        manual_action = icon_manager.load_icon("help.png", COLORS.PRIMARY)
+        viewer = md_viewer_page.MdViewerPage("Quickstart.md")
+        # TODO: add proper md file
+        self.addTab(viewer, manual_action, "User Manual")
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
         ret = super().addTab(widget, icon, title)

@@ -208,6 +208,10 @@ class WMETabBar(QtWidgets.QTabBar):
         action = context_menu.exec_(self.mapToGlobal(event.pos()))
         start_count = self.count()
 
+        if action is None:
+            super().mouseReleaseEvent(event)
+            return
+
         if action == close_self_action:
             self.tabCloseRequested.emit(index)
         elif action == close_all_action:
