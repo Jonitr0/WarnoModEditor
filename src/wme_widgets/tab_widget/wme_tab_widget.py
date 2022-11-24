@@ -4,7 +4,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
-from src.wme_widgets.tab_pages import tab_page_base
+from src.wme_widgets.tab_pages import tab_page_base, md_viewer_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.dialogs import essential_dialogs
 from src.utils import icon_manager
@@ -35,7 +35,8 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.tab_menu.setToolTipsVisible(True)
         new_tab_button.setMenu(self.tab_menu)
         # TODO: add guides, tooltips on actions
-        example_action = self.tab_menu.addAction("Example")
+        quickstart = self.tab_menu.addAction("Quickstart Guide")
+        quickstart.triggered.connect(self.on_open_quickstart)
 
         self.setTabsClosable(True)
         self.tabCloseRequested.connect(self.on_tab_close_pressed)
@@ -77,6 +78,11 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.addTab(editor, editor_icon, file_name)
         editor.open_file(file_path)
         editor.unsaved_changes = False
+
+    def on_open_quickstart(self):
+        quickstart_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
+        viewer = md_viewer_page.MdViewerPage("Quickstart.md")
+        self.addTab(viewer, quickstart_icon, "Quickstart")
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
         ret = super().addTab(widget, icon, title)
