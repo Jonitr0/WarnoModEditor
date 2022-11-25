@@ -68,6 +68,7 @@ class BaseDialog(QtWidgets.QDialog):
         self.button_layout.addWidget(self.ok_button)
 
         # setup cancel button
+        self.cancel_button = None
         if not ok_only:
             self.cancel_button = QtWidgets.QPushButton()
             self.cancel_button.setText("Cancel")

@@ -14,9 +14,9 @@ class MdViewerPage(tab_page_base.TabPageBase):
         md_label = QtWidgets.QLabel()
         md_label.setTextFormat(Qt.MarkdownText)
         md_label.setText(markdown_loader.get_md_text(md_file_path))
+        md_label.setAlignment(Qt.AlignTop)
         md_label.setWordWrap(True)
 
-        # TODO: add scrollarea
         scroll_area = QtWidgets.QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setWidget(md_label)

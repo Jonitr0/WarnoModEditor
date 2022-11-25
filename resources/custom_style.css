@@ -12,6 +12,12 @@ QLabel#title {{
   font: italic;
 }}
 
+QLabel#log {{
+  font: 10pt 'Courier New';
+  background-color: {QTMATERIAL_SECONDARYCOLOR};
+  padding: 10px;
+}}
+
 QPushButton.titlebar {{
   border-radius: 0px;
   border-width: 0px;

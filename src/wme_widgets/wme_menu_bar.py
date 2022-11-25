@@ -57,8 +57,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.edit_menu.setToolTipsVisible(True)
 
         self.add_action_to_menu("Generate Mod", self.edit_menu, True, self.on_generate_action,
-                                "Generate the binary files for the mod.\n"
-                                "This step is required to apply changes made to the mods files ingame")
+                                "Generate the binary files for the mod. Launches another application.\n"
+                                "This step is required to apply changes made to the mods files in-game")
         self.add_action_to_menu("Edit Mod Configuration", self.edit_menu, True, self.on_edit_config_action,
                                 "Edit the mods Config.ini file")
         self.add_action_to_menu("Update Mod", self.edit_menu, True, self.on_update_action,

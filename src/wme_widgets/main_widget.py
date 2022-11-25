@@ -5,6 +5,7 @@ from PySide6.QtCore import Qt
 
 from src.wme_widgets import wme_menu_bar, wme_project_explorer
 from src.wme_widgets.tab_widget import wme_tab_widget
+from src.dialogs import log_dialog
 from src.utils import settings_manager, path_validator, icon_manager
 from src.utils.color_manager import *
 
@@ -29,6 +30,11 @@ class MainWidget(QtWidgets.QWidget):
         self.status_timer = QtCore.QTimer()
         self.title_bar = title_bar
         self.title_label = QtWidgets.QLabel("")
+        self.log_dialog = log_dialog.LogDialog()
+
+        self.log_dialog.new_log.connect(self.on_new_log)
+        self.log_dialog.error_log.connect(self.on_error_log)
+
         self.setup_ui()
         MainWidget.instance = self
         last_open = settings_manager.get_settings_value(settings_manager.LAST_OPEN_KEY)
@@ -83,12 +89,14 @@ class MainWidget(QtWidgets.QWidget):
         label_layout.addWidget(version_label)
         label_layout.setAlignment(version_label, Qt.AlignLeft)
 
-        # TODO: add log instead of status label
-        # TODO: change icon on unread and error
         self.log_button.setText("Event Log")
         self.log_button.setIcon(icon_manager.load_icon("message_empty.png", COLORS.SECONDARY_TEXT))
         self.log_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.log_button.setFixedHeight(36)
+        self.log_button.setShortcut("Ctrl+L")
+        self.log_button.setToolTip("Open the event log for the current session (Ctrl + L)")
+        self.log_button.clicked.connect(self.on_log_button_clicked)
+
         label_layout.addWidget(self.log_button)
         label_layout.setAlignment(self.log_button, Qt.AlignRight)
 
@@ -137,3 +145,14 @@ class MainWidget(QtWidgets.QWidget):
             else:
                 self.splitter.setSizes([self.explorer_width, self.tab_widget.width() - self.explorer_width])
         return False
+
+    def on_log_button_clicked(self):
+        self.log_button.setIcon(icon_manager.load_icon("message_empty.png", COLORS.SECONDARY_TEXT))
+        self.log_dialog.exec_()
+
+    def on_new_log(self):
+        self.log_button.setIcon(icon_manager.load_icon("new_log.png", COLORS.SECONDARY_TEXT))
+
+    def on_error_log(self):
+        self.log_button.setIcon(icon_manager.load_icon("error_log.png", COLORS.SECONDARY_TEXT))
+
