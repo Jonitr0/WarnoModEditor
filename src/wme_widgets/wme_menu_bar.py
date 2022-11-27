@@ -64,7 +64,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.add_action_to_menu("Update Mod", self.edit_menu, True, self.on_update_action,
                                 "Update the mod to a new version of WARNO")
         self.add_action_to_menu("Upload Mod", self.edit_menu, True, self.on_upload_action,
-                                "Upload the mod to your Steam Workshop")
+                                "Upload the mod to your Steam Workshop.\n "
+                                "Will only work if the mod was generated before.")
 
         self.edit_menu.addSeparator()
 
@@ -189,6 +190,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         if QtCore.QFile.exists(config_path + "Config.ini"):
             os.rename(config_path + "Config.ini", config_path + "Config_tmp.ini")
         self.generate_mod()
+        # TODO: check whether this messes with upload
         # restore old config, if applicable
         if QtCore.QFile.exists(config_path + "Config_tmp.ini"):
             os.remove(config_path + "Config.ini")
@@ -236,6 +238,12 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.remove_pause_line_from_script("UpdateMod.bat")
         ret = run_script(self.main_widget_ref.get_loaded_mod_path(), "UpdateMod.bat", [])
         logging.info("UpdateMod.bat executed with return code " + str(ret))
+
+        try:
+            if os.path.exists(self.main_widget_ref.get_loaded_mod_path() + "\\.base"):
+                shutil.rmtree(self.main_widget_ref.get_loaded_mod_path() + "\\.base")
+        except Exception as e:
+            logging.error(e)
 
     def remove_pause_line_from_script(self, script_name: str):
         file = self.main_widget_ref.get_loaded_mod_path() + "\\" + script_name

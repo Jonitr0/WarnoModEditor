@@ -44,5 +44,6 @@ if __name__ == '__main__':
     logging.info("\n\n")
     logging.info("Starting WME " + version)
 
+    # TODO: add crash handler
     main_window = main_window.MainWindow()
     sys.exit(app.exec())

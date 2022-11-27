@@ -22,7 +22,7 @@ class LogDialog(base_dialog.BaseDialog):
         self.log_stream = LogStream(self)
 
         stream_logger = logging.StreamHandler(stream=self.log_stream)
-        stream_logger.setLevel(logging.INFO)
+        stream_logger.setLevel(logging.WARN)
         stream_logger.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
         logging.getLogger().addHandler(stream_logger)
 
@@ -66,7 +66,7 @@ class LogStream(object):
         self.dialog = dialog
 
     def write(self, msg):
-        if msg.startswith("ERROR") or msg.startswith("WARN"):
+        if msg.startswith("ERROR"):
             self.dialog.error_log.emit()
         else:
             self.dialog.new_log.emit()
