@@ -1,5 +1,4 @@
 from PySide6 import QtWidgets
-from src.utils import theme_manager
 from src.utils.color_manager import *
 
 

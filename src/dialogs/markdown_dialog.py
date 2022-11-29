@@ -17,5 +17,7 @@ class MarkdownDialog(BaseDialog):
 
         super().__init__(ok_only=True)
 
+        self.setWindowTitle(title)
+
     def setup_ui(self):
         self.main_layout.addWidget(self.md_label)

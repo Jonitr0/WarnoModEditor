@@ -8,6 +8,7 @@ from qt_material import apply_stylesheet
 from src import main_window
 from src.utils import settings_manager, theme_manager
 from src.utils.resource_loader import get_resource_path
+from src.dialogs import exception_handler_dialog
 
 if __name__ == '__main__':
     # setup logging
@@ -39,11 +40,15 @@ if __name__ == '__main__':
     with open(get_resource_path('resources/custom_style.css')) as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
 
+    # setup exception handler
+    exception_handler = exception_handler_dialog.ExceptionHandlerDialog()
+    sys.excepthook = exception_handler.exceptHook
+
+    # set version
     version = "0.1.0"
     settings_manager.write_settings_value(settings_manager.VERSION_KEY, version)
     logging.info("\n\n")
     logging.info("Starting WME " + version)
 
-    # TODO: add crash handler
     main_window = main_window.MainWindow()
     sys.exit(app.exec())
