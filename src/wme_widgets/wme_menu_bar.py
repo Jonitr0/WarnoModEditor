@@ -59,8 +59,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.add_action_to_menu("Generate Mod", self.edit_menu, True, self.on_generate_action,
                                 "Generate the binary files for the mod. Launches another application.\n"
                                 "This step is required to apply changes made to the mods files in-game")
-        self.add_action_to_menu("Edit Mod Configuration", self.edit_menu, True, self.on_edit_config_action,
-                                "Edit the mods Config.ini file")
         self.add_action_to_menu("Update Mod", self.edit_menu, True, self.on_update_action,
                                 "Update the mod to a new version of WARNO")
         self.add_action_to_menu("Upload Mod", self.edit_menu, True, self.on_upload_action,
@@ -75,6 +73,13 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                                 self.on_retrieve_backup_action, "Restore an existing mod backup")
         self.add_action_to_menu("Delete Mod Backup", self.edit_menu, True, self.on_delete_backup_action,
                                 "Delete an existing mod backup")
+
+        self.edit_menu.addSeparator()
+
+        self.add_action_to_menu("Edit Mod Configuration", self.edit_menu, True, self.on_edit_config_action,
+                                "Edit the mods Config.ini file")
+        self.add_action_to_menu("Delete Mod Configuration", self.edit_menu, True, self.on_delete_config_action,
+                                "Delete the mods Config.ini file")
 
     def on_new_action(self):
         dialog = new_mod_dialog.NewModDialog(self.main_widget_ref.get_warno_path())
@@ -233,6 +238,27 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                 f_content = f_content.replace("=", " = ")
                 f.seek(0)
                 f.write(f_content)
+
+    def on_delete_config_action(self):
+        config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
+                      self.main_widget_ref.get_loaded_mod_name() + "\\Config.ini"
+
+        if not os.path.exists(config_path):
+            essential_dialogs.MessageDialog("Config.ini not found", "The configuration file for the mod "
+                                            + self.main_widget_ref.get_loaded_mod_name() +
+                                            " could not be found. You have to generate the mod to "
+                                            "create the configuration file.").exec()
+        else:
+            confirm_dialog = essential_dialogs.ConfirmationDialog("The configuration file and all changes you made to "
+                                                                  "it will be deleted. Are you sure you want to "
+                                                                  "continue?", "Warning!")
+            if confirm_dialog.exec_() != QtWidgets.QDialog.Accepted:
+                return
+
+            try:
+                os.remove(config_path)
+            except Exception as e:
+                logging.error("Error while deleting config file: " + str(e))
 
     def on_update_action(self):
         self.remove_pause_line_from_script("UpdateMod.bat")
