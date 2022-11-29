@@ -265,3 +265,6 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         cursor = self.textCursor()
         cursor.setPosition(initial_pos, QtGui.QTextCursor.MoveAnchor)
         self.setTextCursor(cursor)
+
+    def get_selected_text(self):
+        return self.textCursor().selectedText()

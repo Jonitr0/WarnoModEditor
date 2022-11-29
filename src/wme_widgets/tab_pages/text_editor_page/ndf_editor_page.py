@@ -131,12 +131,21 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         self.replace_bar.on_close()
 
     def on_find(self, checked):
-        # TODO: if editor has selection, search for it
+        selection = self.code_editor.get_selected_text()
         if checked:
             self.find_bar.setHidden(False)
             self.find_bar.line_edit.setFocus()
             if self.replace_action.isChecked():
                 self.find_action.setChecked(False)
+            # if editor has selection, search for it
+            if len(selection) > 0:
+                self.find_bar.line_edit.setText(selection)
+                self.code_editor.find_pattern(selection)
+                self.code_editor.goto_prev_find()
+
+        elif len(selection) > 0:
+            self.find_action.setChecked(True)
+
         elif not self.replace_action.isChecked():
             self.find_bar.reset()
 
