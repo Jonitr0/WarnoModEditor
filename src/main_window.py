@@ -17,6 +17,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # open actual main window
     def start_main_window(self):
+        # write a standard path if there is no defined path
+        tmp_path = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\WARNO"
+        if settings_manager.get_settings_value(settings_manager.WARNO_PATH_KEY) is None:
+            settings_manager.write_settings_value(settings_manager.WARNO_PATH_KEY, tmp_path)
+
         if not warno_path_loader.load_warno_path_from_settings():
             QtCore.QCoreApplication.quit()
 
