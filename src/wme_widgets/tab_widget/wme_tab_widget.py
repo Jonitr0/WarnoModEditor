@@ -89,19 +89,18 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_open_quickstart(self):
         quickstart_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
         viewer = md_viewer_page.MdViewerPage("Quickstart.md")
-        # TODO: add proper md file
         self.addTab(viewer, quickstart_icon, "Quickstart Guide")
 
     def on_open_ndf_reference(self):
         reference_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
-        viewer = md_viewer_page.MdViewerPage("Quickstart.md")
-        # TODO: add proper md file
+        viewer = md_viewer_page.MdViewerPage("NdfReference.md")
+        # TODO: fill md file
         self.addTab(viewer, reference_icon, "NDF Reference")
 
     def on_open_manual(self):
         manual_action = icon_manager.load_icon("help.png", COLORS.PRIMARY)
-        viewer = md_viewer_page.MdViewerPage("Quickstart.md")
-        # TODO: add proper md file
+        viewer = md_viewer_page.MdViewerPage("UserManual.md")
+        # TODO: fill md file
         self.addTab(viewer, manual_action, "User Manual")
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
