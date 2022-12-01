@@ -22,7 +22,7 @@ class WMEProjectExplorer(QtWidgets.QWidget):
         file_size_label = QtWidgets.QLabel("Show file sizes: ")
         self.file_size_checkbox = QtWidgets.QCheckBox()
         check_status = settings_manager.get_settings_value(settings_manager.SHOW_EXPLORER_FILESIZE_KEY)
-        if check_status != None:
+        if check_status is not None:
             self.file_size_checkbox.setChecked(check_status)
         else:
             self.file_size_checkbox.setChecked(False)
@@ -37,11 +37,10 @@ class WMEProjectExplorer(QtWidgets.QWidget):
         self.file_size_checkbox.stateChanged.connect(self.tree_view.on_show_size_changed)
 
         search_bar.textChanged.connect(self.tree_view.on_find_text_changed)
-        
+
     def update_model(self, mod_path: str):
         self.tree_view.update_model(mod_path)
         self.file_size_checkbox.stateChanged.emit(self.file_size_checkbox.checkState())
-        # TODO: add function to expand the entire filesystem once
 
 
 class FileSystemTreeView(QtWidgets.QTreeView):
@@ -108,7 +107,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         if file_path.endswith(".ndf") and action == ndf_editor_action:
             self.open_ndf_editor.emit(file_path)
         elif action == expand_all_action:
-            self.expandRecursively(self.model().index(self.mod_path))
+            self.expandAll()
         elif action == collapse_all_action:
             self.collapseAll()
 
@@ -118,7 +117,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.collapseAll()
         else:
             self.model().setNameFilters(["*" + text + "*.ndf"])
-            self.expandRecursively(self.model().index(self.mod_path))
+            self.expandAll()
 
     def on_show_size_changed(self, state: int):
         if state == 0:
@@ -140,7 +139,7 @@ class FileIconProvider(QtWidgets.QFileIconProvider):
         return super().icon(file_info)
 
 
-# TODO: hide empty dirs
+# TODO (0.1.1): hide empty dirs
 class FileSystemModel(QtWidgets.QFileSystemModel):
     def hasChildren(self, parent) -> bool:
         # no possible children

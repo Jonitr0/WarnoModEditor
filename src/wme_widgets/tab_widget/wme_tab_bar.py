@@ -2,6 +2,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab
+from src.utils.color_manager import *
 
 drop_bar = None
 
@@ -180,9 +181,10 @@ class WMETabBar(QtWidgets.QTabBar):
         option = QtWidgets.QStyleOptionTab()
         palette = option.palette
 
-        # TODO: make this draw proper colors
         self.initStyleOption(option, self.hover_tab_index)
-        palette.setColor(palette.Button, QtGui.QColor(Qt.blue))
+
+        palette.setColor(palette.WindowText, QtGui.QColor(get_color_for_key(COLORS.PRIMARY.value)))
+
         option.palette = palette
         self.style().drawControl(QtWidgets.QStyle.CE_TabBarTab, option, painter)
 

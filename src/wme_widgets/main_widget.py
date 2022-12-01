@@ -65,6 +65,7 @@ class MainWidget(QtWidgets.QWidget):
         self.title_bar.add_widget(self.menu_bar)
 
         self.menu_bar.request_load_mod.connect(self.load_mod)
+        self.menu_bar.request_quickstart.connect(self.tab_widget.on_open_quickstart)
 
         self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.mod_loaded.connect(self.explorer.update_model)

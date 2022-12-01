@@ -36,6 +36,7 @@ def run_script(cwd: str, cmd: str, args: list):
 
 class WMEMainMenuBar(QtWidgets.QMenuBar):
     request_load_mod = QtCore.Signal(str)
+    request_quickstart = QtCore.Signal()
 
     def __init__(self, main_widget_ref, parent=None):
         super().__init__(parent)
@@ -105,6 +106,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
             # load mod
             self.request_load_mod.emit(mods_path + mod_name)
+            # open quickstart guide
+            self.request_quickstart.emit()
 
     def on_load_action(self):
         while True:
