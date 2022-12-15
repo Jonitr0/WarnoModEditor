@@ -1,5 +1,5 @@
-from src.utils import settings_manager
-from src.utils import theme_manager
+from src.utils import settings_manager, theme_manager
+from src.utils.resource_loader import get_resource_path
 from enum import Enum
 import logging
 import xml.etree.ElementTree as ET
@@ -32,13 +32,13 @@ class COLORS(Enum):
     SUCCESS = "success"
 
 
-def get_color_key(key: str):
+def get_color_for_key(key: str):
     global loaded
     if not loaded:
         load_colors()
         loaded = True
     if not colors.__contains__(key):
-        logging.warning("No color found for key " + key)
+        logging.warning("No color found for key " + str(key))
         return "#ff0000"
     return colors[key]
 
@@ -46,7 +46,7 @@ def get_color_key(key: str):
 def load_colors():
     theme_name = settings_manager.get_settings_value(settings_manager.THEME_KEY)
     path, invert_secondary = theme_manager.get_theme_file(theme_name)
-    colors_xml = ET.parse(path)
+    colors_xml = ET.parse(get_resource_path("resources/themes/" + path))
     root = colors_xml.getroot()
     for child in root:
         color_name = child.attrib['name']
@@ -61,7 +61,7 @@ def load_colors():
         path = "resources/light_highlight.xml"
     else:
         path = "resources/dark_highlight.xml"
-    colors_xml = ET.parse(path)
+    colors_xml = ET.parse(get_resource_path(path))
     root = colors_xml.getroot()
     for child in root:
         color_name = child.attrib['name']

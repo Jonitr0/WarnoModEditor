@@ -58,13 +58,13 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
         self.add_rule("//[^\n]*", COLORS.SINGLE_COMMENT, italic=True, single_line_comment=True)
 
         self.multiline_comment_format.setFontItalic(True)
-        self.multiline_comment_format.setForeground(QtGui.QColor(get_color_key(COLORS.MULTI_COMMENT.value)))
+        self.multiline_comment_format.setForeground(QtGui.QColor(get_color_for_key(COLORS.MULTI_COMMENT.value)))
 
     def add_rule(self, pattern: str, color: COLORS, italic: bool = False, single_line_comment: bool = False,
                  case_insensitive: bool = False):
         rule = HighlightingRule()
         rule.format.setFontItalic(italic)
-        rule.format.setForeground(QtGui.QColor(get_color_key(color.value)))
+        rule.format.setForeground(QtGui.QColor(get_color_for_key(color.value)))
         rule.pattern = QtCore.QRegularExpression(pattern)
         if case_insensitive:
             rule.pattern.setPatternOptions(QtCore.QRegularExpression.CaseInsensitiveOption)

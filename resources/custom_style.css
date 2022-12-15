@@ -12,6 +12,12 @@ QLabel#title {{
   font: italic;
 }}
 
+QLabel#log {{
+  font: 10pt 'Courier New';
+  background-color: {QTMATERIAL_SECONDARYCOLOR};
+  padding: 10px;
+}}
+
 QPushButton.titlebar {{
   border-radius: 0px;
   border-width: 0px;
@@ -83,3 +89,28 @@ QFrame#diff_widget {{
   border-width: 1px;
   border-color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
 }}
+
+QTabBar::tab:top:hover {{
+  color: {QTMATERIAL_PRIMARYCOLOR};
+  border-bottom: 2px solid {QTMATERIAL_SECONDARYDARKCOLOR};
+}}
+
+QTabBar::tab:top:selected:hover {{
+  color: {QTMATERIAL_PRIMARYCOLOR};
+  border-bottom: 2px solid {QTMATERIAL_PRIMARYCOLOR};
+}}
+
+QToolTip {{
+  border: 1px solid {QTMATERIAL_SECONDARYDARKCOLOR};
+  border-radius: 0px;
+  color: {QTMATERIAL_SECONDARYTEXTCOLOR};
+  background-color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
+}}
+
+QMenu {{
+  background-color: {QTMATERIAL_SECONDARYCOLOR};
+  border: 2px solid {QTMATERIAL_SECONDARYLIGHTCOLOR};
+  border-radius: 0px;
+}}
+
+QToolButton::menu-indicator {{ image: none; }}

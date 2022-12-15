@@ -1,10 +1,10 @@
 <!--?xml version="1.0" encoding="UTF-8"?-->
 <resources>
-  <color name="keywordsColor">#5c007a</color>
-  <color name="typesColor">#b53d00</color>
-  <color name="numbersColor">#005b9f</color>
-  <color name="stringsColor">#4b830d</color>
-  <color name="singleCommentColor">#8d8d8d</color>
-  <color name="multiCommentColor">#6c6f00</color>
-  <color name="findHighlightColor">#76d275</color>
+  <color name="keywordsColor">#c158dc</color>
+  <color name="typesColor">#ff9d3f</color>
+  <color name="numbersColor">#5eb8ff</color>
+  <color name="stringsColor">#7cb342</color>
+  <color name="singleCommentColor">#8e8e8e</color>
+  <color name="multiCommentColor">#d2ce56</color>
+  <color name="findHighlightColor">#00701a</color>
 </resources>

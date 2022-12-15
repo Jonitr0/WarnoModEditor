@@ -36,6 +36,7 @@ def run_script(cwd: str, cmd: str, args: list):
 
 class WMEMainMenuBar(QtWidgets.QMenuBar):
     request_load_mod = QtCore.Signal(str)
+    request_quickstart = QtCore.Signal()
 
     def __init__(self, main_widget_ref, parent=None):
         super().__init__(parent)
@@ -43,30 +44,43 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.main_widget_ref = main_widget_ref
 
         self.file_menu = self.addMenu("File")
+        self.file_menu.setToolTipsVisible(True)
 
-        # TODO: add tooltips for all actions
-
-        self.add_action_to_menu("New Mod", self.file_menu, False, self.on_new_action)
-        self.add_action_to_menu("Open Mod", self.file_menu, False, self.on_load_action)
-        self.add_action_to_menu("Delete Mod", self.file_menu, False, self.on_delete_action)
+        self.add_action_to_menu("New Mod", self.file_menu, False, self.on_new_action, "Create a new mod")
+        self.add_action_to_menu("Open Mod", self.file_menu, False, self.on_load_action, "Open an existing mod")
+        self.add_action_to_menu("Delete Mod", self.file_menu, False, self.on_delete_action, "Delete an existing mod")
 
         self.file_menu.addSeparator()
 
-        self.add_action_to_menu("Options", self.file_menu, False, self.on_options_action)
+        self.add_action_to_menu("Options", self.file_menu, False, self.on_options_action, "Change WME settings")
 
         self.edit_menu = self.addMenu("Edit")
+        self.edit_menu.setToolTipsVisible(True)
 
-        self.add_action_to_menu("Generate Mod", self.edit_menu, True, self.on_generate_action)
-        self.add_action_to_menu("Edit Mod Configuration", self.edit_menu, True, self.on_edit_config_action)
-        self.add_action_to_menu("Update Mod", self.edit_menu, True, self.on_update_action)
-        self.add_action_to_menu("Upload Mod", self.edit_menu, True, self.on_upload_action)
+        self.add_action_to_menu("Generate Mod", self.edit_menu, True, self.on_generate_action,
+                                "Generate the binary files for the mod. Launches another application.\n"
+                                "This step is required to apply changes made to the mods files in-game")
+        self.add_action_to_menu("Update Mod", self.edit_menu, True, self.on_update_action,
+                                "Update the mod to a new version of WARNO")
+        self.add_action_to_menu("Upload Mod", self.edit_menu, True, self.on_upload_action,
+                                "Upload the mod to your Steam Workshop.\n "
+                                "Will only work if the mod was generated before.")
 
         self.edit_menu.addSeparator()
 
-        self.add_action_to_menu("Create Mod Backup", self.edit_menu, True, self.on_new_backup_action)
+        self.add_action_to_menu("Create Mod Backup", self.edit_menu, True, self.on_new_backup_action,
+                                "Create a backup from the current state of the mod")
         self.add_action_to_menu("Retrieve Mod Backup", self.edit_menu, True,
-                                self.on_retrieve_backup_action)
-        self.add_action_to_menu("Delete Mod Backup", self.edit_menu, True, self.on_delete_backup_action)
+                                self.on_retrieve_backup_action, "Restore an existing mod backup")
+        self.add_action_to_menu("Delete Mod Backup", self.edit_menu, True, self.on_delete_backup_action,
+                                "Delete an existing mod backup")
+
+        self.edit_menu.addSeparator()
+
+        self.add_action_to_menu("Edit Mod Configuration", self.edit_menu, True, self.on_edit_config_action,
+                                "Edit the mods Config.ini file")
+        self.add_action_to_menu("Delete Mod Configuration", self.edit_menu, True, self.on_delete_config_action,
+                                "Delete the mods Config.ini file")
 
     def on_new_action(self):
         dialog = new_mod_dialog.NewModDialog(self.main_widget_ref.get_warno_path())
@@ -85,17 +99,22 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                 return
 
             try:
-                shutil.rmtree(mods_path + mod_name + "/.base")
+                if os.path.exists(mods_path + mod_name + "\\.base"):
+                    shutil.rmtree(mods_path + mod_name + "\\.base")
             except Exception as e:
                 logging.error(e)
 
             # load mod
             self.request_load_mod.emit(mods_path + mod_name)
+            # open quickstart guide
+            self.request_quickstart.emit()
 
     def on_load_action(self):
         while True:
             mod_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter mod path",
-                                                                    self.main_widget_ref.get_warno_path() + "/Mods")
+                                                                    self.main_widget_ref.get_warno_path() + "/Mods",
+                                                                    options=(QtWidgets.QFileDialog.ShowDirsOnly |
+                                                                             QtWidgets.QFileDialog.ReadOnly))
             if mod_path == "":
                 return
 
@@ -116,7 +135,9 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         # let user select a mod
         while True:
             mod_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter mod path",
-                                                                    self.main_widget_ref.get_warno_path() + "/Mods")
+                                                                    self.main_widget_ref.get_warno_path() + "/Mods",
+                                                                    options=(QtWidgets.QFileDialog.ShowDirsOnly |
+                                                                             QtWidgets.QFileDialog.ReadOnly))
             if mod_path == "":
                 return
 
@@ -139,6 +160,22 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         except Exception as e:
             logging.error(e)
 
+        # find config dir
+        mod_name = mod_path[mod_path.rindex('\\') + 1:]
+        config_dir = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + mod_name
+
+        # ask to remove config dir
+        if QtCore.QDir(config_dir).exists():
+            dialog = essential_dialogs.ConfirmationDialog("Delete config file and generated binaries?",
+                                                          "Delete Mod", urgent=False)
+            dialog.set_button_texts(ok="Yes", cancel="No")
+            ret = dialog.exec()
+            if ret == QtWidgets.QDialog.Accepted:
+                try:
+                    shutil.rmtree(config_dir)
+                except Exception as e:
+                    logging.error(e)
+
         if mod_path == self.main_widget_ref.get_loaded_mod_path():
             # disable all edit actions
             for action in self.edit_menu.actions():
@@ -155,7 +192,17 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         logging.info("GenerateMod.bat executed with return code " + str(ret_code))
 
     def on_generate_action(self):
+        # backup old config, if applicable
+        config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
+                      self.main_widget_ref.get_loaded_mod_name() + "\\"
+        if QtCore.QFile.exists(config_path + "Config.ini"):
+            os.rename(config_path + "Config.ini", config_path + "Config_tmp.ini")
         self.generate_mod()
+        # TODO: check whether this messes with upload
+        # restore old config, if applicable
+        if QtCore.QFile.exists(config_path + "Config_tmp.ini"):
+            os.remove(config_path + "Config.ini")
+            os.rename(config_path + "Config_tmp.ini", config_path + "Config.ini")
 
     def on_edit_config_action(self):
         config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
@@ -195,10 +242,37 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                 f.seek(0)
                 f.write(f_content)
 
+    def on_delete_config_action(self):
+        config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
+                      self.main_widget_ref.get_loaded_mod_name() + "\\Config.ini"
+
+        if not os.path.exists(config_path):
+            essential_dialogs.MessageDialog("Config.ini not found", "The configuration file for the mod "
+                                            + self.main_widget_ref.get_loaded_mod_name() +
+                                            " could not be found. You have to generate the mod to "
+                                            "create the configuration file.").exec()
+        else:
+            confirm_dialog = essential_dialogs.ConfirmationDialog("The configuration file and all changes you made to "
+                                                                  "it will be deleted. Are you sure you want to "
+                                                                  "continue?", "Warning!")
+            if confirm_dialog.exec_() != QtWidgets.QDialog.Accepted:
+                return
+
+            try:
+                os.remove(config_path)
+            except Exception as e:
+                logging.error("Error while deleting config file: " + str(e))
+
     def on_update_action(self):
         self.remove_pause_line_from_script("UpdateMod.bat")
         ret = run_script(self.main_widget_ref.get_loaded_mod_path(), "UpdateMod.bat", [])
         logging.info("UpdateMod.bat executed with return code " + str(ret))
+
+        try:
+            if os.path.exists(self.main_widget_ref.get_loaded_mod_path() + "\\.base"):
+                shutil.rmtree(self.main_widget_ref.get_loaded_mod_path() + "\\.base")
+        except Exception as e:
+            logging.error(e)
 
     def remove_pause_line_from_script(self, script_name: str):
         file = self.main_widget_ref.get_loaded_mod_path() + "\\" + script_name
@@ -284,10 +358,11 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             logging.error(ex)
 
     def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
-                           slot=None) -> QtGui.QAction:
+                           slot=None, tooltip: str = "") -> QtGui.QAction:
         action = QtGui.QAction(name)
         menu.addAction(action)
         action.triggered.connect(slot)
+        action.setToolTip(tooltip)
 
         if start_disabled:
             action.setDisabled(True)

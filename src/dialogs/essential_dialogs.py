@@ -25,10 +25,10 @@ class SelectionDialog(base_dialog.BaseDialog):
 
 # dialog asking user to confirm or cancel something
 class ConfirmationDialog(base_dialog.BaseDialog):
-    def __init__(self, text: str, title: str):
+    def __init__(self, text: str, title: str, urgent=True):
         self.label = QtWidgets.QLabel(text)
 
-        super().__init__(urgent=True)
+        super().__init__(urgent=urgent)
         self.setWindowTitle(title)
 
     def setup_ui(self):

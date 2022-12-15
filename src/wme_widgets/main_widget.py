@@ -5,11 +5,9 @@ from PySide6.QtCore import Qt
 
 from src.wme_widgets import wme_menu_bar, wme_project_explorer
 from src.wme_widgets.tab_widget import wme_tab_widget
-from src.utils import settings_manager, path_validator
-
-
-def set_status_text(text: str):
-    MainWidget.instance.status_set_text.emit(text)
+from src.dialogs import log_dialog
+from src.utils import settings_manager, path_validator, icon_manager
+from src.utils.color_manager import *
 
 
 class MainWidget(QtWidgets.QWidget):
@@ -28,11 +26,15 @@ class MainWidget(QtWidgets.QWidget):
         self.loaded_mod_name = ""
         self.explorer_width = 200
         self.warno_path = warno_path
-        self.status_label = QtWidgets.QLabel()
+        self.log_button = QtWidgets.QToolButton()
         self.status_timer = QtCore.QTimer()
-        self.status_timer.timeout.connect(self.on_status_timeout)
         self.title_bar = title_bar
         self.title_label = QtWidgets.QLabel("")
+        self.log_dialog = log_dialog.LogDialog()
+
+        self.log_dialog.new_log.connect(self.on_new_log)
+        self.log_dialog.error_log.connect(self.on_error_log)
+
         self.setup_ui()
         MainWidget.instance = self
         last_open = settings_manager.get_settings_value(settings_manager.LAST_OPEN_KEY)
@@ -63,9 +65,10 @@ class MainWidget(QtWidgets.QWidget):
         self.title_bar.add_widget(self.menu_bar)
 
         self.menu_bar.request_load_mod.connect(self.load_mod)
+        self.menu_bar.request_quickstart.connect(self.tab_widget.on_open_quickstart)
 
         self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        self.mod_loaded.connect(self.explorer.tree_view.update_model)
+        self.mod_loaded.connect(self.explorer.update_model)
         self.splitter.addWidget(self.explorer)
         self.splitter.addWidget(self.tab_widget)
         self.splitter.handle(1).installEventFilter(self)
@@ -80,25 +83,23 @@ class MainWidget(QtWidgets.QWidget):
         self.explorer.tree_view.open_ndf_editor.connect(self.tab_widget.on_open_ndf_editor)
 
         label_layout = QtWidgets.QHBoxLayout()
+        label_layout.setContentsMargins(0, 0, 8, 0)
         main_layout.addLayout(label_layout)
 
-        # TODO: set version in settings/as variable somewhere
-        version_label = QtWidgets.QLabel("WME v0.1.0")
+        version_label = QtWidgets.QLabel("WME v" + settings_manager.get_settings_value(settings_manager.VERSION_KEY))
         label_layout.addWidget(version_label)
         label_layout.setAlignment(version_label, Qt.AlignLeft)
-        label_layout.addWidget(self.status_label)
-        label_layout.setAlignment(self.status_label, Qt.AlignRight)
 
-        self.status_set_text.connect(self.on_status_set_text)
+        self.log_button.setText("Event Log")
+        self.log_button.setIcon(icon_manager.load_icon("message_empty.png", COLORS.SECONDARY_TEXT))
+        self.log_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.log_button.setFixedHeight(36)
+        self.log_button.setShortcut("Ctrl+L")
+        self.log_button.setToolTip("Open the event log for the current session (Ctrl + L)")
+        self.log_button.clicked.connect(self.on_log_button_clicked)
 
-    def on_status_set_text(self, text: str):
-        self.status_label.setText(text)
-        self.status_timer.setInterval(5000)
-        self.status_timer.start()
-
-    def on_status_timeout(self):
-        self.status_label.setText("")
-        self.status_timer.stop()
+        label_layout.addWidget(self.log_button)
+        label_layout.setAlignment(self.log_button, Qt.AlignRight)
 
     def load_mod(self, mod_path: str):
         mod_path = mod_path.replace("/", "\\")
@@ -108,14 +109,13 @@ class MainWidget(QtWidgets.QWidget):
         self.loaded_mod_path = mod_path
         self.loaded_mod_name = mod_path[mod_path.rindex('\\') + 1:]
         logging.info("loaded mod " + self.loaded_mod_name + " at " + mod_path)
-        self.title_label.setText(self.loaded_mod_name)
+        self.title_label.setText(" " + self.loaded_mod_name)
         settings_manager.write_settings_value(settings_manager.LAST_OPEN_KEY, mod_path)
         self.mod_loaded.emit(mod_path)
-        set_status_text(self.loaded_mod_name + " was loaded successfully")
         self.tab_widget.close_all(all_windows=True)
         self.hide_loading_screen()
 
-        # TODO: load open pages from config
+        # TODO (0.1.1): load open pages from config
 
     def unload_mod(self):
         self.loaded_mod_path = ""
@@ -146,3 +146,14 @@ class MainWidget(QtWidgets.QWidget):
             else:
                 self.splitter.setSizes([self.explorer_width, self.tab_widget.width() - self.explorer_width])
         return False
+
+    def on_log_button_clicked(self):
+        self.log_button.setIcon(icon_manager.load_icon("message_empty.png", COLORS.SECONDARY_TEXT))
+        self.log_dialog.exec_()
+
+    def on_new_log(self):
+        self.log_button.setIcon(icon_manager.load_icon("new_log.png", COLORS.SECONDARY_TEXT))
+
+    def on_error_log(self):
+        self.log_button.setIcon(icon_manager.load_icon("error_log.png", COLORS.SECONDARY_TEXT))
+

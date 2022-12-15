@@ -43,7 +43,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.drawn_results = []
 
         self.find_format = QtGui.QTextCharFormat()
-        self.find_format.setBackground(QtGui.QColor(get_color_key(COLORS.FIND_HIGHLIGHT.value)))
+        self.find_format.setBackground(QtGui.QColor(get_color_for_key(COLORS.FIND_HIGHLIGHT.value)))
 
         self.verticalScrollBar().valueChanged.connect(self.mark_finds_in_viewport)
         self.document().contentsChange.connect(self.update_search)
@@ -85,7 +85,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
     def lineNumberAreaPaintEvent(self, event):
         painter = QtGui.QPainter(self.lineNumberArea)
 
-        line_number_area_color = get_color_key(COLORS.SECONDARY_DARK.value)
+        line_number_area_color = get_color_for_key(COLORS.SECONDARY_DARK.value)
         painter.fillRect(event.rect(), line_number_area_color)
 
         block = self.firstVisibleBlock()
@@ -98,7 +98,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         while block.isValid() and (top <= event.rect().bottom()):
             if block.isVisible() and (bottom >= event.rect().top()):
                 number = str(block_number + 1)
-                line_number_text_color = get_color_key(COLORS.SECONDARY_TEXT.value)
+                line_number_text_color = get_color_for_key(COLORS.SECONDARY_TEXT.value)
                 painter.setPen(line_number_text_color)
                 painter.drawText(0, top, self.lineNumberArea.width(), height,
                                  Qt.AlignLeft, number)
@@ -114,7 +114,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         rect.setLeft(0)
         rect.setRight(self.width() - 1)
         painter.setPen(Qt.NoPen)
-        painter.setBrush(QtGui.QColor(get_color_key(COLORS.SECONDARY_LIGHT.value)))
+        painter.setBrush(QtGui.QColor(get_color_for_key(COLORS.SECONDARY_LIGHT.value)))
         painter.drawRect(rect)
 
         super().paintEvent(event)
@@ -265,3 +265,6 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         cursor = self.textCursor()
         cursor.setPosition(initial_pos, QtGui.QTextCursor.MoveAnchor)
         self.setTextCursor(cursor)
+
+    def get_selected_text(self):
+        return self.textCursor().selectedText()

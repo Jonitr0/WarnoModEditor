@@ -2,12 +2,14 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab
+from src.utils.color_manager import *
 
 drop_bar = None
 
 
 class WMETabBar(QtWidgets.QTabBar):
     tab_removed = QtCore.Signal()
+    help_requested = QtCore.Signal(int)
 
     def __init__(self, parent=None):
         self.dragStartPos = QtCore.QPoint(0, 0)
@@ -35,9 +37,10 @@ class WMETabBar(QtWidgets.QTabBar):
         detached = wme_detached_tab.WMEDetachedTab()
 
         widget = self.parent().widget(self.dragging_tab_index)
+        icon = self.parent().tabIcon(self.dragging_tab_index)
         title = self.parent().tabText(self.dragging_tab_index)
         self.parent().removeTab(self.dragging_tab_index)
-        detached.add_tab(widget, title)
+        detached.add_tab(widget, icon, title)
         point = QtGui.QCursor.pos()
         
         detached.move(point)
@@ -78,6 +81,7 @@ class WMETabBar(QtWidgets.QTabBar):
             mime_data = QtCore.QMimeData()
             mime_data.setProperty('tab_bar', self)
             mime_data.setProperty('index', self.dragging_tab_index)
+            mime_data.setProperty('icon', self.tabIcon(self.dragging_tab_index))
             mime_data.setProperty('title', self.tabText(self.dragging_tab_index))
             drag.setMimeData(mime_data)
 
@@ -111,6 +115,7 @@ class WMETabBar(QtWidgets.QTabBar):
         new_index = trigger.tabAt(point)
         origin_index = mime_data.property('index')
         origin_bar = mime_data.property('tab_bar')
+        icon = mime_data.property('icon')
         title = mime_data.property('title')
 
         # the drop comes from the own TabBar
@@ -119,7 +124,7 @@ class WMETabBar(QtWidgets.QTabBar):
                 return
             widget = origin_bar.parent().widget(origin_index)
             origin_bar.parent().removeTab(origin_index)
-            origin_bar.parent().insertTab(new_index, widget, title)
+            origin_bar.parent().insertTab(new_index, widget, icon, title)
             origin_bar.parent().setCurrentIndex(new_index)
         # the drop comes from a different TabBar
         else:
@@ -128,10 +133,10 @@ class WMETabBar(QtWidgets.QTabBar):
             # make sure window is closed if needed
             self.parent().tab_removed_by_button.emit()
             if new_index == -1:
-                trigger.parent().addTab(widget, title)
+                trigger.parent().addTab(widget, icon, title)
                 trigger.parent().setCurrentIndex(trigger.parent().count() - 1)
             else:
-                trigger.parent().insertTab(new_index, widget, title)
+                trigger.parent().insertTab(new_index, widget, icon, title)
                 trigger.parent().setCurrentIndex(new_index)
 
             # repaint the triggering TabBar
@@ -176,9 +181,10 @@ class WMETabBar(QtWidgets.QTabBar):
         option = QtWidgets.QStyleOptionTab()
         palette = option.palette
 
-        # TODO: make this draw proper colors
         self.initStyleOption(option, self.hover_tab_index)
-        palette.setColor(palette.Button, QtGui.QColor(Qt.blue))
+
+        palette.setColor(palette.WindowText, QtGui.QColor(get_color_for_key(COLORS.PRIMARY.value)))
+
         option.palette = palette
         self.style().drawControl(QtWidgets.QStyle.CE_TabBarTab, option, painter)
 
@@ -196,10 +202,17 @@ class WMETabBar(QtWidgets.QTabBar):
         if self.count() > 1:
             close_all_action = context_menu.addAction("Close All Tabs")
             close_others_action = context_menu.addAction("Close Other Tabs")
-        # TODO: add help action, which opens a page/popup with some help for the selected page
+
+        if self.parent().widget(index).help_file_path != "":
+            context_menu.addSeparator()
+            help_action = context_menu.addAction("Help")
 
         action = context_menu.exec_(self.mapToGlobal(event.pos()))
         start_count = self.count()
+
+        if action is None:
+            super().mouseReleaseEvent(event)
+            return
 
         if action == close_self_action:
             self.tabCloseRequested.emit(index)
@@ -210,5 +223,7 @@ class WMETabBar(QtWidgets.QTabBar):
             for i in range(start_count):
                 if start_count- i - 1 is not index:
                     self.tabCloseRequested.emit(start_count - i - 1)
+        elif action == help_action:
+            self.help_requested.emit(index)
 
         super().mouseReleaseEvent(event)

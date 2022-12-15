@@ -7,7 +7,6 @@ from src.wme_widgets.tab_pages.text_editor_page import wme_find_replace_bar, wme
 from src.utils import icon_manager
 from src.utils.color_manager import *
 
-
 class NdfEditorPage(tab_page_base.TabPageBase):
     def __init__(self):
         super().__init__()
@@ -15,6 +14,7 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         self.find_bar = wme_find_replace_bar.FindBar()
         self.replace_bar = wme_find_replace_bar.ReplaceBar()
         self.code_editor = wme_code_editor.WMECodeEditor()
+        self.help_file_path = "Help_NdfEditor.md"
         self.setup_ui()
 
     def setup_ui(self):
@@ -124,7 +124,6 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         return ret
 
     def update_page(self):
-        # TODO: there might be a better way, maybe keep a set of changed blocks and only reload those?
         self.open_file(self.file_path)
 
     def on_find_bar_close(self, _):
@@ -132,11 +131,21 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         self.replace_bar.on_close()
 
     def on_find(self, checked):
+        selection = self.code_editor.get_selected_text()
         if checked:
             self.find_bar.setHidden(False)
             self.find_bar.line_edit.setFocus()
             if self.replace_action.isChecked():
                 self.find_action.setChecked(False)
+            # if editor has selection, search for it
+            if len(selection) > 0:
+                self.find_bar.line_edit.setText(selection)
+                self.code_editor.find_pattern(selection)
+                self.code_editor.goto_prev_find()
+
+        elif len(selection) > 0:
+            self.find_action.setChecked(True)
+
         elif not self.replace_action.isChecked():
             self.find_bar.reset()
 

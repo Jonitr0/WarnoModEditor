@@ -1,11 +1,14 @@
 # TabWidget that manages pages such as editors, etc.
 
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
-from src.wme_widgets.tab_pages import tab_page_base, diff_page
+from src.wme_widgets.tab_pages import tab_page_base, md_viewer_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.dialogs import essential_dialogs
+from src.utils import icon_manager
+from src.utils.color_manager import *
 
 
 class WMETabWidget(QtWidgets.QTabWidget):
@@ -15,20 +18,33 @@ class WMETabWidget(QtWidgets.QTabWidget):
         super().__init__(parent)
 
         tab_bar = wme_tab_bar.WMETabBar(self)
+        tab_bar.help_requested.connect(self.on_help_requested)
         self.setTabBar(tab_bar)
 
-        # TODO: style button
-        new_tab_button = QtWidgets.QPushButton()
-        new_tab_button.setText("Add Tab..")
-        new_tab_button.setMinimumHeight(32)
-        self.setCornerWidget(new_tab_button)
+        new_tab_button = QtWidgets.QToolButton(self)
+        new_tab_button.setIcon(icon_manager.load_icon("add_tab.png", COLORS.SECONDARY_TEXT))
+        new_tab_button.setText("Add Tab")
+        new_tab_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        new_tab_button.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+        new_tab_button.setShortcut("Ctrl+T")
+        new_tab_button.setToolTip("Add a new tab page (Ctrl + T)")
+        new_tab_button.setMinimumHeight(36)
+        self.setCornerWidget(new_tab_button, Qt.TopRightCorner)
 
         self.tab_menu = QtWidgets.QMenu()
         self.tab_menu.setToolTipsVisible(True)
         new_tab_button.setMenu(self.tab_menu)
-        diff_page_action = self.tab_menu.addAction("Comparison Tool")
-        diff_page_action.setToolTip("Show differences between a mod and the game files or another mod.")
-        diff_page_action.triggered.connect(self.on_diff_page_action)
+
+        quickstart_action = self.tab_menu.addAction("Quickstart Guide")
+        quickstart_action.setToolTip("The Quickstart Guide walks you through the basics of using WME.")
+        quickstart_action.triggered.connect(self.on_open_quickstart)
+        # TODO: add actions as soon as md files are ready
+        #ndf_reference_action = self.tab_menu.addAction("NDF Reference")
+        #ndf_reference_action.setToolTip("The NDF Reference contains rules and conventions of the NDF language.")
+        #ndf_reference_action.triggered.connect(self.on_open_ndf_reference)
+        #manual_action = self.tab_menu.addAction("User Manual")
+        #manual_action.setToolTip("The User Manual explains WME features in depth.")
+        #manual_action.triggered.connect(self.on_open_manual)
 
         self.setTabsClosable(True)
         self.tabCloseRequested.connect(self.on_tab_close_pressed)
@@ -38,11 +54,11 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.resize(1000, self.height())
 
     def to_json(self) -> str:
-        # TODO: call to_json on all pages
+        # TODO (0.1.1): call to_json on all pages
         pass
 
     def save_state(self):
-        # TODO: call to_json and save to settings
+        # TODO (0.1.1): call to_json and save to settings
         pass
 
     def on_tab_close_pressed(self, index: int):
@@ -65,13 +81,31 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_open_ndf_editor(self, file_path: str):
         file_path = file_path.replace("/", "\\")
         file_name = file_path[file_path.rindex('\\') + 1:]
+        editor_icon = icon_manager.load_icon("text_editor.png", COLORS.PRIMARY)
         editor = ndf_editor_page.NdfEditorPage()
-        self.addTab(editor, file_name)
+        self.addTab(editor, editor_icon, file_name)
         editor.open_file(file_path)
         editor.unsaved_changes = False
 
-    def addTab(self, widget, title: str) -> int:
-        ret = super().addTab(widget, title)
+    def on_open_quickstart(self):
+        quickstart_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
+        viewer = md_viewer_page.MdViewerPage("Quickstart.md")
+        self.addTab(viewer, quickstart_icon, "Quickstart Guide")
+
+    def on_open_ndf_reference(self):
+        reference_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
+        viewer = md_viewer_page.MdViewerPage("NdfReference.md")
+        # TODO: fill md file
+        self.addTab(viewer, reference_icon, "NDF Reference")
+
+    def on_open_manual(self):
+        manual_action = icon_manager.load_icon("help.png", COLORS.PRIMARY)
+        viewer = md_viewer_page.MdViewerPage("UserManual.md")
+        # TODO: fill md file
+        self.addTab(viewer, manual_action, "User Manual")
+
+    def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
+        ret = super().addTab(widget, icon, title)
         widget.tab_name = title
         self.setCurrentIndex(ret)
         self.setTabToolTip(ret, title)
@@ -79,8 +113,8 @@ class WMETabWidget(QtWidgets.QTabWidget):
         tab_page_base.all_pages.add(widget)
         return ret
 
-    def insertTab(self, index: int, widget, title: str) -> int:
-        ret = super().insertTab(index, widget, title)
+    def insertTab(self, index: int, widget, icon: QtGui.QIcon, title: str) -> int:
+        ret = super().insertTab(index, widget, icon, title)
         widget.tab_name = title
         self.setCurrentIndex(ret)
         self.setTabToolTip(ret, title)
@@ -161,6 +195,5 @@ class WMETabWidget(QtWidgets.QTabWidget):
             self.setTabText(index, widget.tab_name)
             self.setTabToolTip(index, widget.tab_name)
 
-    def on_diff_page_action(self, _):
-        diff_page_widget = diff_page.DiffPage()
-        self.addTab(diff_page_widget, "Comparison Tool")
+    def on_help_requested(self, index: int):
+        self.widget(index).on_help()

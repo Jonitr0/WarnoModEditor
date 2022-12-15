@@ -6,8 +6,9 @@ from PySide6 import QtWidgets
 from qt_material import apply_stylesheet
 
 from src import main_window
-from src.utils import settings_manager
-from src.utils import theme_manager
+from src.utils import settings_manager, theme_manager
+from src.utils.resource_loader import get_resource_path
+from src.dialogs import exception_handler_dialog
 
 if __name__ == '__main__':
     # setup logging
@@ -24,6 +25,7 @@ if __name__ == '__main__':
     # load theme
     theme_name = settings_manager.get_settings_value(settings_manager.THEME_KEY)
     theme, invert_secondary = theme_manager.get_theme_file(theme_name)
+    theme = get_resource_path("resources\\themes\\" + theme)
 
     app = QtWidgets.QApplication(sys.argv)
 
@@ -35,8 +37,18 @@ if __name__ == '__main__':
     apply_stylesheet(app, theme=theme, extra=extra, invert_secondary=invert_secondary)
 
     stylesheet = app.styleSheet()
-    with open('resources/custom_style.css') as file:
+    with open(get_resource_path('resources/custom_style.css')) as file:
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
+
+    # setup exception handler
+    exception_handler = exception_handler_dialog.ExceptionHandlerDialog()
+    sys.excepthook = exception_handler.exceptHook
+
+    # set version
+    version = "0.1.0"
+    settings_manager.write_settings_value(settings_manager.VERSION_KEY, version)
+    logging.info("\n\n")
+    logging.info("Starting WME " + version)
 
     main_window = main_window.MainWindow()
     sys.exit(app.exec())
