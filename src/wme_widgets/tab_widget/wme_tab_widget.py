@@ -4,7 +4,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
-from src.wme_widgets.tab_pages import tab_page_base, md_viewer_page
+from src.wme_widgets.tab_pages import tab_page_base, rich_text_viewer_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.dialogs import essential_dialogs
 from src.utils import icon_manager
@@ -38,7 +38,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         quickstart_action = self.tab_menu.addAction("Quickstart Guide")
         quickstart_action.setToolTip("The Quickstart Guide walks you through the basics of using WME.")
         quickstart_action.triggered.connect(self.on_open_quickstart)
-        # TODO: add actions as soon as md files are ready
+        # TODO: add actions as soon as html files are ready
         #ndf_reference_action = self.tab_menu.addAction("NDF Reference")
         #ndf_reference_action.setToolTip("The NDF Reference contains rules and conventions of the NDF language.")
         #ndf_reference_action.triggered.connect(self.on_open_ndf_reference)
@@ -89,19 +89,19 @@ class WMETabWidget(QtWidgets.QTabWidget):
 
     def on_open_quickstart(self):
         quickstart_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
-        viewer = md_viewer_page.MdViewerPage("Quickstart.md")
+        viewer = rich_text_viewer_page.RichTextViewerPage("Quickstart.html")
         self.addTab(viewer, quickstart_icon, "Quickstart Guide")
 
     def on_open_ndf_reference(self):
         reference_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
-        viewer = md_viewer_page.MdViewerPage("NdfReference.md")
-        # TODO: fill md file
+        viewer = rich_text_viewer_page.RichTextViewerPage("NdfReference.md")
+        # TODO: fill md file, convert to html
         self.addTab(viewer, reference_icon, "NDF Reference")
 
     def on_open_manual(self):
         manual_action = icon_manager.load_icon("help.png", COLORS.PRIMARY)
-        viewer = md_viewer_page.MdViewerPage("UserManual.md")
-        # TODO: fill md file
+        viewer = rich_text_viewer_page.RichTextViewerPage("UserManual.md")
+        # TODO: fill md file, convert to html
         self.addTab(viewer, manual_action, "User Manual")
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
