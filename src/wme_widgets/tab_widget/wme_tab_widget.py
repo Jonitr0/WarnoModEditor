@@ -4,7 +4,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
-from src.wme_widgets.tab_pages import tab_page_base, md_viewer_page
+from src.wme_widgets.tab_pages import tab_page_base, md_viewer_page, diff_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.dialogs import essential_dialogs
 from src.utils import icon_manager
@@ -45,6 +45,9 @@ class WMETabWidget(QtWidgets.QTabWidget):
         #manual_action = self.tab_menu.addAction("User Manual")
         #manual_action.setToolTip("The User Manual explains WME features in depth.")
         #manual_action.triggered.connect(self.on_open_manual)
+        diff_page_action = self.tab_menu.addAction("Comparison Tool")
+        diff_page_action.setToolTip("Show differences between a mod and the game files or another mod.")
+        diff_page_action.triggered.connect(self.on_diff_page_action)
 
         self.setTabsClosable(True)
         self.tabCloseRequested.connect(self.on_tab_close_pressed)
@@ -99,10 +102,15 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.addTab(viewer, reference_icon, "NDF Reference")
 
     def on_open_manual(self):
-        manual_action = icon_manager.load_icon("help.png", COLORS.PRIMARY)
+        manual_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
         viewer = md_viewer_page.MdViewerPage("UserManual.md")
         # TODO: fill md file
-        self.addTab(viewer, manual_action, "User Manual")
+        self.addTab(viewer, manual_icon, "User Manual")
+
+    def on_diff_page_action(self, _):
+        diff_icon = icon_manager.load_icon("diff.png", COLORS.PRIMARY)
+        diff_page_widget = diff_page.DiffPage()
+        self.addTab(diff_page_widget, diff_icon, "Comparison Tool")
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
         ret = super().addTab(widget, icon, title)
