@@ -121,6 +121,9 @@ class DiffPage(tab_page_base.TabPageBase):
             self.results_layout.insertWidget(self.results_layout.count() - 1, diff_w)
 
         for diff_file in res_d:
+            if not diff_file.endswith(".ndf"):
+                continue
+
             path1 = str(mod_dir + "\\" + diff_file).replace("/", "\\")
             path2 = str(target + "\\" + diff_file).replace("/", "\\")
 
