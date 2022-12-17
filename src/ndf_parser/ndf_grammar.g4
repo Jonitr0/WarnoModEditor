@@ -7,6 +7,11 @@ expr: left=expr op=('*'|'/') right=expr        # InfixExpr
     | atom=BYE                                 # ByeExpr
     ;
 
+builtin_type = boolean | string | integer | float | pair | vector | map;
+boolean = T_BOOLEAN;
+string =
+integer = T_DIGIT+;
+
 HELLO: ('hello'|'hi')  ;
 BYE  : ('bye'| 'tata') ;
 INT  : [0-9]+         ;
@@ -59,5 +64,6 @@ K_MAP : M A P;
 // simple types
 
 T_BOOLEAN : ('true','false');
+T_DIGIT : [0-9];
 
 // TODO: define chars (UTF-8 without whitespaces and special chars)
