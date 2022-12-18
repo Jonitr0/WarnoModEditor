@@ -19,5 +19,10 @@ class NdfGrammarVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by NdfGrammarParser#boolean.
+    def visitBoolean(self, ctx:NdfGrammarParser.BooleanContext):
+        return self.visitChildren(ctx)
+
+
 
 del NdfGrammarParser

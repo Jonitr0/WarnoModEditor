@@ -26,5 +26,14 @@ class NdfGrammarListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by NdfGrammarParser#boolean.
+    def enterBoolean(self, ctx:NdfGrammarParser.BooleanContext):
+        pass
+
+    # Exit a parse tree produced by NdfGrammarParser#boolean.
+    def exitBoolean(self, ctx:NdfGrammarParser.BooleanContext):
+        pass
+
+
 
 del NdfGrammarParser
