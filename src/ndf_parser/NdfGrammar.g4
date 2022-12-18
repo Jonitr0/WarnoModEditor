@@ -1,21 +1,9 @@
-grammar ndf_grammar;
-expr: left=expr op=('*'|'/') right=expr        # InfixExpr
-    | left=expr op=('+'|'-') right=expr        # InfixExpr
-    | atom=INT                                 # NumberExpr
-    | '(' expr ')'                             # ParenExpr
-    | atom=HELLO                               # HelloExpr
-    | atom=BYE                                 # ByeExpr
-    ;
+grammar NdfGrammar;
 
-builtin_type = boolean | string | integer | float | pair | vector | map;
-boolean = T_BOOLEAN;
-string =
-integer = T_DIGIT+;
-
-HELLO: ('hello'|'hi')  ;
-BYE  : ('bye'| 'tata') ;
-INT  : [0-9]+         ;
-WS   : [ \t]+ -> skip ;
+builtin_type : boolean; // | string | integer | float | pair | vector | map;
+boolean : T_BOOLEAN ;
+//string = ( '"' .*? '"' | '\'' .*? '\'');
+//integer = (T_DIGIT+ | '0x' T_HEX+);
 
 // for case insensitivity
 
@@ -63,7 +51,8 @@ K_MAP : M A P;
 
 // simple types
 
-T_BOOLEAN : ('true','false');
-T_DIGIT : [0-9];
+T_BOOLEAN : ('true'|'false');
+//T_DIGIT : [0-9];
+//T_HEX : [0-9abcdef];
 
 // TODO: define chars (UTF-8 without whitespaces and special chars)
