@@ -1,8 +1,10 @@
 grammar NdfGrammar;
 
 ndf_file : builtin_type EOF;
-builtin_type : boolean | builtin_type boolean;
-boolean : ( K_TRUE | K_FALSE) ;
+builtin_type : boolean | integer | string | builtin_type builtin_type;
+boolean : K_TRUE | K_FALSE;
+string : STRING;
+integer : INT | HEXNUMBER;
 
 // case insnensitivity
 
@@ -41,3 +43,6 @@ K_FALSE : F A L S E;
 // other lexer rules
 
 WS : [ \t\r\n]+ -> skip ;
+STRING : '"' ( '\\"' | '\\\'' | . )*? '"' | '\'' ( '\\"' | '\\\'' | . )*? '\'';
+INT : '-'? [0-9]+;
+HEXNUMBER : '0' X [0-9a-f]+ ;

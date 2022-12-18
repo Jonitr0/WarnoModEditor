@@ -24,5 +24,15 @@ class NdfGrammarVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by NdfGrammarParser#string.
+    def visitString(self, ctx:NdfGrammarParser.StringContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by NdfGrammarParser#integer.
+    def visitInteger(self, ctx:NdfGrammarParser.IntegerContext):
+        return self.visitChildren(ctx)
+
+
 
 del NdfGrammarParser

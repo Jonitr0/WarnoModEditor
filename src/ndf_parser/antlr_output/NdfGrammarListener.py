@@ -35,5 +35,23 @@ class NdfGrammarListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by NdfGrammarParser#string.
+    def enterString(self, ctx:NdfGrammarParser.StringContext):
+        pass
+
+    # Exit a parse tree produced by NdfGrammarParser#string.
+    def exitString(self, ctx:NdfGrammarParser.StringContext):
+        pass
+
+
+    # Enter a parse tree produced by NdfGrammarParser#integer.
+    def enterInteger(self, ctx:NdfGrammarParser.IntegerContext):
+        pass
+
+    # Exit a parse tree produced by NdfGrammarParser#integer.
+    def exitInteger(self, ctx:NdfGrammarParser.IntegerContext):
+        pass
+
+
 
 del NdfGrammarParser

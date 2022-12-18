@@ -1,4 +1,10 @@
+35 10 -234 1212 -1324314 3
 
+0x1324 0xfff 0x0 0xabc3654
+
+"test" 'jpo' "" 'weird\"'
+
+False
 
        fAlse
 
