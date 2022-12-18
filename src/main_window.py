@@ -26,7 +26,7 @@ class MainWindow(QtWidgets.QMainWindow):
             QtCore.QCoreApplication.quit()
 
         warno_path = settings_manager.get_settings_value(settings_manager.WARNO_PATH_KEY)
-        self.resize(1152, 648)
+        self.resize(1280, 720)
         self.setWindowTitle("WARNO Mod Editor")
 
         shadow_widget = QtWidgets.QWidget()

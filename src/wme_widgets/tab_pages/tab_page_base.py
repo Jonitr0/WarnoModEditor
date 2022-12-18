@@ -1,5 +1,5 @@
 from PySide6 import QtWidgets, QtCore
-from src.dialogs import essential_dialogs, markdown_dialog
+from src.dialogs import essential_dialogs, rich_text_dialog
 
 # key: file_path, value: reference to page
 # stores references to all pages that have unsaved changes on a file
@@ -99,6 +99,6 @@ class TabPageBase(QtWidgets.QWidget):
         pass
 
     def on_help(self):
-        dialog = markdown_dialog.MarkdownDialog(self.help_file_path, "Help")
+        dialog = rich_text_dialog.RichTextDialog(self.help_file_path, "Help")
         dialog.exec_()
 
