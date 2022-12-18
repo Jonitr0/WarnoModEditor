@@ -53,6 +53,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.file_menu.addSeparator()
 
         self.add_action_to_menu("Options", self.file_menu, False, self.on_options_action, "Change WME settings")
+        self.add_action_to_menu("Report Issue..", self.file_menu, False, self.on_report_issue_action,
+                                "Report an issue on the WME GitHub page (opened in web browser)")
 
         self.edit_menu = self.addMenu("Edit")
         self.edit_menu.setToolTipsVisible(True)
@@ -185,6 +187,9 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
     def on_options_action(self):
         options_dialog.OptionsDialog().exec()
+
+    def on_report_issue_action(self):
+        QtGui.QDesktopServices.openUrl("https://github.com/Jonitr0/WarnoModEditor/issues")
 
     def generate_mod(self):
         # for whatever reason, the successful run returns 18?
