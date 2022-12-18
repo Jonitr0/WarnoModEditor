@@ -9,7 +9,7 @@ def main(argv):
     lexer = NdfGrammarLexer(input_stream)
     stream = CommonTokenStream(lexer)
     parser = NdfGrammarParser(stream)
-    tree = parser.startRule()
+    tree = parser.ndf_file()
 
 
 if __name__ == '__main__':

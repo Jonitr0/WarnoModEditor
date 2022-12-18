@@ -9,13 +9,13 @@ else:
 
 class NdfGrammarVisitor(ParseTreeVisitor):
 
-    # Visit a parse tree produced by NdfGrammarParser#builtin_type.
-    def visitBuiltin_type(self, ctx:NdfGrammarParser.Builtin_typeContext):
+    # Visit a parse tree produced by NdfGrammarParser#ndf_file.
+    def visitNdf_file(self, ctx:NdfGrammarParser.Ndf_fileContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by NdfGrammarParser#boolean.
-    def visitBoolean(self, ctx:NdfGrammarParser.BooleanContext):
+    # Visit a parse tree produced by NdfGrammarParser#builtin_type.
+    def visitBuiltin_type(self, ctx:NdfGrammarParser.Builtin_typeContext):
         return self.visitChildren(ctx)
 
 

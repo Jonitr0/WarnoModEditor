@@ -1,6 +1,6 @@
 grammar NdfGrammar;
 
-builtin_type : boolean;
-boolean : T_BOOLEAN ;
+ndf_file : builtin_type ;
+builtin_type : T_BOOLEAN ;
 
-T_BOOLEAN : ('true'|'false');
+T_BOOLEAN : ('true'|'false') ;
