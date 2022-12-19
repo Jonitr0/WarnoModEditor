@@ -84,7 +84,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.removeTab(index)
         self.tab_removed_by_button.emit()
 
-    def on_open_ndf_editor(self, file_path: str):
+    def on_open_ndf_editor(self, file_path: str) -> ndf_editor_page.NdfEditorPage:
         file_path = file_path.replace("/", "\\")
         file_name = file_path[file_path.rindex('\\') + 1:]
         editor_icon = icon_manager.load_icon("text_editor.png", COLORS.PRIMARY)
@@ -92,12 +92,19 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.addTab(editor, editor_icon, file_name)
         editor.open_file(file_path)
         editor.unsaved_changes = False
+        return editor
+
+    def on_open_and_find_ndf_editor(self, file_path: str, search_pattern: str):
+        editor = self.on_open_ndf_editor(file_path)
+        editor.find_action.setChecked(True)
+        editor.find_bar.line_edit.setText(search_pattern)
+        editor.code_editor.find_pattern(search_pattern)
 
     def on_global_search(self):
         page_icon = icon_manager.load_icon("magnify.png", COLORS.PRIMARY)
         page = global_search_page.GlobalSearchPage()
         self.addTab(page, page_icon, "Global Search")
-
+        page.search_line_edit.setFocus()
 
     def on_open_quickstart(self):
         quickstart_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
