@@ -32,6 +32,7 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 
         # L-value
         self.add_rule("\\w+\\s+(?=(is|=|\\:))", COLORS.L_VALUE)
+        self.add_rule("(?<=template)\\s+\\w+", COLORS.L_VALUE)
 
         # keywords
         keyword_pattern = "\\b(" + self.keywords[0]
