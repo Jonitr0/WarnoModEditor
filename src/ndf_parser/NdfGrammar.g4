@@ -1,10 +1,14 @@
 grammar NdfGrammar;
 
 ndf_file : builtin_type EOF;
-builtin_type : boolean | integer | string | builtin_type builtin_type;
+builtin_type : boolean | string | integer | float | pair | vector | map | builtin_type builtin_type;
 boolean : K_TRUE | K_FALSE;
 string : STRING;
 integer : INT | HEXNUMBER;
+float: FLOAT;
+pair: '(' builtin_type ',' builtin_type ')';
+vector: '[' (builtin_type (',' builtin_type)* ','?)? ']';
+map: K_MAP '[' (pair (',' pair)* ','?)? ']';
 
 // case insnensitivity
 
@@ -39,10 +43,15 @@ fragment Z : [zZ];
 
 K_TRUE : T R U E ;
 K_FALSE : F A L S E;
+K_MAP : M A P;
+
+// data types
+
+STRING : '"' ( '\\"' | . )*? '"' | '\'' ( '\\\'' | . )*? '\'';
+INT : '-'? [0-9]+;
+FLOAT: '-'? ( [0-9]+'.'[0-9]* | [0-9]*'.'[0-9]+ );
+HEXNUMBER : '0' X [0-9a-f]+;
 
 // other lexer rules
 
 WS : [ \t\r\n]+ -> skip ;
-STRING : '"' ( '\\"' | '\\\'' | . )*? '"' | '\'' ( '\\"' | '\\\'' | . )*? '\'';
-INT : '-'? [0-9]+;
-HEXNUMBER : '0' X [0-9a-f]+ ;

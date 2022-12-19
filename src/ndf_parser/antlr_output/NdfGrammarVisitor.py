@@ -34,5 +34,25 @@ class NdfGrammarVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by NdfGrammarParser#float.
+    def visitFloat(self, ctx:NdfGrammarParser.FloatContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by NdfGrammarParser#pair.
+    def visitPair(self, ctx:NdfGrammarParser.PairContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by NdfGrammarParser#vector.
+    def visitVector(self, ctx:NdfGrammarParser.VectorContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by NdfGrammarParser#map.
+    def visitMap(self, ctx:NdfGrammarParser.MapContext):
+        return self.visitChildren(ctx)
+
+
 
 del NdfGrammarParser

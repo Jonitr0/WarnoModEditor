@@ -53,5 +53,41 @@ class NdfGrammarListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by NdfGrammarParser#float.
+    def enterFloat(self, ctx:NdfGrammarParser.FloatContext):
+        pass
+
+    # Exit a parse tree produced by NdfGrammarParser#float.
+    def exitFloat(self, ctx:NdfGrammarParser.FloatContext):
+        pass
+
+
+    # Enter a parse tree produced by NdfGrammarParser#pair.
+    def enterPair(self, ctx:NdfGrammarParser.PairContext):
+        pass
+
+    # Exit a parse tree produced by NdfGrammarParser#pair.
+    def exitPair(self, ctx:NdfGrammarParser.PairContext):
+        pass
+
+
+    # Enter a parse tree produced by NdfGrammarParser#vector.
+    def enterVector(self, ctx:NdfGrammarParser.VectorContext):
+        pass
+
+    # Exit a parse tree produced by NdfGrammarParser#vector.
+    def exitVector(self, ctx:NdfGrammarParser.VectorContext):
+        pass
+
+
+    # Enter a parse tree produced by NdfGrammarParser#map.
+    def enterMap(self, ctx:NdfGrammarParser.MapContext):
+        pass
+
+    # Exit a parse tree produced by NdfGrammarParser#map.
+    def exitMap(self, ctx:NdfGrammarParser.MapContext):
+        pass
+
+
 
 del NdfGrammarParser

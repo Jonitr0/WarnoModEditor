@@ -12,3 +12,15 @@ class CustomNdfListener(NdfGrammarListener):
 
     def exitInteger(self, ctx:NdfGrammarParser.IntegerContext):
         print("Found an int: " + ctx.getText())
+
+    def exitFloat(self, ctx:NdfGrammarParser.FloatContext):
+        print("Found a float: " + ctx.getText())
+
+    def exitPair(self, ctx:NdfGrammarParser.PairContext):
+        print("Found a pair: " + ctx.getText())
+
+    def exitVector(self, ctx:NdfGrammarParser.VectorContext):
+        print("Found a vector: " + ctx.getText())
+
+    def enterMap(self, ctx:NdfGrammarParser.MapContext):
+        print("Found a map: " + ctx.getText())
