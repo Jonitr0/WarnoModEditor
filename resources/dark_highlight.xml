@@ -7,4 +7,5 @@
   <color name="singleCommentColor">#8e8e8e</color>
   <color name="multiCommentColor">#d2ce56</color>
   <color name="findHighlightColor">#00701a</color>
+  <color name="lValueColor">#6ff9ff</color>
 </resources>
