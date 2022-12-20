@@ -124,11 +124,14 @@ class DiffPage(tab_page_base.TabPageBase):
             if not diff_file.endswith(".ndf"):
                 continue
 
+            print(diff_file)
+
             path1 = str(mod_dir + "\\" + diff_file).replace("/", "\\")
             path2 = str(target + "\\" + diff_file).replace("/", "\\")
 
             with open(path1, 'r') as file1, open(path2, 'r') as file2:
                 d = difflib.Differ()
+                # TODO: this is too slow, look here: https://stackoverflow.com/questions/10801760/comparing-two-large-files/10801819?noredirect=1#comment88476567_10801819
                 diff = d.compare(file1.readlines(), file2.readlines())
 
                 # TODO: put result in data structure
@@ -139,12 +142,16 @@ class DiffPage(tab_page_base.TabPageBase):
                     if code == "  ":
                         line_number_new += 1
                         line_number_old += 1
+                        print(line_number_new)
                     if code == "- ":
                         line_number_new += 1
-                        print("new " + str(line_number_new) + ": " + line.removesuffix("\n")[2:])
+                        #print("new " + str(line_number_new) + ": " + line.removesuffix("\n")[2:])
+                        print(line_number_new)
                     elif code == "+ ":
                         line_number_old += 1
-                        print("old " + str(line_number_old) + ": " + line.removesuffix("\n")[2:])
+                        #print("old " + str(line_number_old) + ": " + line.removesuffix("\n")[2:])
+                        print(line_number_old)
+                print("done")
 
         if delete:
             try:
