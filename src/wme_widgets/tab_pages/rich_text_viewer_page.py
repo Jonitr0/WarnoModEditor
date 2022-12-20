@@ -1,4 +1,4 @@
-# tab page that displays markdown files
+# tab page that displays html files
 
 from PySide6 import QtWidgets
 from PySide6.QtCore import Qt

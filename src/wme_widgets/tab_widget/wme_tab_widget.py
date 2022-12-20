@@ -4,7 +4,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
-from src.wme_widgets.tab_pages import tab_page_base, rich_text_viewer_page
+from src.wme_widgets.tab_pages import tab_page_base, rich_text_viewer_page, global_search_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.dialogs import essential_dialogs
 from src.utils import icon_manager
@@ -34,6 +34,12 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.tab_menu = QtWidgets.QMenu()
         self.tab_menu.setToolTipsVisible(True)
         new_tab_button.setMenu(self.tab_menu)
+
+        global_search_action = self.tab_menu.addAction("Global Search")
+        global_search_action.setToolTip("Search for text in all files of your mod.")
+        global_search_action.triggered.connect(self.on_global_search)
+
+        self.tab_menu.addSeparator()
 
         quickstart_action = self.tab_menu.addAction("Quickstart Guide")
         quickstart_action.setToolTip("The Quickstart Guide walks you through the basics of using WME.")
@@ -78,7 +84,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.removeTab(index)
         self.tab_removed_by_button.emit()
 
-    def on_open_ndf_editor(self, file_path: str):
+    def on_open_ndf_editor(self, file_path: str) -> ndf_editor_page.NdfEditorPage:
         file_path = file_path.replace("/", "\\")
         file_name = file_path[file_path.rindex('\\') + 1:]
         editor_icon = icon_manager.load_icon("text_editor.png", COLORS.PRIMARY)
@@ -86,6 +92,19 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.addTab(editor, editor_icon, file_name)
         editor.open_file(file_path)
         editor.unsaved_changes = False
+        return editor
+
+    def on_open_and_find_ndf_editor(self, file_path: str, search_pattern: str):
+        editor = self.on_open_ndf_editor(file_path)
+        editor.find_action.setChecked(True)
+        editor.find_bar.line_edit.setText(search_pattern)
+        editor.code_editor.find_pattern(search_pattern)
+
+    def on_global_search(self):
+        page_icon = icon_manager.load_icon("magnify.png", COLORS.PRIMARY)
+        page = global_search_page.GlobalSearchPage()
+        self.addTab(page, page_icon, "Global Search")
+        page.search_line_edit.setFocus()
 
     def on_open_quickstart(self):
         quickstart_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
