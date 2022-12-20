@@ -108,7 +108,7 @@ class SearchResultWidget(QtWidgets.QFrame):
         main_layout.addStretch(1)
 
         button = QtWidgets.QPushButton("Open in Text Editor")
-        button.pressed.connect(self.on_button_pressed)
+        button.clicked.connect(self.on_button_pressed)
         main_layout.addWidget(button)
 
     def on_button_pressed(self):

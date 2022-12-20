@@ -6,6 +6,6 @@
   <color name="stringsColor">#7cb342</color>
   <color name="singleCommentColor">#8e8e8e</color>
   <color name="multiCommentColor">#d2ce56</color>
-  <color name="findHighlightColor">#00701a</color>
+  <color name="findHighlightColor">#b0ff57</color>
   <color name="lValueColor">#009faf</color>
 </resources>
