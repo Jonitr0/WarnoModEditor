@@ -25,7 +25,7 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
     multiline_comment_format = QtGui.QTextCharFormat()
 
     keywords = ["export", "is", "template", "unnamed", "nil", "private", "div"]
-    types = ["vector", "map", "list", "int", "string", "true", "false", "bool", "rgba"]
+    types = ["vector", "map", "list", "int", "string", "true", "false", "bool", "rgba", "float"]
 
     def __init__(self, parent=None):
         super().__init__(parent)
