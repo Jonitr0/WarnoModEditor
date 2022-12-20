@@ -1,5 +1,7 @@
 import sys
 from antlr4 import *
+from antlr4.tree.Trees import Trees
+
 from src.ndf_parser.antlr_output.NdfGrammarLexer import NdfGrammarLexer
 from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
 
@@ -16,6 +18,8 @@ def main(argv):
     listener = custom_ndf_listener.CustomNdfListener()
     walker = ParseTreeWalker()
     walker.walk(listener, tree)
+
+    print(Trees.toStringTree(tree, None, parser))
 
 
 if __name__ == '__main__':

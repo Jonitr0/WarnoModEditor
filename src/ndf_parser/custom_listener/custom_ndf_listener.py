@@ -22,5 +22,8 @@ class CustomNdfListener(NdfGrammarListener):
     def exitVector(self, ctx:NdfGrammarParser.VectorContext):
         print("Found a vector: " + ctx.getText())
 
-    def enterMap(self, ctx:NdfGrammarParser.MapContext):
+    def exitMap(self, ctx:NdfGrammarParser.MapContext):
         print("Found a map: " + ctx.getText())
+
+    def exitAssignment(self, ctx:NdfGrammarParser.AssignmentContext):
+        print("Found an assignment: " + ctx.getText())
