@@ -27,3 +27,69 @@
 
 Hello is map [(1,2), (2,7)]
 Stuff : string    is "joaasd" + "llol"
+
+Flag_Artillerie is 0
+Flag_Avion is 1
+Flag_Batiment is 2
+Flag_Blessable is 3
+Flag_CannotBeShootReflex is 4
+Flag_Combattant is 5
+Flag_Detectable is 6
+Flag_EnCombat is 7
+Flag_Highlightable is 8
+Flag_Infanterie is 9
+Flag_LdDetectable is 10
+Flag_Selectionnable is 11
+Flag_Tank is 12
+Flag_Target is 13
+Flag_VehiculeVolant is 15
+Flag_IsAttacked is 16
+Flag_CannotAttackEnReflex is 17
+Flag_CannotBeTargeted is 18
+Flag_AlreadyModifiePorteeDuTirUnitGroup is 19
+Flag_AlreadyGroupDesarme is 20
+Flag_AlreadyUnitGroupIncontrolable is 21
+Flag_LowAltitudeFlying is 22
+Flag_NearGroundFlying is 23
+Flag_DetectableLowAltitude is 24
+Flag_HighAltitudeFlying is 25
+Flag_FakeTarget is 26
+Flag_FakeTargetInGeoDB is 27
+Flag_ProjectileFlying is 28
+Flag_SousTirArtillerie is 33
+Flag_DEPRECATED_NePasUtiliser_OnlyForBriquePython_Helico is 35
+Flag_DEPRECATED_NePasUtiliser_OnlyForBriquePython_UniteDeCommandement is 36
+
+BrickEffectSourceDescriptor is TEffectSourceDescriptor
+(
+    DescriptorId                     = GUID:{00effec0-0000-0000-0000-effec0effec0}
+)
+
+BuildingUnderConstructionEffectSourceDescriptor is TEffectSourceDescriptor
+(
+    DescriptorId                     = GUID:{00effec0-0000-0000-0000-effec0effec1}
+)
+
+CommanderEffectSourceDescriptor is TEffectSourceDescriptor
+(
+    DescriptorId                     = GUID:{00effec0-0000-0000-0000-effec0effec6}
+)
+
+HitCriticalEffectSourceDescriptor is TEffectSourceDescriptor
+(
+    DescriptorId                     = GUID:{00effec0-0000-0000-0000-effec0effec2}
+)
+
+TerrainCriticalEffectSourceDescriptor is TEffectSourceDescriptor
+(
+    DescriptorId                     = GUID:{00effec0-0000-0000-0000-effec0effec5}
+)
+
+EffectsConstantes is TEffectsConstantes
+(
+    BrickEffectSourceDescriptor                     = BrickEffectSourceDescriptor
+    BuildingUnderConstructionEffectSourceDescriptor = BuildingUnderConstructionEffectSourceDescriptor
+    CommanderEffectSourceDescriptor                 = CommanderEffectSourceDescriptor
+    HitCriticalEffectSourceDescriptor               = HitCriticalEffectSourceDescriptor
+    TerrainCriticalEffectSourceDescriptor           = TerrainCriticalEffectSourceDescriptor
+)

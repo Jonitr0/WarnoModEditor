@@ -7,7 +7,9 @@
 ndf_file : block* EOF;
 block : assignment;
 assignment : id K_IS r_value;
-r_value : arithmetic | concatination | builtin_type_value;
+r_value : arithmetic | concatination | builtin_type_value | object;
+object : ID '(' ( block | member_assignment ) ')';
+member_assignment : id '=' r_value;
 id : ID (':' builtin_type_label)?;
 
 // operations
@@ -24,7 +26,7 @@ map_label : K_MAP '<' builtin_type_label ',' builtin_type_label '>';
 
 // builtin types: values
 
-builtin_type_value : bool_value | string_value | int_value | float_value | pair_value | vector_value | map_value;
+builtin_type_value : bool_value | string_value | int_value | float_value | pair_value | vector_value | map_value | GUID;
 bool_value : K_TRUE | K_FALSE;
 string_value : STRING;
 int_value : INT | HEXNUMBER;
@@ -32,6 +34,8 @@ float_value: FLOAT;
 pair_value: '(' builtin_type_value ',' builtin_type_value ')';
 vector_value: '[' (builtin_type_value (',' builtin_type_value)* ','?)? ']';
 map_value: K_MAP '[' (pair_value (',' pair_value)* ','?)? ']';
+
+// TODO: add reference value
 
 // --- lexer rules --- //
 
@@ -56,11 +60,13 @@ K_LIST : L I S T;
 STRING : '"' ( '\\"' | . )*? '"' | '\'' ( '\\\'' | . )*? '\'';
 INT : '-'? [0-9]+;
 FLOAT: '-'? ( [0-9]+'.'[0-9]* | [0-9]*'.'[0-9]+ );
-HEXNUMBER : '0' X [0-9a-f]+;
+fragment HEXDIGIT : [0-9a-f];
+HEXNUMBER : '0' X HEXDIGIT+;
+GUID: 'GUID:{' (HEXDIGIT|'-')* '}';
 
 // other lexer rules
 
-ID : [a-zA-Z0-9]+ ;
+ID : [a-zA-Z0-9_]+ ;
 OP : '+' | '-' | '*' | K_DIV ;
 WS : [ \t\r\n]+ -> skip ;
 COMMENT : '//' (.*? [\r\n] | ~[\r\n]*? EOF) -> skip ;
