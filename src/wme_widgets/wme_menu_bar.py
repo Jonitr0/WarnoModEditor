@@ -206,7 +206,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         # TODO: check whether this messes with upload
         # restore old config, if applicable
         if QtCore.QFile.exists(config_path + "Config_tmp.ini"):
-            os.remove(config_path + "Config.ini")
+            if QtCore.QFile.exists(config_path + "Config.ini"):
+                os.remove(config_path + "Config.ini")
             os.rename(config_path + "Config_tmp.ini", config_path + "Config.ini")
 
     def on_edit_config_action(self):
