@@ -24,6 +24,7 @@ class WarnoPathDialog(BaseDialog):
         name_label = QtWidgets.QLabel("Name")
         name_label.setToolTip("The name of the mod as it will be displayed in-game and on Steam Workshop.")
         form_layout.addRow(name_label, name_line_edit)
+        # TODO: show warning when name is not directory name
 
         self.description_text_edit.setPlainText(str(self.config_values["Properties/Description"]))
         self.description_text_edit.textChanged.connect(self.on_description_changed)
@@ -96,3 +97,5 @@ class WarnoPathDialog(BaseDialog):
 
     def get_config_values(self):
         return self.config_values
+
+    # TODO: warning on cancel
