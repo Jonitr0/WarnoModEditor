@@ -127,6 +127,7 @@ class MainWidget(QtWidgets.QWidget):
         # ask all tabs on all windows to save/discard, return False on cancel
         return self.tab_widget.ask_all_tabs_to_save(all_windows=True)
 
+    # TODO: loadscreen currently only on main window, not on detached
     def show_loading_screen(self, text: str = "loading..."):
         self.load_screen.setText(text)
         self.load_screen.setHidden(False)

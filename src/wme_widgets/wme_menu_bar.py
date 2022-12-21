@@ -53,6 +53,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.file_menu.addSeparator()
 
         self.add_action_to_menu("Options", self.file_menu, False, self.on_options_action, "Change WME settings")
+        self.add_action_to_menu("Report Issue..", self.file_menu, False, self.on_report_issue_action,
+                                "Report an issue on the WME GitHub page (opened in web browser)")
 
         self.edit_menu = self.addMenu("Edit")
         self.edit_menu.setToolTipsVisible(True)
@@ -186,6 +188,9 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def on_options_action(self):
         options_dialog.OptionsDialog().exec()
 
+    def on_report_issue_action(self):
+        QtGui.QDesktopServices.openUrl("https://github.com/Jonitr0/WarnoModEditor/issues")
+
     def generate_mod(self):
         # for whatever reason, the successful run returns 18?
         ret_code = run_script(self.main_widget_ref.get_loaded_mod_path(), "GenerateMod.bat", [])
@@ -201,7 +206,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         # TODO: check whether this messes with upload
         # restore old config, if applicable
         if QtCore.QFile.exists(config_path + "Config_tmp.ini"):
-            os.remove(config_path + "Config.ini")
+            if QtCore.QFile.exists(config_path + "Config.ini"):
+                os.remove(config_path + "Config.ini")
             os.rename(config_path + "Config_tmp.ini", config_path + "Config.ini")
 
     def on_edit_config_action(self):

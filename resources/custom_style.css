@@ -84,7 +84,7 @@ QPlainTextEdit#code_editor {{
   font: 10pt 'Courier New';
 }}
 
-QFrame#diff_widget {{
+QFrame#list_entry {{
   border-radius: 0px;
   border-width: 1px;
   border-color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
@@ -114,3 +114,7 @@ QMenu {{
 }}
 
 QToolButton::menu-indicator {{ image: none; }}
+
+SearchResultWidget {{
+  color: {QTMATERIAL_PRIMARYCOLOR};
+}}

@@ -25,10 +25,14 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
     multiline_comment_format = QtGui.QTextCharFormat()
 
     keywords = ["export", "is", "template", "unnamed", "nil", "private", "div"]
-    types = ["vector", "map", "list", "int", "string", "true", "false", "bool", "rgba"]
+    types = ["vector", "map", "list", "int", "string", "true", "false", "bool", "rgba", "float"]
 
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        # L-value
+        self.add_rule("\\w+\\s+(?=(is|=|\\:))", COLORS.L_VALUE)
+        self.add_rule("(?<=template)\\s+\\w+", COLORS.L_VALUE)
 
         # keywords
         keyword_pattern = "\\b(" + self.keywords[0]

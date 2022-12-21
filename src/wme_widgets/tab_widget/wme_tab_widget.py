@@ -4,7 +4,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
-from src.wme_widgets.tab_pages import tab_page_base, md_viewer_page, diff_page
+from src.wme_widgets.tab_pages import tab_page_base, rich_text_viewer_page, global_search_page, diff_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.dialogs import essential_dialogs
 from src.utils import icon_manager
@@ -35,19 +35,26 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.tab_menu.setToolTipsVisible(True)
         new_tab_button.setMenu(self.tab_menu)
 
+        global_search_action = self.tab_menu.addAction("Global Search")
+        global_search_action.setToolTip("Search for text in all files of your mod.")
+        global_search_action.triggered.connect(self.on_global_search)
+
+        diff_page_action = self.tab_menu.addAction("Comparison Tool")
+        diff_page_action.setToolTip("Show differences between a mod and the game files or another mod.")
+        diff_page_action.triggered.connect(self.on_diff_page_action)
+
+        self.tab_menu.addSeparator()
+
         quickstart_action = self.tab_menu.addAction("Quickstart Guide")
         quickstart_action.setToolTip("The Quickstart Guide walks you through the basics of using WME.")
         quickstart_action.triggered.connect(self.on_open_quickstart)
-        # TODO: add actions as soon as md files are ready
+        # TODO: add actions as soon as html files are ready
         #ndf_reference_action = self.tab_menu.addAction("NDF Reference")
         #ndf_reference_action.setToolTip("The NDF Reference contains rules and conventions of the NDF language.")
         #ndf_reference_action.triggered.connect(self.on_open_ndf_reference)
         #manual_action = self.tab_menu.addAction("User Manual")
         #manual_action.setToolTip("The User Manual explains WME features in depth.")
         #manual_action.triggered.connect(self.on_open_manual)
-        diff_page_action = self.tab_menu.addAction("Comparison Tool")
-        diff_page_action.setToolTip("Show differences between a mod and the game files or another mod.")
-        diff_page_action.triggered.connect(self.on_diff_page_action)
 
         self.setTabsClosable(True)
         self.tabCloseRequested.connect(self.on_tab_close_pressed)
@@ -81,7 +88,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.removeTab(index)
         self.tab_removed_by_button.emit()
 
-    def on_open_ndf_editor(self, file_path: str):
+    def on_open_ndf_editor(self, file_path: str) -> ndf_editor_page.NdfEditorPage:
         file_path = file_path.replace("/", "\\")
         file_name = file_path[file_path.rindex('\\') + 1:]
         editor_icon = icon_manager.load_icon("text_editor.png", COLORS.PRIMARY)
@@ -89,23 +96,36 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.addTab(editor, editor_icon, file_name)
         editor.open_file(file_path)
         editor.unsaved_changes = False
+        return editor
+
+    def on_open_and_find_ndf_editor(self, file_path: str, search_pattern: str):
+        editor = self.on_open_ndf_editor(file_path)
+        editor.find_action.setChecked(True)
+        editor.find_bar.line_edit.setText(search_pattern)
+        editor.code_editor.find_pattern(search_pattern)
+
+    def on_global_search(self):
+        page_icon = icon_manager.load_icon("magnify.png", COLORS.PRIMARY)
+        page = global_search_page.GlobalSearchPage()
+        self.addTab(page, page_icon, "Global Search")
+        page.search_line_edit.setFocus()
 
     def on_open_quickstart(self):
         quickstart_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
-        viewer = md_viewer_page.MdViewerPage("Quickstart.md")
+        viewer = rich_text_viewer_page.RichTextViewerPage("Quickstart.html")
         self.addTab(viewer, quickstart_icon, "Quickstart Guide")
 
     def on_open_ndf_reference(self):
         reference_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
-        viewer = md_viewer_page.MdViewerPage("NdfReference.md")
-        # TODO: fill md file
+        viewer = rich_text_viewer_page.RichTextViewerPage("NdfReference.md")
+        # TODO: fill md file, convert to html
         self.addTab(viewer, reference_icon, "NDF Reference")
 
     def on_open_manual(self):
-        manual_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
-        viewer = md_viewer_page.MdViewerPage("UserManual.md")
-        # TODO: fill md file
-        self.addTab(viewer, manual_icon, "User Manual")
+        manual_action = icon_manager.load_icon("help.png", COLORS.PRIMARY)
+        viewer = rich_text_viewer_page.RichTextViewerPage("UserManual.md")
+        # TODO: fill md file, convert to html
+        self.addTab(viewer, manual_action, "User Manual")
 
     def on_diff_page_action(self, _):
         diff_icon = icon_manager.load_icon("diff.png", COLORS.PRIMARY)
