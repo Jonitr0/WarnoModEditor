@@ -4,8 +4,9 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
-from src.wme_widgets.tab_pages import tab_page_base, rich_text_viewer_page, global_search_page, diff_page
+from src.wme_widgets.tab_pages import tab_page_base, rich_text_viewer_page, global_search_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
+from src.wme_widgets.tab_pages.diff_page import diff_page
 from src.dialogs import essential_dialogs
 from src.utils import icon_manager
 from src.utils.color_manager import *

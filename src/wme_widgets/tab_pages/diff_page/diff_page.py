@@ -1,9 +1,10 @@
-import difflib
-
 from PySide6 import QtWidgets, QtCore
+from PySide6.QtCore import Qt
 
+from src.wme_widgets.tab_pages.diff_page import diff_widget
 from src.wme_widgets.tab_pages import tab_page_base
 from src.wme_widgets import main_widget
+from src.dialogs import essential_dialogs
 
 from filecmp import dircmp
 
@@ -51,7 +52,7 @@ class DiffPage(tab_page_base.TabPageBase):
         results_area.setWidget(results_list_widget)
         results_list_widget.setLayout(self.results_layout)
 
-        self.results_layout.addStretch(1)
+        self.results_layout.setAlignment(Qt.AlignTop)
         self.results_layout.setSpacing(0)
 
     def load_mods_to_combobox(self):
@@ -78,25 +79,21 @@ class DiffPage(tab_page_base.TabPageBase):
             if widget_to_remove:
                 widget_to_remove.setParent(None)
 
+        target = self.target_combobox.currentData()
+        if target != "unmodded" and not os.path.exists(target):
+            essential_dialogs.MessageDialog("Error!", "Mod " +
+                                            self.target_combobox.currentText() + " not found!").show()
+            return
+
         main_widget.MainWidget.instance.show_loading_screen("Running comparison...")
 
-        target = self.target_combobox.currentData()
         mod_dir = main_widget.MainWidget.instance.get_loaded_mod_path()
         delete = False
         # comparison with original files
         if target == "unmodded":
-            # copy and unzip mod data to randomly named dir, delete it afterwards
-            mods_base_dir = mod_dir[:mod_dir.rindex('\\')]
-            target = mods_base_dir + "\\" + ''.join(random.choice(string.ascii_letters) for i in range(8))
-            shutil.copytree(mods_base_dir + "\\ModData", target)
-            newbase = os.path.join(mods_base_dir + "\\ModData", "base.zip")
-            with zipfile.ZipFile(newbase, 'r') as archive:
-                archive.extractall(target)
-            try:
-                shutil.rmtree(os.path.join(target, ".base"))
-            except Exception as e:
-                logging.error(e)
+            target = self.create_tmp_mod()
             delete = True
+
         res = dircmp(mod_dir, target)
         res_d, res_l, res_r = self.compare_subdirs(res, [], [], [])
 
@@ -111,47 +108,23 @@ class DiffPage(tab_page_base.TabPageBase):
         print(res_r)
 
         for diff_file in res_l:
-            diff_w = DiffWidget(self)
+            diff_w = diff_widget.DiffWidget(self)
             diff_w.left_only(diff_file, left_name)
-            self.results_layout.insertWidget(self.results_layout.count() - 1, diff_w)
+            self.results_layout.addWidget(diff_w)
 
         for diff_file in res_r:
-            diff_w = DiffWidget(self)
+            diff_w = diff_widget.DiffWidget(self)
             diff_w.right_only(diff_file, right_name)
-            self.results_layout.insertWidget(self.results_layout.count() - 1, diff_w)
+            self.results_layout.addWidget(diff_w)
 
         for diff_file in res_d:
-            if not diff_file.endswith(".ndf"):
+            changed_lines, left_lines, right_lines = self.compare_files(diff_file, mod_dir, target)
+            if len(changed_lines) == 0:
                 continue
 
-            print(diff_file)
-
-            path1 = str(mod_dir + "\\" + diff_file).replace("/", "\\")
-            path2 = str(target + "\\" + diff_file).replace("/", "\\")
-
-            with open(path1, 'r') as file1, open(path2, 'r') as file2:
-                d = difflib.Differ()
-                # TODO: this is too slow, look here: https://stackoverflow.com/questions/10801760/comparing-two-large-files/10801819?noredirect=1#comment88476567_10801819
-                diff = d.compare(file1.readlines(), file2.readlines())
-
-                # TODO: put result in data structure
-                line_number_new = 0
-                line_number_old = 0
-                for line in diff:
-                    code = line[:2]
-                    if code == "  ":
-                        line_number_new += 1
-                        line_number_old += 1
-                        print(line_number_new)
-                    if code == "- ":
-                        line_number_new += 1
-                        #print("new " + str(line_number_new) + ": " + line.removesuffix("\n")[2:])
-                        print(line_number_new)
-                    elif code == "+ ":
-                        line_number_old += 1
-                        #print("old " + str(line_number_old) + ": " + line.removesuffix("\n")[2:])
-                        print(line_number_old)
-                print("done")
+            diff_w = diff_widget.DiffWidget(self)
+            diff_w.changed_text_file(diff_file, changed_lines, left_lines, right_lines)
+            self.results_layout.addWidget(diff_w)
 
         if delete:
             try:
@@ -163,6 +136,21 @@ class DiffPage(tab_page_base.TabPageBase):
             self.results_layout.insertWidget(self.results_layout.count() - 1, QtWidgets.QLabel("No differences found."))
 
         main_widget.MainWidget.instance.hide_loading_screen()
+
+    # copy and unzip mod data to randomly named dir, delete it afterwards
+    def create_tmp_mod(self):
+        mod_dir = main_widget.MainWidget.instance.get_loaded_mod_path()
+        mods_base_dir = mod_dir[:mod_dir.rindex('\\')]
+        target = mods_base_dir + "\\" + ''.join(random.choice(string.ascii_letters) for i in range(8))
+        shutil.copytree(mods_base_dir + "\\ModData", target)
+        new_base = os.path.join(mods_base_dir + "\\ModData", "base.zip")
+        with zipfile.ZipFile(new_base, 'r') as archive:
+            archive.extractall(target)
+        try:
+            shutil.rmtree(os.path.join(target, ".base"))
+        except Exception as e:
+            logging.error(e)
+        return target
 
     def compare_subdirs(self, dcmp: dircmp, diffs: list[str], left: list[str], right: list[str], path=""):
         # add full path to diffs and left/right
@@ -186,40 +174,23 @@ class DiffPage(tab_page_base.TabPageBase):
 
         return diffs, left, right
 
-    def compare_files(self):
-        pass
+    def compare_files(self, diff_file: str, mod_dir: str, target: str):
+        if not diff_file.endswith(".ndf"):
+            return [], [], []
 
+        path1 = str(mod_dir + "\\" + diff_file).replace("/", "\\")
+        path2 = str(target + "\\" + diff_file).replace("/", "\\")
 
-# TODO: add colored icon for faster readability
-class DiffWidget(QtWidgets.QFrame):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+        changed_lines = []
+        lines1 = []
+        lines2 = []
+        with open(path1, 'r') as file1, open(path2, 'r') as file2:
+            lines1 = file1.readlines()
+            lines2 = file2.readlines()
 
-        # TODO: make this a layout to list multiple potential diffs
-        self.text_edit = QtWidgets.QTextEdit()
-        self.open_in_editor_button = QtWidgets.QPushButton("Open in text editor")
-        self.info_label = QtWidgets.QLabel()
-        self.setObjectName("diff_widget")
-        self.setup_ui()
+            line_count = min(len(lines1), len(lines2))
+            for i in range(line_count):
+                if lines1[i] != lines2[i]:
+                    changed_lines.append(i)
 
-    def setup_ui(self):
-        main_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(main_layout)
-
-        info_layout = QtWidgets.QHBoxLayout()
-        main_layout.addLayout(info_layout)
-
-        info_layout.addWidget(self.info_label)
-        info_layout.addStretch(1)
-        info_layout.addWidget(self.open_in_editor_button)
-
-        main_layout.addWidget(self.text_edit)
-
-    def left_only(self, diff_name: str, left_name: str):
-        self.info_label.setText(diff_name + " only exists in " + left_name)
-        self.text_edit.setHidden(True)
-
-    def right_only(self, diff_name: str, right_name: str):
-        self.info_label.setText(diff_name + " only exists in " + right_name)
-        self.open_in_editor_button.setHidden(True)
-        self.text_edit.setHidden(True)
+        return changed_lines, lines1, lines2
