@@ -6,6 +6,11 @@ class DiffWidget(QtWidgets.QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        # lines before and after each diff block
+        self.buffer_lines = 1
+        # max. number of identical lines between two diff blocks
+        self.max_space_between_diff_blocks = 3
+
         # TODO: make this a layout to list multiple potential diffs
         self.text_edit = QtWidgets.QTextEdit()
         self.open_in_editor_button = QtWidgets.QPushButton("Open in text editor")
@@ -37,3 +42,6 @@ class DiffWidget(QtWidgets.QFrame):
 
     def changed_text_file(self, diff_name: str, changed_lines: list, left_lines: list, right_lines: list):
         self.info_label.setText(diff_name + " contains " + str(len(changed_lines)) + " changed line(s):")
+        # TODO: create diff blocks
+        # TODO: add text edit per diff block
+        # TODO: add open in editor button per diff block
