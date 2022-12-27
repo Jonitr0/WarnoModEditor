@@ -11,11 +11,9 @@ class DiffWidget(QtWidgets.QFrame):
         super().__init__(parent)
 
         # lines before and after each diff block
-        self.buffer_lines = 1
+        self.buffer_lines = 3
         # max. number of identical lines between two diff blocks
         self.max_space_between_diff_blocks = 3
-        # max. number of adjacent changed lines until break
-        self.max_diff_display_length = 10
 
         self.open_in_editor_button = QtWidgets.QPushButton("Open in text editor")
         self.info_label = QtWidgets.QLabel()
@@ -24,7 +22,7 @@ class DiffWidget(QtWidgets.QFrame):
         self.setObjectName("list_entry")
         self.setup_ui()
 
-        self.buttons_to_data = {}
+        self.buttons_to_file = {}
 
     def setup_ui(self):
         main_layout = QtWidgets.QVBoxLayout()
@@ -43,7 +41,7 @@ class DiffWidget(QtWidgets.QFrame):
         self.info_label.setText(diff_name + " only exists in " + left_name)
         # TODO: only show button if file
 
-        self.buttons_to_data[self.open_in_editor_button] = (diff_name, 0)
+        self.buttons_to_file[self.open_in_editor_button] = (diff_name, 0)
         self.open_in_editor_button.pressed.connect(self.on_open_in_editor)
 
     def right_only(self, diff_name: str, right_name: str):
@@ -66,7 +64,8 @@ class DiffWidget(QtWidgets.QFrame):
         for i in range(len(changed_lines)):
             current_block.append(changed_lines[i])
 
-            if i < len(changed_lines)-1 and changed_lines[i+1]-changed_lines[i] > self.max_space_between_diff_blocks:
+            if i < len(changed_lines) - 1 and changed_lines[i + 1] - changed_lines[
+                i] > self.max_space_between_diff_blocks:
                 diff_blocks.append(current_block)
                 current_block = []
 
@@ -83,15 +82,29 @@ class DiffWidget(QtWidgets.QFrame):
         header_layout.addWidget(header_button)
         header_button.pressed.connect(self.on_open_in_editor)
 
-        self.buttons_to_data[header_button] = (diff_name, diff_block[0])
+        self.buttons_to_file[header_button] = (diff_name, diff_block[0])
 
         self.diff_layout.addLayout(header_layout)
 
         start_line = max(diff_block[0] - self.buffer_lines, 0)
-        end_line = min(diff_block[len(diff_block)-1] + self.buffer_lines, len(left_lines)-1)
-        # TODO: add block to textedit
+        end_line = min(diff_block[len(diff_block) - 1] + self.buffer_lines, len(left_lines) - 1)
+        total_lines = end_line - start_line + 1
+
+        text_edit = diff_code_editor.DiffCodeEditor()
+        self.diff_layout.addWidget(text_edit)
+        # index for diff_block
+        j = 0
+        for i in range(total_lines):
+            line_index = start_line + i
+            # the next line is not a changed line
+            if line_index != diff_block[j]:
+                text_edit.add_line(left_lines[line_index], 0)
+            else:
+                text_edit.add_line(left_lines[line_index], 1)
+                text_edit.add_line(right_lines[line_index], 2)
+                if j < len(diff_block) - 1:
+                    j += 1
 
     def on_open_in_editor(self):
-        data = self.buttons_to_data[self.sender()]
+        data = self.buttons_to_file[self.sender()]
         self.request_open_in_text_editor.emit(data[0], data[1])
-

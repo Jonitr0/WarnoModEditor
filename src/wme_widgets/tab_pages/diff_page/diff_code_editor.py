@@ -22,8 +22,51 @@ class DiffCodeEditor(QtWidgets.QPlainTextEdit):
 
         highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
 
+        self.textChanged.connect(self.on_text_changed)
+
+    def on_text_changed(self):
+        s = self.document().size().toSize()
+        font_height = self.fontMetrics().height()
+        self.setFixedHeight((s.height() + 1) * font_height)
+
     def add_line(self, text: str, mode: LineMode):
-        # TODO: add line to editor
+        text = text.removesuffix("\n")
+        text = text.removesuffix("\r")
+        if mode == 0:
+            text = "  " + text
+        elif mode == 1:
+            text = "+ " + text
+        elif mode == 2:
+            text = "- " + text
+
+        self.appendPlainText(text)
         # TODO: add line number to widget
-        # TODO: add background color (extra selection)
-        pass
+
+        # no extra selections
+        if mode == 0:
+            return
+
+        extra_selections = self.extraSelections()
+        # prepare selection format
+        selection_format = QtGui.QTextCharFormat()
+        selection_format.setProperty(QtGui.QTextFormat.FullWidthSelection, True)
+        # prepare selection cursor
+        selection_cursor = self.textCursor()
+        selection_cursor.movePosition(QtGui.QTextCursor.StartOfBlock)
+        selection_cursor.clearSelection()
+        # left
+        if mode == 1:
+            left_color = get_color_for_key(COLORS.LEFT_HIGHLIGHT.value)
+            selection_format.setBackground(QtGui.QColor(left_color))
+        # right
+        elif mode == 2:
+            right_color = get_color_for_key(COLORS.RIGHT_HIGHLIGHT.value)
+            selection_format.setBackground(QtGui.QColor(right_color))
+
+        selection = QtWidgets.QTextEdit.ExtraSelection()
+        selection.format = selection_format
+        selection.cursor = selection_cursor
+        extra_selections.append(selection)
+
+        self.setExtraSelections(extra_selections)
+

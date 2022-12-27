@@ -8,4 +8,6 @@
   <color name="multiCommentColor">#d2ce56</color>
   <color name="findHighlightColor">#00701a</color>
   <color name="lValueColor">#6ff9ff</color>
+  <color name="leftHighlightColor">#005005</color>
+  <color name="rightHighlightColor">#7f0000</color>
 </resources>
