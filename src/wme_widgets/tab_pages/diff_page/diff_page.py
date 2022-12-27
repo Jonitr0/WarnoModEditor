@@ -103,17 +103,15 @@ class DiffPage(tab_page_base.TabPageBase):
         else:
             right_name = target[target.rindex('/') + 1:]
 
-        print(res_d)
-        print(res_l)
-        print(res_r)
-
         for diff_file in res_l:
             diff_w = diff_widget.DiffWidget(self)
+            diff_w.request_open_in_text_editor.connect(self.on_request_open_file_at_line)
             diff_w.left_only(diff_file, left_name)
             self.results_layout.addWidget(diff_w)
 
         for diff_file in res_r:
             diff_w = diff_widget.DiffWidget(self)
+            diff_w.request_open_in_text_editor.connect(self.on_request_open_file_at_line)
             diff_w.right_only(diff_file, right_name)
             self.results_layout.addWidget(diff_w)
 
@@ -124,6 +122,7 @@ class DiffPage(tab_page_base.TabPageBase):
 
             # TODO: connect signal so text editor is opened
             diff_w = diff_widget.DiffWidget(self)
+            diff_w.request_open_in_text_editor.connect(self.on_request_open_file_at_line)
             diff_w.changed_text_file(diff_file, changed_lines, left_lines, right_lines)
             self.results_layout.addWidget(diff_w)
 
@@ -195,3 +194,7 @@ class DiffPage(tab_page_base.TabPageBase):
                     changed_lines.append(i)
 
         return changed_lines, lines1, lines2
+
+    def on_request_open_file_at_line(self, path: str, line: int):
+        print(path)
+        print(line)
