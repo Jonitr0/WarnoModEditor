@@ -122,6 +122,7 @@ class DiffPage(tab_page_base.TabPageBase):
             if len(changed_lines) == 0:
                 continue
 
+            # TODO: connect signal so text editor is opened
             diff_w = diff_widget.DiffWidget(self)
             diff_w.changed_text_file(diff_file, changed_lines, left_lines, right_lines)
             self.results_layout.addWidget(diff_w)
