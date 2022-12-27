@@ -78,6 +78,7 @@ QPlainTextEdit#code_editor {{
   background-color: {QTMATERIAL_SECONDARYCOLOR};
   padding: 0px 0px;
   font: 10pt 'Courier New';
+  font-weight: bold;
 }}
 
 QFrame#list_entry {{
