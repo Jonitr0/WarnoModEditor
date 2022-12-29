@@ -120,7 +120,6 @@ class DiffPage(tab_page_base.TabPageBase):
             if len(changed_lines) == 0:
                 continue
 
-            # TODO: connect signal so text editor is opened
             diff_w = diff_widget.DiffWidget(self)
             diff_w.request_open_in_text_editor.connect(self.on_request_open_file_at_line)
             diff_w.changed_text_file(diff_file, changed_lines, left_lines, right_lines)
@@ -196,5 +195,6 @@ class DiffPage(tab_page_base.TabPageBase):
         return changed_lines, lines1, lines2
 
     def on_request_open_file_at_line(self, path: str, line: int):
-        print(path)
-        print(line)
+        current_tab_widget = self.parent().parent()
+        full_path = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(), path)
+        current_tab_widget.on_open_ndf_editor_at_line(full_path, line)

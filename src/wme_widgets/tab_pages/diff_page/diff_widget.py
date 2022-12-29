@@ -39,7 +39,8 @@ class DiffWidget(QtWidgets.QFrame):
 
     def left_only(self, diff_name: str, left_name: str):
         self.info_label.setText(diff_name + " only exists in " + left_name)
-        # TODO: only show button if file
+        if not diff_name.endswith(".ndf"):
+            self.open_in_editor_button.setHidden(True)
 
         self.buttons_to_file[self.open_in_editor_button] = (diff_name, 0)
         self.open_in_editor_button.pressed.connect(self.on_open_in_editor)
