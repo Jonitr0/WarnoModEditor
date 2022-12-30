@@ -10,4 +10,7 @@
   <color name="lValueColor">#6ff9ff</color>
   <color name="leftHighlightColor">#005005</color>
   <color name="rightHighlightColor">#7f0000</color>
+  <color name="leftIconColor">#338a3e</color>
+  <color name="rightIconColor">#b61827</color>
+  <color name="changedIconColor">#0077c2</color>
 </resources>

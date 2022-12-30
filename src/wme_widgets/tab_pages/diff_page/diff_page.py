@@ -106,13 +106,13 @@ class DiffPage(tab_page_base.TabPageBase):
         for diff_file in res_l:
             diff_w = diff_widget.DiffWidget(self)
             diff_w.request_open_in_text_editor.connect(self.on_request_open_file_at_line)
-            diff_w.left_only(diff_file, left_name)
+            diff_w.left_only(diff_file, left_name, mod_dir)
             self.results_layout.addWidget(diff_w)
 
         for diff_file in res_r:
             diff_w = diff_widget.DiffWidget(self)
             diff_w.request_open_in_text_editor.connect(self.on_request_open_file_at_line)
-            diff_w.right_only(diff_file, right_name)
+            diff_w.right_only(diff_file, right_name, target)
             self.results_layout.addWidget(diff_w)
 
         for diff_file in res_d:
