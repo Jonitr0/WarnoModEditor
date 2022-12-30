@@ -110,6 +110,11 @@ class DiffWidget(QtWidgets.QFrame):
         end_line = min(diff_block[len(diff_block) - 1] + self.buffer_lines, len(left_lines) - 1)
         total_lines = end_line - start_line + 1
 
+        mark_end = False
+        if total_lines > 100:
+            total_lines = 100
+            mark_end = True
+
         text_edit = diff_code_editor.DiffCodeEditor()
         self.diff_layout.addWidget(text_edit)
         self.buttons_to_textedits[header_minimize_button] = (text_edit, True)
@@ -125,6 +130,9 @@ class DiffWidget(QtWidgets.QFrame):
                 text_edit.add_line(right_lines[line_index], 2)
                 if j < len(diff_block) - 1:
                     j += 1
+
+        if mark_end:
+            text_edit.appendPlainText("...")
 
     def on_open_in_editor(self):
         data = self.buttons_to_file[self.sender()]
