@@ -7,7 +7,6 @@ from src.utils.color_manager import *
 from src.utils import icon_manager
 
 
-# TODO: add colored icon for faster readability
 class DiffWidget(QtWidgets.QFrame):
     request_open_in_text_editor = QtCore.Signal(str, int)
 
@@ -28,6 +27,7 @@ class DiffWidget(QtWidgets.QFrame):
         self.setup_ui()
 
         self.buttons_to_file = {}
+        self.buttons_to_textedits = {}
 
     def setup_ui(self):
         main_layout = QtWidgets.QVBoxLayout()
@@ -88,14 +88,21 @@ class DiffWidget(QtWidgets.QFrame):
     def create_diff_block_widget(self, diff_block: list, diff_name: str, left_lines: list, right_lines: list):
         # TODO: add minimize button
         header_layout = QtWidgets.QHBoxLayout()
+
+        header_minimize_button = QtWidgets.QToolButton()
+        header_minimize_button.setIcon(icon_manager.load_icon("chevron_down.png", COLORS.SECONDARY_TEXT))
+        header_minimize_button.setToolTip("Minimize")
+        header_minimize_button.pressed.connect(self.on_minimize)
+        header_layout.addWidget(header_minimize_button)
+
         header_label = QtWidgets.QLabel("line " + str(diff_block[0] + 1) + ":")
         header_layout.addWidget(header_label)
         header_layout.addStretch(1)
-        header_button = QtWidgets.QPushButton("Open in text editor")
-        header_layout.addWidget(header_button)
-        header_button.pressed.connect(self.on_open_in_editor)
+        header_open_in_editor_button = QtWidgets.QPushButton("Open in text editor")
+        header_layout.addWidget(header_open_in_editor_button)
+        header_open_in_editor_button.pressed.connect(self.on_open_in_editor)
 
-        self.buttons_to_file[header_button] = (diff_name, diff_block[0])
+        self.buttons_to_file[header_open_in_editor_button] = (diff_name, diff_block[0])
 
         self.diff_layout.addLayout(header_layout)
 
@@ -105,6 +112,7 @@ class DiffWidget(QtWidgets.QFrame):
 
         text_edit = diff_code_editor.DiffCodeEditor()
         self.diff_layout.addWidget(text_edit)
+        self.buttons_to_textedits[header_minimize_button] = (text_edit, True)
         # index for diff_block
         j = 0
         for i in range(total_lines):
@@ -122,6 +130,21 @@ class DiffWidget(QtWidgets.QFrame):
         data = self.buttons_to_file[self.sender()]
         self.request_open_in_text_editor.emit(data[0], data[1])
 
+    def on_minimize(self):
+        text_edit, expanded = self.buttons_to_textedits[self.sender()]
+        # is expanded
+        if expanded:
+            text_edit.setHidden(True)
+            expanded = False
+            self.sender().setIcon(icon_manager.load_icon("chevron_right.png", COLORS.SECONDARY_TEXT))
+            self.sender().setToolTip("Expand")
+        else:
+            text_edit.setHidden(False)
+            expanded = True
+            self.sender().setIcon(icon_manager.load_icon("chevron_down.png", COLORS.SECONDARY_TEXT))
+            self.sender().setToolTip("Minimize")
+        self.buttons_to_textedits[self.sender()] = (text_edit, expanded)
+
     def set_icon(self, diff_name: str, diff_path: str, color: COLORS):
         # changed file
         if diff_path == "":
@@ -133,5 +156,3 @@ class DiffWidget(QtWidgets.QFrame):
         # unknown
         else:
             self.icon.setPixmap(icon_manager.load_icon("file_question.png", color).pixmap(24))
-
-
