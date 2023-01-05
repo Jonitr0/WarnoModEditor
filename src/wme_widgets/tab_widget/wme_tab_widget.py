@@ -6,6 +6,8 @@ from PySide6.QtCore import Qt
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
 from src.wme_widgets.tab_pages import tab_page_base, rich_text_viewer_page, global_search_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
+from src.wme_widgets.tab_pages.diff_page import diff_page
+from src.wme_widgets import main_widget
 from src.dialogs import essential_dialogs
 from src.utils import icon_manager
 from src.utils.color_manager import *
@@ -38,6 +40,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
         global_search_action = self.tab_menu.addAction("Global Search")
         global_search_action.setToolTip("Search for text in all files of your mod.")
         global_search_action.triggered.connect(self.on_global_search)
+
+        diff_page_action = self.tab_menu.addAction("Comparison Tool")
+        diff_page_action.setToolTip("Show differences between a mod and the game files or another mod.")
+        diff_page_action.triggered.connect(self.on_diff_page_action)
 
         self.tab_menu.addSeparator()
 
@@ -100,6 +106,15 @@ class WMETabWidget(QtWidgets.QTabWidget):
         editor.find_bar.line_edit.setText(search_pattern)
         editor.code_editor.find_pattern(search_pattern)
 
+    def on_open_ndf_editor_at_line(self, file_path: str, line_number: int):
+        editor = self.on_open_ndf_editor(file_path)
+        main_widget.MainWidget.instance.show_loading_screen("moving cursor...")
+        cursor = editor.code_editor.textCursor()
+        # TODO: find a better way to move cursor
+        cursor.movePosition(QtGui.QTextCursor.Down, QtGui.QTextCursor.MoveAnchor, line_number)
+        editor.code_editor.setTextCursor(cursor)
+        main_widget.MainWidget.instance.hide_loading_screen()
+
     def on_global_search(self):
         page_icon = icon_manager.load_icon("magnify.png", COLORS.PRIMARY)
         page = global_search_page.GlobalSearchPage()
@@ -122,6 +137,11 @@ class WMETabWidget(QtWidgets.QTabWidget):
         viewer = rich_text_viewer_page.RichTextViewerPage("UserManual.md")
         # TODO: fill md file, convert to html
         self.addTab(viewer, manual_action, "User Manual")
+
+    def on_diff_page_action(self, _):
+        diff_icon = icon_manager.load_icon("diff.png", COLORS.PRIMARY)
+        diff_page_widget = diff_page.DiffPage()
+        self.addTab(diff_page_widget, diff_icon, "Comparison Tool")
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
         ret = super().addTab(widget, icon, title)

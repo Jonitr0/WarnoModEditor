@@ -8,4 +8,9 @@
   <color name="multiCommentColor">#d2ce56</color>
   <color name="findHighlightColor">#b0ff57</color>
   <color name="lValueColor">#009faf</color>
+  <color name="leftHighlightColor">#b2fab4</color>
+  <color name="rightHighlightColor">#ffa4a2</color>
+  <color name="leftIconColor">#98ee99</color>
+  <color name="rightIconColor">#ff867c</color>
+  <color name="changedIconColor">#80d6ff</color>
 </resources>

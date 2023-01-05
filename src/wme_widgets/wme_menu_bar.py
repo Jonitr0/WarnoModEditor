@@ -203,7 +203,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         if QtCore.QFile.exists(config_path + "Config.ini"):
             os.rename(config_path + "Config.ini", config_path + "Config_tmp.ini")
         self.generate_mod()
-        # TODO: check whether this messes with upload
         # restore old config, if applicable
         if QtCore.QFile.exists(config_path + "Config_tmp.ini"):
             if QtCore.QFile.exists(config_path + "Config.ini"):
