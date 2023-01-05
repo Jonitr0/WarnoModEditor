@@ -115,3 +115,7 @@ QToolButton::menu-indicator {{ image: none; }}
 SearchResultWidget {{
   color: {QTMATERIAL_PRIMARYCOLOR};
 }}
+
+WMETabBar::tab {{
+  background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
+}}
