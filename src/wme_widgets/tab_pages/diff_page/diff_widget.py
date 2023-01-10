@@ -86,7 +86,49 @@ class DiffWidget(QtWidgets.QFrame):
         return diff_blocks
 
     def create_diff_block_widget(self, diff_block: list, diff_name: str, left_lines: list, right_lines: list):
-        # TODO: add minimize button
+        text_edit = diff_code_editor.DiffCodeEditor()
+        self.create_diff_block_header(diff_name, diff_block, text_edit)
+
+        start_line = max(diff_block[0] - self.buffer_lines, 0)
+        end_line = min(diff_block[len(diff_block) - 1] + self.buffer_lines, len(left_lines) - 1)
+        total_lines = end_line - start_line + 1
+
+        mark_end = False
+        if total_lines > 100:
+            total_lines = 100
+            mark_end = True
+
+        self.diff_layout.addWidget(text_edit)
+        # index for diff_block
+        j = 0
+        skip = 0
+        for i in range(total_lines):
+            if skip > 0:
+                skip -= 1
+                continue
+
+            line_index = start_line + i
+            # the next line is not a changed line
+            if line_index != diff_block[j]:
+                text_edit.add_line(left_lines[line_index], 0)
+            else:
+                block_len = 1
+                while j < len(diff_block) - 1 and diff_block[j] == diff_block[j+1]-1:
+                    block_len += 1
+                    j += 1
+
+                # add removed lines
+                for k in range(block_len):
+                    text_edit.add_line(right_lines[line_index + k], 2)
+
+                for k in range(block_len):
+                    text_edit.add_line(left_lines[line_index + k], 1)
+                skip = block_len - 1
+
+        if mark_end:
+            text_edit.appendPlainText("...")
+
+    def create_diff_block_header(self, diff_name: str, diff_block: list, text_edit):
         header_layout = QtWidgets.QHBoxLayout()
 
         header_minimize_button = QtWidgets.QToolButton()
@@ -105,34 +147,8 @@ class DiffWidget(QtWidgets.QFrame):
         self.buttons_to_file[header_open_in_editor_button] = (diff_name, diff_block[0])
 
         self.diff_layout.addLayout(header_layout)
-
-        start_line = max(diff_block[0] - self.buffer_lines, 0)
-        end_line = min(diff_block[len(diff_block) - 1] + self.buffer_lines, len(left_lines) - 1)
-        total_lines = end_line - start_line + 1
-
-        mark_end = False
-        if total_lines > 100:
-            total_lines = 100
-            mark_end = True
-
-        text_edit = diff_code_editor.DiffCodeEditor()
-        self.diff_layout.addWidget(text_edit)
         self.buttons_to_textedits[header_minimize_button] = (text_edit, True)
-        # index for diff_block
-        j = 0
-        for i in range(total_lines):
-            line_index = start_line + i
-            # the next line is not a changed line
-            if line_index != diff_block[j]:
-                text_edit.add_line(left_lines[line_index], 0)
-            else:
-                text_edit.add_line(left_lines[line_index], 1)
-                text_edit.add_line(right_lines[line_index], 2)
-                if j < len(diff_block) - 1:
-                    j += 1
 
-        if mark_end:
-            text_edit.appendPlainText("...")
 
     def on_open_in_editor(self):
         data = self.buttons_to_file[self.sender()]
