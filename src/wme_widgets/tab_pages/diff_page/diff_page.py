@@ -55,6 +55,9 @@ class DiffPage(tab_page_base.TabPageBase):
         self.results_layout.setAlignment(Qt.AlignTop)
         self.results_layout.setSpacing(0)
 
+        # TODO: create and fill this file
+        self.help_file_path = "Help_DiffPage.html"
+
     def load_mods_to_combobox(self):
         # get Mods dir
         mod_dir = main_widget.MainWidget.instance.get_loaded_mod_path()

@@ -109,15 +109,12 @@ class DiffWidget(QtWidgets.QFrame):
 
             line_index = start_line + i
             # the next line is not a changed line
-            if line_index != diff_block[j]:
+            if j >= len(diff_block) or line_index != diff_block[j]:
                 text_edit.add_line(left_lines[line_index], 0)
             else:
                 block_len = 1
-                if j < len(diff_block) - 1:
-                    j += 1
-                # TODO: check previous instead of next char
-                while j < len(diff_block) - 1 and diff_block[j] == diff_block[j + 1] - 1 \
-                        and i + block_len <= total_lines:
+                j += 1
+                while j <= len(diff_block) - 1 and diff_block[j - 1] == diff_block[j] - 1 and i + block_len <= total_lines:
                     block_len += 1
                     j += 1
 

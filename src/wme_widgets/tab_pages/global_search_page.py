@@ -34,7 +34,6 @@ class GlobalSearchPage(tab_page_base.TabPageBase):
         search_button.setFixedSize(36, 36)
         search_button.clicked.connect(self.on_search)
         search_bar.addWidget(search_button)
-        # TODO: add regex capability
 
         self.results_label = QtWidgets.QLabel()
         main_layout.addWidget(self.results_label)
