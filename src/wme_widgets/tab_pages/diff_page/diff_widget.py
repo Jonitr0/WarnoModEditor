@@ -113,7 +113,11 @@ class DiffWidget(QtWidgets.QFrame):
                 text_edit.add_line(left_lines[line_index], 0)
             else:
                 block_len = 1
-                while j < len(diff_block) - 1 and diff_block[j] == diff_block[j+1]-1:
+                if j < len(diff_block) - 1:
+                    j += 1
+                # TODO: check previous instead of next char
+                while j < len(diff_block) - 1 and diff_block[j] == diff_block[j + 1] - 1 \
+                        and i + block_len <= total_lines:
                     block_len += 1
                     j += 1
 
@@ -148,7 +152,6 @@ class DiffWidget(QtWidgets.QFrame):
 
         self.diff_layout.addLayout(header_layout)
         self.buttons_to_textedits[header_minimize_button] = (text_edit, True)
-
 
     def on_open_in_editor(self):
         data = self.buttons_to_file[self.sender()]

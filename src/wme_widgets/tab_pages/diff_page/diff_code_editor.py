@@ -26,7 +26,7 @@ class DiffCodeEditor(QtWidgets.QPlainTextEdit):
 
     def on_text_changed(self):
         s = self.document().size().toSize()
-        font_height = self.fontMetrics().height()
+        font_height = self.fontMetrics().height() - 1
         self.setFixedHeight((s.height() + 1) * font_height)
 
     def add_line(self, text: str, mode: LineMode):
