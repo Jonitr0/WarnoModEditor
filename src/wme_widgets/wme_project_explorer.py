@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt
 
 from src.utils import icon_manager, settings_manager
 from src.utils.color_manager import *
-from src.wme_widgets import wme_lineedit
+from src.wme_widgets import wme_lineedit, main_widget
 
 
 class WMEProjectExplorer(QtWidgets.QWidget):
@@ -41,6 +41,17 @@ class WMEProjectExplorer(QtWidgets.QWidget):
     def update_model(self, mod_path: str):
         self.tree_view.update_model(mod_path)
         self.file_size_checkbox.stateChanged.emit(self.file_size_checkbox.checkState())
+
+        main_widget.MainWidget.instance.show_loading_screen("Loading file system...")
+
+        # load file system
+        for i in range(20):
+            self.tree_view.expandAll()
+            QtWidgets.QApplication.processEvents()
+
+        self.tree_view.collapseAll()
+
+        main_widget.MainWidget.instance.hide_loading_screen()
 
 
 class FileSystemTreeView(QtWidgets.QTreeView):
