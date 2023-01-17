@@ -85,6 +85,7 @@ def get_line_of_pos(char_pos: int, text: str, start: int = 0) -> int:
     return start + text.count("\n", start, char_pos)
 
 
+# TODO: integrate this into diff_page, fix potential bugs (e.g. incorrect length of diff blocks)
 if __name__ == "__main__":
     res = get_diff("right.txt", "left.txt")
     for o in res:
