@@ -2,7 +2,8 @@ from PySide6 import QtWidgets, QtGui
 from PySide6.QtCore import Qt
 
 from src.utils.resource_loader import get_resource_path
-from src.utils.color_manager import *
+
+instance = None
 
 
 class WMESplashScreen(QtWidgets.QSplashScreen):
@@ -15,6 +16,9 @@ class WMESplashScreen(QtWidgets.QSplashScreen):
         self.showMessage(text, alignment=Qt.AlignLeft | Qt.AlignBottom, color=Qt.yellow)
 
         self.show()
+
+        global instance
+        instance = self
 
     def mousePressEvent(self, event) -> None:
         return
