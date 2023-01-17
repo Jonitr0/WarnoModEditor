@@ -1,6 +1,21 @@
 from fast_diff_match_patch import diff
 
 
+class DiffData:
+    # where should the diff be inserted (left index)
+    start = -1
+    # length of the diff in lines
+    length = -1
+    # operation (+: left, -: right)
+    op = ""
+    # right_only: fetch index
+    right_index = -1
+
+    def __str__(self):
+        return "start: " + str(self.start) + " length: " + str(self.length)\
+               + " op: " + self.op + " r_index: " + str(self.right_index)
+
+
 def get_diff(left_file_path: str, right_file_path: str):
     # read files
     left_text = open(left_file_path).read()
@@ -13,7 +28,7 @@ def get_diff(left_file_path: str, right_file_path: str):
     current_char_left = 0
     current_char_right = 0
 
-    # save resulting diffs as list of tuples: (start_line, length, operation)
+    # save resulting diffs as list of DiffData objects
     result = []
 
     # iterate through changes
@@ -24,34 +39,41 @@ def get_diff(left_file_path: str, right_file_path: str):
             current_char_right += chars
         # added chars (left)
         elif op == "+":
-            start = get_line_of_pos(current_char_left + 1, left_text)
+            data = DiffData()
+            data.start = get_line_of_pos(current_char_left + 1, left_text)
             end = get_line_of_pos(current_char_left + chars, left_text)
-            length = end - start + 1
-            result.append((start, length, "+"))
+            data.length = end - data.start + 1
+            data.op = "+"
+            result.append(data)
             current_char_left += chars
         # removed chars (right)
         elif op == "-":
-            start = get_line_of_pos(current_char_right + 1, right_text)
+            data = DiffData()
+            data.right_index = get_line_of_pos(current_char_right + 1, right_text)
             end = get_line_of_pos(current_char_right + chars, right_text)
-            length = end - start + 1
-            # TODO: is this the right start index? might have to take left index
-            result.append((start, length, "-"))
+            data.length = end - data.right_index + 1
+            data.op = "-"
+            data.start = get_line_of_pos(current_char_left + 1, left_text)
+            result.append(data)
             current_char_right += chars
 
     # cleanup results
     i = 0
     while i < len(result) - 1:
         # go through tuples
-        block = result[i]
+        data = result[i]
         j = i + 1
         # check if following adjacent tuples with same op exist
         while j < len(result):
-            inner_block = result[j]
+            inner_data = result[j]
             # merge adjacent same op tuples
-            if block[2] == inner_block[2] and block[0] == inner_block[0] - block[1]:
-                result[i] = (block[0], block[1] + 1, block[2])
+            if data.op == inner_data.op and data.start == inner_data.start - data.length:
+                result[i].length += 1
                 block = result[i]
                 del result[j]
+            # abort loop if next same op tuple has larger start
+            elif data.op == inner_data.op and data.start < inner_data.start - data.length:
+                break
             else:
                 j += 1
         i += 1
@@ -64,6 +86,6 @@ def get_line_of_pos(char_pos: int, text: str, start: int = 0) -> int:
 
 
 if __name__ == "__main__":
-    get_diff(
-        "D:\\SteamLibrary\\steamapps\\common\\WARNO\\Mods\\NitroMod\\GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf",
-        "D:\\SteamLibrary\\steamapps\\common\\WARNO\\Mods\\CompareTarget\\GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")
+    res = get_diff("right.txt", "left.txt")
+    for o in res:
+        print(str(o))
