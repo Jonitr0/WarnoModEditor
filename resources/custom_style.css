@@ -119,3 +119,9 @@ SearchResultWidget {{
 WMETabBar::tab {{
   background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
 }}
+
+QSplashScreen {{
+  font: 32pt 'Agency FB';
+  font-weight: bold;
+  font-style: italic;
+}}

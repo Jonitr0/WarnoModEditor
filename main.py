@@ -3,12 +3,14 @@ import os
 import logging
 
 from PySide6 import QtWidgets
+from PySide6.QtCore import Qt
 from qt_material import apply_stylesheet
 
 from src import main_window
 from src.utils import settings_manager, theme_manager
 from src.utils.resource_loader import get_resource_path
 from src.dialogs import exception_handler_dialog
+from src.wme_widgets import wme_splash_screen
 
 if __name__ == '__main__':
     # setup logging
@@ -50,5 +52,11 @@ if __name__ == '__main__':
     logging.info("\n\n")
     logging.info("Starting WME " + version)
 
+    # setup splash screen
+    splash_screen = wme_splash_screen.WMESplashScreen("Warno Mod Editor v" + version)
+    app.processEvents()
+
     main_window = main_window.MainWindow()
+    splash_screen.finish(main_window)
+
     sys.exit(app.exec())
