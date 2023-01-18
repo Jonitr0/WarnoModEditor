@@ -135,7 +135,9 @@ def create_diff_blocks(result: list, left_len: int) -> list:
             # append block
             append_data_to_block(next_data, diff_block)
             # increase block length
-            data.length += spacing + next_data.length
+            data.length += spacing
+            if data.op == "+":
+                data.length += next_data.length
             k += 1
         # remove all blocks that were merged into data
         to_be_removed = k - i - 1
@@ -162,8 +164,9 @@ def append_data_to_block(data: DiffData, diff_block: DiffBlockData):
 
 # test function for this module
 # TODO: write some proper unit tests for this
-#if __name__ == "__main__":
-#    res = get_diff("left.txt", "right.txt")
-#    for o in res:
-#        print(o.lines)
+# TODO: look into blank added lines
+if __name__ == "__main__":
+    res = get_diff("left.txt", "right.txt")
+    for o in res:
+        print(o.lines)
 
