@@ -49,30 +49,29 @@ def get_diff(left_file_path: str, right_file_path: str):
         # added chars (left)
         elif op == "+":
             data = DiffData()
-            data.start = get_line_of_pos(current_char_left + 1, left_text)
-            end = get_line_of_pos(current_char_left + chars, left_text)
-            data.length = end - data.start + 1
+            data.start = get_line_of_pos(current_char_left, left_text)
+            data.length = max(get_line_of_pos(current_char_left + chars, left_text, current_char_left), 1)
             data.op = "+"
             result.append(data)
             current_char_left += chars
         # removed chars (right)
         elif op == "-":
             data = DiffData()
-            data.right_index = get_line_of_pos(current_char_right + 1, right_text)
-            end = get_line_of_pos(current_char_right + chars, right_text)
-            data.length = end - data.right_index + 1
+            data.right_index = get_line_of_pos(current_char_right, right_text)
+            data.length = max(get_line_of_pos(current_char_right + chars, right_text, current_char_right), 1)
             data.op = "-"
             data.start = get_line_of_pos(current_char_left + 1, left_text)
             result.append(data)
             current_char_right += chars
 
     result = cleanup_result(result)
-    diff_blocks = create_diff_blocks(result, get_line_of_pos(len(left_text), left_text) + 1)
+    diff_blocks = create_diff_blocks(result, get_line_of_pos(len(left_text) - 1, left_text) + 1)
     return diff_blocks
 
 
 def get_line_of_pos(char_pos: int, text: str, start: int = 0) -> int:
-    return start + text.count("\n", start, char_pos)
+    line = text.count("\n", start, char_pos)
+    return line
 
 
 def cleanup_result(result: list) -> list:
@@ -86,7 +85,7 @@ def cleanup_result(result: list) -> list:
             inner_data = result[j]
             # merge adjacent same op tuples
             if data.op == inner_data.op and data.start == inner_data.start - data.length:
-                result[i].length += 1
+                result[i].length += inner_data.length
                 del result[j]
             # abort loop if next same op tuple has larger start
             elif data.op == inner_data.op and data.start < inner_data.start - data.length:
