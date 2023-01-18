@@ -2,18 +2,27 @@ from fast_diff_match_patch import diff
 
 
 class DiffData:
-    # where should the diff be inserted (left index)
-    start = -1
-    # length of the diff in lines
-    length = -1
-    # operation (+: left, -: right)
-    op = ""
-    # right_only: fetch index
-    right_index = -1
+    def __init__(self):
+        # where should the diff be inserted (left index)
+        self.start = -1
+        # length of the diff in lines
+        self.length = -1
+        # operation (+: left, -: right)
+        self.op = ""
+        # right_only: fetch index
+        self.right_index = -1
 
     def __str__(self):
         return "start: " + str(self.start) + " length: " + str(self.length) \
                + " op: " + self.op + " r_index: " + str(self.right_index)
+
+
+class DiffBlockData:
+    def __init__(self):
+        # first changed line of the diff block
+        self.start = -1
+        # list of lines to be added to widget
+        self.lines = []
 
 
 def get_diff(left_file_path: str, right_file_path: str):
@@ -22,7 +31,7 @@ def get_diff(left_file_path: str, right_file_path: str):
     right_text = open(right_file_path).read()
 
     # run char-based comparison with fast_dmp
-    changes = diff(right_text, left_text)
+    changes = diff(left_text, right_text)
 
     # keep track of the current char index for both files
     current_char_left = 0
@@ -58,7 +67,12 @@ def get_diff(left_file_path: str, right_file_path: str):
             current_char_right += chars
 
     result = cleanup_result(result)
-    return create_diff_blocks(result, get_line_of_pos(len(left_text) - 1, left_text))
+    diff_blocks = create_diff_blocks(result, get_line_of_pos(len(left_text) - 1, left_text))
+    # TODO: fix displayed offset and wrongly marked lines
+    print(left_file_path)
+    for block in diff_blocks:
+        print(block.lines)
+    return diff_blocks
 
 
 def get_line_of_pos(char_pos: int, text: str, start: int = 0) -> int:
@@ -89,9 +103,9 @@ def cleanup_result(result: list) -> list:
 
 
 # context lines to be display before and after each diff block
-padding = 3
+padding = 1
 # max lines that can be between to diffs for them to be in the same block
-max_distance = 6
+max_distance = 1
 
 
 # create list of lists of tuples (line_number, op) based on given distance between diffs
@@ -101,12 +115,14 @@ def create_diff_blocks(result: list, left_len: int) -> list:
     diff_blocks = []
     i = 0
     while i < len(result):
-        diff_block = []
         data = result[i]
+        diff_block = DiffBlockData()
+        diff_block.start = data.start
         # append forward padding
         padding_start = max(data.start - padding, 0)
         for j in range(data.start - padding_start):
-            diff_block.append((padding_start + j, "="))
+            diff_block.lines.append((padding_start + j, "="))
+        # append actual block
         append_data_to_block(data, diff_block)
         # check if next block should be appended
         k = i + 1
@@ -119,7 +135,7 @@ def create_diff_blocks(result: list, left_len: int) -> list:
             spacing_start = data.start + data.length
             spacing = next_data.start - spacing_start
             for l in range(spacing):
-                diff_block.append((spacing_start + l, "="))
+                diff_block.lines.append((spacing_start + l, "="))
             # append block
             append_data_to_block(next_data, diff_block)
             # increase block length
@@ -129,25 +145,18 @@ def create_diff_blocks(result: list, left_len: int) -> list:
             k += 1
         # append trailing padding
         padding_end = min(left_len, data.start + data.length + padding)
-        for j in range(padding_end - data.start - data.length):
-            diff_block.append((data.start + data.length + j, "="))
+        for m in range(padding_end - data.start - data.length):
+            diff_block.lines.append((data.start + data.length + m, "="))
         # put diff_block in list
         diff_blocks.append(diff_block)
         i += 1
     return diff_blocks
 
 
-def append_data_to_block(data: DiffData, diff_block: list):
+def append_data_to_block(data: DiffData, diff_block: DiffBlockData):
     if data.op == "+":
         for j in range(data.length):
-            diff_block.append((data.start + j, "+"))
+            diff_block.lines.append((data.start + j, "+"))
     elif data.op == "-":
         for j in range(data.length):
-            diff_block.append((data.right_index + j, "-"))
-
-
-# TODO: integrate this into diff_page, fix potential bugs (e.g. incorrect length of diff blocks)
-if __name__ == "__main__":
-    res = get_diff("left.txt", "right.txt")
-    for o in res:
-        print(str(o))
+            diff_block.lines.append((data.right_index + j, "-"))

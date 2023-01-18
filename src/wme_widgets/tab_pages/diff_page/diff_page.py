@@ -1,7 +1,7 @@
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
-from src.wme_widgets.tab_pages.diff_page import diff_widget
+from src.wme_widgets.tab_pages.diff_page import diff_widget, diff_creator
 from src.wme_widgets.tab_pages import tab_page_base
 from src.wme_widgets import main_widget
 from src.dialogs import essential_dialogs
@@ -119,13 +119,13 @@ class DiffPage(tab_page_base.TabPageBase):
             self.results_layout.addWidget(diff_w)
 
         for diff_file in res_d:
-            changed_lines, left_lines, right_lines = self.compare_files(diff_file, mod_dir, target)
-            if len(changed_lines) == 0:
+            diff_blocks, left_lines, right_lines = self.compare_files(diff_file, mod_dir, target)
+            if len(diff_blocks) == 0:
                 continue
 
             diff_w = diff_widget.DiffWidget(self)
             diff_w.request_open_in_text_editor.connect(self.on_request_open_file_at_line)
-            diff_w.changed_text_file(diff_file, changed_lines, left_lines, right_lines)
+            diff_w.changed_text_file(diff_file, diff_blocks, left_lines, right_lines)
             self.results_layout.addWidget(diff_w)
 
         if delete:
@@ -183,19 +183,13 @@ class DiffPage(tab_page_base.TabPageBase):
         path1 = str(mod_dir + "\\" + diff_file).replace("/", "\\")
         path2 = str(target + "\\" + diff_file).replace("/", "\\")
 
-        changed_lines = []
-        lines1 = []
-        lines2 = []
         with open(path1, 'r') as file1, open(path2, 'r') as file2:
             lines1 = file1.readlines()
             lines2 = file2.readlines()
 
-            line_count = min(len(lines1), len(lines2))
-            for i in range(line_count):
-                if lines1[i] != lines2[i]:
-                    changed_lines.append(i)
+        diff_blocks = diff_creator.get_diff(path1, path2)
 
-        return changed_lines, lines1, lines2
+        return diff_blocks, lines1, lines2
 
     def on_request_open_file_at_line(self, path: str, line: int):
         current_tab_widget = self.parent().parent()
