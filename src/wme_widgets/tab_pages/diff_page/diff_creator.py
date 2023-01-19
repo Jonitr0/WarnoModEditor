@@ -119,6 +119,9 @@ def create_diff_blocks(result: list, left_len: int) -> list:
             diff_block.lines.append((padding_start + j, "="))
         # append actual block
         append_data_to_block(data, diff_block)
+        # don't count removed lines in diff block length
+        if data.op == "-":
+            data.length = 0
         # check if next block should be appended
         k = i + 1
         while k < len(result):
@@ -128,14 +131,14 @@ def create_diff_blocks(result: list, left_len: int) -> list:
                 break
             # add spacing
             spacing_start = data.start + data.length
-            spacing = next_data.start - spacing_start + 1
+            spacing = next_data.start - spacing_start
             for l in range(spacing):
                 diff_block.lines.append((spacing_start + l, "="))
             # append block
             append_data_to_block(next_data, diff_block)
             # increase block length
             data.length += spacing
-            if data.op == "+":
+            if next_data.op == "+":
                 data.length += next_data.length
             k += 1
         # remove all blocks that were merged into data
