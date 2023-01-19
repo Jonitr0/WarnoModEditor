@@ -48,6 +48,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.verticalScrollBar().valueChanged.connect(self.mark_finds_in_viewport)
         self.document().contentsChange.connect(self.update_search)
 
+        # TODO: build dynamic syntax highlighting
         highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
 
         # set tab size
