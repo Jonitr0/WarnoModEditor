@@ -60,6 +60,12 @@ class WMEDetachedTab(QtWidgets.QDialog):
         self.tab_widget.currentChanged.connect(self.on_tab_changed)
         content_layout.addWidget(self.tab_widget)
 
+        self.load_screen = QtWidgets.QLabel()
+        self.load_screen.setHidden(True)
+        self.load_screen.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.load_screen.setAlignment(Qt.AlignCenter)
+        content_layout.addWidget(self.load_screen)
+
         self.grip = QtWidgets.QSizeGrip(self)
         self.grip.resize(16, 16)
 
@@ -134,3 +140,13 @@ class WMEDetachedTab(QtWidgets.QDialog):
                 self.resize(self.size().width() - 1, self.size().height() - 1)
                 self.shadow_effect.setEnabled(True)
         super().changeEvent(event)
+
+    def show_loading_screen(self, text: str):
+        self.load_screen.setText(text)
+        self.tab_widget.setHidden(True)
+        self.load_screen.setHidden(False)
+
+    def hide_loading_screen(self):
+        self.tab_widget.setHidden(False)
+        self.load_screen.setHidden(True)
+

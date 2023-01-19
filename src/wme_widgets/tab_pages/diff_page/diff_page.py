@@ -73,7 +73,6 @@ class DiffPage(tab_page_base.TabPageBase):
             if not exclude_list.__contains__(next_name):
                 self.target_combobox.addItem(next_name, next)
 
-    # TODO: split this in smaller functions
     def on_compare(self):
         # clear results layout
         for i in reversed(range(self.results_layout.count())):

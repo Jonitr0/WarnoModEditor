@@ -22,6 +22,10 @@ class DiffCodeEditor(QtWidgets.QPlainTextEdit):
 
         highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
 
+        # set tab size
+        font = QtGui.QFont('Courier New', 10)
+        self.setTabStopDistance(4 * QtGui.QFontMetrics(font).horizontalAdvance(" "))
+
         self.textChanged.connect(self.on_text_changed)
 
     def on_text_changed(self):

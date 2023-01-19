@@ -4,7 +4,7 @@ from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
 from src.wme_widgets import wme_menu_bar, wme_project_explorer
-from src.wme_widgets.tab_widget import wme_tab_widget
+from src.wme_widgets.tab_widget import wme_tab_widget, wme_detached_tab
 from src.dialogs import log_dialog
 from src.utils import settings_manager, path_validator, icon_manager
 from src.utils.color_manager import *
@@ -132,11 +132,19 @@ class MainWidget(QtWidgets.QWidget):
         self.load_screen.setText(text)
         self.load_screen.setHidden(False)
         self.splitter.setHidden(True)
+
+        for detached in wme_detached_tab.detached_list:
+            detached.show_loading_screen(text)
+
         QtWidgets.QApplication.processEvents()
 
     def hide_loading_screen(self):
         self.load_screen.setHidden(True)
         self.splitter.setHidden(False)
+
+        for detached in wme_detached_tab.detached_list:
+            detached.hide_loading_screen()
+
         QtWidgets.QApplication.processEvents()
 
     def eventFilter(self, source, event) -> bool:

@@ -50,6 +50,10 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
         highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
 
+        # set tab size
+        font = QtGui.QFont('Courier New', 10)
+        self.setTabStopDistance(4 * QtGui.QFontMetrics(font).horizontalAdvance(" "))
+
     def lineNumberAreaWidth(self):
         digits = 1
         count = max(1, self.blockCount())
