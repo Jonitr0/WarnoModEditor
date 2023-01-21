@@ -15,6 +15,7 @@ if __name__ == '__main__':
                               "--add-data=resources/markdown;resources/markdown",
                               "--add-data=resources/themes;resources/themes",
                               "--add-data=resources;resources",
+                              "--icon=resources/img/app_icon_colored.ico",
                               "--noconsole",
                               "-n", "WarnoModEditor"
                               ])

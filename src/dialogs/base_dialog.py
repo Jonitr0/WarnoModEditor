@@ -4,6 +4,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.wme_widgets import wme_title_bar
+from src.utils import icon_manager
 
 
 class BaseDialog(QtWidgets.QDialog):
@@ -59,6 +60,8 @@ class BaseDialog(QtWidgets.QDialog):
         self.button_layout = QtWidgets.QHBoxLayout(self)
         self.main_layout.addLayout(self.button_layout)
         self.main_layout.setAlignment(self.button_layout, Qt.AlignCenter)
+
+        self.setWindowIcon(QtGui.QIcon(icon_manager.load_colored_icon("app_icon_colored")))
 
         # setup ok button
         self.ok_button = QtWidgets.QPushButton()

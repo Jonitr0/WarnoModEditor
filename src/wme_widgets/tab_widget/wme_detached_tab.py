@@ -4,6 +4,7 @@ from PySide6.QtCore import Qt
 from src.wme_widgets import wme_title_bar
 from src.wme_widgets.tab_widget import wme_tab_widget
 from src.dialogs import essential_dialogs
+from src.utils import icon_manager
 
 detached_list = []
 
@@ -68,6 +69,8 @@ class WMEDetachedTab(QtWidgets.QDialog):
 
         self.grip = QtWidgets.QSizeGrip(self)
         self.grip.resize(16, 16)
+
+        self.setWindowIcon(QtGui.QIcon(icon_manager.load_colored_icon("app_icon_colored")))
 
     def add_tab(self, widget, icon, title: str):
         self.tab_widget.addTab(widget, icon, title)
