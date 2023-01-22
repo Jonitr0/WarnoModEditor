@@ -54,7 +54,7 @@ class DiffWidget(QtWidgets.QFrame):
             self.open_in_editor_button.setHidden(True)
 
         self.buttons_to_file[self.open_in_editor_button] = (diff_name, 0)
-        self.open_in_editor_button.pressed.connect(self.on_open_in_editor)
+        self.open_in_editor_button.clicked.connect(self.on_open_in_editor)
 
     def right_only(self, diff_name: str, right_name: str, right_path: str):
         self.set_icon(diff_name, right_path, COLORS.RIGHT_ICON)
@@ -94,7 +94,7 @@ class DiffWidget(QtWidgets.QFrame):
         header_minimize_button = QtWidgets.QToolButton()
         header_minimize_button.setIcon(icon_manager.load_icon("chevron_down.png", COLORS.SECONDARY_TEXT))
         header_minimize_button.setToolTip("Minimize")
-        header_minimize_button.pressed.connect(self.on_minimize)
+        header_minimize_button.clicked.connect(self.on_minimize)
         header_layout.addWidget(header_minimize_button)
 
         header_label = QtWidgets.QLabel("line " + str(diff_block.start + 1) + ":")
@@ -102,7 +102,7 @@ class DiffWidget(QtWidgets.QFrame):
         header_layout.addStretch(1)
         header_open_in_editor_button = QtWidgets.QPushButton("Open in text editor")
         header_layout.addWidget(header_open_in_editor_button)
-        header_open_in_editor_button.pressed.connect(self.on_open_in_editor)
+        header_open_in_editor_button.clicked.connect(self.on_open_in_editor)
 
         self.buttons_to_file[header_open_in_editor_button] = (diff_name, diff_block.start)
 
