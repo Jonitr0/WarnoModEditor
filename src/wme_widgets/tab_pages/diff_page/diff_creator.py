@@ -166,9 +166,8 @@ def append_data_to_block(data: DiffData, diff_block: DiffBlockData):
 
 # test function for this module
 # TODO: write some proper unit tests for this
-'''
+# TODO: add capacity to detect add/remove only in a line OR display char based diff
 if __name__ == "__main__":
     res = get_diff("left.txt", "right.txt")
     for o in res:
         print(o.lines)
-'''
