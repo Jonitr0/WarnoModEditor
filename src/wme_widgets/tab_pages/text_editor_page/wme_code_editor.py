@@ -34,6 +34,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.updateRequest.connect(self.updateLineNumberArea)
         self.cursorPositionChanged.connect(self.update)
         self.cursorPositionChanged.connect(self.mark_finds_in_viewport)
+        self.cursorPositionChanged.connect(self.syntax_highlight_in_viewport)
 
         self.updateLineNumberAreaWidth(0)
 
@@ -46,10 +47,10 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.find_format.setBackground(QtGui.QColor(get_color_for_key(COLORS.FIND_HIGHLIGHT.value)))
 
         self.verticalScrollBar().valueChanged.connect(self.mark_finds_in_viewport)
+        self.verticalScrollBar().valueChanged.connect(self.syntax_highlight_in_viewport)
         self.document().contentsChange.connect(self.update_search)
 
-        # TODO: build dynamic syntax highlighting OR look into QScintilla: https://qscintilla.com/
-        highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
+        self.highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
 
         # set tab size
         font = QtGui.QFont('Courier New', 10)
@@ -86,6 +87,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
                                                      self.lineNumberAreaWidth(), cr.height()))
 
         self.mark_finds_in_viewport()
+        self.syntax_highlight_in_viewport()
 
     def lineNumberAreaPaintEvent(self, event):
         painter = QtGui.QPainter(self.lineNumberArea)
@@ -273,3 +275,17 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
     def get_selected_text(self):
         return self.textCursor().selectedText()
+
+    # apply syntax highlighting to all visible lines
+    def syntax_highlight_in_viewport(self):
+        cursor = self.cursorForPosition(QtCore.QPoint(0, 0))
+        start = cursor.blockNumber()
+        bottom_right = QtCore.QPoint(self.viewport().width() - 1, self.viewport().height() - 1)
+        end_pos = self.cursorForPosition(bottom_right).position()
+        cursor.setPosition(end_pos, QtGui.QTextCursor.MoveAnchor)
+        end = cursor.blockNumber()
+
+        for i in range(end - start + 1):
+            block = self.document().findBlockByNumber(start + i)
+            self.highlighter.rehighlightBlock(block)
+

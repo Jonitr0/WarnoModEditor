@@ -31,7 +31,7 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 
         # keywords
         keyword_pattern = "\\b(" + self.keywords[0]
-        for i in range(len(self.keywords)-1):
+        for i in range(len(self.keywords) - 1):
             keyword_pattern += "|" + self.keywords[i + 1]
         keyword_pattern += ")\\b"
         self.add_rule("\\b" + keyword_pattern + "\\b", COLORS.KEYWORDS, case_insensitive=True)
@@ -68,10 +68,12 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
         self.highlighting_rules.append(rule)
 
     def highlightBlock(self, text: str):
+        if self.currentBlockUserData() is None:
+            self.setCurrentBlockUserData(QtGui.QTextBlockUserData())
+            return
         # apply basic rules
         for rule in self.highlighting_rules:
             iterator = rule.pattern.globalMatch(text)
             while iterator.hasNext():
                 match = iterator.next()
                 self.setFormat(match.capturedStart(), match.capturedLength(), rule.format)
-
