@@ -73,6 +73,7 @@ class DiffWidget(QtWidgets.QFrame):
     def create_diff_block_widget(self, diff_block: diff_creator.DiffBlockData, diff_name: str, left_lines: list,
                                  right_lines: list):
         text_edit = diff_code_editor.DiffCodeEditor()
+        text_edit.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self.create_diff_block_header(diff_name, diff_block, text_edit)
 
         self.diff_layout.addWidget(text_edit)

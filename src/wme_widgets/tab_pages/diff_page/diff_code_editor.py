@@ -20,7 +20,7 @@ class DiffCodeEditor(QtWidgets.QPlainTextEdit):
         self.setWordWrapMode(QtGui.QTextOption.NoWrap)
         self.setReadOnly(True)
 
-        highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
+        highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document(), dynamic=False)
 
         # set tab size
         font = QtGui.QFont('Courier New', 10)

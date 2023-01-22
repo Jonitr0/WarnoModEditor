@@ -22,7 +22,7 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
     keywords = ["export", "is", "template", "unnamed", "nil", "private", "div"]
     types = ["vector", "map", "list", "int", "string", "true", "false", "bool", "rgba", "float"]
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, dynamic=True):
         super().__init__(parent)
 
         # L-value
@@ -56,6 +56,8 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
         # single line comment
         self.add_rule("//[^\n]*", COLORS.SINGLE_COMMENT, italic=True, single_line_comment=True)
 
+        self.dynamic = dynamic
+
     def add_rule(self, pattern: str, color: COLORS, italic: bool = False, single_line_comment: bool = False,
                  case_insensitive: bool = False):
         rule = HighlightingRule()
@@ -68,7 +70,7 @@ class NdfSyntaxHighlighter(QtGui.QSyntaxHighlighter):
         self.highlighting_rules.append(rule)
 
     def highlightBlock(self, text: str):
-        if self.currentBlockUserData() is None:
+        if self.currentBlockUserData() is None and self.dynamic:
             self.setCurrentBlockUserData(QtGui.QTextBlockUserData())
             return
         # apply basic rules
