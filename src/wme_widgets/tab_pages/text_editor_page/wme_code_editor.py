@@ -206,12 +206,14 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         for find in self.find_results:
             if index < find[0]:
                 cursor.setPosition(find[0], QtGui.QTextCursor.MoveAnchor)
+                self.setFocus()
                 self.setTextCursor(cursor)
                 return
 
         # if no position was set yet, set it to the first find
         cursor.setPosition(self.find_results[0][0], QtGui.QTextCursor.MoveAnchor)
         self.setTextCursor(cursor)
+        self.setFocus()
 
     def goto_prev_find(self):
         if len(self.find_results) == 0:
@@ -224,6 +226,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         if index <= self.find_results[0][1]:
             cursor.setPosition(self.find_results[len(self.find_results) - 1][0], QtGui.QTextCursor.MoveAnchor)
             self.setTextCursor(cursor)
+            self.setFocus()
             return
 
         last_find = -1
@@ -231,6 +234,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             if index <= find[1] and last_find > 0:
                 cursor.setPosition(last_find, QtGui.QTextCursor.MoveAnchor)
                 self.setTextCursor(cursor)
+                self.setFocus()
                 return
             last_find = find[0]
 
