@@ -108,12 +108,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
 
     def on_open_ndf_editor_at_line(self, file_path: str, line_number: int):
         editor = self.on_open_ndf_editor(file_path)
-        main_widget.MainWidget.instance.show_loading_screen("moving cursor...")
         cursor = editor.code_editor.textCursor()
-        # TODO: find a better way to move cursor
-        cursor.movePosition(QtGui.QTextCursor.Down, QtGui.QTextCursor.MoveAnchor, line_number)
+        pos = editor.code_editor.document().findBlockByNumber(line_number).position()
+        cursor.setPosition(pos, QtGui.QTextCursor.MoveAnchor)
         editor.code_editor.setTextCursor(cursor)
-        main_widget.MainWidget.instance.hide_loading_screen()
 
     def on_global_search(self):
         page_icon = icon_manager.load_icon("magnify.png", COLORS.PRIMARY)
