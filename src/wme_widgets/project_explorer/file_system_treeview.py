@@ -4,58 +4,9 @@ import os
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
-from src.utils import icon_manager, settings_manager
 from src.utils.color_manager import *
-from src.wme_widgets import wme_lineedit, main_widget
 from src.dialogs import essential_dialogs
-
-
-class WMEProjectExplorer(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        main_layout = QtWidgets.QVBoxLayout()
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(main_layout)
-
-        # create minimalistic search bar
-        search_bar = wme_lineedit.WMELineEdit()
-        search_bar.setPlaceholderText("Find in Directory...")
-        main_layout.addWidget(search_bar)
-
-        # file size checkbox
-        file_size_label = QtWidgets.QLabel("Show file sizes: ")
-        self.file_size_checkbox = QtWidgets.QCheckBox()
-        check_status = settings_manager.get_settings_value(settings_manager.SHOW_EXPLORER_FILESIZE_KEY)
-        if check_status is not None:
-            self.file_size_checkbox.setChecked(check_status)
-        else:
-            self.file_size_checkbox.setChecked(False)
-        file_size_layout = QtWidgets.QHBoxLayout()
-        file_size_layout.addWidget(file_size_label)
-        file_size_layout.addWidget(self.file_size_checkbox)
-        file_size_layout.addStretch()
-        main_layout.addLayout(file_size_layout)
-
-        self.tree_view = FileSystemTreeView(self)
-        main_layout.addWidget(self.tree_view)
-        self.file_size_checkbox.stateChanged.connect(self.tree_view.on_show_size_changed)
-
-        search_bar.textChanged.connect(self.tree_view.on_find_text_changed)
-
-    def update_model(self, mod_path: str):
-        self.tree_view.update_model(mod_path)
-        self.file_size_checkbox.stateChanged.emit(self.file_size_checkbox.checkState())
-
-        main_widget.MainWidget.instance.show_loading_screen("Loading file system...")
-
-        # load file system
-        for i in range(20):
-            self.tree_view.expandAll()
-            QtWidgets.QApplication.processEvents()
-
-        self.tree_view.collapseAll()
-
-        main_widget.MainWidget.instance.hide_loading_screen()
+from src.wme_widgets.project_explorer import file_icon_provider, file_system_model
 
 
 class FileSystemTreeView(QtWidgets.QTreeView):
@@ -74,11 +25,11 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         self.setIconSize(QtCore.QSize(20, 20))
 
     def update_model(self, mod_path: str):
-        data_model = FileSystemModel()
+        data_model = file_system_model.FileSystemModel()
         data_model.setRootPath(mod_path)
         data_model.setNameFilters(["*.ndf"])
         data_model.setNameFilterDisables(False)
-        data_model.setIconProvider(FileIconProvider())
+        data_model.setIconProvider(file_icon_provider.FileIconProvider())
 
         self.setModel(data_model)
         self.setRootIndex(data_model.index(mod_path))
@@ -134,10 +85,10 @@ class FileSystemTreeView(QtWidgets.QTreeView):
     def on_delete(self, file_path: str):
         if os.path.isdir(file_path):
             text = "Do you really want to delete " + file_path + " and its contents?\n" \
-              "The directory will be actually deleted, not moved to the recycle bin. You will not be able to undo this!"
+                                                                 "The directory will be actually deleted, not moved to the recycle bin. You will not be able to undo this!"
         else:
             text = "Do you really want to delete " + file_path + "?\n" \
-              "The file will be actually deleted, not moved to the recycle bin. You will not be able to undo this!"
+                                                                 "The file will be actually deleted, not moved to the recycle bin. You will not be able to undo this!"
         dialog = essential_dialogs.ConfirmationDialog(text, "Confirm deletion")
         # return if not confirmed
         if not dialog.exec():
@@ -165,44 +116,3 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         else:
             self.showColumn(1)
             settings_manager.write_settings_value(settings_manager.SHOW_EXPLORER_FILESIZE_KEY, 1)
-
-
-class FileIconProvider(QtWidgets.QFileIconProvider):
-    def icon(self, file_info):
-        if isinstance(file_info, QtCore.QFileInfo):
-            if file_info.fileName().endswith(".ndf"):
-                return icon_manager.load_icon("text_file.png", COLORS.PRIMARY)
-            elif file_info.isDir():
-                return icon_manager.load_icon("dir.png", COLORS.SECONDARY_LIGHT)
-
-        return super().icon(file_info)
-
-
-# TODO (0.1.1): hide empty dirs
-class FileSystemModel(QtWidgets.QFileSystemModel):
-    def hasChildren(self, parent) -> bool:
-        # no possible children
-        if parent.flags() & Qt.ItemNeverHasChildren:
-            return False
-
-        name_filters = self.nameFilters()
-        # iterate through children
-        file_path = QtWidgets.QFileSystemModel.filePath(self, parent)
-        qdir = QtCore.QDir(file_path)
-        qdir.setNameFilters(name_filters)
-        dir_iter = QtCore.QDirIterator(qdir, QtCore.QDirIterator.Subdirectories)
-        if dir_iter.hasNext():
-            return True
-        else:
-            return False
-
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.ToolTipRole:
-            return index.data()
-        else:
-            return super().data(index, role)
-
-    def flags(self, index):
-        if not index.isValid():
-            return Qt.NoItemFlags  # 0
-        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ToolTip
