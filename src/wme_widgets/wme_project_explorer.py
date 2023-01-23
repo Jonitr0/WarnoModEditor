@@ -1,9 +1,13 @@
+import shutil
+import os
+
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
 from src.utils import icon_manager, settings_manager
 from src.utils.color_manager import *
 from src.wme_widgets import wme_lineedit, main_widget
+from src.dialogs import essential_dialogs
 
 
 class WMEProjectExplorer(QtWidgets.QWidget):
@@ -112,6 +116,9 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         expand_all_action = context_menu.addAction("Expand All")
         collapse_all_action = context_menu.addAction("Collapse All")
 
+        context_menu.addSeparator()
+        delete_action = context_menu.addAction("Delete")
+
         action = context_menu.exec_(self.mapToGlobal(point))
 
         # resolve
@@ -121,6 +128,27 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.expandAll()
         elif action == collapse_all_action:
             self.collapseAll()
+        elif action == delete_action:
+            self.on_delete(file_path)
+
+    def on_delete(self, file_path: str):
+        if os.path.isdir(file_path):
+            text = "Do you really want to delete " + file_path + " and its contents?\n" \
+              "The directory will be actually deleted, not moved to the recycle bin. You will not be able to undo this!"
+        else:
+            text = "Do you really want to delete " + file_path + "?\n" \
+              "The file will be actually deleted, not moved to the recycle bin. You will not be able to undo this!"
+        dialog = essential_dialogs.ConfirmationDialog(text, "Confirm deletion")
+        # return if not confirmed
+        if not dialog.exec():
+            return
+
+        file_path = file_path.replace("/", "\\")
+
+        if os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+        else:
+            os.remove(file_path)
 
     def on_find_text_changed(self, text: str):
         if text == "":
