@@ -8,7 +8,7 @@ from src.utils import markdown_loader
 
 
 class RichTextDialog(BaseDialog):
-    def __init__(self, md_file_path: str, title: str):
+    def __init__(self, md_file_path: str, title: str, modal: bool = False):
         self.rich_text_label = QtWidgets.QLabel()
         self.rich_text_label.setTextFormat(Qt.RichText)
         self.rich_text_label.setText(markdown_loader.get_md_text(md_file_path))
@@ -18,6 +18,7 @@ class RichTextDialog(BaseDialog):
         super().__init__(ok_only=True)
 
         self.setWindowTitle(title)
+        self.setModal(modal)
 
     def setup_ui(self):
         self.main_layout.addWidget(self.rich_text_label)
