@@ -3,7 +3,6 @@ import os
 import logging
 
 from PySide6 import QtWidgets
-from PySide6.QtCore import Qt
 from qt_material import apply_stylesheet
 
 from src import main_window

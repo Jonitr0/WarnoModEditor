@@ -13,6 +13,7 @@ from src.utils import path_validator
 from src.wme_widgets import main_widget
 
 
+# TODO: show script output to user
 def run_script(cwd: str, cmd: str, args: list):
     main_widget.MainWidget.instance.show_loading_screen("running command " + cmd + "...")
     try:

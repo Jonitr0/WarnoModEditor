@@ -25,14 +25,16 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         self.setIconSize(QtCore.QSize(20, 20))
 
     def update_model(self, mod_path: str):
-        data_model = file_system_model.FileSystemModel()
-        data_model.setRootPath(mod_path)
-        data_model.setNameFilters(["*.ndf"])
-        data_model.setNameFilterDisables(False)
-        data_model.setIconProvider(file_icon_provider.FileIconProvider())
+        proxy_model = file_system_model.FileSystemModel()
+        proxy_model.data_model.setRootPath(mod_path)
+        proxy_model.setNameFilters(["*.ndf"])
+        proxy_model.data_model.setNameFilterDisables(False)
+        proxy_model.data_model.setIconProvider(file_icon_provider.FileIconProvider())
 
-        self.setModel(data_model)
-        self.setRootIndex(data_model.index(mod_path))
+        self.setModel(proxy_model)
+        root_index = proxy_model.data_model.index(mod_path)
+        proxy_index = proxy_model.mapFromSource(root_index)
+        self.setRootIndex(proxy_index)
         self.mod_path = mod_path
 
         self.header().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
@@ -45,7 +47,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
 
     def on_double_click(self, index):
         # map index to source
-        file_path = QtWidgets.QFileSystemModel.filePath(self.model(), index)
+        file_path = self.model().get_file_path_for_index(index)
         if file_path.endswith(".ndf"):
             self.open_ndf_editor.emit(file_path)
 
@@ -56,7 +58,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
     def on_context_menu(self, point: QtCore.QPoint):
         index = self.indexAt(point)
 
-        file_path = QtWidgets.QFileSystemModel.filePath(self.model(), index)
+        file_path = self.model().get_file_path_for_index(index)
         context_menu = QtWidgets.QMenu(self)
 
         # .ndf context menu
