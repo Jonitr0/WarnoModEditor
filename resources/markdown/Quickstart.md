@@ -23,5 +23,6 @@ You can upload your mod to Steam Workshop if you want other people to be able to
 ### Troubleshooting
 
 - *mod upload fails:* No message box is displayed after uploading and the mod does not appear on your Steam Workshop page. In this case, delete the mod config file ("Edit" > "Delete Mod Configuration"), generate and upload the mod again.
+- *"update mod" takes long:* The update feature might not work as indented yet. You can check the log file ("wme.log", created in the directory in which you run WME) to see if the script reported any errors.
 
 If you encounter any bugs, errors or if something does not work as you think it should, please open a new issue [here](https://github.com/Jonitr0/WarnoModEditor/issues), if your problem has not been reported already.

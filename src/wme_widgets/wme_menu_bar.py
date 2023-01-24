@@ -13,28 +13,6 @@ from src.utils import path_validator
 from src.wme_widgets import main_widget
 
 
-# TODO: show script output to user
-def run_script(cwd: str, cmd: str, args: list):
-    main_widget.MainWidget.instance.show_loading_screen("running command " + cmd + "...")
-    try:
-        process = QtCore.QProcess()
-        process.setProgram("cmd.exe")
-        process.setArguments(["/C", cmd, args])
-        process.setWorkingDirectory(cwd)
-        logging.info("at " + cwd + " running: cmd.exe /C " + cmd + " " + str(args))
-
-        process.start()
-        process.waitForFinished()
-        ret = process.exitCode()
-        process.close()
-        main_widget.MainWidget.instance.hide_loading_screen()
-        return ret
-    except Exception as ex:
-        logging.error(ex)
-        main_widget.MainWidget.instance.hide_loading_screen()
-        return -1
-
-
 class WMEMainMenuBar(QtWidgets.QMenuBar):
     request_load_mod = QtCore.Signal(str)
     request_quickstart = QtCore.Signal()
@@ -97,7 +75,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             mods_path = self.main_widget_ref.get_warno_path() + "/Mods/"
             mods_path = mods_path.replace("/", "\\")
 
-            if run_script(mods_path, "CreateNewMod.bat", mod_name) != 0:
+            if self.run_script(mods_path, "CreateNewMod.bat", mod_name) != 0:
                 logging.error("Error while running CreateNewMod.bat")
                 return
 
@@ -194,7 +172,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
     def generate_mod(self):
         # for whatever reason, the successful run returns 18?
-        ret_code = run_script(self.main_widget_ref.get_loaded_mod_path(), "GenerateMod.bat", [])
+        ret_code = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "GenerateMod.bat", [])
         logging.info("GenerateMod.bat executed with return code " + str(ret_code))
 
     def on_generate_action(self):
@@ -271,7 +249,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
     def on_update_action(self):
         self.remove_pause_line_from_script("UpdateMod.bat")
-        ret = run_script(self.main_widget_ref.get_loaded_mod_path(), "UpdateMod.bat", [])
+        ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "UpdateMod.bat", [])
         logging.info("UpdateMod.bat executed with return code " + str(ret))
 
         try:
@@ -286,11 +264,11 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             lines = f.readlines()
         with open(file, "w") as f:
             for line in lines:
-                if line.strip("\n") != "pause":
+                if not line.__contains__("pause"):
                     f.write(line)
 
     def on_upload_action(self):
-        ret = run_script(self.main_widget_ref.get_loaded_mod_path(), "UploadMod.bat", [])
+        ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "UploadMod.bat", [])
         logging.info("UploadMod.bat executed with return code " + str(ret))
 
     def on_new_backup_action(self):
@@ -304,7 +282,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             args = dialog.get_name()
 
         self.remove_pause_line_from_script("CreateModBackup.bat")
-        ret = run_script(self.main_widget_ref.get_loaded_mod_path(), "CreateModBackup.bat", args)
+        ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "CreateModBackup.bat", args)
         logging.info("CreateModBackup.bat executed with return code " + str(ret))
 
     def find_backups(self):
@@ -333,7 +311,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         selection = dialog.get_selection()
 
         self.remove_pause_line_from_script("RetrieveModBackup.bat")
-        ret = run_script(self.main_widget_ref.get_loaded_mod_path(), "RetrieveModBackup.bat", selection)
+        ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "RetrieveModBackup.bat", selection)
         logging.info("RetrieveModBackup.bat executed with return code " + str(ret))
 
     def on_delete_backup_action(self):
@@ -376,3 +354,32 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
         self.actions.append(action)
         return action
+
+    def run_script(self, cwd: str, cmd: str, args: list):
+        main_widget.MainWidget.instance.show_loading_screen("running command " + cmd + "...")
+        try:
+            self.process = QtCore.QProcess()
+            self.process.setProgram("cmd.exe")
+            self.process.setArguments(["/C", cmd, args])
+            self.process.setWorkingDirectory(cwd)
+            logging.info("at " + cwd + " running: cmd.exe /C " + cmd + " " + str(args))
+
+            self.process.readyReadStandardOutput.connect(self.print_process_output)
+            self.process.readyReadStandardError.connect(self.print_porcess_error)
+
+            self.process.start()
+            self.process.waitForFinished()
+            ret = self.process.exitCode()
+            self.process.close()
+            main_widget.MainWidget.instance.hide_loading_screen()
+            return ret
+        except Exception as ex:
+            logging.error(ex)
+            main_widget.MainWidget.instance.hide_loading_screen()
+            return -1
+
+    def print_process_output(self):
+        logging.info("Process output: " + str(self.process.readAllStandardOutput()))
+
+    def print_porcess_error(self):
+        logging.warning("Process error: " + str(self.process.readAllStandardError()))
