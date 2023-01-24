@@ -14,7 +14,7 @@ class WMEProjectExplorer(QtWidgets.QWidget):
 
         # create minimalistic search bar
         search_bar = wme_lineedit.WMELineEdit()
-        search_bar.setPlaceholderText("Find in Directory...")
+        search_bar.setPlaceholderText("Find .ndf files in Directory...")
         main_layout.addWidget(search_bar)
 
         # file size checkbox

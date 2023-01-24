@@ -105,9 +105,11 @@ class FileSystemTreeView(QtWidgets.QTreeView):
 
     def on_find_text_changed(self, text: str):
         if text == "":
+            self.model().show_all_dirs = True
             self.model().setNameFilters(["*.ndf"])
             self.collapseAll()
         else:
+            self.model().show_all_dirs = False
             self.model().setNameFilters(["*" + text + "*.ndf"])
             self.expandAll()
 

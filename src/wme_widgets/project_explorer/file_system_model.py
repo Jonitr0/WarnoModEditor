@@ -8,6 +8,7 @@ from PySide6.QtCore import Qt
 class FileSystemModel(QtCore.QSortFilterProxyModel):
     name_filters = ""
     root_path = ""
+    show_all_dirs = True
 
     def __init__(self):
         super().__init__()
@@ -16,7 +17,6 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
             QtCore.QDir.NoDotAndDotDot | QtCore.QDir.AllDirs | QtCore.QDir.Files)
         self.setSourceModel(self.data_model)
 
-    # TODO: add 'no search' state in which all dirs are shown
     def setNameFilters(self, filters):
         if not isinstance(filters, (tuple, list)):
             filters = [filters]
@@ -42,6 +42,8 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
             return True
         if source.isValid():
             if self.data_model.isDir(source):
+                if self.show_all_dirs:
+                    return True
                 qdir = QtCore.QDir(self.data_model.filePath(source))
                 dir_iter = QtCore.QDirIterator(qdir.path(), self.name_filters,
                                                qdir.Files, QtCore.QDirIterator.Subdirectories)
