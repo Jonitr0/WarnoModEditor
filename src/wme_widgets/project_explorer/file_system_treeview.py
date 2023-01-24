@@ -26,7 +26,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
 
     def update_model(self, mod_path: str):
         proxy_model = file_system_model.FileSystemModel()
-        proxy_model.data_model.setRootPath(mod_path)
+        proxy_model.set_root_path(mod_path)
         proxy_model.setNameFilters(["*.ndf"])
         proxy_model.data_model.setNameFilterDisables(False)
         proxy_model.data_model.setIconProvider(file_icon_provider.FileIconProvider())

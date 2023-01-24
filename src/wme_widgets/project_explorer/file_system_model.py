@@ -1,11 +1,13 @@
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
-# based on: https://stackoverflow.com/questions/63669844/pyqt5-dont-show-empty-folders-after-filtering-files-with-a-setnamefilters
+# based on:
+# https://stackoverflow.com/questions/63669844/pyqt5-dont-show-empty-folders-after-filtering-files-with-a-setnamefilters
 
-# TODO: hide empty dirs
+
 class FileSystemModel(QtCore.QSortFilterProxyModel):
-    name_filters = ''
+    name_filters = ""
+    root_path = ""
 
     def __init__(self):
         super().__init__()
@@ -14,6 +16,7 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
             QtCore.QDir.NoDotAndDotDot | QtCore.QDir.AllDirs | QtCore.QDir.Files)
         self.setSourceModel(self.data_model)
 
+    # TODO: add 'no search' state in which all dirs are shown
     def setNameFilters(self, filters):
         if not isinstance(filters, (tuple, list)):
             filters = [filters]
@@ -22,23 +25,27 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
 
     def hasChildren(self, parent):
         sourceParent = self.mapToSource(parent)
+        # accept anything that's shorter than root path
+        entry_path = QtWidgets.QFileSystemModel.filePath(self.data_model, sourceParent)
+        if len(entry_path) <= len(self.root_path):
+            return True
         if not self.data_model.hasChildren(sourceParent):
             return False
         qdir = QtCore.QDir(self.data_model.filePath(sourceParent))
         return bool(qdir.entryList(qdir.NoDotAndDotDot | qdir.AllEntries | qdir.AllDirs))
 
     def filterAcceptsRow(self, row, parent):
-        # TODO: accept anything that's shorter than root path
         source = self.data_model.index(row, 0, parent)
+        # accept anything that's shorter than root path
+        entry_path = QtWidgets.QFileSystemModel.filePath(self.data_model, source)
+        if len(entry_path) <= len(self.root_path):
+            return True
         if source.isValid():
             if self.data_model.isDir(source):
                 qdir = QtCore.QDir(self.data_model.filePath(source))
-                if self.name_filters:
-                    qdir.setNameFilters(self.name_filters)
-                # TODO: entry list needs to get dirs removed
-                print(QtWidgets.QFileSystemModel.filePath(self.data_model, source))
-                print(qdir.entryList(qdir.NoDotAndDotDot | qdir.AllEntries | qdir.AllDirs))
-                return bool(qdir.entryList(qdir.NoDotAndDotDot | qdir.AllEntries | qdir.AllDirs))
+                dir_iter = QtCore.QDirIterator(qdir.path(), self.name_filters,
+                                               qdir.Files, QtCore.QDirIterator.Subdirectories)
+                return dir_iter.hasNext()
 
             elif self.name_filters:  # file
                 qdir = QtCore.QDir(self.data_model.filePath(source))
@@ -59,3 +66,7 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
 
     def get_file_path_for_index(self, index):
         return QtWidgets.QFileSystemModel.filePath(self.data_model, self.mapToSource(index))
+
+    def set_root_path(self, root_path: str):
+        self.data_model.setRootPath(root_path)
+        self.root_path = root_path
