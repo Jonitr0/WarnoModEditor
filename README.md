@@ -1,5 +1,7 @@
 WARNO Mod Editor (WME) is a modding tool for Eugen System's real-time tactics game [WARNO](https://store.steampowered.com/app/1611600/WARNO/). WME offers a graphical user interface from which mods can be created, edited and managed. It is written in Python and uses PySide6 for the GUI.
 
+![preview](./resources/markdown/wme_preview.png) TODO: this likely has to be a url. Imgur maybe?
+
 ### Getting and running WME
 
 ##### Requirements
@@ -16,7 +18,9 @@ Set up a Python 3.10 environment, install [PySide6](https://pypi.org/project/PyS
 
 ##### First steps
 
-When you first start WME, you might get asked to enter the path to your WARNO installation. Please refer to the [Quickstart Guide](https://github.com/Jonitr0/WarnoModEditor/blob/main/resources/markdown/Quickstart.md) to learn how to use WME.
+When you first start WME, you might get asked to enter the path to your WARNO installation. 
+
+Please refer to the [Quickstart Guide](https://github.com/Jonitr0/WarnoModEditor/blob/main/resources/markdown/Quickstart.md) to learn how to use WME.
 
 ### Feedback
 

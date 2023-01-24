@@ -121,7 +121,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_open_manual(self):
         manual_action = icon_manager.load_icon("help.png", COLORS.PRIMARY)
         viewer = rich_text_viewer_page.RichTextViewerPage("UserManual.md")
-        # TODO: fill md file, convert to html
+        # TODO (0.1.1): fill md file, convert to html
         self.addTab(viewer, manual_action, "User Manual")
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
