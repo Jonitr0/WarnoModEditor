@@ -1,6 +1,7 @@
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
+# based on: https://stackoverflow.com/questions/63669844/pyqt5-dont-show-empty-folders-after-filtering-files-with-a-setnamefilters
 
 # TODO: hide empty dirs
 class FileSystemModel(QtCore.QSortFilterProxyModel):
@@ -27,6 +28,7 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
         return bool(qdir.entryList(qdir.NoDotAndDotDot | qdir.AllEntries | qdir.AllDirs))
 
     def filterAcceptsRow(self, row, parent):
+        # TODO: accept anything that's shorter than root path
         source = self.data_model.index(row, 0, parent)
         if source.isValid():
             if self.data_model.isDir(source):
