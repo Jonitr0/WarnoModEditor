@@ -68,12 +68,13 @@ class MainWindow(QtWidgets.QMainWindow):
         # TODO (0.1.1): add borders that allow resize, in shadow area
 
     def close(self):
-        # TODO: close all dialogs (such as help)
         if self.main_widget_ref is None:
             super().close()
+            QtWidgets.QApplication.quit()
         if self.main_widget_ref.ask_all_tabs_to_save():
             wme_detached_tab.clear_detached_list()
             super().close()
+            QtWidgets.QApplication.quit()
 
     def changeEvent(self, event):
         if event.type() == QtCore.QEvent.WindowStateChange:
