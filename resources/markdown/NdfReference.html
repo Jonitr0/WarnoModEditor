@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>NdfReference</title>
+</head>
+<body><h1 id='ndf-reference'>NDF Reference</h1>
+<h3 id='introduction'>Introduction</h3>
+<p>The NDF language is used to describe game data.
+It is a declarative language that defines objects with properties and relations between them, in order to instantiate
+the correct data during game execution.</p>
+<h3 id='syntax'>Syntax</h3>
+<h4 id='charset'>Charset</h4>
+<p>All NDF files shall be encoded in either <strong>UTF-8</strong> or <strong>ANSI restricted to the 7-bit table</strong>.
+The NDF parser is <strong>case insensitive</strong>: &#39;TRUE&#39; and &#39;true&#39; are equivalent.</p>
+<h4 id='keywords'>Keywords</h4>
+<p><code>export, is, template, unnamed, nil, private, int, string, true, false, div, map</code></p>
+<h4 id='symbols'>Symbols</h4>
+<p><code>//, /, ?, :, =, |, &amp;, &lt;, &gt;, &gt;=, &lt;=, !=, , +, *, %, ,</code> (comma)<code>, .</code>(dot)</p>
+<h4 id='block-delimiters'>Block delimiters</h4>
+<p><code>{}, [], (), &lt;&gt;, (* *), /* */, &#39; &#39;, &quot; &quot;</code></p>
+<h4 id='comments'>Comments</h4>
+<p>Everything after the symbol // is ignored until the end of the line.</p>
+<p>Everything in blocks delimited by { } or (* *) or /* */ is ignored.</p>
+<h3 id='built-in-types'>Built-in types</h3>
+<h4 id='boolean'>Boolean</h4>
+<p>Can only be <code>true</code> or <code>false</code>.</p>
+<p>&nbsp;</p>
+</body>
+</html>

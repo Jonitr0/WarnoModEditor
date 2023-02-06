@@ -45,10 +45,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
         quickstart_action = self.tab_menu.addAction("Quickstart Guide")
         quickstart_action.setToolTip("The Quickstart Guide walks you through the basics of using WME.")
         quickstart_action.triggered.connect(self.on_open_quickstart)
-        # TODO: add actions as soon as html files are ready
-        #ndf_reference_action = self.tab_menu.addAction("NDF Reference")
-        #ndf_reference_action.setToolTip("The NDF Reference contains rules and conventions of the NDF language.")
-        #ndf_reference_action.triggered.connect(self.on_open_ndf_reference)
+        ndf_reference_action = self.tab_menu.addAction("NDF Reference")
+        ndf_reference_action.setToolTip("The NDF Reference contains rules and conventions of the NDF language.")
+        ndf_reference_action.triggered.connect(self.on_open_ndf_reference)
+        # TODO: add action as soon as html files are ready
         #manual_action = self.tab_menu.addAction("User Manual")
         #manual_action.setToolTip("The User Manual explains WME features in depth.")
         #manual_action.triggered.connect(self.on_open_manual)
@@ -114,7 +114,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
 
     def on_open_ndf_reference(self):
         reference_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
-        viewer = rich_text_viewer_page.RichTextViewerPage("NdfReference.md")
+        viewer = rich_text_viewer_page.RichTextViewerPage("NdfReference.html")
         # TODO: fill md file, convert to html
         self.addTab(viewer, reference_icon, "NDF Reference")
 
