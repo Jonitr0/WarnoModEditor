@@ -1,6 +1,6 @@
 WARNO Mod Editor (WME) is a modding tool for Eugen System's real-time tactics game [WARNO](https://store.steampowered.com/app/1611600/WARNO/). WME offers a graphical user interface from which mods can be created, edited and managed. It is written in Python and uses PySide6 for the GUI.
 
-![preview](./resources/markdown/wme_preview.png) TODO: this likely has to be a url. Imgur maybe?
+![preview](./resources/markdown/wme_preview.png) 
 
 ### Getting and running WME
 
@@ -21,6 +21,28 @@ Set up a Python 3.10 environment, install [PySide6](https://pypi.org/project/PyS
 When you first start WME, you might get asked to enter the path to your WARNO installation. 
 
 Please refer to the [Quickstart Guide](https://github.com/Jonitr0/WarnoModEditor/blob/main/resources/markdown/Quickstart.md) to learn how to use WME.
+
+### Tools
+
+WME offers a range of tools that make creating mods for WARNO easier. Click the "Add Tab" button to access them.
+
+##### Text Editor
+
+Double-click a .ndf file in the project explorer to open it in the text editor. It supports NDF syntax highlighting and has find and replace functions.
+
+##### Global Search
+
+Allows you to find text in any .ndf file of our mod. Useful to find object references across files.
+
+#####GUID Generator
+
+Generates random GUIDs which are required by some NDF objects.
+
+##### Resources
+
+In addition, WME includes a Quickstart Guide and a reference for the NDF language.
+
+You can also run scripts ("Generate Mod", "Upload Mod", "Create Backup",...) from the "Edit" menu in WME.
 
 ### Feedback
 
