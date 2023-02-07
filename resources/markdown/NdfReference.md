@@ -27,7 +27,7 @@ The NDF parser is **case insensitive**: 'TRUE' and 'true' are equivalent.
 
 Everything after the symbol // is ignored until the end of the line.
 
-Everything in blocks delimited by { } or (* \*) or /* */ is ignored.
+Everything in blocks delimited by **{ }** or **(* \*)** or **/* */** is ignored.
 
 ### Built-in types
 
