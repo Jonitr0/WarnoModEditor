@@ -4,7 +4,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
-from src.wme_widgets.tab_pages import tab_page_base, rich_text_viewer_page, global_search_page
+from src.wme_widgets.tab_pages import tab_page_base, rich_text_viewer_page, global_search_page, guid_generator_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.wme_widgets import main_widget
 from src.dialogs import essential_dialogs
@@ -39,6 +39,11 @@ class WMETabWidget(QtWidgets.QTabWidget):
         global_search_action = self.tab_menu.addAction("Global Search")
         global_search_action.setToolTip("Search for text in all files of your mod.")
         global_search_action.triggered.connect(self.on_global_search)
+
+        guid_generator_action = self.tab_menu.addAction("GUID Generator")
+        guid_generator_action.setToolTip("Generate GUIDs (Globally Unique Identifiers), "
+                                         "which are used in some NDF objects.")
+        guid_generator_action.triggered.connect(self.on_guid_generator)
 
         self.tab_menu.addSeparator()
 
@@ -106,6 +111,11 @@ class WMETabWidget(QtWidgets.QTabWidget):
         page = global_search_page.GlobalSearchPage()
         self.addTab(page, page_icon, "Global Search")
         page.search_line_edit.setFocus()
+
+    def on_guid_generator(self):
+        page_icon = icon_manager.load_icon("cert.png", COLORS.PRIMARY)
+        page = guid_generator_page.GuidGeneratorPage()
+        self.addTab(page, page_icon, "GUID Generator")
 
     def on_open_quickstart(self):
         quickstart_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
