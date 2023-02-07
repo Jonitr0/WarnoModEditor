@@ -1,5 +1,3 @@
-# Quickstart
-
 Welcome to WARNO mod editor (WME)! This guide will explain how you can create, generate and upload your first mod.
 
 ### Creating a new mod

@@ -7,6 +7,8 @@ from src.wme_widgets.tab_pages.text_editor_page import wme_find_replace_bar, wme
 from src.utils import icon_manager
 from src.utils.color_manager import *
 
+
+# TODO: add "new" option, add text editor to tab widget
 class NdfEditorPage(tab_page_base.TabPageBase):
     def __init__(self):
         super().__init__()
@@ -58,7 +60,8 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         self.find_action.setCheckable(True)
         self.find_action.toggled.connect(self.on_find)
 
-        self.replace_action = tool_bar.addAction(icon_manager.load_icon("replace.png", COLORS.PRIMARY), "Replace (Ctrl + R)")
+        self.replace_action = tool_bar.addAction(icon_manager.load_icon("replace.png", COLORS.PRIMARY),
+                                                 "Replace (Ctrl + R)")
         self.replace_action.setShortcut("Ctrl+R")
         self.replace_action.setCheckable(True)
         self.replace_action.toggled.connect(self.on_replace)

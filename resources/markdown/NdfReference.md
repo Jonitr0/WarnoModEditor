@@ -1,5 +1,3 @@
-# NDF Reference
-
 ###Introduction
 
 The NDF language is used to describe game data.
@@ -19,7 +17,7 @@ The NDF parser is **case insensitive**: 'TRUE' and 'true' are equivalent.
 
 ####Symbols
 
-``//, /, ?, :, =, |, &, <, >, >=, <=, !=, , +, *, %, ,`` (comma)``, . ``(dot)
+``//, /, ?, :, =, |, &, <, >, >=, <=, !=, , +, *, %, ,`` (comma)``, . `` (dot)
 
 #### Block delimiters
 
@@ -36,4 +34,52 @@ Everything in blocks delimited by { } or (* \*) or /* */ is ignored.
 #### Boolean
 
 Can only be ``true`` or ``false``.
+
+####Strings
+
+Character strings are delimited by single or double quotes and can contain accentuated characters.
+
+````
+"This is a string"
+'This ïs ànothér on€'
+````
+
+####Integers
+
+Integers are written in base 10 or hexadecimal notation.
+
+````
+3
+150486
+36584
+0xFF00A8
+0x1
+````
+
+#### Floating point numbers
+
+Floating point numbers are written in base 10 natural notation, there is no exponent or hexadecimal notation. The decimal separator is the . (dot) character.
+
+````
+3.1415954
+9.81
+654987.1248
+````
+
+The integer part can be omitted (implicit 0). The fractional part can be omitted (implicit 0).
+
+````
+.127
+53.
+````
+
+#### Vector
+
+A vector is a list of zero or more elements enclosed in a **[ ] block** and separated by , (comma).
+
+````
+[] // an empty vector
+[1, 2, 3] // a vector of integers
+["Hello", 'World',] // a trailing comma separator is accepted
+````
 

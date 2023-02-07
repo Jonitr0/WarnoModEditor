@@ -4,8 +4,7 @@
 <meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
 <title>NdfReference</title>
 </head>
-<body><h1 id='ndf-reference'>NDF Reference</h1>
-<h3 id='introduction'>Introduction</h3>
+<body><h3 id='introduction'>Introduction</h3>
 <p>The NDF language is used to describe game data.
 It is a declarative language that defines objects with properties and relations between them, in order to instantiate
 the correct data during game execution.</p>
@@ -16,7 +15,7 @@ The NDF parser is <strong>case insensitive</strong>: &#39;TRUE&#39; and &#39;tru
 <h4 id='keywords'>Keywords</h4>
 <p><code>export, is, template, unnamed, nil, private, int, string, true, false, div, map</code></p>
 <h4 id='symbols'>Symbols</h4>
-<p><code>//, /, ?, :, =, |, &amp;, &lt;, &gt;, &gt;=, &lt;=, !=, , +, *, %, ,</code> (comma)<code>, .</code>(dot)</p>
+<p><code>//, /, ?, :, =, |, &amp;, &lt;, &gt;, &gt;=, &lt;=, !=, , +, *, %, ,</code> (comma)<code>, .</code> (dot)</p>
 <h4 id='block-delimiters'>Block delimiters</h4>
 <p><code>{}, [], (), &lt;&gt;, (* *), /* */, &#39; &#39;, &quot; &quot;</code></p>
 <h4 id='comments'>Comments</h4>
@@ -25,6 +24,35 @@ The NDF parser is <strong>case insensitive</strong>: &#39;TRUE&#39; and &#39;tru
 <h3 id='built-in-types'>Built-in types</h3>
 <h4 id='boolean'>Boolean</h4>
 <p>Can only be <code>true</code> or <code>false</code>.</p>
+<h4 id='strings'>Strings</h4>
+<p>Character strings are delimited by single or double quotes and can contain accentuated characters.</p>
+<pre><code>&quot;This is a string&quot;
+&#39;This ïs ànothér on€&#39;
+</code></pre>
+<h4 id='integers'>Integers</h4>
+<p>Integers are written in base 10 or hexadecimal notation.</p>
+<pre><code>3
+150486
+36584
+0xFF00A8
+0x1
+</code></pre>
+<h4 id='floating-point-numbers'>Floating point numbers</h4>
+<p>Floating point numbers are written in base 10 natural notation, there is no exponent or hexadecimal notation. The decimal separator is the . (dot) character.</p>
+<pre><code>3.1415954
+9.81
+654987.1248
+</code></pre>
+<p>The integer part can be omitted (implicit 0). The fractional part can be omitted (implicit 0).</p>
+<pre><code>.127
+53.
+</code></pre>
+<h4 id='vector'>Vector</h4>
+<p>A vector is a list of zero or more elements enclosed in a <strong>[ ] block</strong> and separated by , (comma).</p>
+<pre><code>[] // an empty vector
+[1, 2, 3] // a vector of integers
+[&quot;Hello&quot;, &#39;World&#39;,] // a trailing comma separator is accepted
+</code></pre>
 <p>&nbsp;</p>
 </body>
 </html>
