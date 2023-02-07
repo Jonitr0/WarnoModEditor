@@ -34,7 +34,7 @@ Double-click a .ndf file in the project explorer to open it in the text editor. 
 
 Allows you to find text in any .ndf file of our mod. Useful to find object references across files.
 
-#####GUID Generator
+##### GUID Generator
 
 Generates random GUIDs which are required by some NDF objects.
 

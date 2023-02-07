@@ -27,6 +27,10 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         tool_bar = QtWidgets.QToolBar()
         main_layout.addWidget(tool_bar)
 
+        new_action = tool_bar.addAction(icon_manager.load_icon("file.png", COLORS.PRIMARY), "New (Ctrl + N)")
+        new_action.setShortcut("Ctrl+N")
+        new_action.triggered.connect(self.on_new)
+
         open_action = tool_bar.addAction(icon_manager.load_icon("open.png", COLORS.PRIMARY), "Open (Ctrl + O)")
         open_action.setShortcut("Ctrl+O")
         open_action.triggered.connect(self.on_open)
@@ -34,6 +38,11 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         save_action = tool_bar.addAction(icon_manager.load_icon("save.png", COLORS.PRIMARY), "Save (Ctrl + S)")
         save_action.setShortcut("Ctrl+S")
         save_action.triggered.connect(self.save_changes)
+
+        save_as_action = tool_bar.addAction(icon_manager.load_icon("save_as.png", COLORS.PRIMARY),
+                                            "Save As (Ctrl + Shift+ S)")
+        save_as_action.setShortcut("Ctrl+Shift+S")
+        save_as_action.triggered.connect(self.on_save_as)
 
         tool_bar.addSeparator()
 
@@ -88,6 +97,11 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         self.code_editor.document().undoAvailable.connect(self.on_undo_available)
         self.code_editor.document().redoAvailable.connect(self.on_redo_available)
 
+    def on_new(self):
+        mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
+        path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
+        # TODO: create or clear file, set as file_path
+
     def on_open(self):
         file_path, _ = QtWidgets.QFileDialog().getOpenFileName(self,
                                                                "Select .ndf File",
@@ -125,6 +139,11 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         if ret:
             self.unsaved_changes = False
         return ret
+
+    def on_save_as(self):
+        mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
+        path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save As..", mod_path, "*.ndf")
+        # TODO: create or clear file, set as file_path
 
     def update_page(self):
         self.open_file(self.file_path)
