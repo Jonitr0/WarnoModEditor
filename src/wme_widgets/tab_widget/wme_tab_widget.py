@@ -36,6 +36,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.tab_menu.setToolTipsVisible(True)
         new_tab_button.setMenu(self.tab_menu)
 
+        text_editor_action = self.tab_menu.addAction("Text Editor")
+        text_editor_action.setToolTip("Create or edit .ndf files.")
+        text_editor_action.triggered.connect(self.on_text_editor)
+
         global_search_action = self.tab_menu.addAction("Global Search")
         global_search_action.setToolTip("Search for text in all files of your mod.")
         global_search_action.triggered.connect(self.on_global_search)
@@ -105,6 +109,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
         editor.find_action.setChecked(True)
         editor.find_bar.line_edit.setText(search_pattern)
         editor.code_editor.find_pattern(search_pattern)
+
+    def on_text_editor(self):
+        # TODO: create and add empty editor
+        pass
 
     def on_global_search(self):
         page_icon = icon_manager.load_icon("magnify.png", COLORS.PRIMARY)

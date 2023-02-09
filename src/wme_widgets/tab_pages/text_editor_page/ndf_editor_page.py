@@ -10,7 +10,6 @@ from src.utils import icon_manager
 from src.utils.color_manager import *
 
 
-# TODO: add "new" option, add text editor to tab widget
 class NdfEditorPage(tab_page_base.TabPageBase):
     def __init__(self):
         super().__init__()
@@ -142,6 +141,7 @@ class NdfEditorPage(tab_page_base.TabPageBase):
 
         main_widget.MainWidget.instance.hide_loading_screen()
 
+    # TODO: make sure "save as" is called if file_path is not set
     def save_changes_overwrite(self):
         main_widget.MainWidget.instance.show_loading_screen("saving file...")
         ret = False
