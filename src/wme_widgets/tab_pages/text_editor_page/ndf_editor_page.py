@@ -6,6 +6,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from src.wme_widgets.tab_pages import tab_page_base
 from src.wme_widgets import main_widget
 from src.wme_widgets.tab_pages.text_editor_page import wme_find_replace_bar, wme_code_editor
+from src.dialogs import essential_dialogs
 
 from src.utils import icon_manager
 from src.utils.color_manager import *
@@ -100,6 +101,13 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         self.code_editor.document().redoAvailable.connect(self.on_redo_available)
 
     def on_new(self):
+        if self.unsaved_changes:
+            dialog = essential_dialogs.AskToSaveDialog(self.tab_name)
+            result = dialog.exec()
+            if not result == QtWidgets.QDialog.Accepted:
+                return
+            elif dialog.save_changes:
+                self.save_changes()
         mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
         # get file path
         file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
