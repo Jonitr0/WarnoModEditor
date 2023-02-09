@@ -57,7 +57,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         ndf_reference_action = self.tab_menu.addAction("NDF Reference")
         ndf_reference_action.setToolTip("The NDF Reference contains rules and conventions of the NDF language.")
         ndf_reference_action.triggered.connect(self.on_open_ndf_reference)
-        # TODO: add action as soon as html files are ready
+        # TODO (0.1.1): add action as soon as html files are ready
         #manual_action = self.tab_menu.addAction("User Manual")
         #manual_action.setToolTip("The User Manual explains WME features in depth.")
         #manual_action.triggered.connect(self.on_open_manual)
@@ -111,8 +111,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
         editor.code_editor.find_pattern(search_pattern)
 
     def on_text_editor(self):
-        # TODO: create and add empty editor
-        pass
+        editor_icon = icon_manager.load_icon("text_editor.png", COLORS.PRIMARY)
+        editor = ndf_editor_page.NdfEditorPage()
+        self.addTab(editor, editor_icon, "Text Editor")
+        editor.code_editor.setFocus()
 
     def on_global_search(self):
         page_icon = icon_manager.load_icon("magnify.png", COLORS.PRIMARY)

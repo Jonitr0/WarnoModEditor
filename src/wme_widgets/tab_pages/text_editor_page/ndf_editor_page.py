@@ -1,3 +1,4 @@
+import logging
 import os.path
 
 from PySide6 import QtWidgets, QtCore, QtGui
@@ -102,11 +103,16 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
         # get file path
         file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
+        if file_path == "":
+            return
         file_path = file_path.replace("/", "\\")
         if not file_path.endswith(".ndf"):
             file_path = file_path.append(".ndf")
         # clear/create file
-        open(file_path, 'w').close()
+        try:
+            open(file_path, 'w').close()
+        except Exception as e:
+            logging.error("Could not create file " + file_path + ": " + str(e))
         # reset editor
         self.code_editor.setPlainText("")
         self.code_editor.document().clearUndoRedoStacks()
@@ -141,9 +147,18 @@ class NdfEditorPage(tab_page_base.TabPageBase):
 
         main_widget.MainWidget.instance.hide_loading_screen()
 
-    # TODO: make sure "save as" is called if file_path is not set
     def save_changes_overwrite(self):
-        main_widget.MainWidget.instance.show_loading_screen("saving file...")
+        if self.file_path == "":
+            mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
+            # get file path
+            self.file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
+            if self.file_path == "":
+                return
+            # set tab name
+            self.file_path = self.file_path.replace("/", "\\")
+            if not self.file_path.endswith(".ndf"):
+                file_path = self.file_path.append(".ndf")
+            self.tab_name = self.file_path[self.file_path.rindex('\\') + 1:]
         ret = False
         try:
             with open(self.file_path, "w", encoding="UTF-8") as f:
@@ -151,7 +166,6 @@ class NdfEditorPage(tab_page_base.TabPageBase):
             ret = True
         except Exception as e:
             logging.error("Could not save to file " + self.file_path + ": " + str(e))
-        main_widget.MainWidget.instance.hide_loading_screen()
         if ret:
             self.unsaved_changes = False
         return ret
@@ -160,13 +174,18 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
         # get file path
         file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
+        if file_path == "":
+            return
         file_path = file_path.replace("/", "\\")
         if not file_path.endswith(".ndf"):
             file_path = file_path.append(".ndf")
         # clear/create file
-        f = open(file_path, 'w')
-        f.write(self.code_editor.toPlainText())
-        f.close()
+        try:
+            f = open(file_path, 'w')
+            f.write(self.code_editor.toPlainText())
+            f.close()
+        except Exception as e:
+            logging.error("Error while writing to file " + file_path + ": " + str(e))
         # reset page
         self.file_path = file_path
         self.unsaved_changes = False
