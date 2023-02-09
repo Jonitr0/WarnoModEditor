@@ -26,6 +26,14 @@ Please refer to the [Quickstart Guide](https://github.com/Jonitr0/WarnoModEditor
 
 WME offers a range of tools that make creating mods for WARNO easier. Click the "Add Tab" button to access them.
 
+##### Project Explorer
+
+Located on the left side of the main window, the project explorer lets you navigate through the files in your mod and find .ndf files by entering text in the search bar.
+
+##### Run Scripts
+
+You can run scripts ("Generate Mod", "Upload Mod", "Create Backup",...) from the "Edit" menu in WME once you have loaded a mod.
+
 ##### Text Editor
 
 Double-click a .ndf file in the project explorer to open it in the text editor. It supports NDF syntax highlighting and has find and replace functions.
@@ -41,8 +49,6 @@ Generates random GUIDs which are required by some NDF objects.
 ##### Resources
 
 In addition, WME includes a Quickstart Guide and a reference for the NDF language.
-
-You can also run scripts ("Generate Mod", "Upload Mod", "Create Backup",...) from the "Edit" menu in WME.
 
 ### Feedback
 
