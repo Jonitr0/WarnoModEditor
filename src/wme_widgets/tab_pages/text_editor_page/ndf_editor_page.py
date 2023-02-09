@@ -1,3 +1,5 @@
+import os.path
+
 from PySide6 import QtWidgets, QtCore, QtGui
 
 from src.wme_widgets.tab_pages import tab_page_base
@@ -99,8 +101,22 @@ class NdfEditorPage(tab_page_base.TabPageBase):
 
     def on_new(self):
         mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
-        path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
-        # TODO: create or clear file, set as file_path
+        # get file path
+        file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
+        file_path = file_path.replace("/", "\\")
+        if not file_path.endswith(".ndf"):
+            file_path = file_path.append(".ndf")
+        # clear/create file
+        open(file_path, 'w').close()
+        # reset editor
+        self.code_editor.setPlainText("")
+        self.code_editor.document().clearUndoRedoStacks()
+        # reset page
+        self.file_path = file_path
+        self.unsaved_changes = False
+        # update tab name
+        self.tab_name = file_path[file_path.rindex('\\') + 1:]
+        self.unsaved_status_change.emit(False, self)
 
     def on_open(self):
         file_path, _ = QtWidgets.QFileDialog().getOpenFileName(self,
@@ -142,8 +158,21 @@ class NdfEditorPage(tab_page_base.TabPageBase):
 
     def on_save_as(self):
         mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
-        path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save As..", mod_path, "*.ndf")
-        # TODO: create or clear file, set as file_path
+        # get file path
+        file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
+        file_path = file_path.replace("/", "\\")
+        if not file_path.endswith(".ndf"):
+            file_path = file_path.append(".ndf")
+        # clear/create file
+        f = open(file_path, 'w')
+        f.write(self.code_editor.toPlainText())
+        f.close()
+        # reset page
+        self.file_path = file_path
+        self.unsaved_changes = False
+        # update tab name
+        self.tab_name = file_path[file_path.rindex('\\') + 1:]
+        self.unsaved_status_change.emit(False, self)
 
     def update_page(self):
         self.open_file(self.file_path)
