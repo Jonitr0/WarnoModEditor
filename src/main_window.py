@@ -25,7 +25,7 @@ class MainWindow(QtWidgets.QMainWindow):
             QtCore.QCoreApplication.quit()
 
         warno_path = settings_manager.get_settings_value(settings_manager.WARNO_PATH_KEY)
-        self.resize(1280, 720)
+        self.resize(1408, 792)
         self.setWindowTitle("WARNO Mod Editor")
         self.setWindowIcon(QtGui.QIcon(icon_manager.load_colored_icon("app_icon_colored")))
 

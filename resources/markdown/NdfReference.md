@@ -378,4 +378,3 @@ is Character
     Bag is TInventory ( MaxItemCount = 0 )
 )
 ````
-
