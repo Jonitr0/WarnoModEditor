@@ -100,5 +100,5 @@ class TabPageBase(QtWidgets.QWidget):
 
     def on_help(self):
         dialog = rich_text_dialog.RichTextDialog(self.help_file_path, "Help")
-        dialog.exec_()
+        dialog.show()
 

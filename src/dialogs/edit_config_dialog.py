@@ -2,14 +2,20 @@ from pathlib import Path
 
 from PySide6 import QtWidgets, QtCore
 from src.dialogs.base_dialog import BaseDialog
-from src.wme_widgets import wme_lineedit
+from src.dialogs import essential_dialogs
+from src.wme_widgets import wme_lineedit, main_widget
 
 
 class WarnoPathDialog(BaseDialog):
     def __init__(self, config_values: dict):
+        self.warning_label = QtWidgets.QLabel("WARNING! Uploading this mod might fail if it's name does not match "
+                                              "the name of the directory (" +
+                                              main_widget.MainWidget.instance.get_loaded_mod_name() + ")")
         self.description_text_edit = QtWidgets.QTextEdit()
         self.icon_path_line_edit = wme_lineedit.WMELineEdit()
         self.config_values = config_values
+        # copy for warning on cancel
+        self.orig_config_values = config_values.copy()
 
         super().__init__()
         self.setWindowTitle("Edit mod configuration")
@@ -22,8 +28,15 @@ class WarnoPathDialog(BaseDialog):
         name_line_edit.setText(str(self.config_values["Properties/Name"]))
         name_line_edit.textChanged.connect(self.on_name_changed)
         name_label = QtWidgets.QLabel("Name")
-        name_label.setToolTip("The name of the mod as it will be displayed in-game and on Steam Workshop.")
+        name_label.setToolTip("The name of the mod as it will be displayed in-game.")
         form_layout.addRow(name_label, name_line_edit)
+
+        if not bool(name_line_edit.text()):
+            self.warning_label.setHidden(True)
+        else:
+            self.warning_label.setHidden(name_line_edit.text() == main_widget.MainWidget.instance.get_loaded_mod_name())
+        self.warning_label.setWordWrap(True)
+        form_layout.addWidget(self.warning_label)
 
         self.description_text_edit.setPlainText(str(self.config_values["Properties/Description"]))
         self.description_text_edit.textChanged.connect(self.on_description_changed)
@@ -70,6 +83,10 @@ class WarnoPathDialog(BaseDialog):
 
     def on_name_changed(self, name: str):
         self.config_values["Properties/Name"] = name
+        if not bool(name):
+            self.warning_label.setHidden(True)
+        else:
+            self.warning_label.setHidden(name == main_widget.MainWidget.instance.get_loaded_mod_name())
 
     def on_description_changed(self):
         self.config_values["Properties/Description"] = self.description_text_edit.toPlainText()
@@ -96,3 +113,11 @@ class WarnoPathDialog(BaseDialog):
 
     def get_config_values(self):
         return self.config_values
+
+    def reject(self) -> None:
+        if self.config_values != self.orig_config_values:
+            dialog = essential_dialogs.ConfirmationDialog("All changes will be lost. Do you want to continue?",
+                                                          "Warning!")
+            if not dialog.exec_():
+                return
+        return super().reject()

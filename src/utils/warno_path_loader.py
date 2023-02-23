@@ -2,6 +2,7 @@ from PySide6 import QtCore, QtWidgets
 from src.dialogs import warno_path_dialog
 from src.dialogs import essential_dialogs
 from src.utils import path_validator, settings_manager
+from src.wme_widgets import wme_splash_screen
 
 dialog_finished_once = False
 
@@ -27,6 +28,8 @@ def load_warno_path_from_settings():
 
 
 def open_warno_path_dialog():
+    wme_splash_screen.instance.hide()
+
     tmp_path = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\WARNO"
     if not QtCore.QDir(tmp_path).exists():
         tmp_path = QtCore.QDir().currentPath()

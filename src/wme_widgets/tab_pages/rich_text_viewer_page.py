@@ -13,7 +13,6 @@ class RichTextViewerPage(tab_page_base.TabPageBase):
         super().__init__()
 
         hyperlink_color = get_color_for_key(COLORS.PRIMARY.value)
-        print(hyperlink_color)
 
         text = markdown_loader.get_md_text(md_file_path)
         text = text.replace("<a href=", "<a style =\"color: " + hyperlink_color + "\"href=")
@@ -24,6 +23,7 @@ class RichTextViewerPage(tab_page_base.TabPageBase):
         rich_text_label.setAlignment(Qt.AlignTop)
         rich_text_label.setOpenExternalLinks(True)
         rich_text_label.setWordWrap(True)
+        rich_text_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
         scroll_area = QtWidgets.QScrollArea()
         scroll_area.setWidgetResizable(True)

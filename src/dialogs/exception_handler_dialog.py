@@ -1,6 +1,7 @@
 from src.dialogs.base_dialog import BaseDialog
 from src.utils import icon_manager
 from src.utils.color_manager import *
+from src.wme_widgets import main_widget
 
 import traceback
 
@@ -60,6 +61,9 @@ class ExceptionHandlerDialog(BaseDialog):
 
         logging.error(exception_summary)
         self.error_description_label.setText(exception_summary)
+
+        if main_widget.MainWidget.instance:
+            main_widget.MainWidget.instance.hide_loading_screen()
 
         self.exec_()
 

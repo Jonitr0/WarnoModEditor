@@ -1,11 +1,16 @@
+import logging
+import os.path
+
 from PySide6 import QtWidgets, QtCore, QtGui
 
 from src.wme_widgets.tab_pages import tab_page_base
 from src.wme_widgets import main_widget
 from src.wme_widgets.tab_pages.text_editor_page import wme_find_replace_bar, wme_code_editor
+from src.dialogs import essential_dialogs
 
 from src.utils import icon_manager
 from src.utils.color_manager import *
+
 
 class NdfEditorPage(tab_page_base.TabPageBase):
     def __init__(self):
@@ -25,6 +30,10 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         tool_bar = QtWidgets.QToolBar()
         main_layout.addWidget(tool_bar)
 
+        new_action = tool_bar.addAction(icon_manager.load_icon("file.png", COLORS.PRIMARY), "New (Ctrl + N)")
+        new_action.setShortcut("Ctrl+N")
+        new_action.triggered.connect(self.on_new)
+
         open_action = tool_bar.addAction(icon_manager.load_icon("open.png", COLORS.PRIMARY), "Open (Ctrl + O)")
         open_action.setShortcut("Ctrl+O")
         open_action.triggered.connect(self.on_open)
@@ -32,6 +41,11 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         save_action = tool_bar.addAction(icon_manager.load_icon("save.png", COLORS.PRIMARY), "Save (Ctrl + S)")
         save_action.setShortcut("Ctrl+S")
         save_action.triggered.connect(self.save_changes)
+
+        save_as_action = tool_bar.addAction(icon_manager.load_icon("save_as.png", COLORS.PRIMARY),
+                                            "Save As (Ctrl + Shift+ S)")
+        save_as_action.setShortcut("Ctrl+Shift+S")
+        save_as_action.triggered.connect(self.on_save_as)
 
         tool_bar.addSeparator()
 
@@ -58,7 +72,8 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         self.find_action.setCheckable(True)
         self.find_action.toggled.connect(self.on_find)
 
-        self.replace_action = tool_bar.addAction(icon_manager.load_icon("replace.png", COLORS.PRIMARY), "Replace (Ctrl + R)")
+        self.replace_action = tool_bar.addAction(icon_manager.load_icon("replace.png", COLORS.PRIMARY),
+                                                 "Replace (Ctrl + R)")
         self.replace_action.setShortcut("Ctrl+R")
         self.replace_action.setCheckable(True)
         self.replace_action.toggled.connect(self.on_replace)
@@ -85,6 +100,37 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         self.code_editor.document().undoAvailable.connect(self.on_undo_available)
         self.code_editor.document().redoAvailable.connect(self.on_redo_available)
 
+    def on_new(self):
+        if self.unsaved_changes:
+            dialog = essential_dialogs.AskToSaveDialog(self.tab_name)
+            result = dialog.exec()
+            if not result == QtWidgets.QDialog.Accepted:
+                return
+            elif dialog.save_changes:
+                self.save_changes()
+        mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
+        # get file path
+        file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
+        if file_path == "":
+            return
+        file_path = file_path.replace("/", "\\")
+        if not file_path.endswith(".ndf"):
+            file_path = file_path.append(".ndf")
+        # clear/create file
+        try:
+            open(file_path, 'w').close()
+        except Exception as e:
+            logging.error("Could not create file " + file_path + ": " + str(e))
+        # reset editor
+        self.code_editor.setPlainText("")
+        self.code_editor.document().clearUndoRedoStacks()
+        # reset page
+        self.file_path = file_path
+        self.unsaved_changes = False
+        # update tab name
+        self.tab_name = file_path[file_path.rindex('\\') + 1:]
+        self.unsaved_status_change.emit(False, self)
+
     def on_open(self):
         file_path, _ = QtWidgets.QFileDialog().getOpenFileName(self,
                                                                "Select .ndf File",
@@ -110,7 +156,17 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         main_widget.MainWidget.instance.hide_loading_screen()
 
     def save_changes_overwrite(self):
-        main_widget.MainWidget.instance.show_loading_screen("saving file...")
+        if self.file_path == "":
+            mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
+            # get file path
+            self.file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
+            if self.file_path == "":
+                return
+            # set tab name
+            self.file_path = self.file_path.replace("/", "\\")
+            if not self.file_path.endswith(".ndf"):
+                file_path = self.file_path.append(".ndf")
+            self.tab_name = self.file_path[self.file_path.rindex('\\') + 1:]
         ret = False
         try:
             with open(self.file_path, "w", encoding="UTF-8") as f:
@@ -118,10 +174,32 @@ class NdfEditorPage(tab_page_base.TabPageBase):
             ret = True
         except Exception as e:
             logging.error("Could not save to file " + self.file_path + ": " + str(e))
-        main_widget.MainWidget.instance.hide_loading_screen()
         if ret:
             self.unsaved_changes = False
         return ret
+
+    def on_save_as(self):
+        mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
+        # get file path
+        file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
+        if file_path == "":
+            return
+        file_path = file_path.replace("/", "\\")
+        if not file_path.endswith(".ndf"):
+            file_path = file_path.append(".ndf")
+        # clear/create file
+        try:
+            f = open(file_path, 'w')
+            f.write(self.code_editor.toPlainText())
+            f.close()
+        except Exception as e:
+            logging.error("Error while writing to file " + file_path + ": " + str(e))
+        # reset page
+        self.file_path = file_path
+        self.unsaved_changes = False
+        # update tab name
+        self.tab_name = file_path[file_path.rindex('\\') + 1:]
+        self.unsaved_status_change.emit(False, self)
 
     def update_page(self):
         self.open_file(self.file_path)

@@ -38,10 +38,6 @@ WMETabBar {{
   text-transform: none;
 }}
 
-WMETabBar::tab {{
-  background-color: {QTMATERIAL_SECONDARYCOLOR};
-}}
-
 QToolButton {{
   height: 24px;
   border: 0px;
@@ -81,7 +77,8 @@ QPlainTextEdit#code_editor {{
   border-width: 0px;
   background-color: {QTMATERIAL_SECONDARYCOLOR};
   padding: 0px 0px;
-  font: 10pt 'Courier New';
+  font: 11pt 'Courier New';
+  font-weight: bold;
 }}
 
 QFrame#list_entry {{
@@ -117,4 +114,14 @@ QToolButton::menu-indicator {{ image: none; }}
 
 SearchResultWidget {{
   color: {QTMATERIAL_PRIMARYCOLOR};
+}}
+
+WMETabBar::tab {{
+  background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
+}}
+
+QSplashScreen {{
+  font: 32pt 'Agency FB';
+  font-weight: bold;
+  font-style: italic;
 }}

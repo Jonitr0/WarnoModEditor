@@ -34,7 +34,6 @@ class GlobalSearchPage(tab_page_base.TabPageBase):
         search_button.setFixedSize(36, 36)
         search_button.clicked.connect(self.on_search)
         search_bar.addWidget(search_button)
-        # TODO: add regex capability
 
         self.results_label = QtWidgets.QLabel()
         main_layout.addWidget(self.results_label)
@@ -51,7 +50,6 @@ class GlobalSearchPage(tab_page_base.TabPageBase):
         scroll_area.setWidget(list_widget)
         main_layout.addWidget(scroll_area)
 
-        # TODO: create and fill this file
         self.help_file_path = "Help_GlobalSearch.html"
 
     def on_search(self):
@@ -63,6 +61,8 @@ class GlobalSearchPage(tab_page_base.TabPageBase):
         if search_text == "":
             self.results_label.setText("")
             return
+
+        main_widget.MainWidget.instance.show_loading_screen("Searching...")
 
         results = []
 
@@ -90,6 +90,8 @@ class GlobalSearchPage(tab_page_base.TabPageBase):
         for file in results:
             # pass reference to self
             self.list_layout.addWidget(SearchResultWidget(file, search_text, self))
+
+        main_widget.MainWidget.instance.hide_loading_screen()
 
 
 class SearchResultWidget(QtWidgets.QFrame):

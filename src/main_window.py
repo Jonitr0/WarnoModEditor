@@ -3,8 +3,7 @@ from PySide6.QtCore import Qt
 
 from src.wme_widgets import wme_title_bar, main_widget
 from src.wme_widgets.tab_widget import wme_detached_tab
-from src.utils import settings_manager
-from src.utils import warno_path_loader
+from src.utils import settings_manager, warno_path_loader, icon_manager
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -26,8 +25,9 @@ class MainWindow(QtWidgets.QMainWindow):
             QtCore.QCoreApplication.quit()
 
         warno_path = settings_manager.get_settings_value(settings_manager.WARNO_PATH_KEY)
-        self.resize(1280, 720)
+        self.resize(1408, 792)
         self.setWindowTitle("WARNO Mod Editor")
+        self.setWindowIcon(QtGui.QIcon(icon_manager.load_colored_icon("app_icon_colored")))
 
         shadow_widget = QtWidgets.QWidget()
         self.shadow_layout.setContentsMargins(4, 4, 4, 4)
@@ -70,9 +70,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def close(self):
         if self.main_widget_ref is None:
             super().close()
+            QtWidgets.QApplication.quit()
         if self.main_widget_ref.ask_all_tabs_to_save():
             wme_detached_tab.clear_detached_list()
             super().close()
+            QtWidgets.QApplication.quit()
 
     def changeEvent(self, event):
         if event.type() == QtCore.QEvent.WindowStateChange:

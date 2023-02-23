@@ -44,7 +44,7 @@ class WMETitleBar(QtWidgets.QWidget):
 
         icon = QtWidgets.QLabel()
         icon.setFixedSize(self.button_height, self.button_height)
-        icon.setPixmap(icon_manager.load_icon("app_icon.png", COLORS.PRIMARY).pixmap(32))
+        icon.setPixmap(icon_manager.load_icon("app_icon.png", COLORS.PRIMARY).pixmap(self.button_height))
         self.main_layout.addWidget(icon)
 
         self.title_label.setText(window_title)

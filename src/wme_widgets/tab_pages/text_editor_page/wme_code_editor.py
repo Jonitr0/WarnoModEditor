@@ -34,6 +34,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.updateRequest.connect(self.updateLineNumberArea)
         self.cursorPositionChanged.connect(self.update)
         self.cursorPositionChanged.connect(self.mark_finds_in_viewport)
+        self.cursorPositionChanged.connect(self.syntax_highlight_in_viewport)
 
         self.updateLineNumberAreaWidth(0)
 
@@ -46,9 +47,14 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.find_format.setBackground(QtGui.QColor(get_color_for_key(COLORS.FIND_HIGHLIGHT.value)))
 
         self.verticalScrollBar().valueChanged.connect(self.mark_finds_in_viewport)
+        self.verticalScrollBar().valueChanged.connect(self.syntax_highlight_in_viewport)
         self.document().contentsChange.connect(self.update_search)
 
-        highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
+        self.highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
+
+        # set tab size
+        font = QtGui.QFont('Courier New', 10)
+        self.setTabStopDistance(4 * QtGui.QFontMetrics(font).horizontalAdvance(" "))
 
     def lineNumberAreaWidth(self):
         digits = 1
@@ -81,6 +87,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
                                                      self.lineNumberAreaWidth(), cr.height()))
 
         self.mark_finds_in_viewport()
+        self.syntax_highlight_in_viewport()
 
     def lineNumberAreaPaintEvent(self, event):
         painter = QtGui.QPainter(self.lineNumberArea)
@@ -199,12 +206,14 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         for find in self.find_results:
             if index < find[0]:
                 cursor.setPosition(find[0], QtGui.QTextCursor.MoveAnchor)
+                self.setFocus()
                 self.setTextCursor(cursor)
                 return
 
         # if no position was set yet, set it to the first find
         cursor.setPosition(self.find_results[0][0], QtGui.QTextCursor.MoveAnchor)
         self.setTextCursor(cursor)
+        self.setFocus()
 
     def goto_prev_find(self):
         if len(self.find_results) == 0:
@@ -217,6 +226,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         if index <= self.find_results[0][1]:
             cursor.setPosition(self.find_results[len(self.find_results) - 1][0], QtGui.QTextCursor.MoveAnchor)
             self.setTextCursor(cursor)
+            self.setFocus()
             return
 
         last_find = -1
@@ -224,6 +234,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             if index <= find[1] and last_find > 0:
                 cursor.setPosition(last_find, QtGui.QTextCursor.MoveAnchor)
                 self.setTextCursor(cursor)
+                self.setFocus()
                 return
             last_find = find[0]
 
@@ -268,3 +279,17 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
     def get_selected_text(self):
         return self.textCursor().selectedText()
+
+    # apply syntax highlighting to all visible lines
+    def syntax_highlight_in_viewport(self):
+        cursor = self.cursorForPosition(QtCore.QPoint(0, 0))
+        start = cursor.blockNumber()
+        bottom_right = QtCore.QPoint(self.viewport().width() - 1, self.viewport().height() - 1)
+        end_pos = self.cursorForPosition(bottom_right).position()
+        cursor.setPosition(end_pos, QtGui.QTextCursor.MoveAnchor)
+        end = cursor.blockNumber()
+
+        for i in range(end - start + 1):
+            block = self.document().findBlockByNumber(start + i)
+            self.highlighter.rehighlightBlock(block)
+

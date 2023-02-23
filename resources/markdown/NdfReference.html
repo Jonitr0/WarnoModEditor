@@ -1,0 +1,279 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>NdfReference</title>
+</head>
+<body><h3 id='introduction'>Introduction</h3>
+<p>The NDF language is used to describe game data.
+It is a declarative language that defines objects with properties and relations between them, in order to instantiate
+the correct data during game execution.</p>
+<h3 id='syntax'>Syntax</h3>
+<h4 id='charset'>Charset</h4>
+<p>All NDF files shall be encoded in either <strong>UTF-8</strong> or <strong>ANSI restricted to the 7-bit table</strong>.
+The NDF parser is <strong>case insensitive</strong>: &#39;TRUE&#39; and &#39;true&#39; are equivalent.</p>
+<h4 id='keywords'>Keywords</h4>
+<p><code>export, is, template, unnamed, nil, private, int, string, true, false, div, map</code></p>
+<h4 id='symbols'>Symbols</h4>
+<p><code>//, /, ?, :, =, |, &amp;, &lt;, &gt;, &gt;=, &lt;=, !=, , +, *, %, ,</code> (comma)<code>, .</code> (dot)</p>
+<h4 id='block-delimiters'>Block delimiters</h4>
+<p><code>{}, [], (), &lt;&gt;, (* *), /* */, &#39; &#39;, &quot; &quot;</code></p>
+<h4 id='comments'>Comments</h4>
+<p>Everything after the symbol // is ignored until the end of the line.</p>
+<p>Everything in blocks delimited by <strong>{ }</strong> or <strong>(* *)</strong> or <strong>/* */</strong> is ignored.</p>
+<h3 id='built-in-types'>Built-in types</h3>
+<h4 id='boolean'>Boolean</h4>
+<p>Can only be <code>true</code> or <code>false</code>.</p>
+<h4 id='strings'>Strings</h4>
+<p>Character strings are delimited by single or double quotes and can contain accentuated characters.</p>
+<pre><code>&quot;This is a string&quot;
+&#39;This ïs ànothér on€&#39;
+</code></pre>
+<h4 id='integers'>Integers</h4>
+<p>Integers are written in base 10 or hexadecimal notation.</p>
+<pre><code>3
+150486
+36584
+0xFF00A8
+0x1
+</code></pre>
+<h4 id='floating-point-numbers'>Floating point numbers</h4>
+<p>Floating point numbers are written in base 10 natural notation, there is no exponent or hexadecimal notation. The decimal separator is the . (dot) character.</p>
+<pre><code>3.1415954
+9.81
+654987.1248
+</code></pre>
+<p>The integer part can be omitted (implicit 0). The fractional part can be omitted (implicit 0).</p>
+<pre><code>.127
+53.
+</code></pre>
+<h4 id='vector'>Vector</h4>
+<p>A vector is a list of zero or more elements enclosed in a <strong>[ ] block</strong> and separated by , (comma).</p>
+<pre><code>[] // an empty vector
+[1, 2, 3] // a vector of integers
+[&quot;Hello&quot;, &#39;World&#39;,] // a trailing comma separator is accepted
+</code></pre>
+<h3 id='objects'>Objects</h3>
+<h4 id='naming-a-builtin-value'>Naming a built‐in value</h4>
+<p>One can give names to values of built­in types, akin to creating variables in programming languages, by using the keyword <strong>is</strong>.</p>
+<pre><code>Gravity is 9.81
+Currencies is MAP[
+    (&#39;EUR&#39;, &#39;€&#39;),
+    (&#39;USD&#39;, &#39;$&#39;),
+    (&#39;GBP&#39;, &#39;£&#39;) 
+]
+Places is [&#39;Antarctica&#39;, &#39;Everest&#39;, &#39;Mars&#39;] 
+</code></pre>
+<h4 id='arithmetic-operations'>Arithmetic operations</h4>
+<p>Usual operations on numbers are available : addition, subtraction, multiplication, division, modulo. </p>
+<pre><code>Pi is 3 + 0.1415954
+PiCube is Pi * Pi * Pi
+X is 35 div 8 // Division is used through the keyword &#39;div&#39;
+Y is 35 % 8
+</code></pre>
+<p>You can also concatenate strings, vectors and map with the <strong>+</strong> operator.</p>
+<pre><code>A is [1, 2] + [3, 4]
+B is MAP[ (1, &#39;one&#39;)] + MAP[ (2, &#39;two&#39;)]
+C is &quot;Hello&quot; + &quot; World!&quot; 
+</code></pre>
+<h4 id='object-definition'>Object definition </h4>
+<p>Besides built­in values, NDF allows to create and use complex objects.</p>
+<p>An object is defined by its name and type, and can contains member values. Types (almost ?) always start with a capital &#39;T&#39;. They represent game&#39;s internal data­structures and their definition is not available.</p>
+<p>When loading data, the game will create objects of the desired type and populate its fields with the member values filled in the NDF description.</p>
+<pre><code>// This will create an instance of TExampleType containing two members
+ExampleObject is TExampleType (
+    MemberInteger = 12
+    MemberString = &quot;something&quot;
+)
+</code></pre>
+<p>If a type definition contains a member value that is not filled in the NDF definition of the object, it will default to a base value. This will often be 0 for numbers, false for booleans, and empty for containers (strings, vectors, maps).</p>
+<p>Types can have other types as member, resulting in &quot;nested objects&quot;.</p>
+<pre><code>ExampleObject is TExampleType
+(
+    innerObject = TOtherType
+    (
+        ValueString = &quot;I am a member of TExampleType&quot;
+    )
+)
+</code></pre>
+<p>Objects can be defined without a name with the keyword <strong>unnamed</strong>, they are called unnamed objects. Unnamed objects can only be defined as &quot;top objects&quot;, meaning that they are not a member of another object.</p>
+<pre><code>unnamed TExampleType
+(
+    ValueString = &quot;I am an unnamed object&quot;
+)
+</code></pre>
+<h4 id='namespaces'>Namespaces</h4>
+<p>Every definition of an object, be it named or not, creates a namespace from its name. We&#39;ll use the <strong>$/Namespace1/Namespace2/Object</strong> notation for absolute names of objects.</p>
+<p><strong>Example 1</strong></p>
+<pre><code>ExampleObject is TExampleType
+(
+    InnerExample = ExampleObject2 is TExampleType
+    (
+        InnerExample = ExampleObject3 is TExampleType()
+    )
+)
+</code></pre>
+<p>In that example, the absolute name of ExampleObject3 is <strong>$/ExampleObject/ExampleObject2/ExampleObject3</strong>.</p>
+<p><strong>Example 2</strong></p>
+<pre><code>ExampleObject is TExampleType
+(
+    InnerExample = TExampleType
+    (
+        InnerExample = ExampleObject3 is TExampleType()
+    )
+)
+</code></pre>
+<p>Here, the absolute name of ExampleObject3 is <strong>$/ExampleObject//ExampleObject3</strong> (note the double slash).</p>
+<p><strong>Example 3</strong></p>
+<pre><code>ExampleObject is TExampleType
+(
+    InnerExample = _ is TExampleType
+    (
+        InnerExample = ExampleObject3 is TExampleType()
+    )
+)
+</code></pre>
+<p>Finally, in this case, the absolute name of ExampleObject3 is <strong>$/ExampleObject/ExampleObject3</strong>. The token _ (underscore) acts as a special name that introduces no namespace.</p>
+<h4 id='referencing-objects'>Referencing Objects</h4>
+<p>A reference is a label corresponding to the name of an object. A reference can be null, and is in that case equal to <strong>nil</strong>.</p>
+<p>Some types have references as members, because they need to be able to access other objects to work.</p>
+<pre><code>DataHolder is TDataHolder
+(
+    SomeInt = 456
+    SomeString = &quot;A string&quot;
+    SomeMap = MAP[ {...} ]
+)
+
+DataUser is TDataUser
+(
+    Condition = false
+    DataHolderReference = DataHolder // Here we are taking a reference to the
+    DataHolder object
+)
+</code></pre>
+<p>In the above case, the first object named <strong>DataHolder</strong> found will be taken as a reference. There are other ways of referencing objects, depending on their scope. Without going into details, a lot of other NDF files invisible to the modder are loaded during start­up, and moddable files may need to reference them. </p>
+<p>This is where other types of reference come into play:</p>
+<pre><code>$/Path/To/OtherObject // absolute reference
+~/Path/To/OtherObject // reference from the loading namespace (can&#39;t be known by the modder)
+./Path/To/OtherObject // reference from the current namespace
+</code></pre>
+<h4 id='prototypes'>Prototypes</h4>
+<p>A prototype is a regular object that will be used to create another object from it. Any named object can serve as a prototype.</p>
+<p>Creating an object from a prototype will make a copy of the prototype into the new object, and allow to override some members at will.</p>
+<pre><code>Prototype is TThing
+(
+    ValueString = &#39;I am a prototype object&#39;
+    ValueInt = 666
+)
+ObjectFromPrototype is Prototype
+(
+    ValueString = &#39;I am just me&#39;
+)
+</code></pre>
+<p><strong>ObjectFromPrototype</strong> has a member <strong>ValueInt = 666</strong> that is copied from <strong>Prototype</strong>, and overrides its <strong>ValueString</strong> member.</p>
+<h4 id='templates'>Templates</h4>
+<p>Templates allow to generate objects from a parameter list in a generic manner. They are close to macros in the C-­family languages. </p>
+<p>They are defined by the keyword <strong>template</strong>, a name, the parameter list enclosed in a <strong>[ ]</strong> block, and then the template body.</p>
+<pre><code>// Basic template that does nothing
+template MyTemplate // template name
+[] // template parameters
+is TType // final type of the object created by the template
+() // object members
+</code></pre>
+<p>The parameter block defines a list of parameters, separated by , (comma).</p>
+<p>The syntax for parameters is <strong>%name% [: %type%] [= %default%]</strong>. The name is mandatory, whereas:</p>
+<ul>
+<li>an optional type can be specified, otherwise it will be deduced from the context</li>
+<li>an optional default value can be specified, otherwise it must be provided when using the template</li>
+
+</ul>
+<p>In the template body, template parameters are used by their name enclosed in <strong>&lt; &gt;</strong>.</p>
+<pre><code>// More elaborated example
+// Suppose there is a TWeapon and TCharacter types existing.
+Axe is TWeapon
+(
+    // here would be members describing this weapon
+)
+
+Knife is TWeapon ()
+
+template Character
+[
+    Name : string, // Name has to be a string
+    Level : int = 1, // Level has a default value of 1
+    Weapon : TWeapon = TWeapon() // Weapon has to be a TWeapon
+]
+is TCharacter
+(
+    Name = &lt;Name&gt; // &lt;Name&gt; refers to the template parameter named &#39;Name&#39;
+    Level = &lt;Level&gt;
+    HP = &lt;Level&gt; * 100
+    Weapon = &lt;Weapon&gt;
+    Damages = &lt;Weapon&gt;/Damages * (1 + Level div 10)
+)
+
+Hero is Character
+(
+    Name = &quot;Hero&quot;
+    Level = 12
+    Weapon = Axe
+)
+
+Creep is Character
+(
+    Name = &quot;Creep&quot;
+    Weapon = Knife
+    // Level is not specified, default value is used
+)
+</code></pre>
+<h3 id='advanced-templates'>Advanced templates</h3>
+<h4 id='scoped-objects'>Scoped Objects</h4>
+<p>Objects can be declared inside of template bodies.</p>
+<pre><code>template Character
+[
+    Name : string,
+    Level : int = 1,
+    Weapon : TWeapon = TWeapon()
+]
+is TCharacter
+(
+    Bag is TInventory
+    (
+        MaxItemCount = &lt;Level&gt; * 3
+    )
+    Name = &lt;Name&gt;
+    Level = &lt;Level&gt;
+    HP = &lt;Level&gt; * 100
+    Weapon = &lt;Weapon&gt;
+    Damages = &lt;Weapon&gt;/Damages * (1 + Level div 10)
+    Inventory = Bag
+)
+</code></pre>
+<h4 id='template-template'>Template template</h4>
+<p>A template can derive from another template.</p>
+<pre><code>template CloneHero
+[
+    Name : string
+]
+is Character
+(
+    Name = &lt;Name&gt;
+    Level = 12
+    Weapon = Axe
+)
+</code></pre>
+<p>A derived template can also override scoped objects.</p>
+<pre><code>template CloneHero
+[
+    Name : string
+]
+is Character
+(
+    Name = &lt;Name&gt;
+    Level = 12
+    Weapon = Axe
+    Bag is TInventory ( MaxItemCount = 0 )
+)
+</code></pre>
+</body>
+</html>
