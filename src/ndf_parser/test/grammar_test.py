@@ -9,7 +9,7 @@ from src.ndf_parser.custom_listener import custom_ndf_listener
 
 
 def main(argv):
-    input_stream = FileStream(argv[1])
+    input_stream = FileStream(argv[1], encoding="utf8")
     lexer = NdfGrammarLexer(input_stream)
     stream = CommonTokenStream(lexer)
     parser = NdfGrammarParser(stream)
