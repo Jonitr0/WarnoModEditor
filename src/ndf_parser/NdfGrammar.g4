@@ -4,18 +4,18 @@ grammar NdfGrammar;
 
 // general structure
 
-ndf_file : block* EOF;
-block : assignment;
+ndf_file : assignment* EOF;
 assignment : K_EXPORT? id K_IS r_value;
-r_value : arithmetic | concatination | builtin_type_value | object;
-object : ID '(' ( block | member_assignment )+ ')';
+r_value : arithmetic | concatination | builtin_type_value | object | assignment;
+object : ID '(' ( block )* ')';
+block : assignment | member_assignment | obj_reference_value;
 member_assignment : id '=' r_value;
 id : ID (':' builtin_type_label)?;
 
 // operations
 
-arithmetic : '(' arithmetic ')' | arithmetic OP arithmetic | int_value | float_value;
-concatination : concatination '+' concatination | string_value | map_value | vector_value;
+arithmetic : '(' arithmetic ')' | arithmetic OP arithmetic | int_value | float_value | ID;
+concatination : concatination '+' concatination | string_value | map_value | vector_value | ID;
 
 // builtin types: labels
 
@@ -31,11 +31,11 @@ bool_value : K_TRUE | K_FALSE;
 string_value : STRING;
 int_value : INT | HEXNUMBER;
 float_value: FLOAT;
-pair_value: '(' builtin_type_value ',' builtin_type_value ')';
-vector_value: '[' (builtin_type_value (',' builtin_type_value)* ','?)? ']';
+pair_value: '(' r_value ',' r_value ')';
+vector_value: '[' (r_value (',' r_value)* ','?)? ']';
 map_value: K_MAP '[' (pair_value (',' pair_value)* ','?)? ']';
 // TODO: reference can contain ~ and /
-obj_reference_value: ID;
+obj_reference_value: ('$'|'~')?  (ID|'/')* ID;
 
 // --- lexer rules --- //
 

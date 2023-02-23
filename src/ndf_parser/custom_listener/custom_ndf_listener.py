@@ -4,5 +4,5 @@ from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
 
 
 class CustomNdfListener(NdfGrammarListener):
-    def exitAssignment(self, ctx:NdfGrammarParser.AssignmentContext):
-        print("Found an assignment: " + ctx.getText())
+    def exitMember_assignment(self, ctx:NdfGrammarParser.Member_assignmentContext):
+        print("Found a member assignment: " + ctx.getText())
