@@ -6,7 +6,7 @@ grammar NdfGrammar;
 
 ndf_file : assignment* EOF;
 assignment : K_EXPORT? id K_IS r_value;
-r_value : arithmetic | concatination | builtin_type_value | object | assignment;
+r_value : arithmetic | concatination | builtin_type_value | object | assignment | obj_reference_value | r_value '|' r_value;
 object : ID '(' ( block )* ')';
 block : assignment | member_assignment | obj_reference_value;
 member_assignment : id '=' r_value;
@@ -26,7 +26,7 @@ map_label : K_MAP '<' builtin_type_label ',' builtin_type_label '>';
 
 // builtin types: values
 
-builtin_type_value : bool_value | string_value | int_value | float_value | pair_value | vector_value | map_value | GUID | obj_reference_value;
+builtin_type_value : bool_value | string_value | int_value | float_value | pair_value | vector_value | map_value | GUID;
 bool_value : K_TRUE | K_FALSE;
 string_value : STRING;
 int_value : INT | HEXNUMBER;
