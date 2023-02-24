@@ -3,6 +3,7 @@
 from PySide6 import QtWidgets, QtGui, QtCore
 from PySide6.QtCore import Qt
 from src.wme_widgets import wme_title_bar
+from src.utils import icon_manager
 
 
 class BaseWindow(QtWidgets.QWidget):
@@ -43,6 +44,8 @@ class BaseWindow(QtWidgets.QWidget):
 
         self.grip = QtWidgets.QSizeGrip(self)
         self.grip.resize(16, 16)
+
+        self.setWindowIcon(QtGui.QIcon(icon_manager.load_colored_icon("app_icon_colored")))
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
