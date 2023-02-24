@@ -23,7 +23,7 @@ class RichTextViewerPage(tab_page_base.TabPageBase):
         rich_text_label.setAlignment(Qt.AlignTop)
         rich_text_label.setOpenExternalLinks(True)
         rich_text_label.setWordWrap(True)
-        rich_text_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        rich_text_label.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.LinksAccessibleByMouse)
 
         scroll_area = QtWidgets.QScrollArea()
         scroll_area.setWidgetResizable(True)
