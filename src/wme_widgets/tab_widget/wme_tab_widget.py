@@ -4,7 +4,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
-from src.wme_widgets.tab_pages import tab_page_base, rich_text_viewer_page, global_search_page, guid_generator_page
+from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, global_search_page, guid_generator_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.wme_widgets import main_widget
 from src.dialogs import essential_dialogs
@@ -135,7 +135,6 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_open_ndf_reference(self):
         reference_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
         viewer = rich_text_viewer_page.RichTextViewerPage("NdfReference.html")
-        # TODO: fill md file, convert to html
         self.addTab(viewer, reference_icon, "NDF Reference")
 
     def on_open_manual(self):
@@ -150,7 +149,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.setCurrentIndex(ret)
         self.setTabToolTip(ret, title)
         widget.unsaved_status_change.connect(self.on_save_status_changed)
-        tab_page_base.all_pages.add(widget)
+        base_tab_page.all_pages.add(widget)
         return ret
 
     def insertTab(self, index: int, widget, icon: QtGui.QIcon, title: str) -> int:
@@ -159,12 +158,12 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.setCurrentIndex(ret)
         self.setTabToolTip(ret, title)
         widget.unsaved_status_change.connect(self.on_save_status_changed)
-        tab_page_base.all_pages.add(widget)
+        base_tab_page.all_pages.add(widget)
         return ret
 
     def removeTab(self, index: int):
         widget = self.widget(index)
-        tab_page_base.all_pages.remove(widget)
+        base_tab_page.all_pages.remove(widget)
         super().removeTab(index)
 
     def ask_all_tabs_to_save(self, all_windows: bool = False) -> bool:

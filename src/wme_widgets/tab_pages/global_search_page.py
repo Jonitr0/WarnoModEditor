@@ -6,12 +6,12 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import Qt
 
 from src.wme_widgets import wme_lineedit, main_widget
-from src.wme_widgets.tab_pages import tab_page_base
+from src.wme_widgets.tab_pages import base_tab_page
 from src.utils import icon_manager
 from src.utils.color_manager import *
 
 
-class GlobalSearchPage(tab_page_base.TabPageBase):
+class GlobalSearchPage(base_tab_page.BaseTabPage):
     def __init__(self):
         super().__init__()
 

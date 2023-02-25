@@ -18,7 +18,7 @@ def get_pages_for_file(file_path: str, unsaved_only: bool = True):
     return page_list
 
 
-class TabPageBase(QtWidgets.QWidget):
+class BaseTabPage(QtWidgets.QWidget):
     unsaved_status_change = QtCore.Signal(bool, QtWidgets.QWidget)
 
     def __init__(self):
@@ -28,6 +28,7 @@ class TabPageBase(QtWidgets.QWidget):
         self.tab_name = ""
         self.file_path = ""
         self.help_file_path = ""
+        self.help_page = None
 
     @property
     def unsaved_changes(self) -> bool:
@@ -99,6 +100,8 @@ class TabPageBase(QtWidgets.QWidget):
         pass
 
     def on_help(self):
-        dialog = rich_text_dialog.RichTextDialog(self.help_file_path, "Help")
-        dialog.show()
+        if self.help_page:
+            self.help_page.deleteLater()
+        self.help_page = rich_text_dialog.RichTextDialog(self.help_file_path, "Help")
+        self.help_page.show()
 

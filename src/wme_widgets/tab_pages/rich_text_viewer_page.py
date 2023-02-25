@@ -3,12 +3,12 @@
 from PySide6 import QtWidgets
 from PySide6.QtCore import Qt
 
-from src.wme_widgets.tab_pages import tab_page_base
+from src.wme_widgets.tab_pages import base_tab_page
 from src.utils import markdown_loader
 from src.utils.color_manager import *
 
 
-class RichTextViewerPage(tab_page_base.TabPageBase):
+class RichTextViewerPage(base_tab_page.BaseTabPage):
     def __init__(self, md_file_path: str):
         super().__init__()
 
