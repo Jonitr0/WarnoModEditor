@@ -85,6 +85,14 @@ class WMETabBar(QtWidgets.QTabBar):
             mime_data.setProperty('title', self.tabText(self.dragging_tab_index))
             drag.setMimeData(mime_data)
 
+            # try ro load windows system cursor
+            # TODO: bad scaling, get Pixmap in proper size (32x32)
+            try:
+                drag.setDragCursor(QtGui.QPixmap("C:\\Windows\\Cursors\\aero_arrow.cur").scaledToHeight(32),
+                                   Qt.IgnoreAction)
+            except Exception as e:
+                logging.warning("Could not load system cursor for tab drag: " + str(e))
+
             # Initiate the drag
             global drop_bar
             drop_bar = self
