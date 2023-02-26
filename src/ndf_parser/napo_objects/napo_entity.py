@@ -10,4 +10,4 @@ class NapoEntity:
     value = None
 
     def __str__(self):
-        return "id: " + self.id + " type: " + str(self.datatype) + " value: " + str(self.value)
+        return "{id: " + self.id + " type: " + str(self.datatype) + " value: " + str(self.value) + "}"

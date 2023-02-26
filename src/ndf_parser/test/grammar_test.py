@@ -6,6 +6,7 @@ from src.ndf_parser.antlr_output.NdfGrammarLexer import NdfGrammarLexer
 from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
 
 from src.ndf_parser.object_generator import napo_generator
+from src.ndf_parser.ndf_converter import napo_to_ndf_converter
 
 
 def main(argv):
@@ -19,8 +20,9 @@ def main(argv):
     walker = ParseTreeWalker()
     walker.walk(listener, tree)
 
-    for a in listener.assignments:
-        print(str(a))
+    converter = napo_to_ndf_converter.NapoToNdfConverter()
+    print(converter.convert(listener.assignments))
+
     #print(Trees.toStringTree(tree, None, parser))
 
 
