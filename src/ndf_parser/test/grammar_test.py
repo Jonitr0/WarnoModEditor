@@ -21,10 +21,7 @@ def main(argv):
     walker = ParseTreeWalker()
     walker.walk(listener, tree)
 
-    converter = napo_to_ndf_converter.NapoToNdfConverter()
-    print(converter.convert(listener.assignments))
-
-    #print(Trees.toStringTree(tree, None, parser))
+    print(Trees.toStringTree(tree, None, parser))
 
 
 if __name__ == '__main__':
