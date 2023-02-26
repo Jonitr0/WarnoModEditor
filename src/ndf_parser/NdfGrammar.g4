@@ -6,7 +6,7 @@ grammar NdfGrammar;
 
 ndf_file : assignment* EOF;
 assignment : K_EXPORT? id K_IS r_value;
-r_value : arithmetic | concatination | builtin_type_value | object | assignment | obj_reference_value | r_value '|' r_value;
+r_value : builtin_type_value | arithmetic | concatination | object | assignment | obj_reference_value | r_value '|' r_value;
 object : ID '(' ( block )* ')';
 block : assignment | member_assignment | obj_reference_value;
 member_assignment : id '=' r_value;
@@ -14,7 +14,7 @@ id : ID (':' builtin_type_label)?;
 
 // operations
 
-arithmetic : '(' arithmetic ')' | arithmetic OP arithmetic | int_value | float_value | ID;
+arithmetic : '(' arithmetic ')' | arithmetic OP arithmetic | int_value | float_value | hex_value | ID;
 concatination : concatination '+' concatination | string_value | map_value | vector_value | ID;
 
 // builtin types: labels
@@ -26,15 +26,18 @@ map_label : K_MAP '<' builtin_type_label ',' builtin_type_label '>';
 
 // builtin types: values
 
-builtin_type_value : bool_value | string_value | int_value | float_value | pair_value | vector_value | map_value | GUID;
+builtin_type_value : primitive_value | data_structure_value;
+primitive_value: bool_value | string_value | int_value | hex_value | float_value | guid_value;
+data_structure_value: pair_value | vector_value | map_value;
 bool_value : K_TRUE | K_FALSE;
 string_value : STRING;
-int_value : INT | HEXNUMBER;
+int_value : INT;
+hex_value: HEXNUMBER;
 float_value: FLOAT;
+guid_value: GUID;
 pair_value: '(' r_value ',' r_value ')';
 vector_value: '[' (r_value (',' r_value)* ','?)? ']';
 map_value: K_MAP '[' (pair_value (',' pair_value)* ','?)? ']';
-// TODO: reference can contain ~ and /
 obj_reference_value: ('$'|'~')?  (ID|'/')* ID;
 
 // --- lexer rules --- //
