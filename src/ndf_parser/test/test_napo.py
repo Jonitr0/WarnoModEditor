@@ -46,6 +46,9 @@ class TestNapo(unittest.TestCase):
     def test_primitives(self):
         self.roundtrip_test("primitives.ndf")
 
+    def test_datastructures(self):
+        self.roundtrip_test("datastructures.ndf")
+
     def roundtrip_test(self, file_name: str):
         with open(file_name, encoding="utf-8") as f:
             orig = f.read()

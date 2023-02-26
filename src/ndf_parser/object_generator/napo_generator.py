@@ -8,14 +8,13 @@ import logging
 
 
 class NapoGenerator(NdfGrammarListener):
-    rule_names = []
-
-    assignments = []
-    current_assignment = None
 
     def __init__(self, parser: NdfGrammarParser):
         super().__init__()
         self.rule_names = parser.ruleNames
+
+        self.assignments = []
+        self.current_assignment = None
 
     def enterAssignment(self, ctx:NdfGrammarParser.AssignmentContext):
         self.current_assignment = NapoEntity()
