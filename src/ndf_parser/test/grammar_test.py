@@ -11,6 +11,7 @@ from src.ndf_parser.ndf_converter import napo_to_ndf_converter
 
 def main(argv):
     input_stream = FileStream(argv[1], encoding="utf8")
+
     lexer = NdfGrammarLexer(input_stream)
     stream = CommonTokenStream(lexer)
     parser = NdfGrammarParser(stream)
