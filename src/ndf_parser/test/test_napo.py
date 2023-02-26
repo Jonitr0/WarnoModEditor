@@ -43,10 +43,13 @@ def napo_roundtrip(file_name: str) -> str:
 
 
 class TestNapo(unittest.TestCase):
-    def test_primitives_roundtrip(self):
-        with open("primitives.ndf", encoding="utf-8") as f:
+    def test_primitives(self):
+        self.roundtrip_test("primitives.ndf")
+
+    def roundtrip_test(self, file_name: str):
+        with open(file_name, encoding="utf-8") as f:
             orig = f.read()
-        generated = napo_roundtrip("primitives.ndf")
+        generated = napo_roundtrip(file_name)
         orig, generated, equal = compare_strings(orig, generated)
         try:
             self.assertTrue(equal)
