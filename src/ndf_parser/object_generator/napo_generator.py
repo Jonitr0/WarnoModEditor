@@ -4,6 +4,7 @@ from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
 
 from src.ndf_parser.napo_objects.napo_entity import *
 from src.ndf_parser.napo_objects.napo_assignment import *
+from src.ndf_parser.napo_objects.napo_datastructures import *
 
 import logging
 
@@ -27,6 +28,11 @@ class Stack:
 
     def __len__(self):
         return len(self._stack)
+
+
+# put on the Stack to mark end of a Stack frame
+class StackMarker:
+    pass
 
 
 class NapoGenerator(NdfGrammarListener):
@@ -97,5 +103,20 @@ class NapoGenerator(NdfGrammarListener):
         entity.datatype = NapoDatatype.Reference
         entity.value = ctx.getText()
         self.stack.push(entity)
+
+    def enterPair_value(self, ctx:NdfGrammarParser.Pair_valueContext):
+        self.stack.push(NapoPair())
+        self.stack.push(StackMarker())
+
+    def exitPair_value(self, ctx:NdfGrammarParser.Pair_valueContext):
+        pair_values = []
+        while type(self.stack.top()) != StackMarker:
+            pair_values.append(self.stack.pop())
+        pair_values.reverse()
+        # remove stack marker
+        self.stack.pop()
+        for value in pair_values:
+            self.stack.top().append(value)
+
 
 

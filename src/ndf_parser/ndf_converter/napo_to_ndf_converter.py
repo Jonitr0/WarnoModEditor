@@ -1,5 +1,6 @@
 from src.ndf_parser.napo_objects.napo_entity import *
 from src.ndf_parser.napo_objects.napo_assignment import *
+from src.ndf_parser.napo_objects import napo_datastructures
 
 
 class NapoToNdfConverter:
@@ -19,6 +20,9 @@ class NapoToNdfConverter:
 
     def convert_entity(self, entity: NapoEntity) -> str:
         match entity.datatype:
+            case NapoDatatype.Pair:
+                value_str = "(" + self.convert_entity(entity.value[0]) + ", " + \
+                            self.convert_entity(entity.value[1]) + ")"
             case NapoDatatype.String_single:
                 value_str = "\'" + str(entity.value) + "\'"
             case NapoDatatype.String_double:

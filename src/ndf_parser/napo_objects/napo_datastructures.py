@@ -12,3 +12,6 @@ class NapoPair(NapoEntity):
             logging.warning("Tried to append " + str(data) + " to a full Pair. Discarded")
             return
         self.value.append(data)
+
+    def __str__(self):
+        return "{type: pair, value: " + ''.join(map(str, self.value)) + "}"
