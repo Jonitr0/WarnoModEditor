@@ -3,8 +3,30 @@ from src.ndf_parser.antlr_output.NdfGrammarListener import NdfGrammarListener
 from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
 
 from src.ndf_parser.napo_objects.napo_entity import *
+from src.ndf_parser.napo_objects.napo_assignment import *
 
 import logging
+
+
+class Stack:
+    def __init__(self):
+        self._stack = []
+
+    def push(self, elem):
+        self._stack.append(elem)
+
+    def pop(self):
+        return self._stack.pop()
+
+    # return top element without removing it
+    def top(self):
+        if len(self._stack) > 0:
+            return self._stack[len(self._stack)-1]
+        else:
+            return None
+
+    def __len__(self):
+        return len(self._stack)
 
 
 class NapoGenerator(NdfGrammarListener):
@@ -14,50 +36,66 @@ class NapoGenerator(NdfGrammarListener):
         self.rule_names = parser.ruleNames
 
         self.assignments = []
-        self.current_assignment = None
+        self.stack = Stack()
 
     def enterAssignment(self, ctx:NdfGrammarParser.AssignmentContext):
-        self.current_assignment = NapoEntity()
+        # push new assignment to stack
+        self.stack.push(NapoAssignment())
 
     def exitAssignment(self, ctx:NdfGrammarParser.AssignmentContext):
-        self.assignments.append(self.current_assignment)
+        # pop value off stack and assign to assignment
+        value = self.stack.pop()
+        self.stack.top().value = value
+        # pop assignment off stack if it's top level
+        if len(self.stack) == 1:
+            assignment = self.stack.pop()
+            self.assignments.append(assignment)
 
     def enterId(self, ctx:NdfGrammarParser.IdContext):
-        self.current_assignment.id = ctx.getText()
+        # assign ID to top item on stack
+        self.stack.top().id = ctx.getText()
 
     def enterPrimitive_value(self, ctx:NdfGrammarParser.Primitive_valueContext):
+        # assign datatype and value to new entity
         datatype = self.rule_names[ctx.children[0].getRuleIndex()]
         value = ctx.getText()
+        entity = NapoEntity()
         match datatype:
             case "bool_value":
-                self.current_assignment.datatype = NapoDatatype.Boolean
+                entity.datatype = NapoDatatype.Boolean
                 if value.lower() == "false":
-                    self.current_assignment.value = False
+                    entity.value = False
                 else:
-                    self.current_assignment.value = True
+                    entity.value = True
             case "int_value":
-                self.current_assignment.datatype = NapoDatatype.Integer
-                self.current_assignment.value = int(value)
+                entity.datatype = NapoDatatype.Integer
+                entity.value = int(value)
             case "hex_value":
-                self.current_assignment.datatype = NapoDatatype.HexInteger
-                self.current_assignment.value = value
+                entity.datatype = NapoDatatype.HexInteger
+                entity.value = value
             case "float_value":
-                self.current_assignment.datatype = NapoDatatype.Float
-                self.current_assignment.value = float(value)
+                entity.datatype = NapoDatatype.Float
+                entity.value = float(value)
             case "string_value":
                 if value[0] == "\'":
-                    self.current_assignment.datatype = NapoDatatype.String_single
+                    entity.datatype = NapoDatatype.String_single
                 else:
-                    self.current_assignment.datatype = NapoDatatype.String_double
-                self.current_assignment.value = value[1:-1]
+                    entity.datatype = NapoDatatype.String_double
+                entity.value = value[1:-1]
             case "guid_value":
-                self.current_assignment.datatype = NapoDatatype.GUID
-                self.current_assignment.value = value
+                entity.datatype = NapoDatatype.GUID
+                entity.value = value
             case _:
                 logging.warning("Unknown Data type for " + datatype)
-                self.current_assignment.datatype = NapoDatatype.Unknown
-                self.current_assignment.value = value
+                entity.datatype = NapoDatatype.UNKNOWN
+                entity.value = value
+        self.stack.push(entity)
 
     def enterObj_reference_value(self, ctx:NdfGrammarParser.Obj_reference_valueContext):
-        self.current_assignment.datatype = NapoDatatype.Reference
-        self.current_assignment.value = ctx.getText()
+        # assign reference datatype and value to top item on stack
+        entity = NapoEntity()
+        entity.datatype = NapoDatatype.Reference
+        entity.value = ctx.getText()
+        self.stack.push(entity)
+
+

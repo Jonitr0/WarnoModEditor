@@ -17,10 +17,6 @@ def main(argv):
     parser = NdfGrammarParser(stream)
     tree = parser.ndf_file()
 
-    listener = napo_generator.NapoGenerator(parser)
-    walker = ParseTreeWalker()
-    walker.walk(listener, tree)
-
     print(Trees.toStringTree(tree, None, parser))
 
 

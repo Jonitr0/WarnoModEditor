@@ -1,13 +1,12 @@
 # provides common functionality for any NAPO object
 
 class NapoDatatype:
-    Unknown, Boolean, Integer, HexInteger, Float, String_single, String_double, GUID, Reference = range(9)
+    UNKNOWN, STRUCTURAL, Boolean, Integer, HexInteger, Float, String_single, String_double, GUID, Reference, Pair, Vector, Map = range(13)
 
 
 class NapoEntity:
-    id = ""
-    datatype = NapoDatatype.Unknown
+    datatype = NapoDatatype.UNKNOWN
     value = None
 
     def __str__(self):
-        return "{id: " + self.id + " type: " + str(self.datatype) + " value: " + str(self.value) + "}"
+        return "{type: " + str(self.datatype) + ", value: " + str(self.value) + "}"
