@@ -23,6 +23,13 @@ class NapoToNdfConverter:
             case NapoDatatype.Pair:
                 value_str = "(" + self.convert_entity(entity.value[0]) + ", " + \
                             self.convert_entity(entity.value[1]) + ")"
+            case NapoDatatype.Vector:
+                value_str = "["
+                for i in range(len(entity.value)):
+                    value_str += self.convert_entity(entity.value[i])
+                    if i < len(entity.value)-1:
+                        value_str += ", "
+                value_str += "]"
             case NapoDatatype.String_single:
                 value_str = "\'" + str(entity.value) + "\'"
             case NapoDatatype.String_double:

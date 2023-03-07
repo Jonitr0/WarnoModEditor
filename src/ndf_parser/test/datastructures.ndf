@@ -1,1 +1,2 @@
 test_pair is (("a", "b"), "c")
+test_vector is ["a", "b", "c"]

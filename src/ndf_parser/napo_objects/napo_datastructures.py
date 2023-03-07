@@ -17,3 +17,16 @@ class NapoPair(NapoEntity):
 
     def __str__(self):
         return "{type: pair, value: " + ''.join(map(str, self.value)) + "}"
+
+
+class NapoVector(NapoEntity):
+    def __init__(self):
+        super().__init__()
+        self.value = []
+        self.datatype = NapoDatatype.Vector
+
+    def append(self, data: NapoEntity):
+        self.value.append(data)
+
+    def __str__(self):
+        return "{type: pair, value: " + ''.join(map(str, self.value)) + "}"
