@@ -4,8 +4,10 @@ from src.ndf_parser.napo_objects.napo_entity import *
 
 
 class NapoPair(NapoEntity):
-    datatype = NapoDatatype.Pair
-    value = []
+    def __init__(self):
+        super().__init__()
+        self.value = []
+        self.datatype = NapoDatatype.Pair
 
     def append(self, data: NapoEntity):
         if len(self.value) >= 2:

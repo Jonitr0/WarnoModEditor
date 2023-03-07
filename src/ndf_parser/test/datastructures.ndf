@@ -1,1 +1,1 @@
-test_pair is ("a", "b")
+test_pair is (("a", "b"), "c")

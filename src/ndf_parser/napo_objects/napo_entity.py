@@ -5,8 +5,9 @@ class NapoDatatype:
 
 
 class NapoEntity:
-    datatype = NapoDatatype.UNKNOWN
-    value = None
+    def __init__(self):
+        self.datatype = NapoDatatype.UNKNOWN
+        self.value = None
 
     def __str__(self):
         return "{type: " + str(self.datatype) + ", value: " + str(self.value) + "}"
