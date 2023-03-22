@@ -1,6 +1,8 @@
 from PySide6 import QtWidgets, QtCore
 from src.dialogs import essential_dialogs, rich_text_dialog
 
+import json
+
 # key: file_path, value: reference to page
 # stores references to all pages that have unsaved changes on a file
 pages_for_file = {}
@@ -95,7 +97,7 @@ class BaseTabPage(QtWidgets.QWidget):
         self.unsaved_changes = False
         pass
 
-    def to_json(self) -> str:
+    def to_json(self) -> dict:
         # TODO (0.1.1): return status as JSON string
         pass
 

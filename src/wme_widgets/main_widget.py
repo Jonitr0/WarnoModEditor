@@ -82,7 +82,7 @@ class MainWidget(QtWidgets.QWidget):
         self.explorer.tree_view.open_ndf_editor.connect(self.tab_widget.on_open_ndf_editor)
 
         label_layout = QtWidgets.QHBoxLayout()
-        label_layout.setContentsMargins(0, 0, 8, 0)
+        label_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addLayout(label_layout)
 
         version_label = QtWidgets.QLabel("WME v" + settings_manager.get_settings_value(settings_manager.VERSION_KEY))

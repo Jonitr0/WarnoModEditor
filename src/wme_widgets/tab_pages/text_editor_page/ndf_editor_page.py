@@ -267,3 +267,7 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
     def replace_all(self, replace_pattern):
         find_pattern = self.find_bar.line_edit.text()
         self.code_editor.replace_all(find_pattern, replace_pattern)
+
+    def to_json(self) -> dict:
+        # TODO
+        return {}

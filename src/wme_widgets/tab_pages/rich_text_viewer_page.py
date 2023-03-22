@@ -9,12 +9,13 @@ from src.utils.color_manager import *
 
 
 class RichTextViewerPage(base_tab_page.BaseTabPage):
-    def __init__(self, md_file_path: str):
+    def __init__(self, rt_file_path: str):
         super().__init__()
 
         hyperlink_color = get_color_for_key(COLORS.PRIMARY.value)
 
-        text = markdown_loader.get_md_text(md_file_path)
+        self.rt_file_path = rt_file_path
+        text = markdown_loader.get_md_text(self.rt_file_path)
         text = text.replace("<a href=", "<a style =\"color: " + hyperlink_color + "\"href=")
 
         rich_text_label = QtWidgets.QLabel()
@@ -32,5 +33,10 @@ class RichTextViewerPage(base_tab_page.BaseTabPage):
         main_layout = QtWidgets.QHBoxLayout()
         main_layout.addWidget(scroll_area)
         self.setLayout(main_layout)
+
+    def to_json(self) -> dict:
+        page_json = {"name": str(type(self)),
+                     "richTextFile": self.rt_file_path}
+        return page_json
 
 
