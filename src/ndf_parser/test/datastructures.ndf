@@ -1,2 +1,3 @@
 test_pair is (("a", "b"), "c")
 test_vector is ["a", "b", "c"]
+test_map is MAP[("a", 1), ("b", 2), ("c", 3)]

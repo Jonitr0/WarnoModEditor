@@ -29,4 +29,19 @@ class NapoVector(NapoEntity):
         self.value.append(data)
 
     def __str__(self):
-        return "{type: pair, value: " + ''.join(map(str, self.value)) + "}"
+        return "{type: vector, value: " + ''.join(map(str, self.value)) + "}"
+
+
+class NapoMap(NapoEntity):
+    def __init__(self):
+        super().__init__()
+        self.value = {}
+        self.datatype = NapoDatatype.Map
+
+    def append(self, data: NapoPair):
+        self.value[data.value[0]] = data.value[1]
+
+    def __str__(self):
+        return "{type: map, value: " + ''.join(map(str, self.value)) + "}"
+
+
