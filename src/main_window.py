@@ -29,6 +29,8 @@ class MainWindow(base_window.BaseWindow):
         self.main_widget_ref = main_widget.MainWidget(warno_path, self.title_bar)
         self.bar_layout.addWidget(self.main_widget_ref)
 
+        QtCore.QCoreApplication.instance().aboutToQuit.connect(self.main_widget_ref.on_quit)
+
         self.showNormal()
 
     def close(self):

@@ -164,3 +164,7 @@ class MainWidget(QtWidgets.QWidget):
     def on_error_log(self):
         self.log_button.setIcon(icon_manager.load_icon("error_log.png", COLORS.SECONDARY_TEXT))
 
+    def on_quit(self):
+        # TODO: save state
+        print("quiting")
+
