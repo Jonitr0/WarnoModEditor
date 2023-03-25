@@ -5,8 +5,10 @@ from src.wme_widgets import wme_menu_bar
 from src.wme_widgets.project_explorer import wme_project_explorer
 from src.wme_widgets.tab_widget import wme_tab_widget, wme_detached_tab
 from src.dialogs import log_dialog
-from src.utils import path_validator, icon_manager
+from src.utils import path_validator, icon_manager, resource_loader
 from src.utils.color_manager import *
+
+import json
 
 
 class MainWidget(QtWidgets.QWidget):
@@ -41,6 +43,8 @@ class MainWidget(QtWidgets.QWidget):
             return
         if path_validator.validate_mod_path(str(last_open)):
             self.load_mod(str(last_open))
+
+        self.load_state()
 
     def get_warno_path(self):
         return self.warno_path
@@ -166,5 +170,30 @@ class MainWidget(QtWidgets.QWidget):
 
     def on_quit(self):
         # TODO: save state
-        print("quiting")
+        window_state = {
+            "Fullscreen": self.window().isFullScreen()
+        }
+
+        json_str = json.dumps(window_state)
+        file_path = resource_loader.get_resource_path("wme_config.json")
+
+        with open(file_path, "w") as f:
+            f.write(json_str)
+
+    def load_state(self):
+        file_path = resource_loader.get_resource_path("wme_config.json")
+        json_obj = None
+
+        try:
+            with open(file_path, "r") as f:
+                json_obj = json.load(f)
+        except Exception as e:
+            logging.info("Config not found or could not be opened: " + str(e))
+            return
+
+        if json_obj["Fullscreen"]:
+            self.window().setWindowState(Qt.WindowFullScreen)
+
+
+
 

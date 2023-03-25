@@ -31,7 +31,7 @@ class MainWindow(base_window.BaseWindow):
 
         QtCore.QCoreApplication.instance().aboutToQuit.connect(self.main_widget_ref.on_quit)
 
-        self.showNormal()
+        self.show()
 
     def close(self):
         if self.main_widget_ref is None:
