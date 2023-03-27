@@ -26,7 +26,7 @@ class MainWindow(base_window.BaseWindow):
         self.resize(1408, 792)
         self.setWindowTitle("WARNO Mod Editor")
 
-        self.main_widget_ref = main_widget.MainWidget(warno_path, self.title_bar)
+        self.main_widget_ref = main_widget.MainWidget(self, warno_path, self.title_bar)
         self.bar_layout.addWidget(self.main_widget_ref)
 
         QtCore.QCoreApplication.instance().aboutToQuit.connect(self.main_widget_ref.on_quit)

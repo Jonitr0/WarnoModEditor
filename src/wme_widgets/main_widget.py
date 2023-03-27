@@ -1,3 +1,5 @@
+import logging
+
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
@@ -16,8 +18,8 @@ class MainWidget(QtWidgets.QWidget):
     mod_loaded = QtCore.Signal(str)
     instance = None
 
-    def __init__(self, warno_path: str, title_bar):
-        super().__init__()
+    def __init__(self, parent, warno_path: str, title_bar):
+        super().__init__(parent=parent)
         self.explorer = wme_project_explorer.WMEProjectExplorer(self)
         self.load_screen = QtWidgets.QLabel("Open the \"File\" menu to create or load a mod.")
         self.splitter = QtWidgets.QSplitter(self)
@@ -44,7 +46,10 @@ class MainWidget(QtWidgets.QWidget):
         if path_validator.validate_mod_path(str(last_open)):
             self.load_mod(str(last_open))
 
-        self.load_state()
+        try:
+            self.load_state()
+        except Exception as e:
+            logging.warning("Error while loading WME config: " + str(e))
 
     def get_warno_path(self):
         return self.warno_path
@@ -171,7 +176,7 @@ class MainWidget(QtWidgets.QWidget):
     def on_quit(self):
         # TODO: save state
         window_state = {
-            "Fullscreen": self.window().isFullScreen()
+            "Maximized": self.window().isMaximized()
         }
 
         json_str = json.dumps(window_state)
@@ -191,8 +196,8 @@ class MainWidget(QtWidgets.QWidget):
             logging.info("Config not found or could not be opened: " + str(e))
             return
 
-        if json_obj["Fullscreen"]:
-            self.window().setWindowState(Qt.WindowFullScreen)
+        if json_obj["Maximized"]:
+            self.parent().setWindowState(Qt.WindowMaximized)
 
 
 
