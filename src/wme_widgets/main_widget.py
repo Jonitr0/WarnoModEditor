@@ -174,9 +174,13 @@ class MainWidget(QtWidgets.QWidget):
         self.log_button.setIcon(icon_manager.load_icon("error_log.png", COLORS.SECONDARY_TEXT))
 
     def on_quit(self):
-        # TODO: save state
+        # TODO: move to base_window
         window_state = {
-            "Maximized": self.window().isMaximized()
+            "Maximized": self.window().isMaximized(),
+            "Width": self.window().width(),
+            "Height": self.window().height(),
+            "X": self.window().pos().x(),
+            "Y": self.window().pos().y()
         }
 
         json_str = json.dumps(window_state)
@@ -196,8 +200,13 @@ class MainWidget(QtWidgets.QWidget):
             logging.info("Config not found or could not be opened: " + str(e))
             return
 
+        self.parent().move(json_obj["X"], json_obj["Y"])
+
         if json_obj["Maximized"]:
+            self.parent().resize(1408, 792)
             self.parent().setWindowState(Qt.WindowMaximized)
+        else:
+            self.parent().resize(json_obj["Width"], json_obj["Height"])
 
 
 
