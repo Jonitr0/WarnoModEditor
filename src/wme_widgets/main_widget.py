@@ -126,10 +126,14 @@ class MainWidget(QtWidgets.QWidget):
         self.tab_widget.close_all(all_windows=True)
         self.hide_loading_screen()
 
-        # TODO: load open pages from config
+        try:
+            self.load_mod_state()
+        except Exception as e:
+            logging.info("Project state could not be restrored: " + str(e))
 
     def unload_mod(self):
-        # TODO: save mod specific config (tabs and detached)
+        if self.loaded_mod_name != "":
+            self.save_mod_state()
 
         self.tab_widget.close_all(True)
         self.loaded_mod_path = ""
@@ -179,7 +183,10 @@ class MainWidget(QtWidgets.QWidget):
     def on_error_log(self):
         self.log_button.setIcon(icon_manager.load_icon("error_log.png", COLORS.SECONDARY_TEXT))
 
+    # TODO: put open and save config in functions
     def on_quit(self):
+        self.unload_mod()
+
         file_path = resource_loader.get_persistant_path("wme_config.json")
 
         json_obj = {}
@@ -198,8 +205,6 @@ class MainWidget(QtWidgets.QWidget):
             "SplitterSizes": self.splitter.sizes(),
             "ExplorerWidth": self.explorer_width
         }
-
-        self.tab_widget.to_json()
 
         json_str = json.dumps(json_obj)
 
@@ -230,6 +235,35 @@ class MainWidget(QtWidgets.QWidget):
         self.splitter.setSizes(main_window_obj["SplitterSizes"])
         self.explorer_width = main_window_obj["ExplorerWidth"]
 
+    def save_mod_state(self):
+        file_path = resource_loader.get_persistant_path("wme_config.json")
 
+        json_obj = {}
+        try:
+            with open(file_path, "r") as f:
+                json_obj = json.load(f)
+        except Exception as e:
+            logging.info("Config not found or could not be opened: " + str(e))
 
+        main_window_tabs = self.tab_widget.to_json()
+        json_obj[self.loaded_mod_name] = {"MainWindowTabs": main_window_tabs}
 
+        json_str = json.dumps(json_obj)
+
+        with open(file_path, "w+") as f:
+            f.write(json_str)
+
+    def load_mod_state(self):
+        file_path = resource_loader.get_persistant_path("wme_config.json")
+
+        json_obj = None
+        try:
+            with open(file_path, "r") as f:
+                json_obj = json.load(f)
+        except Exception as e:
+            logging.info("Config not found or could not be opened: " + str(e))
+            return
+
+        main_window_tabs = json_obj[self.loaded_mod_name]["MainWindowTabs"]
+        # TODO: actually restore tabs
+        print(main_window_tabs)

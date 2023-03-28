@@ -94,7 +94,7 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
         main_widget.MainWidget.instance.hide_loading_screen()
 
     def to_json(self) -> dict:
-        page_json = {"name": str(type(self)),
+        page_json = {"type": str(type(self)),
                      "currentSearch": self.search_line_edit.text()}
         return page_json
 

@@ -69,12 +69,12 @@ class WMETabWidget(QtWidgets.QTabWidget):
         # make sure explorer isn't so big
         self.resize(1000, self.height())
 
-    def to_json(self) -> dict:
-        json_obj = {}
+    def to_json(self) -> list:
+        json_obj = []
         for i in range(self.count()):
             page = self.widget(i)
-            print(type(page))
-        pass
+            json_obj.append(page.to_json())
+        return json_obj
 
     def on_tab_close_pressed(self, index: int):
         page = self.widget(index)
