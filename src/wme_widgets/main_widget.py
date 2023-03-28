@@ -180,7 +180,16 @@ class MainWidget(QtWidgets.QWidget):
         self.log_button.setIcon(icon_manager.load_icon("error_log.png", COLORS.SECONDARY_TEXT))
 
     def on_quit(self):
-        window_state = {
+        file_path = resource_loader.get_persistant_path("wme_config.json")
+
+        json_obj = {}
+        try:
+            with open(file_path, "r") as f:
+                json_obj = json.load(f)
+        except Exception as e:
+            logging.info("Config not found or could not be opened: " + str(e))
+
+        json_obj["MainWindowState"] = {
             "Maximized": self.window().isMaximized(),
             "Width": self.window().width(),
             "Height": self.window().height(),
@@ -192,8 +201,7 @@ class MainWidget(QtWidgets.QWidget):
 
         self.tab_widget.to_json()
 
-        json_str = json.dumps(window_state)
-        file_path = resource_loader.get_persistant_path("wme_config.json")
+        json_str = json.dumps(json_obj)
 
         with open(file_path, "w+") as f:
             f.write(json_str)
@@ -209,15 +217,18 @@ class MainWidget(QtWidgets.QWidget):
             logging.info("Config not found or could not be opened: " + str(e))
             return
 
-        if json_obj["Maximized"]:
+        main_window_obj = json_obj["MainWindowState"]
+
+        # restore main window state
+        if main_window_obj["Maximized"]:
             self.parent().setWindowState(Qt.WindowMaximized)
             self.parent().title_bar.set_maximized(True)
         else:
-            self.parent().move(json_obj["X"], json_obj["Y"])
-            self.parent().resize(json_obj["Width"], json_obj["Height"])
+            self.parent().move(main_window_obj["X"], main_window_obj["Y"])
+            self.parent().resize(main_window_obj["Width"], main_window_obj["Height"])
 
-        self.splitter.setSizes(json_obj["SplitterSizes"])
-        self.explorer_width = json_obj["ExplorerWidth"]
+        self.splitter.setSizes(main_window_obj["SplitterSizes"])
+        self.explorer_width = main_window_obj["ExplorerWidth"]
 
 
 

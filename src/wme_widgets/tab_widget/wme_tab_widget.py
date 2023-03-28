@@ -167,7 +167,6 @@ class WMETabWidget(QtWidgets.QTabWidget):
         super().removeTab(index)
 
     def ask_all_tabs_to_save(self, all_windows: bool = False) -> bool:
-        # TODO: do not close tabs here
         # iterate through own tabs
         restore_list = []
         i = 0

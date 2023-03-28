@@ -97,8 +97,8 @@ class BaseTabPage(QtWidgets.QWidget):
         self.unsaved_changes = False
         pass
 
+    # each page should return restoreable status as a dictionary which is JSON serializable
     def to_json(self) -> dict:
-        # TODO (0.1.1): return status as JSON string
         pass
 
     def on_help(self):
