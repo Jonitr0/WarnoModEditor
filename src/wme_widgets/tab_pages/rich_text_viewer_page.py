@@ -35,7 +35,7 @@ class RichTextViewerPage(base_tab_page.BaseTabPage):
         self.setLayout(main_layout)
 
     def to_json(self) -> dict:
-        page_json = {"type": str(type(self)),
+        page_json = {"type": self.get_full_class_name(),
                      "richTextFile": self.rt_file_path}
         return page_json
 

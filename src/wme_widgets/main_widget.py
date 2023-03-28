@@ -12,6 +12,7 @@ from src.utils import path_validator, icon_manager, resource_loader
 from src.utils.color_manager import *
 
 import json
+from pydoc import locate
 
 
 class MainWidget(QtWidgets.QWidget):
@@ -266,4 +267,6 @@ class MainWidget(QtWidgets.QWidget):
 
         main_window_tabs = json_obj[self.loaded_mod_name]["MainWindowTabs"]
         # TODO: actually restore tabs
-        print(main_window_tabs)
+        for tab in main_window_tabs:
+            t = locate(tab["type"])
+            print(t)

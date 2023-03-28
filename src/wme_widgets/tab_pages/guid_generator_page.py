@@ -60,7 +60,7 @@ class GuidGeneratorPage(base_tab_page.BaseTabPage):
         self.text_edit.setPlainText(text)
 
     def to_json(self) -> dict:
-        page_json = {"type": str(type(self)),
+        page_json = {"type": self.get_full_class_name(),
                      "currentText": self.text_edit.toPlainText()}
         return page_json
 

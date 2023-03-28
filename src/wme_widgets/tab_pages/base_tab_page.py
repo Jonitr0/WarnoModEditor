@@ -107,3 +107,8 @@ class BaseTabPage(QtWidgets.QWidget):
         self.help_page = rich_text_dialog.RichTextDialog(self.help_file_path, "Help")
         self.help_page.show()
 
+    def get_full_class_name(self):
+        c = self.__class__
+        m = c.__module__
+        return m + "." + c.__qualname__
+
