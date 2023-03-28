@@ -202,7 +202,11 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         self.unsaved_status_change.emit(False, self)
 
     def update_page(self):
-        self.open_file(self.file_path)
+        # if not yet saved, just clear the editor
+        if self.file_path == "":
+            self.code_editor.setPlainText("")
+        else:
+            self.open_file(self.file_path)
 
     def on_find_bar_close(self, _):
         self.find_action.setChecked(False)

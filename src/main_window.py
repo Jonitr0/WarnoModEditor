@@ -29,8 +29,6 @@ class MainWindow(base_window.BaseWindow):
         self.main_widget_ref = main_widget.MainWidget(self, warno_path, self.title_bar)
         self.bar_layout.addWidget(self.main_widget_ref)
 
-        QtCore.QCoreApplication.instance().aboutToQuit.connect(self.main_widget_ref.on_quit)
-
         self.show()
 
     def close(self):
@@ -38,6 +36,7 @@ class MainWindow(base_window.BaseWindow):
             super().close()
             QtWidgets.QApplication.quit()
         if self.main_widget_ref.ask_all_tabs_to_save():
+            self.main_widget_ref.on_quit()
             wme_detached_tab.clear_detached_list()
             super().close()
             QtWidgets.QApplication.quit()

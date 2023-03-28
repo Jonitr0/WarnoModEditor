@@ -200,6 +200,11 @@ class WMETitleBar(QtWidgets.QWidget):
             self.maximized = False
             self.maximize_button.setIcon(icon_manager.load_icon("titlebar/showMax.png", COLORS.PRIMARY))
 
+    def set_maximized(self, max: bool):
+        self.maximized = True
+        self.maximize_button.setIcon(
+            icon_manager.load_icon("titlebar/showNormal.png" if max else "titlebar/showMax.png", COLORS.PRIMARY))
+
     def on_close_clicked(self):
         self.parent.close()
 

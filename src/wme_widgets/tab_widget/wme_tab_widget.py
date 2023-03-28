@@ -69,12 +69,11 @@ class WMETabWidget(QtWidgets.QTabWidget):
         # make sure explorer isn't so big
         self.resize(1000, self.height())
 
-    def to_json(self) -> str:
-        # TODO (0.1.1): call to_json on all pages
-        pass
-
-    def save_state(self):
-        # TODO (0.1.1): call to_json and save to settings
+    def to_json(self) -> dict:
+        json_obj = {}
+        for i in range(self.count()):
+            page = self.widget(i)
+            print(type(page))
         pass
 
     def on_tab_close_pressed(self, index: int):
@@ -168,43 +167,45 @@ class WMETabWidget(QtWidgets.QTabWidget):
         super().removeTab(index)
 
     def ask_all_tabs_to_save(self, all_windows: bool = False) -> bool:
-        # close all tabs with no unsaved changes
+        # TODO: do not close tabs here
+        # iterate through own tabs
+        restore_list = []
         i = 0
         while i < self.count():
             page = self.widget(i)
             if not page.unsaved_changes:
-                self.removeTab(i)
-                i -= 1
-            i += 1
+                i += 1
+                continue
 
-        # iterate through own tabs with unsaved changes
-        i = 0
-        while i < self.count():
-            page = self.widget(i)
             dialog = essential_dialogs.AskToSaveDialog(page.tab_name)
             result = dialog.exec()
 
             # don't close on cancel
             if not result == QtWidgets.QDialog.Accepted:
-                return False
+                return self.cancel_ask_all_tabs(restore_list)
             # on save
             elif dialog.save_changes:
                 if not page.save_changes():
-                    return False
+                    restore_list.append(i)
+                    return self.cancel_ask_all_tabs(restore_list)
             # on discard, remove tab
             else:
-                self.removeTab(i)
-                i -= 1
+                restore_list.append(i)
             i += 1
 
         if all_windows:
             # call function on other windows
             for detached in wme_detached_tab.detached_list:
                 if not detached.tab_widget.ask_all_tabs_to_save(False):
-                    return False
+                    return self.cancel_ask_all_tabs(restore_list)
 
         # if cancel is never pressed, return True
         return True
+
+    def cancel_ask_all_tabs(self, restore_list: list):
+        for i in restore_list:
+            self.widget(i).update_page()
+        return False
 
     def close_all(self, all_windows: bool = False):
         self.clear()

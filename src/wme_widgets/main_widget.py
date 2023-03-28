@@ -48,7 +48,7 @@ class MainWidget(QtWidgets.QWidget):
             self.load_mod(str(last_open))
 
         try:
-            self.load_state()
+            self.load_main_window_state()
         except Exception as e:
             logging.warning("Error while loading WME config: " + str(e))
 
@@ -111,6 +111,8 @@ class MainWidget(QtWidgets.QWidget):
         label_layout.setAlignment(self.log_button, Qt.AlignRight)
 
     def load_mod(self, mod_path: str):
+        self.unload_mod()
+
         mod_path = mod_path.replace("/", "\\")
         if mod_path == self.loaded_mod_path:
             return
@@ -124,9 +126,12 @@ class MainWidget(QtWidgets.QWidget):
         self.tab_widget.close_all(all_windows=True)
         self.hide_loading_screen()
 
-        # TODO (0.1.1): load open pages from config
+        # TODO: load open pages from config
 
     def unload_mod(self):
+        # TODO: save mod specific config (tabs and detached)
+
+        self.tab_widget.close_all(True)
         self.loaded_mod_path = ""
         self.loaded_mod_name = ""
         self.title_label.setText("")
@@ -175,8 +180,6 @@ class MainWidget(QtWidgets.QWidget):
         self.log_button.setIcon(icon_manager.load_icon("error_log.png", COLORS.SECONDARY_TEXT))
 
     def on_quit(self):
-        # TODO: move to base_window
-        # TODO: add splitter state
         window_state = {
             "Maximized": self.window().isMaximized(),
             "Width": self.window().width(),
@@ -184,7 +187,10 @@ class MainWidget(QtWidgets.QWidget):
             "X": self.window().pos().x(),
             "Y": self.window().pos().y(),
             "SplitterSizes": self.splitter.sizes(),
+            "ExplorerWidth": self.explorer_width
         }
+
+        self.tab_widget.to_json()
 
         json_str = json.dumps(window_state)
         file_path = resource_loader.get_persistant_path("wme_config.json")
@@ -192,7 +198,7 @@ class MainWidget(QtWidgets.QWidget):
         with open(file_path, "w+") as f:
             f.write(json_str)
 
-    def load_state(self):
+    def load_main_window_state(self):
         file_path = resource_loader.get_persistant_path("wme_config.json")
         json_obj = None
 
@@ -203,16 +209,15 @@ class MainWidget(QtWidgets.QWidget):
             logging.info("Config not found or could not be opened: " + str(e))
             return
 
-        self.parent().move(json_obj["X"], json_obj["Y"])
-
         if json_obj["Maximized"]:
-            self.parent().resize(1408, 792)
             self.parent().setWindowState(Qt.WindowMaximized)
-            # TODO: change state on title bar
+            self.parent().title_bar.set_maximized(True)
         else:
+            self.parent().move(json_obj["X"], json_obj["Y"])
             self.parent().resize(json_obj["Width"], json_obj["Height"])
 
         self.splitter.setSizes(json_obj["SplitterSizes"])
+        self.explorer_width = json_obj["ExplorerWidth"]
 
 
 
