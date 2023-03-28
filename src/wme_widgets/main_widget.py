@@ -1,4 +1,5 @@
 import logging
+import os.path
 
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
@@ -175,22 +176,24 @@ class MainWidget(QtWidgets.QWidget):
 
     def on_quit(self):
         # TODO: move to base_window
+        # TODO: add splitter state
         window_state = {
             "Maximized": self.window().isMaximized(),
             "Width": self.window().width(),
             "Height": self.window().height(),
             "X": self.window().pos().x(),
-            "Y": self.window().pos().y()
+            "Y": self.window().pos().y(),
+            "SplitterSizes": self.splitter.sizes(),
         }
 
         json_str = json.dumps(window_state)
-        file_path = resource_loader.get_resource_path("wme_config.json")
+        file_path = resource_loader.get_persistant_path("wme_config.json")
 
-        with open(file_path, "w") as f:
+        with open(file_path, "w+") as f:
             f.write(json_str)
 
     def load_state(self):
-        file_path = resource_loader.get_resource_path("wme_config.json")
+        file_path = resource_loader.get_persistant_path("wme_config.json")
         json_obj = None
 
         try:
@@ -205,8 +208,11 @@ class MainWidget(QtWidgets.QWidget):
         if json_obj["Maximized"]:
             self.parent().resize(1408, 792)
             self.parent().setWindowState(Qt.WindowMaximized)
+            # TODO: change state on title bar
         else:
             self.parent().resize(json_obj["Width"], json_obj["Height"])
+
+        self.splitter.setSizes(json_obj["SplitterSizes"])
 
 
 

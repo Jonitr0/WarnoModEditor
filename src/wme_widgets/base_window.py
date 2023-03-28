@@ -182,3 +182,12 @@ class BaseWindow(QtWidgets.QWidget):
         self.sideGrips[3].setGeometry(
             self.gripSize, inRect.top() + inRect.height(),
             inRect.width(), self.gripSize)
+
+    def get_window_state(self):
+        return {
+            "Maximized": self.window().isMaximized(),
+            "Width": self.window().width(),
+            "Height": self.window().height(),
+            "X": self.window().pos().x(),
+            "Y": self.window().pos().y()
+        }
