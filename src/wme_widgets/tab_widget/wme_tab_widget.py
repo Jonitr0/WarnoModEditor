@@ -15,6 +15,13 @@ from src.utils.color_manager import *
 class WMETabWidget(QtWidgets.QTabWidget):
     tab_removed_by_button = QtCore.Signal()
 
+    icon_paths_for_pages = {
+        ndf_editor_page.NdfEditorPage: "text_editor.png",
+        global_search_page.GlobalSearchPage: "magnify.png",
+        guid_generator_page.GuidGeneratorPage: "cert.png",
+        rich_text_viewer_page.RichTextViewerPage: "help.png",
+    }
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -73,7 +80,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
         json_obj = []
         for i in range(self.count()):
             page = self.widget(i)
-            json_obj.append(page.to_json())
+            page_json = page.to_json()
+            page_json["type"] = page.get_full_class_name()
+            page_json["title"] = self.tabText(i)
+            json_obj.append(page_json)
         return json_obj
 
     def on_tab_close_pressed(self, index: int):
@@ -93,6 +103,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.removeTab(index)
         self.tab_removed_by_button.emit()
 
+    def add_tab_with_auto_icon(self, page: base_tab_page.BaseTabPage, title: str):
+        icon = icon_manager.load_icon(self.icon_paths_for_pages[type(page)], COLORS.PRIMARY)
+        self.addTab(page, icon, title)
+
     def on_open_ndf_editor(self, file_path: str) -> ndf_editor_page.NdfEditorPage:
         file_path = file_path.replace("/", "\\")
         file_name = file_path[file_path.rindex('\\') + 1:]
@@ -110,38 +124,32 @@ class WMETabWidget(QtWidgets.QTabWidget):
         editor.code_editor.find_pattern(search_pattern)
 
     def on_text_editor(self):
-        editor_icon = icon_manager.load_icon("text_editor.png", COLORS.PRIMARY)
         editor = ndf_editor_page.NdfEditorPage()
-        self.addTab(editor, editor_icon, "Text Editor")
+        self.add_tab_with_auto_icon(editor, "Text Editor")
         editor.code_editor.setFocus()
 
     def on_global_search(self):
-        page_icon = icon_manager.load_icon("magnify.png", COLORS.PRIMARY)
         page = global_search_page.GlobalSearchPage()
-        self.addTab(page, page_icon, "Global Search")
+        self.add_tab_with_auto_icon(page, "Global Search")
         page.search_line_edit.setFocus()
 
     def on_guid_generator(self):
-        page_icon = icon_manager.load_icon("cert.png", COLORS.PRIMARY)
         page = guid_generator_page.GuidGeneratorPage()
-        self.addTab(page, page_icon, "GUID Generator")
+        self.add_tab_with_auto_icon(page, "GUID Generator")
 
     def on_open_quickstart(self):
-        quickstart_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
         viewer = rich_text_viewer_page.RichTextViewerPage("Quickstart.html")
-        self.addTab(viewer, quickstart_icon, "Quickstart Guide")
+        self.add_tab_with_auto_icon(viewer, "Quickstart Guide")
 
     # TODO: add pair and map to NDF reference
     def on_open_ndf_reference(self):
-        reference_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
         viewer = rich_text_viewer_page.RichTextViewerPage("NdfReference.html")
-        self.addTab(viewer, reference_icon, "NDF Reference")
+        self.add_tab_with_auto_icon(viewer, "NDF Reference")
 
     def on_open_manual(self):
-        manual_action = icon_manager.load_icon("help.png", COLORS.PRIMARY)
         viewer = rich_text_viewer_page.RichTextViewerPage("UserManual.md")
         # TODO (0.1.1): fill md file, convert to html
-        self.addTab(viewer, manual_action, "User Manual")
+        self.add_tab_with_auto_icon(viewer, "User Manual")
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
         ret = super().addTab(widget, icon, title)

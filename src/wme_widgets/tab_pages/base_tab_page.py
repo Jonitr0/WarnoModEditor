@@ -101,6 +101,10 @@ class BaseTabPage(QtWidgets.QWidget):
     def to_json(self) -> dict:
         pass
 
+    # restore page from a JSON object
+    def from_json(self, json_obj: dict):
+        pass
+
     def on_help(self):
         if self.help_page:
             self.help_page.deleteLater()

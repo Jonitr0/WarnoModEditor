@@ -94,9 +94,11 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
         main_widget.MainWidget.instance.hide_loading_screen()
 
     def to_json(self) -> dict:
-        page_json = {"type": self.get_full_class_name(),
-                     "currentSearch": self.search_line_edit.text()}
+        page_json = {"currentSearch": self.search_line_edit.text()}
         return page_json
+
+    def from_json(self, json_obj: dict):
+        self.search_line_edit.setText(json_obj["currentSearch"])
 
 
 class SearchResultWidget(QtWidgets.QFrame):

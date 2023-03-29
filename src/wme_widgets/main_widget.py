@@ -266,7 +266,10 @@ class MainWidget(QtWidgets.QWidget):
             return
 
         main_window_tabs = json_obj[self.loaded_mod_name]["MainWindowTabs"]
-        # TODO: actually restore tabs
         for tab in main_window_tabs:
             t = locate(tab["type"])
-            print(t)
+            page = t()
+            page.from_json(tab)
+            self.tab_widget.add_tab_with_auto_icon(page, tab["title"])
+
+        # TODO: restore tabs on detached
