@@ -272,6 +272,14 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         find_pattern = self.find_bar.line_edit.text()
         self.code_editor.replace_all(find_pattern, replace_pattern)
 
+    def from_json(self, json_obj: dict):
+        self.open_file(json_obj["filePath"])
+        cursor = self.code_editor.textCursor()
+        cursor.setPosition(json_obj["cursorPos"])
+        self.code_editor.setTextCursor(cursor)
+
     def to_json(self) -> dict:
-        # TODO
-        return {}
+        return {
+            "filePath": self.file_path,
+            "cursorPos": self.code_editor.textCursor().position()
+        }

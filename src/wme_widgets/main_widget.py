@@ -130,7 +130,7 @@ class MainWidget(QtWidgets.QWidget):
         try:
             self.load_mod_state()
         except Exception as e:
-            logging.info("Project state could not be restrored: " + str(e))
+            logging.info("Project state could not be restored: " + str(e))
 
     def unload_mod(self):
         if self.loaded_mod_name != "":
