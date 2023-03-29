@@ -197,15 +197,10 @@ class MainWidget(QtWidgets.QWidget):
         except Exception as e:
             logging.info("Config not found or could not be opened: " + str(e))
 
-        json_obj["MainWindowState"] = {
-            "Maximized": self.window().isMaximized(),
-            "Width": self.window().width(),
-            "Height": self.window().height(),
-            "X": self.window().pos().x(),
-            "Y": self.window().pos().y(),
-            "SplitterSizes": self.splitter.sizes(),
-            "ExplorerWidth": self.explorer_width
-        }
+        main_window_state = self.window().get_window_state()
+        main_window_state["splitterSizes"] = self.splitter.sizes()
+        main_window_state["explorerWidth"] = self.explorer_width
+        json_obj["mainWindowState"] = main_window_state
 
         json_str = json.dumps(json_obj)
 
@@ -223,18 +218,18 @@ class MainWidget(QtWidgets.QWidget):
             logging.info("Config not found or could not be opened: " + str(e))
             return
 
-        main_window_obj = json_obj["MainWindowState"]
+        main_window_obj = json_obj["mainWindowState"]
 
         # restore main window state
-        if main_window_obj["Maximized"]:
+        if main_window_obj["maximized"]:
             self.parent().setWindowState(Qt.WindowMaximized)
             self.parent().title_bar.set_maximized(True)
         else:
-            self.parent().move(main_window_obj["X"], main_window_obj["Y"])
-            self.parent().resize(main_window_obj["Width"], main_window_obj["Height"])
+            self.parent().move(main_window_obj["x"], main_window_obj["y"])
+            self.parent().resize(main_window_obj["width"], main_window_obj["height"])
 
-        self.splitter.setSizes(main_window_obj["SplitterSizes"])
-        self.explorer_width = main_window_obj["ExplorerWidth"]
+        self.splitter.setSizes(main_window_obj["splitterSizes"])
+        self.explorer_width = main_window_obj["explorerWidth"]
 
     def save_mod_state(self):
         file_path = resource_loader.get_persistant_path("wme_config.json")
@@ -247,7 +242,17 @@ class MainWidget(QtWidgets.QWidget):
             logging.info("Config not found or could not be opened: " + str(e))
 
         main_window_tabs = self.tab_widget.to_json()
-        json_obj[self.loaded_mod_name] = {"MainWindowTabs": main_window_tabs}
+        json_obj[self.loaded_mod_name] = {"mainWindowTabs": main_window_tabs}
+        
+        detached_objs = []
+        for detached in wme_detached_tab.detached_list:
+            detached_obj = {
+                "detachedState": detached.get_window_state(),
+                "detachedTabs": detached.tab_widget.to_json(),
+            }
+            detached_objs.append(detached_obj)
+
+        json_obj[self.loaded_mod_name]["detached"] = detached_objs
 
         json_str = json.dumps(json_obj)
 
@@ -265,7 +270,7 @@ class MainWidget(QtWidgets.QWidget):
             logging.info("Config not found or could not be opened: " + str(e))
             return
 
-        main_window_tabs = json_obj[self.loaded_mod_name]["MainWindowTabs"]
+        main_window_tabs = json_obj[self.loaded_mod_name]["mainWindowTabs"]
         for tab in main_window_tabs:
             t = locate(tab["type"])
             page = t()

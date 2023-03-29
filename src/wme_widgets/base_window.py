@@ -185,9 +185,9 @@ class BaseWindow(QtWidgets.QWidget):
 
     def get_window_state(self):
         return {
-            "Maximized": self.window().isMaximized(),
-            "Width": self.window().width(),
-            "Height": self.window().height(),
-            "X": self.window().pos().x(),
-            "Y": self.window().pos().y()
+            "maximized": self.window().isMaximized(),
+            "width": self.window().width(),
+            "height": self.window().height(),
+            "x": self.window().pos().x(),
+            "y": self.window().pos().y()
         }
