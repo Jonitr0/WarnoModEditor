@@ -221,11 +221,11 @@ class MainWidget(QtWidgets.QWidget):
         main_window_obj = json_obj["mainWindowState"]
 
         # restore main window state
+        self.parent().move(main_window_obj["x"], main_window_obj["y"])
         if main_window_obj["maximized"]:
             self.parent().setWindowState(Qt.WindowMaximized)
             self.parent().title_bar.set_maximized(True)
         else:
-            self.parent().move(main_window_obj["x"], main_window_obj["y"])
             self.parent().resize(main_window_obj["width"], main_window_obj["height"])
 
         self.splitter.setSizes(main_window_obj["splitterSizes"])
