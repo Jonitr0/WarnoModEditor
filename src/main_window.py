@@ -10,6 +10,7 @@ class MainWindow(base_window.BaseWindow):
     def __init__(self):
         super().__init__()
         self.main_widget_ref = None
+        self.state_saved = False
         QtCore.QTimer.singleShot(0, self.start_main_window)
 
     # open actual main window
@@ -29,6 +30,8 @@ class MainWindow(base_window.BaseWindow):
         self.main_widget_ref = main_widget.MainWidget(self, warno_path, self.title_bar)
         self.bar_layout.addWidget(self.main_widget_ref)
 
+        QtCore.QCoreApplication.instance().aboutToQuit.connect(self.on_quit)
+
         self.show()
 
     def close(self):
@@ -37,6 +40,11 @@ class MainWindow(base_window.BaseWindow):
             QtWidgets.QApplication.quit()
         if self.main_widget_ref.ask_all_tabs_to_save():
             self.main_widget_ref.on_quit()
+            self.state_saved = True
             wme_detached_tab.clear_detached_list()
             super().close()
             QtWidgets.QApplication.quit()
+
+    def on_quit(self):
+        if not self.state_saved:
+            self.main_widget_ref.on_quit()

@@ -47,8 +47,6 @@ class WMETabBar(QtWidgets.QTabBar):
         detached.resize(640, 480)
         detached.show()
 
-        wme_detached_tab.detached_list.append(detached)
-
     def mouseMoveEvent(self, event):
         # Determine if the current movement is detected as a drag
         if not self.dragStartPos.isNull() and (

@@ -33,6 +33,8 @@ class WMEDetachedTab(base_window.BaseWindow):
         self.load_screen.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(self.load_screen)
 
+        detached_list.append(self)
+
     def add_tab(self, widget, icon, title: str):
         self.tab_widget.addTab(widget, icon, title)
 

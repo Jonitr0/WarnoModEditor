@@ -148,6 +148,7 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
             super().open_file(file_path)
         except Exception as e:
             logging.error("Could not open file " + file_path + ": " + str(e))
+            main_widget.MainWidget.instance.hide_loading_screen()
         # update tab name
         file_path = file_path.replace("/", "\\")
         self.tab_name = file_path[file_path.rindex('\\') + 1:]
@@ -273,7 +274,8 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         self.code_editor.replace_all(find_pattern, replace_pattern)
 
     def from_json(self, json_obj: dict):
-        self.open_file(json_obj["filePath"])
+        if not json_obj["filePath"] == "":
+            self.open_file(json_obj["filePath"])
         cursor = self.code_editor.textCursor()
         cursor.setPosition(json_obj["cursorPos"])
         self.code_editor.setTextCursor(cursor)
