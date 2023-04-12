@@ -1,17 +1,17 @@
 # tab page that allows for search in all .ndf files of the mod
-
+import json
 import os
 
 from PySide6 import QtWidgets
 from PySide6.QtCore import Qt
 
 from src.wme_widgets import wme_lineedit, main_widget
-from src.wme_widgets.tab_pages import tab_page_base
+from src.wme_widgets.tab_pages import base_tab_page
 from src.utils import icon_manager
 from src.utils.color_manager import *
 
 
-class GlobalSearchPage(tab_page_base.TabPageBase):
+class GlobalSearchPage(base_tab_page.BaseTabPage):
     def __init__(self):
         super().__init__()
 
@@ -92,6 +92,13 @@ class GlobalSearchPage(tab_page_base.TabPageBase):
             self.list_layout.addWidget(SearchResultWidget(file, search_text, self))
 
         main_widget.MainWidget.instance.hide_loading_screen()
+
+    def to_json(self) -> dict:
+        page_json = {"currentSearch": self.search_line_edit.text()}
+        return page_json
+
+    def from_json(self, json_obj: dict):
+        self.search_line_edit.setText(json_obj["currentSearch"])
 
 
 class SearchResultWidget(QtWidgets.QFrame):

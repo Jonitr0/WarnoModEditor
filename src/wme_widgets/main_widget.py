@@ -1,12 +1,51 @@
+import logging
+import os.path
+
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
-from src.wme_widgets import wme_menu_bar
+from src.wme_widgets import wme_menu_bar, base_window
 from src.wme_widgets.project_explorer import wme_project_explorer
 from src.wme_widgets.tab_widget import wme_tab_widget, wme_detached_tab
 from src.dialogs import log_dialog
-from src.utils import path_validator, icon_manager
+from src.utils import path_validator, icon_manager, resource_loader
 from src.utils.color_manager import *
+
+import json
+from pydoc import locate
+
+
+def open_config() -> dict:
+    file_path = resource_loader.get_persistant_path("wme_config.json")
+    json_obj = {}
+
+    try:
+        with open(file_path, "r") as f:
+            json_obj = json.load(f)
+    except Exception as e:
+        logging.info("Config not found or could not be opened: " + str(e))
+
+    return json_obj
+
+
+def save_config(json_obj: dict):
+    file_path = resource_loader.get_persistant_path("wme_config.json")
+    json_str = json.dumps(json_obj)
+
+    try:
+        with open(file_path, "w+") as f:
+            f.write(json_str)
+    except Exception as e:
+        logging.info("Config could not be saved: " + str(e))
+
+
+def restore_window(window_obj: dict, window: base_window.BaseWindow):
+    window.move(window_obj["x"], window_obj["y"])
+    if window_obj["maximized"]:
+        window.setWindowState(Qt.WindowMaximized)
+        window.title_bar.set_maximized(True)
+    else:
+        window.resize(window_obj["width"], window_obj["height"])
 
 
 class MainWidget(QtWidgets.QWidget):
@@ -14,8 +53,8 @@ class MainWidget(QtWidgets.QWidget):
     mod_loaded = QtCore.Signal(str)
     instance = None
 
-    def __init__(self, warno_path: str, title_bar):
-        super().__init__()
+    def __init__(self, parent, warno_path: str, title_bar):
+        super().__init__(parent=parent)
         self.explorer = wme_project_explorer.WMEProjectExplorer(self)
         self.load_screen = QtWidgets.QLabel("Open the \"File\" menu to create or load a mod.")
         self.splitter = QtWidgets.QSplitter(self)
@@ -41,6 +80,11 @@ class MainWidget(QtWidgets.QWidget):
             return
         if path_validator.validate_mod_path(str(last_open)):
             self.load_mod(str(last_open))
+
+        try:
+            self.load_main_window_state()
+        except Exception as e:
+            logging.warning("Error while loading WME config: " + str(e))
 
     def get_warno_path(self):
         return self.warno_path
@@ -82,7 +126,7 @@ class MainWidget(QtWidgets.QWidget):
         self.explorer.tree_view.open_ndf_editor.connect(self.tab_widget.on_open_ndf_editor)
 
         label_layout = QtWidgets.QHBoxLayout()
-        label_layout.setContentsMargins(0, 0, 8, 0)
+        label_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addLayout(label_layout)
 
         version_label = QtWidgets.QLabel("WME v" + settings_manager.get_settings_value(settings_manager.VERSION_KEY))
@@ -101,6 +145,8 @@ class MainWidget(QtWidgets.QWidget):
         label_layout.setAlignment(self.log_button, Qt.AlignRight)
 
     def load_mod(self, mod_path: str):
+        self.unload_mod()
+
         mod_path = mod_path.replace("/", "\\")
         if mod_path == self.loaded_mod_path:
             return
@@ -114,9 +160,16 @@ class MainWidget(QtWidgets.QWidget):
         self.tab_widget.close_all(all_windows=True)
         self.hide_loading_screen()
 
-        # TODO (0.1.1): load open pages from config
+        try:
+            self.load_mod_state()
+        except Exception as e:
+            logging.info("Project state could not be restored: " + str(e))
 
     def unload_mod(self):
+        if self.loaded_mod_name != "":
+            self.save_mod_state()
+
+        self.tab_widget.close_all(True)
         self.loaded_mod_path = ""
         self.loaded_mod_name = ""
         self.title_label.setText("")
@@ -164,3 +217,72 @@ class MainWidget(QtWidgets.QWidget):
     def on_error_log(self):
         self.log_button.setIcon(icon_manager.load_icon("error_log.png", COLORS.SECONDARY_TEXT))
 
+    def on_quit(self):
+        self.unload_mod()
+
+        try:
+            json_obj = open_config()
+
+            main_window_state = self.window().get_window_state()
+            main_window_state["splitterSizes"] = self.splitter.sizes()
+            main_window_state["explorerWidth"] = self.explorer_width
+            json_obj["mainWindowState"] = main_window_state
+
+            save_config(json_obj)
+        except Exception as e:
+            logging.error("Could not save workspace state: " + str(e))
+
+    def load_main_window_state(self):
+        json_obj = open_config()
+        if not json_obj:
+            return
+
+        main_window_obj = json_obj["mainWindowState"]
+
+        # restore main window state
+        restore_window(main_window_obj, self.parent())
+
+        self.splitter.setSizes(main_window_obj["splitterSizes"])
+        self.explorer_width = main_window_obj["explorerWidth"]
+
+    def save_mod_state(self):
+        json_obj = open_config()
+
+        main_window_tabs = self.tab_widget.to_json()
+        json_obj[self.loaded_mod_name] = {"mainWindowTabs": main_window_tabs}
+
+        detached_objs = []
+        for detached in wme_detached_tab.detached_list:
+            detached_obj = {
+                "detachedState": detached.get_window_state(),
+                "detachedTabs": detached.tab_widget.to_json(),
+            }
+            detached_objs.append(detached_obj)
+
+        json_obj[self.loaded_mod_name]["detached"] = detached_objs
+
+        save_config(json_obj)
+
+    def load_mod_state(self):
+        json_obj = open_config()
+        if not json_obj:
+            return
+
+        main_window_tabs = json_obj[self.loaded_mod_name]["mainWindowTabs"]
+        for tab in main_window_tabs:
+            t = locate(tab["type"])
+            page = t()
+            page.from_json(tab)
+            self.tab_widget.add_tab_with_auto_icon(page, tab["title"])
+
+        detached_list = json_obj[self.loaded_mod_name]["detached"]
+        for detached_obj in detached_list:
+            detached_window = wme_detached_tab.WMEDetachedTab()
+            restore_window(detached_obj["detachedState"], detached_window)
+            for tab in detached_obj["detachedTabs"]:
+                t = locate(tab["type"])
+                page = t()
+                page.from_json(tab)
+                detached_window.tab_widget.add_tab_with_auto_icon(page, tab["title"])
+
+            detached_window.show()

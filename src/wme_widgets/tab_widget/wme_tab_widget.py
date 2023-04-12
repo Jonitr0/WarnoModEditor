@@ -4,7 +4,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
-from src.wme_widgets.tab_pages import tab_page_base, rich_text_viewer_page, global_search_page, guid_generator_page
+from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, global_search_page, guid_generator_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.wme_widgets import main_widget
 from src.dialogs import essential_dialogs
@@ -14,6 +14,13 @@ from src.utils.color_manager import *
 
 class WMETabWidget(QtWidgets.QTabWidget):
     tab_removed_by_button = QtCore.Signal()
+
+    icon_paths_for_pages = {
+        ndf_editor_page.NdfEditorPage: "text_editor.png",
+        global_search_page.GlobalSearchPage: "magnify.png",
+        guid_generator_page.GuidGeneratorPage: "cert.png",
+        rich_text_viewer_page.RichTextViewerPage: "help.png",
+    }
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -69,13 +76,15 @@ class WMETabWidget(QtWidgets.QTabWidget):
         # make sure explorer isn't so big
         self.resize(1000, self.height())
 
-    def to_json(self) -> str:
-        # TODO (0.1.1): call to_json on all pages
-        pass
-
-    def save_state(self):
-        # TODO (0.1.1): call to_json and save to settings
-        pass
+    def to_json(self) -> list:
+        json_obj = []
+        for i in range(self.count()):
+            page = self.widget(i)
+            page_json = page.to_json()
+            page_json["type"] = page.get_full_class_name()
+            page_json["title"] = self.tabText(i)
+            json_obj.append(page_json)
+        return json_obj
 
     def on_tab_close_pressed(self, index: int):
         page = self.widget(index)
@@ -94,6 +103,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.removeTab(index)
         self.tab_removed_by_button.emit()
 
+    def add_tab_with_auto_icon(self, page: base_tab_page.BaseTabPage, title: str):
+        icon = icon_manager.load_icon(self.icon_paths_for_pages[type(page)], COLORS.PRIMARY)
+        self.addTab(page, icon, title)
+
     def on_open_ndf_editor(self, file_path: str) -> ndf_editor_page.NdfEditorPage:
         file_path = file_path.replace("/", "\\")
         file_name = file_path[file_path.rindex('\\') + 1:]
@@ -111,38 +124,32 @@ class WMETabWidget(QtWidgets.QTabWidget):
         editor.code_editor.find_pattern(search_pattern)
 
     def on_text_editor(self):
-        editor_icon = icon_manager.load_icon("text_editor.png", COLORS.PRIMARY)
         editor = ndf_editor_page.NdfEditorPage()
-        self.addTab(editor, editor_icon, "Text Editor")
+        self.add_tab_with_auto_icon(editor, "Text Editor")
         editor.code_editor.setFocus()
 
     def on_global_search(self):
-        page_icon = icon_manager.load_icon("magnify.png", COLORS.PRIMARY)
         page = global_search_page.GlobalSearchPage()
-        self.addTab(page, page_icon, "Global Search")
+        self.add_tab_with_auto_icon(page, "Global Search")
         page.search_line_edit.setFocus()
 
     def on_guid_generator(self):
-        page_icon = icon_manager.load_icon("cert.png", COLORS.PRIMARY)
         page = guid_generator_page.GuidGeneratorPage()
-        self.addTab(page, page_icon, "GUID Generator")
+        self.add_tab_with_auto_icon(page, "GUID Generator")
 
     def on_open_quickstart(self):
-        quickstart_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
         viewer = rich_text_viewer_page.RichTextViewerPage("Quickstart.html")
-        self.addTab(viewer, quickstart_icon, "Quickstart Guide")
+        self.add_tab_with_auto_icon(viewer, "Quickstart Guide")
 
+    # TODO: add pair and map to NDF reference
     def on_open_ndf_reference(self):
-        reference_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
         viewer = rich_text_viewer_page.RichTextViewerPage("NdfReference.html")
-        # TODO: fill md file, convert to html
-        self.addTab(viewer, reference_icon, "NDF Reference")
+        self.add_tab_with_auto_icon(viewer, "NDF Reference")
 
     def on_open_manual(self):
-        manual_action = icon_manager.load_icon("help.png", COLORS.PRIMARY)
         viewer = rich_text_viewer_page.RichTextViewerPage("UserManual.md")
         # TODO (0.1.1): fill md file, convert to html
-        self.addTab(viewer, manual_action, "User Manual")
+        self.add_tab_with_auto_icon(viewer, "User Manual")
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
         ret = super().addTab(widget, icon, title)
@@ -150,7 +157,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.setCurrentIndex(ret)
         self.setTabToolTip(ret, title)
         widget.unsaved_status_change.connect(self.on_save_status_changed)
-        tab_page_base.all_pages.add(widget)
+        base_tab_page.all_pages.add(widget)
         return ret
 
     def insertTab(self, index: int, widget, icon: QtGui.QIcon, title: str) -> int:
@@ -159,52 +166,53 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.setCurrentIndex(ret)
         self.setTabToolTip(ret, title)
         widget.unsaved_status_change.connect(self.on_save_status_changed)
-        tab_page_base.all_pages.add(widget)
+        base_tab_page.all_pages.add(widget)
         return ret
 
     def removeTab(self, index: int):
         widget = self.widget(index)
-        tab_page_base.all_pages.remove(widget)
+        base_tab_page.all_pages.remove(widget)
         super().removeTab(index)
 
     def ask_all_tabs_to_save(self, all_windows: bool = False) -> bool:
-        # close all tabs with no unsaved changes
+        # iterate through own tabs
+        restore_list = []
         i = 0
         while i < self.count():
             page = self.widget(i)
             if not page.unsaved_changes:
-                self.removeTab(i)
-                i -= 1
-            i += 1
+                i += 1
+                continue
 
-        # iterate through own tabs with unsaved changes
-        i = 0
-        while i < self.count():
-            page = self.widget(i)
             dialog = essential_dialogs.AskToSaveDialog(page.tab_name)
             result = dialog.exec()
 
             # don't close on cancel
             if not result == QtWidgets.QDialog.Accepted:
-                return False
+                return self.cancel_ask_all_tabs(restore_list)
             # on save
             elif dialog.save_changes:
                 if not page.save_changes():
-                    return False
+                    restore_list.append(i)
+                    return self.cancel_ask_all_tabs(restore_list)
             # on discard, remove tab
             else:
-                self.removeTab(i)
-                i -= 1
+                restore_list.append(i)
             i += 1
 
         if all_windows:
             # call function on other windows
             for detached in wme_detached_tab.detached_list:
                 if not detached.tab_widget.ask_all_tabs_to_save(False):
-                    return False
+                    return self.cancel_ask_all_tabs(restore_list)
 
         # if cancel is never pressed, return True
         return True
+
+    def cancel_ask_all_tabs(self, restore_list: list):
+        for i in restore_list:
+            self.widget(i).update_page()
+        return False
 
     def close_all(self, all_windows: bool = False):
         self.clear()

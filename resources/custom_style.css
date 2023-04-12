@@ -125,3 +125,5 @@ QSplashScreen {{
   font-weight: bold;
   font-style: italic;
 }}
+
+QSizeGrip {{ image: none; }}

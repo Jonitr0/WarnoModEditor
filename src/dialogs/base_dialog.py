@@ -6,6 +6,8 @@ from PySide6.QtCore import Qt
 from src.wme_widgets import wme_title_bar
 from src.utils import icon_manager
 
+SHADOW_WIDTH = 8
+
 
 class BaseDialog(QtWidgets.QDialog):
     def __init__(self, parent=None, ok_only: bool = False, urgent: bool = False):
@@ -14,11 +16,11 @@ class BaseDialog(QtWidgets.QDialog):
         self.shadow_effect = QtWidgets.QGraphicsDropShadowEffect()
 
         shadow_widget = QtWidgets.QWidget()
-        self.shadow_layout.setContentsMargins(4, 4, 4, 4)
+        self.shadow_layout.setContentsMargins(SHADOW_WIDTH, SHADOW_WIDTH, SHADOW_WIDTH, SHADOW_WIDTH)
         shadow_widget.setLayout(self.shadow_layout)
 
         self.shadow_effect.setOffset(0, 0)
-        self.shadow_effect.setBlurRadius(4)
+        self.shadow_effect.setBlurRadius(SHADOW_WIDTH)
         self.shadow_effect.setColor(QtGui.QColor(0, 0, 0, 150))
         shadow_widget.setGraphicsEffect(self.shadow_effect)
 
@@ -120,7 +122,7 @@ class BaseDialog(QtWidgets.QDialog):
                 self.shadow_layout.setContentsMargins(0, 0, 0, 0)
                 self.shadow_effect.setEnabled(False)
             else:
-                self.shadow_layout.setContentsMargins(4, 4, 4, 4)
+                self.shadow_layout.setContentsMargins(SHADOW_WIDTH, SHADOW_WIDTH, SHADOW_WIDTH, SHADOW_WIDTH)
                 # stupid but needed to fix shadow effect
                 self.resize(self.size().width() + 1, self.size().height() + 1)
                 self.resize(self.size().width() - 1, self.size().height() - 1)

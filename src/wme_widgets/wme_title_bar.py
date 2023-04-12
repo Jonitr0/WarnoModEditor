@@ -48,7 +48,7 @@ class WMETitleBar(QtWidgets.QWidget):
         self.main_layout.addWidget(icon)
 
         self.title_label.setText(window_title)
-        self.title_label.setVisible(window_title != "")
+        self.title_label.setHidden(window_title == "")
         self.main_layout.addWidget(self.title_label)
 
         self.main_layout.addStretch(1)
@@ -57,7 +57,7 @@ class WMETitleBar(QtWidgets.QWidget):
         button_layout.setSpacing(0)
         self.main_layout.addLayout(button_layout)
 
-        self.minimize_button.setVisible(not only_close)
+        self.minimize_button.setHidden(only_close)
         self.minimize_button.installEventFilter(self)
         self.minimize_button.setProperty('class', 'titlebar')
         min_icon = icon_manager.load_icon("titlebar/showMin.png", COLORS.PRIMARY)
@@ -66,7 +66,7 @@ class WMETitleBar(QtWidgets.QWidget):
         self.minimize_button.clicked.connect(self.on_min_clicked)
         button_layout.addWidget(self.minimize_button)
 
-        self.maximize_button.setVisible(not only_close)
+        self.maximize_button.setHidden(only_close)
         self.maximize_button.installEventFilter(self)
         self.maximize_button.setProperty('class', 'titlebar')
         max_icon = icon_manager.load_icon("titlebar/showMax.png", COLORS.PRIMARY)
@@ -199,6 +199,11 @@ class WMETitleBar(QtWidgets.QWidget):
             self.parent.showNormal()
             self.maximized = False
             self.maximize_button.setIcon(icon_manager.load_icon("titlebar/showMax.png", COLORS.PRIMARY))
+
+    def set_maximized(self, max: bool):
+        self.maximized = True
+        self.maximize_button.setIcon(
+            icon_manager.load_icon("titlebar/showNormal.png" if max else "titlebar/showMax.png", COLORS.PRIMARY))
 
     def on_close_clicked(self):
         self.parent.close()

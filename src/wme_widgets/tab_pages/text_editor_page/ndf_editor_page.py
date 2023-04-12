@@ -3,7 +3,7 @@ import os.path
 
 from PySide6 import QtWidgets, QtCore, QtGui
 
-from src.wme_widgets.tab_pages import tab_page_base
+from src.wme_widgets.tab_pages import base_tab_page
 from src.wme_widgets import main_widget
 from src.wme_widgets.tab_pages.text_editor_page import wme_find_replace_bar, wme_code_editor
 from src.dialogs import essential_dialogs
@@ -12,7 +12,7 @@ from src.utils import icon_manager
 from src.utils.color_manager import *
 
 
-class NdfEditorPage(tab_page_base.TabPageBase):
+class NdfEditorPage(base_tab_page.BaseTabPage):
     def __init__(self):
         super().__init__()
 
@@ -148,6 +148,7 @@ class NdfEditorPage(tab_page_base.TabPageBase):
             super().open_file(file_path)
         except Exception as e:
             logging.error("Could not open file " + file_path + ": " + str(e))
+            main_widget.MainWidget.instance.hide_loading_screen()
         # update tab name
         file_path = file_path.replace("/", "\\")
         self.tab_name = file_path[file_path.rindex('\\') + 1:]
@@ -202,7 +203,11 @@ class NdfEditorPage(tab_page_base.TabPageBase):
         self.unsaved_status_change.emit(False, self)
 
     def update_page(self):
-        self.open_file(self.file_path)
+        # if not yet saved, just clear the editor
+        if self.file_path == "":
+            self.code_editor.setPlainText("")
+        else:
+            self.open_file(self.file_path)
 
     def on_find_bar_close(self, _):
         self.find_action.setChecked(False)
@@ -267,3 +272,16 @@ class NdfEditorPage(tab_page_base.TabPageBase):
     def replace_all(self, replace_pattern):
         find_pattern = self.find_bar.line_edit.text()
         self.code_editor.replace_all(find_pattern, replace_pattern)
+
+    def from_json(self, json_obj: dict):
+        if not json_obj["filePath"] == "":
+            self.open_file(json_obj["filePath"])
+        cursor = self.code_editor.textCursor()
+        cursor.setPosition(json_obj["cursorPos"])
+        self.code_editor.setTextCursor(cursor)
+
+    def to_json(self) -> dict:
+        return {
+            "filePath": self.file_path,
+            "cursorPos": self.code_editor.textCursor().position()
+        }

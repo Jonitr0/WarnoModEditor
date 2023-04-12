@@ -3,13 +3,13 @@
 from PySide6 import QtWidgets
 from PySide6.QtCore import Qt
 
-from src.wme_widgets.tab_pages import tab_page_base
+from src.wme_widgets.tab_pages import base_tab_page
 from src.utils.color_manager import *
 
 import uuid
 
 
-class GuidGeneratorPage(tab_page_base.TabPageBase):
+class GuidGeneratorPage(base_tab_page.BaseTabPage):
     def __init__(self):
         super().__init__()
 
@@ -58,4 +58,11 @@ class GuidGeneratorPage(tab_page_base.TabPageBase):
             text += "GUID:{" + str(uuid.uuid4()) + "}\n"
 
         self.text_edit.setPlainText(text)
+
+    def to_json(self) -> dict:
+        page_json = {"currentText": self.text_edit.toPlainText()}
+        return page_json
+
+    def from_json(self, json_obj: dict):
+        self.text_edit.setPlainText(json_obj["currentText"])
 

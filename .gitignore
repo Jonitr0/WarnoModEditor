@@ -229,3 +229,6 @@ fabric.properties
 
 # antlr
 antlr_output
+
+# wme config
+wme_config.json
