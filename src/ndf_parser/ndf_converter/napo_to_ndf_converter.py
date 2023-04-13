@@ -30,6 +30,13 @@ class NapoToNdfConverter:
                     if i < len(entity.value)-1:
                         value_str += ", "
                 value_str += "]"
+            case NapoDatatype.Map:
+                value_str = "MAP["
+                for i in range(len(entity.value)):
+                    value_str += self.convert_entity(entity.value[i])
+                    if i < len(entity.value)-1:
+                        value_str += ", "
+                value_str += "]"
             case NapoDatatype.String_single:
                 value_str = "\'" + str(entity.value) + "\'"
             case NapoDatatype.String_double:

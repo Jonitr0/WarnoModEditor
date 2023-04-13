@@ -35,11 +35,13 @@ class NapoVector(NapoEntity):
 class NapoMap(NapoEntity):
     def __init__(self):
         super().__init__()
-        self.value = {}
+        self.value = []
+        self.map = {}
         self.datatype = NapoDatatype.Map
 
     def append(self, data: NapoPair):
-        self.value[data.value[0]] = data.value[1]
+        self.value.append(data)
+        self.map[data.value[0]] = data.value[1]
 
     def __str__(self):
         return "{type: map, value: " + ''.join(map(str, self.value)) + "}"

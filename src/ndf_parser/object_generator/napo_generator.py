@@ -133,5 +133,19 @@ class NapoGenerator(NdfGrammarListener):
         for value in vector_values:
             self.stack.top().append(value)
 
+    def enterMap_value(self, ctx:NdfGrammarParser.Map_valueContext):
+        self.stack.push(NapoMap())
+        self.stack.push(StackMarker())
+
+    def exitMap_value(self, ctx:NdfGrammarParser.Map_valueContext):
+        map_values = []
+        while type(self.stack.top()) != StackMarker:
+            map_values.append(self.stack.pop())
+        map_values.reverse()
+        # remove stack marker
+        self.stack.pop()
+        for value in map_values:
+            self.stack.top().append(value)
+
 
 
