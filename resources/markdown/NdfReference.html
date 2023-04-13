@@ -53,6 +53,20 @@ The NDF parser is <strong>case insensitive</strong>: &#39;TRUE&#39; and &#39;tru
 [1, 2, 3] // a vector of integers
 [&quot;Hello&quot;, &#39;World&#39;,] // a trailing comma separator is accepted
 </code></pre>
+<h4 id='pair'>Pair</h4>
+<p>A pair is an object containing two inner objects, enclosed in a <strong>( ) block</strong> and separated by , (comma).</p>
+<pre><code>(22, 7) // a pair of integers 
+(&quot;Hello&quot;, &quot;World&quot;) // a pair of strings
+</code></pre>
+<h4 id='map'>Map</h4>
+<p>A map is a list of zero or more pairs containing a key and its associated value. It is created by adding the keyword <strong>MAP</strong> before a <strong>[ ] block</strong>.</p>
+<pre><code>// A map of integers to strings
+MAP[
+    (1, &#39;one&#39;),
+    (2, &#39;two&#39;),
+    (3, &#39;three&#39;)
+]
+</code></pre>
 <h3 id='objects'>Objects</h3>
 <h4 id='naming-a-builtin-value'>Naming a built‐in value</h4>
 <p>One can give names to values of built­in types, akin to creating variables in programming languages, by using the keyword <strong>is</strong>.</p>

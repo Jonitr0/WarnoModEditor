@@ -83,6 +83,28 @@ A vector is a list of zero or more elements enclosed in a **[ ] block** and sepa
 ["Hello", 'World',] // a trailing comma separator is accepted
 ````
 
+#### Pair
+
+A pair is an object containing two inner objects, enclosed in a **( ) block** and separated by , (comma).
+
+````
+(22, 7) // a pair of integers 
+("Hello", "World") // a pair of strings
+````
+
+#### Map
+
+A map is a list of zero or more pairs containing a key and its associated value. It is created by adding the keyword **MAP** before a **[ ] block**.
+
+````
+// A map of integers to strings
+MAP[
+    (1, 'one'),
+    (2, 'two'),
+    (3, 'three')
+]
+````
+
 ### Objects
 
 #### Naming a built‐in value
