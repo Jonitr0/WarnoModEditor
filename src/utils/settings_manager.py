@@ -1,5 +1,6 @@
 from PySide6 import QtCore
 
+# TODO: some of this can be saved in the config
 LAST_OPEN_KEY = "wme_last_open"
 WARNO_PATH_KEY = "wme_warno_path"
 VERSION_KEY = "wme_version"

@@ -141,7 +141,6 @@ class WMETabWidget(QtWidgets.QTabWidget):
         viewer = rich_text_viewer_page.RichTextViewerPage("Quickstart.html")
         self.add_tab_with_auto_icon(viewer, "Quickstart Guide")
 
-    # TODO: add pair and map to NDF reference
     def on_open_ndf_reference(self):
         viewer = rich_text_viewer_page.RichTextViewerPage("NdfReference.html")
         self.add_tab_with_auto_icon(viewer, "NDF Reference")
