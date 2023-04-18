@@ -49,17 +49,24 @@ class TestNapo(unittest.TestCase):
     def test_datastructures(self):
         self.roundtrip_test("datastructures.ndf")
 
+    def test_object(self):
+        self.roundtrip_test("Airplane.ndf")
+
     def roundtrip_test(self, file_name: str):
         with open(file_name, encoding="utf-8") as f:
             orig = f.read()
         generated = napo_roundtrip(file_name)
-        orig, generated, equal = compare_strings(orig, generated)
+        orig_cmp, generated_cmp, equal = compare_strings(orig, generated)
         try:
             self.assertTrue(equal)
         except AssertionError as e:
             dmp = diff_match_patch()
-            patches = dmp.patch_make(orig, generated)
+            patches = dmp.patch_make(orig_cmp, generated_cmp)
             diff = dmp.patch_toText(patches)
             print(diff)
+            print("original:\n")
+            print(orig)
+            print("generated:\n")
+            print(generated)
             raise e
 

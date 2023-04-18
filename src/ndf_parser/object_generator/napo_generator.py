@@ -57,6 +57,10 @@ class NapoGenerator(NdfGrammarListener):
             assignment = self.stack.pop()
             self.assignments.append(assignment)
 
+    def enterExport(self, ctx:NdfGrammarParser.ExportContext):
+        # assign "export" to top item on stack
+        self.stack.top().export = True
+
     def enterId(self, ctx:NdfGrammarParser.IdContext):
         # assign ID to top item on stack
         self.stack.top().id = ctx.getText()

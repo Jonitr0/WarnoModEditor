@@ -5,7 +5,8 @@ grammar NdfGrammar;
 // general structure
 
 ndf_file : assignment* EOF;
-assignment : K_EXPORT? id K_IS r_value;
+assignment : export? id K_IS r_value;
+export: K_EXPORT;
 r_value : builtin_type_value | arithmetic | concatination | object | assignment | obj_reference_value | r_value '|' r_value;
 object : ID '(' ( block )* ')';
 block : assignment | member_assignment | obj_reference_value;

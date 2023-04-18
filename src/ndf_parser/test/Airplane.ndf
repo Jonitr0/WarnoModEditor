@@ -1,0 +1,17 @@
+export AirplaneConstantesWargame is TAirplaneConstantesModernWarfareDescriptor
+(
+    // Valeurs en metres
+    EvacuationAltitude  = (10000 * Metre) //15000
+
+    TempsEntreDeuxDecollagesEnSecondes = (0.6 * Seconde)  //0.2
+
+    // La variable pour determiner quand est-ce que les Avions partent en evac Winchester
+    // true : Quand toutes les armes principales sont vides
+    // false : Quand au moins une arme principale est vide
+    //  -> si aucune arme principale, ce sera quand toutes les armes sont vides
+    EvacWinchesterToutesLesArmesPrincipales = true
+    UtiliserArmesPendantEvac = true
+
+    FrontLandingGearMeshNodeName = "train_avant"
+    BackLandingGearMeshNodeName = "train_arriere"
+)
