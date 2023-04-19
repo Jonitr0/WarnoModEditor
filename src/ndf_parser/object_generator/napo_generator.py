@@ -5,6 +5,7 @@ from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
 from src.ndf_parser.napo_objects.napo_entity import *
 from src.ndf_parser.napo_objects.napo_assignment import *
 from src.ndf_parser.napo_objects.napo_datastructures import *
+from src.ndf_parser.napo_objects.napo_object import *
 
 import logging
 
@@ -150,6 +151,14 @@ class NapoGenerator(NdfGrammarListener):
         self.stack.pop()
         for value in map_values:
             self.stack.top().append(value)
+
+    def enterObj_type(self, ctx:NdfGrammarParser.Obj_typeContext):
+        obj = NapoObject()
+        obj.obj_type = ctx.getText()
+        self.stack.push(obj)
+        self.stack.push(StackMarker())
+
+
 
 
 
