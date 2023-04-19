@@ -2,10 +2,10 @@ from antlr4 import *
 from src.ndf_parser.antlr_output.NdfGrammarListener import NdfGrammarListener
 from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
 
-from src.ndf_parser.napo_objects.napo_entity import *
-from src.ndf_parser.napo_objects.napo_assignment import *
-from src.ndf_parser.napo_objects.napo_datastructures import *
-from src.ndf_parser.napo_objects.napo_object import *
+from src.ndf_parser.napo_entities.napo_entity import *
+from src.ndf_parser.napo_entities.napo_assignment import *
+from src.ndf_parser.napo_entities.napo_datastructures import *
+from src.ndf_parser.napo_entities.napo_object import *
 
 import logging
 
@@ -44,12 +44,18 @@ class NapoGenerator(NdfGrammarListener):
 
         self.assignments = []
         self.stack = Stack()
+        # Track depth of rules to be ignored
+        self.ignore = 0
 
     def enterAssignment(self, ctx:NdfGrammarParser.AssignmentContext):
+        if self.ignore > 0:
+            return
         # push new assignment to stack
         self.stack.push(NapoAssignment())
 
     def exitAssignment(self, ctx:NdfGrammarParser.AssignmentContext):
+        if self.ignore > 0:
+            return
         # pop value off stack and assign to assignment
         value = self.stack.pop()
         self.stack.top().value = value
@@ -59,14 +65,20 @@ class NapoGenerator(NdfGrammarListener):
             self.assignments.append(assignment)
 
     def enterExport(self, ctx:NdfGrammarParser.ExportContext):
+        if self.ignore > 0:
+            return
         # assign "export" to top item on stack
         self.stack.top().export = True
 
     def enterId(self, ctx:NdfGrammarParser.IdContext):
+        if self.ignore > 0:
+            return
         # assign ID to top item on stack
         self.stack.top().id = ctx.getText()
 
     def enterPrimitive_value(self, ctx:NdfGrammarParser.Primitive_valueContext):
+        if self.ignore > 0:
+            return
         # assign datatype and value to new entity
         datatype = self.rule_names[ctx.children[0].getRuleIndex()]
         value = ctx.getText()
@@ -103,6 +115,8 @@ class NapoGenerator(NdfGrammarListener):
         self.stack.push(entity)
 
     def enterObj_reference_value(self, ctx:NdfGrammarParser.Obj_reference_valueContext):
+        if self.ignore > 0:
+            return
         # assign reference datatype and value to top item on stack
         entity = NapoEntity()
         entity.datatype = NapoDatatype.Reference
@@ -110,10 +124,14 @@ class NapoGenerator(NdfGrammarListener):
         self.stack.push(entity)
 
     def enterPair_value(self, ctx:NdfGrammarParser.Pair_valueContext):
+        if self.ignore > 0:
+            return
         self.stack.push(NapoPair())
         self.stack.push(StackMarker())
 
     def exitPair_value(self, ctx:NdfGrammarParser.Pair_valueContext):
+        if self.ignore > 0:
+            return
         pair_values = []
         while type(self.stack.top()) != StackMarker:
             pair_values.append(self.stack.pop())
@@ -124,10 +142,14 @@ class NapoGenerator(NdfGrammarListener):
             self.stack.top().append(value)
 
     def enterVector_value(self, ctx:NdfGrammarParser.Vector_valueContext):
+        if self.ignore > 0:
+            return
         self.stack.push(NapoVector())
         self.stack.push(StackMarker())
         
     def exitVector_value(self, ctx:NdfGrammarParser.Vector_valueContext):
+        if self.ignore > 0:
+            return
         vector_values = []
         while type(self.stack.top()) != StackMarker:
             vector_values.append(self.stack.pop())
@@ -138,10 +160,14 @@ class NapoGenerator(NdfGrammarListener):
             self.stack.top().append(value)
 
     def enterMap_value(self, ctx:NdfGrammarParser.Map_valueContext):
+        if self.ignore > 0:
+            return
         self.stack.push(NapoMap())
         self.stack.push(StackMarker())
 
     def exitMap_value(self, ctx:NdfGrammarParser.Map_valueContext):
+        if self.ignore > 0:
+            return
         map_values = []
         while type(self.stack.top()) != StackMarker:
             map_values.append(self.stack.pop())
@@ -151,13 +177,30 @@ class NapoGenerator(NdfGrammarListener):
         for value in map_values:
             self.stack.top().append(value)
 
+    def enterArithmetic(self, ctx:NdfGrammarParser.ArithmeticContext):
+        # ignore everything until we exit arithmetic
+        self.ignore += 1
+        if self.ignore > 1:
+            return
+        arithmetic = NapoEntity()
+        arithmetic.datatype = NapoDatatype.Arithmetic
+        arithmetic.value = ctx.getText()
+        self.stack.push(arithmetic)
+
+    def exitArithmetic(self, ctx:NdfGrammarParser.ArithmeticContext):
+        self.ignore -= 1
+
     def enterObj_type(self, ctx:NdfGrammarParser.Obj_typeContext):
+        if self.ignore > 0:
+            return
         obj = NapoObject()
         obj.obj_type = ctx.getText()
         self.stack.push(obj)
         self.stack.push(StackMarker())
 
     def exitObject(self, ctx:NdfGrammarParser.ObjectContext):
+        if self.ignore > 0:
+            return
         members = []
         while type(self.stack.top()) != StackMarker:
             members.append(self.stack.pop())
@@ -168,12 +211,16 @@ class NapoGenerator(NdfGrammarListener):
             self.stack.top().append(value)
 
     def enterMember_assignment(self, ctx:NdfGrammarParser.Member_assignmentContext):
+        if self.ignore > 0:
+            return
         assignment = NapoAssignment()
         assignment.member = True
         # push new assignment to stack
         self.stack.push(assignment)
 
     def exitMember_assignment(self, ctx:NdfGrammarParser.Member_assignmentContext):
+        if self.ignore > 0:
+            return
         # pop value off stack and assign to assignment
         value = self.stack.pop()
         self.stack.top().value = value
