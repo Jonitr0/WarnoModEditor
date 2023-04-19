@@ -1,7 +1,7 @@
 # provides common functionality for any NAPO object
 
 class NapoDatatype:
-    UNKNOWN, STRUCTURAL, Boolean, Integer, HexInteger, Float, String_single, String_double, GUID, Reference, Pair, Vector, Map, Object = range(14)
+    UNKNOWN, STRUCTURAL, Boolean, Integer, HexInteger, Float, String_single, String_double, GUID, Reference, Pair, Vector, Map, Arithmetic, Object = range(15)
 
 
 class NapoEntity:

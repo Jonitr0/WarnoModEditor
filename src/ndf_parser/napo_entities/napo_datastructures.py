@@ -1,6 +1,6 @@
 import logging
 
-from src.ndf_parser.napo_objects.napo_entity import *
+from src.ndf_parser.napo_entities.napo_entity import *
 
 
 class NapoPair(NapoEntity):

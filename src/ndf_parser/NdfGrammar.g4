@@ -7,7 +7,7 @@ grammar NdfGrammar;
 ndf_file : assignment* EOF;
 assignment : export? id K_IS r_value;
 export: K_EXPORT;
-r_value : builtin_type_value | arithmetic | concatination | object | assignment | obj_reference_value | r_value '|' r_value;
+r_value : builtin_type_value | concatination | arithmetic | object | assignment | obj_reference_value | r_value '|' r_value;
 object : obj_type '(' ( block )* ')';
 obj_type : ID;
 block : assignment | member_assignment | obj_reference_value;

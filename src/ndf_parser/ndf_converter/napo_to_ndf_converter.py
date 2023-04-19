@@ -1,6 +1,6 @@
-from src.ndf_parser.napo_objects.napo_entity import *
-from src.ndf_parser.napo_objects.napo_assignment import *
-from src.ndf_parser.napo_objects import napo_datastructures
+from src.ndf_parser.napo_entities.napo_entity import *
+from src.ndf_parser.napo_entities.napo_assignment import *
+from src.ndf_parser.napo_entities import napo_datastructures
 
 
 class NapoToNdfConverter:
@@ -13,7 +13,13 @@ class NapoToNdfConverter:
         return self.result
 
     def convert_assignment(self, assignment: NapoAssignment) -> str:
-        napo_str = assignment.id + " is "
+        napo_str = ""
+        if assignment.export:
+            napo_str = "export "
+        if assignment.member:
+            napo_str += assignment.id + " = "
+        else:
+            napo_str += assignment.id + " is "
         entity = assignment.value
         napo_str += self.convert_entity(entity) + "\n"
         return napo_str
