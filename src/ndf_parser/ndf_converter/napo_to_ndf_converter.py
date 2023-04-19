@@ -47,6 +47,19 @@ class NapoToNdfConverter:
                 value_str = "\'" + str(entity.value) + "\'"
             case NapoDatatype.String_double:
                 value_str = "\"" + str(entity.value) + "\""
+            case NapoDatatype.Object:
+                value_str = ""
+                if entity.obj_type != "":
+                    value_str = entity.obj_type + "\n"
+                value_str += "(\n"
+                for i in range(len(entity.value)):
+                    value_str += self.convert_entity(entity.value[i])
+                value_str += ")"
+            case NapoDatatype.STRUCTURAL:
+                if type(entity) == NapoAssignment:
+                    value_str = self.convert_assignment(entity)
+                else:
+                    value_str = ""
             case _:
                 value_str = str(entity.value)
         return value_str
