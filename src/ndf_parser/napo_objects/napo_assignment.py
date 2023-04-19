@@ -7,6 +7,7 @@ class NapoAssignment(NapoEntity):
         self.id = ""
         self.datatype = NapoDatatype.STRUCTURAL
         self.export = False
+        self.member = False
 
     def __str__(self):
         return "{id: " + self.id + ", type: assignment, value: " + str(self.value) + "}"

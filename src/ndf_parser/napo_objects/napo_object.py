@@ -8,5 +8,8 @@ class NapoObject(NapoEntity):
         self.obj_type = ""
         self.datatype = NapoDatatype.Object
 
+    def append(self, member: NapoEntity):
+        self.value.append(member)
+
     def __str__(self):
         return "{type: object, value: " + ''.join(map(str, self.value)) + "}"

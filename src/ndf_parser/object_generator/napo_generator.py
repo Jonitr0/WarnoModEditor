@@ -123,7 +123,6 @@ class NapoGenerator(NdfGrammarListener):
         for value in pair_values:
             self.stack.top().append(value)
 
-    # TODO: can this be merged with Pair and Map?
     def enterVector_value(self, ctx:NdfGrammarParser.Vector_valueContext):
         self.stack.push(NapoVector())
         self.stack.push(StackMarker())
@@ -157,6 +156,28 @@ class NapoGenerator(NdfGrammarListener):
         obj.obj_type = ctx.getText()
         self.stack.push(obj)
         self.stack.push(StackMarker())
+
+    def exitObject(self, ctx:NdfGrammarParser.ObjectContext):
+        members = []
+        while type(self.stack.top()) != StackMarker:
+            members.append(self.stack.pop())
+        members.reverse()
+        # remove stack marker
+        self.stack.pop()
+        for value in members:
+            self.stack.top().append(value)
+
+    def enterMember_assignment(self, ctx:NdfGrammarParser.Member_assignmentContext):
+        assignment = NapoAssignment()
+        assignment.member = True
+        # push new assignment to stack
+        self.stack.push(assignment)
+
+    def exitMember_assignment(self, ctx:NdfGrammarParser.Member_assignmentContext):
+        # pop value off stack and assign to assignment
+        value = self.stack.pop()
+        self.stack.top().value = value
+
 
 
 
