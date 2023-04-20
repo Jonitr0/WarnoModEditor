@@ -1,0 +1,770 @@
+///!\ MERCI DE RESPECTER L'ORDRE ALPHABETIQUE !
+// Par catégories puis par constante.
+
+//---------------------------------------------------------------------------------------//
+//---------------------------------------------------------------------------------------//
+//----------------------------------- COMMON --------------------------------------------//
+//---------------------------------------------------------------------------------------//
+//---------------------------------------------------------------------------------------//
+
+CountingRule_SumAll is 1
+CountingRule_Average is 2
+CountingRule_Min is 3
+CountingRule_Max is 4
+
+// GhostModule.h
+EShowGhostOverSpecificTerrainConditionFilterType is TBaseClass
+(
+    None is 0
+)
+
+Constantes is TTunableConstante
+(
+    // /!\ MERCI DE RESPECTER L'ORDRE ALPHABETIQUE !
+    // Par catégories puis par constante.
+
+//--------------------------- Constantes Affichage ---------------------------------------//
+
+    EliminationWarningsDuration = 5.0
+    FumigeneAlphaGhost = 0.3
+    FumigeneMaxCount = 4
+    FumigeneTimeout = 60.0
+
+//------------------------ Constantes AutomaticBehavior ----------------------------------//
+
+    AutoCover_DistanceMaxEntreLesChecksDeTerrains = 60 * Metre //100 * Metre // distance entre les échantillonnages de terrain pour savoir si on fait un autocover.
+    AutoCover_TagEmpechantLAutocover = "Infanterie_Cowering"
+    MaxPullDistance = 1000 * Metre
+    MaxPullDistanceForAirplane = 50000 * Metre
+    TagBloquantLeMoveAndAttack = "Bloque_MoveAndAttack" // Lorsque ce tag est levé, l'unité stoppe son move and attaque, et le reprend lorsque le tag est supprimé
+    TempsEnSecondesEntreDeuxSmokeAutomatiques = 1
+    AutoSmokeQuandRatioPvInferieurA = 1.0
+    RatioPuissancePourRetaliation = 1.0
+    TireursIgnoreesPourLaFuite = ["Artillerie", "Avion"]
+
+
+//----------------------------- Constantes Avion -----------------------------------------//
+
+    AltitudeVol = 3000 * Metre
+    CadavreOffsetMax = 0.3  // 0.33
+    CadavreOffsetMin = 0.1 // 0.18
+
+//--------------------------- Constantes Bâtiments ---------------------------------------//
+
+    // Taille des cases de la grille de placement de batiments
+    GridSquareHeight = ~/GridHelper/Height
+    GridSquareWidth  = ~/GridHelper/Width
+    UnitPositionVerticalOffsetFromRoof = 60*Metre
+
+//------------------------------ Constantes Color -----------------------------------------//
+
+    Color_Invisible      = $/SystemColor/Color_Invisible
+    Color_Neutre         = $/SystemColor/Color_Neutre
+
+    // Couleur du debug pour les artilleries hors carte (temporaire)
+    // Attention: l'alpha n'est pas pris en compte (toujours opaque)
+    Color_ObserverDebugFill           = RGBA[0, 0, 255, 255]
+    Color_ObserverDebugOutline        = RGBA[0, 0, 255, 255]
+    Color_OutmapDispersionAreaFill    = RGBA[255, 0, 0, 255]
+    Color_OutmapDispersionAreaOutline = RGBA[255, 0, 0, 255]
+
+//----------------------------- Constantes Combat -----------------------------------------//
+
+    ReductionDegatsSuppressDansVehicule = 0.05 // Pourcentage des dégats de suppress reçuts par un véhicule appliqués aux unités transportées
+    TimerRechercheDeCibleRiposte = -1
+    TagRadioArtillerie = "Radio"
+    PorteeRadioArtillerie = 6000 * Metre //7500
+    EfficiencyShotSearchDistanceTolerance = 100.0
+
+    PerteDeSuppressParPointDeVieEntierPerdu = 0.0
+
+     // Permet de voir la grosse explosion quand les avions se crashen hors map. Ceci dit tous les fx qui vont avec son là notamment le feu et
+     //   les particulent qui tombent hors de la map.
+    LaunchDeathAmmoOutmap = false
+
+    // Facteur de securite a appliquer sur le splash physique dans le calcul de la dispersion. Ne pas descendre trop bas, sinon on se prend des dégats en mouvement
+    FacteurSecuriteSplashPhysique = 1 // 1.75
+
+    StunEffectDuration = 4.0
+
+//----------------------------- Constantes Commander -----------------------------------------//
+
+    CommanderEffect = ~/UnitEffect_Gain_un_niveau_XP
+
+    CommanderRadiusEffectByLevel =
+    [
+        1200 * Metre,
+        1600 * Metre,
+        1800 * Metre,
+    ]
+
+//------------------------------ Constantes Corridors ------------------------------------//
+    CanUseAlliedAllianceCorridors = false
+
+//-------------------------------- Constantes File ----------------------------------------//
+
+    FileExtension = "wargame"
+
+//------------------------------ Constantes Gameplay --------------------------------------//
+
+    Persistance_Bruit = 15.0 * Seconde
+
+//---------------------------- Constantes GameRules ---------------------------------------//
+
+    DefaultAIDifficultyForPlayerReplacement = IADifficulty/Normal
+
+    SuddenDeathTime = 5 * 60 * Seconde
+
+    TagControleZone = "InfmapCommander"
+    DureeDeploiementControleZone = 0.2
+    DureeRetraitControleZone = 0.2
+
+    TacticVictoryLevelConstantes = ~/TacticVictoryLevelConstantes
+
+//------------------------- Constantes GestionFormation -----------------------------------//
+
+    DistanceCoherence = 5000 * Metre
+    DistanceCoherenceAvion = 20000 * Metre
+
+//-------------------------- Constantes Helicopters --------------------------------------//
+    // Angle max avec la direction (0,0,1) EN DEGRES -- DOIT ETRE > 0 (sinon je pense que ça va être la daube) -- VOIR AVEC UN DEV POUR CHANGER LA VALEUR C'EST TRES SENSIBLE !!!
+    // Si on dépasse cette valeur l'hélico peut avoir du mal à s'orienter dans la bonne direction pour atterrir et ne jamais trouver la bonne série de commande pour atterrir.
+    // Une solution serait de reset les commandes pour recommencer l'algo, mais ça peut aussi avoir des conséquences sur d'autre mouvement ce truc, donc à faire uniquement si on sent le besoin.
+    MaxTerrainAngleForLanding = 8
+
+    // Distance en dessous de laquelle un ordre de déplacement d'hélicoptère déclenche un vol en basse altitude. Cette distance est en mètres.
+    DistanceDeVolTBAEnMetres = 150
+
+    // Temps utilisé pour prédire la position de landing des hélicos. Pour les hélicos lourd, ils font quand même demi tour, mais je n'ai pas moyen de savoir combien de temps il faut à l'hélico pour se stopper en vitesse linéaire
+    // sans faire des calculs à con. Donc j'utilise une heuristique à la place, et si on dépasse ben tant pis... Je ferais mieux si ça va vraiment pas
+    LandingPositionTimePredictionInSeconds = 3.2
+
+//-------------------------- Constantes Infantry --------------------------------------//
+// nombre de soldat dans l'affichage des pions de Steelman
+    DefaultNbSoldiers = 1
+    ShowroomOffsetBetweenLines = 518.0
+    ShowroomOffsetBetweenSoldiers = 500.0
+    ShowroomNumberOfLines = 2
+    ShowroomMinSoldiersPerLine = 4
+
+
+//-------------------------- Constantes Interface ---------------------------------------//
+
+       AfficherLeTexteDesGabarits = false
+    //Couleur par défaut des ghosts
+    DefaultGhostColors = TGhostColors(
+        GhostColor = [255, 255, 255, 255]
+        GhostAlphas = [0.4, 0.2]
+        GhostBlends = [1, 0.1]
+    )
+
+    NbMaxProductionsEtRecherchesSimultanees = 0
+//---------------------------- Constantes Lobby -------------------------------------------//
+
+    // 0 is No Time Limit
+    TimeLimitTable = [20, 30, 40, 60, 0]
+
+//----------------------------- Constantes Missile --------------------------------------//
+
+    TempsAutoriseHorsMondePourMissileSansCible = 5.0
+
+//----------------------------- Constantes Mouvement --------------------------------------//
+
+    AngleArrierePourMarcheArriere       = 120 * Degre
+    DistancePourDeclencherMarcheArriere = 2000 * Metre   // 1500
+    ForcerMarcheAvantPourAttaquer       = true
+    ForcerMarcheAvantPourUnloadAtPosition = true
+    LargeurRoute                        = 60 * Metre // les trajectoires des véhicules sont décalées de 0.5 * LargeurRoute d'un côté ou de l'autre
+    ToleranceLargeurRoutePourMouvementsRapidesShiftes = 2 // multiplicateur de LargeurRoute pour vérifier si la destination d'un movefast est sur la route
+    DecalageDepuisLeCentreDansCouloir   = 10 * Metre // décalage des waypoints des unités par rapport au milieu du couloir quand une unité en traverse un
+    RapprocherFormationsSelonObstacles  = false
+    RotationLignesDInfanterie           = false // définit si les soldats d'une unité d'infanterie s'orientent comme des véhicules (pour les lignes d'infanterie)
+    TagDecrochage                       = "Retraite"  // tag utilisé pour determiner si on affiche l'etiquette decrochage pendant la retraite
+    TagRetraite                         = "Retraite" // tag utilisé pour determiner si l'on est en retraite ou non
+    UtiliserMouvementRapideParDefaut    = false
+
+//---------------------------- Constantes Objectives -----------------------------------//
+
+    TimeNotificationObjectiveInSecond = 2.0
+    TimeDownloadObjectiveAnimationInSecond = 1.0
+    TimeAfterDownloadObjectiveInSecond = 0.5
+
+//----------------------------- Constantes Resale -----------------------------------------//
+
+    ResalePriceRatio = 1.0
+    ResaleDistance = 250.0 * Metre
+    CooldownBeforeKillInSeconds = 2 // secondes
+
+//----------------------------- Constantes Selection -----------------------------------------//
+
+    AllowGhostCrossUnitSelection = true // Selection d'unités pré-placées et de ghost en même temps
+    AllowMixedSelection = false // Selection d'unités ET bâtiments en même temps ?
+    AllowMultipleBuildingSelection = false // Selection multiple de bâtiments (et quartiers)
+
+//----------------------------- Constantes Supply -----------------------------------------//
+
+    DeploymentDuration = 0.0
+    WithdrawalDuration = 0.0
+
+//------------------------- Constantes Tourelles ----------------------------------//
+
+    VerificationPortee = false
+
+//------------------------- Constantes Unités hors carte ----------------------------------//
+
+    OutmapShootPositionPitch = 69.0
+    OutmapShootPositionRelativeAltitude = 100000.0
+    OutmapShootPositionYaw = 42.0
+
+//---------------------------- Constantes Visibilite --------------------------------------//
+
+    MultiplicateurDistancePourBonusDissimulation = 1.0 DIV Metre DIV 100.0 // = (Distance en Mètres RTS) / 100.f
+
+//------------------------------ Constantes Vision ----------------------------------------//
+
+    ConsidereUniteStealthSurTerrainAvecDissimulation = true
+    VisionParams_Default_Check3DMLos =  true
+    VisionParams_Default_CheckObstacles = true
+
+//------------------------------- Constantes Economy --------------------------------------//
+    RoundToNearestDigit = MAP // Toutes les valeurs d'économie seront arrondies à ce nombre près
+    [
+        (~/Resource_CommandPoints, 1),
+        (~/Resource_StrategicPoints, 1),
+        (~/Resource_Tickets, 1),
+    ]
+)
+
+//------------------------------ Constantes Victoire --------------------------------------//
+
+TacticVictoryLevelConstantes is TVictoryLevelConstantes
+(
+    PalierVictoireMineure = 0.05   // Ratio entre le score du vainqueur et le deuxieme meilleur score
+    PalierVictoireMajeure = 0.55  // Ratio entre le score du vainqueur et le deuxieme meilleur score
+    PalierVictoireTotale = 0.75   // Ratio entre le score du vainqueur et le deuxieme meilleur score
+)
+
+//---------------------------------------------------------------------------------------//
+//---------------------------------------------------------------------------------------//
+//------------------------ Spécifiques MODERNWARFARE ------------------------------------//
+//---------------------------------------------------------------------------------------//
+//---------------------------------------------------------------------------------------//
+
+ModernWarfareConstantes is TModernWarfareTunableConstante
+(
+    LinkToCommonConstantes = ~/Constantes // DEV
+
+    // /!\ MERCI DE RESPECTER L'ORDRE ALPHABETIQUE !
+    // Par catégories puis par constante.
+
+//---------------------------- Constantes Affichage ---------------------------------------//
+
+    MultiplicateurMetreRTSVersDistanceFeedbackTactique = MultiplicateurMetreRTSVersDistanceFeedbackTactique
+
+//---------------------------- Constantes Anti SW -----------------------------------------//
+    BonusFactorForAntiSW = 50.0// Score bonus max possible
+    MaxDistanceForScoreBonusAntiSW = 500.0 * Metre // Distance à partir de laquelle le bonus commence à s'ajouter au score de la SW pour forcer l'interception d'un missile proche de sa cible
+
+//---------------------------- Constantes Combat ------------------------------------------//
+
+    DistanceInfanterieEnnemiDectection = 200 * Metre
+    DistanceRelaunchMouvementForMoveAndAttack = 1500 * Metre // Distance pour laquelle une unité en MoveAndAttackTarget doit relancer le mouvement si sa cible s'est déplacée de cette distance (diminuer cette valeur baisse la perf)
+    DistanceToAddToEnnemiDectectionForAAWeapon = 4000.0 * Metre
+    DistanceToAddToEnnemiDectectionForAntiProjectileWeapon = 0.0 * Metre // grosso merdo la porté max d'une arme anti-missile
+    DistanceToAddToEnnemiDectectionForOtherWeapon = 1000.0 * Metre
+    DureeDeRevelationApresAttaque = 5.0
+    FacteurMinTempsViseeReel = 0.75 // Le temps de visée réel est un random entre cette valeur et la valeur de temps de visee théorique située dans l'ODS
+
+    // Portee Min pour considerer qu'une arme est une artillerie. Les unités ne cherche pas a fuire les armes considéré comme des artilleries
+    PorteeMinArmeEstConsidereCommeArtillerie = 6500.0 * Metre // 6000
+
+    // Nombre de points de suppression récupérés par seconde. Multiplié par "<TypeUnite>_SuppressDamagesRegenRatioList" dans DamageModules.ndf.
+    RegenStressParSeconde = 0.5
+
+    // Une unité ne sera ravitaillée que si elle n'a pas reçut #SeuilStressPourRegen# durant les dernières #TempsSansStressPourRegen# secondes.
+    TempsSansStressPourRegen = 10 // 10 secondes
+
+    TempsSansTirNiDamagePourPasserHorsCombat = 30 // 1, passage à 2 pour limiter bug graphique
+
+    DensitePointsRecherchePosition = 8.0 // utilisé par l'IA pour calculer la densité de points à tester pour trouver des positions. En DistanceFeedbackTactique.
+
+    TagStunned = "Stunned"
+    TagUberstress = "Uberstress"
+
+//---------------------------- Constantes Company -----------------------------------------//
+
+    // règle de choix de terrain en comportement auto
+
+    TempsMemoireDamageRecu = 20 // en seconde
+    TypeDommagePourChoixTerrainIsSuppression = true
+
+//---------------------------- Constantes District ----------------------------------------//
+
+    District_SeTeleporterAuPlusProcheMemeSiOnNePeutPasTirer = false
+    FuirDistrictEnFeu = true
+    IgnorerLaVisibiliteDesCiblesLorsDuChoixDuPointDeTir = false
+    MargePourLesTestsDeSortieDeDistrict = 16 * Metre
+    DurationForLeavingDistrict = 3.0        // Durée de l'action de sortie de district.
+    ModeDeRepartitionDuFeuContreLesDistricts = 0 // 0 : aucune unité ne prend de dégats, 1: une unite prend des degats, 2: toutes les unites prennent des degats
+    RandomiserLesPatrouillesDansLesDistricts = false
+    RefreshBestPlaceEveryNbSeconds = 5 // 1, Les unites dans les quartiers peuvent changer de points de tir tous les x secondes.
+    CheckDistrictBox = false
+
+//---------------------------- Constantes Gameplay ----------------------------------------//
+
+    TransformerAttackEnMoveSiPasDArmeAdaptee = false
+
+//--------------------------- Constantes GameRules ----------------------------------------//
+
+    InstantMergeMaxDistance = 2500 * Metre
+
+//---------------------------- Constantes GroupedMovement ---------------------------------//
+
+    ClustersDimensionMax = 1000 * Metre     // Taille des clusters d'unités pour le choix d'une route commune pour les mouvements de groupe.
+
+//------------------------ Constantes IAStratModernWarfare --------------------------------//
+
+    // bonus en pourcentage donné à l'argent de départ
+    RelativeBonusMoneyByIADifficulty = MAP
+    [
+        (IADifficulty/TresFacile,       0.0),
+        (IADifficulty/Facile,           0.0),
+        (IADifficulty/Normal,           0.0),
+        (IADifficulty/Difficile,        0.0),
+        (IADifficulty/TresDifficile,    0.5),
+        (IADifficulty/PlusDifficile,    0.8),
+    ]
+
+//---------------------------- Constantes Mouvement ---------------------------------------//
+
+    MoteurHelicos_TempsArret = 8 * Seconde  // 4
+    MoteurHelicos_TempsDemarrage = 4 * Seconde  // 1
+    MultiplicateurConsommationUnitesArretees = 0.0 // Entre 0 et 1
+
+//--------------------------- Constantes SpreadOrder --------------------------------------//
+
+    SpreadDistanceUnit = 750 * Metre // Distance de dispersion d'une unique compagnie
+    SpreadDistanceGroup = 2250 * Metre // Distance de dispersion d'une selection multiple d'unité
+
+//----------------------------- Constantes Supply -----------------------------------------//
+
+    RatioSupplyAmmoAndFuel = 0.0 // En dessous ce ce ratio de munition OU de fuel, l'unité entrera dans la boucle de ravitaillement // Ouai mais ca ne fonctionne plus
+
+//---------------------------- Constantes Vision ------------------------------------------//
+
+    District_AppliquerLesDegatsAuxUnitesInvisibleDansLesDistricts = true
+
+//----------------------------- Constantes Weapons ----------------------------------------//
+
+    MergeAllWeaponOnSameTurretInUI = false // permet d'indiquer dans l'interface si on merge les armes sur une même tourelle
+                                           // même si elles ont des munitions différentes (boites de munitions différentes).
+
+    MaxWeaponsOnUI = 4 // Nombre d'armes affichées sur les panneaux d'interface qui affiche les armes
+
+
+    AdditionalSuppressDamagePerLostPhysicalDamage = 25 // c'est un multiplicateur des degats physiques qu'on va appliqué en stress.
+
+    ArtilleryDispersionTargetNotVisible = 1 // 2 Dispersion du tireur (artillerie) quand la cible n'est pas visible (attaque sur position ou unité)
+    DamageMultiplierWhenShooterIsHidden = 1
+
+    // http://dl.uncw.edu/digilib/mathematics/algebra/mat111hb/functions/equations/equations.html
+    DistanceFriendlyFire = 1 * Metre  // distance entre un ennemi et un allié en dessous de laquelle une tourelle ne tire pas (1000)
+    DistanceMinFleeFire = 50 * Metre // Distance minimal d'éloignement d'une unité dans les flammes (en plus du radius de l'unité)
+
+    FrontSideAngleInDeg = 60
+    RearSideAngleInDeg = 120
+
+    IgnoreTirPenetrantSiAucunBlindage = true
+
+    // Attention, le parametre OneSalveDesignatedShot n'est plus specifique a l'artillerie
+    NbSalveDesignatedShot = -1 // -1 -> tir jusqu'a epuisement des munitions. 0 est indéfini, prévenir si il y en a besoin
+
+    NombreMaxWeaponTraits = 5
+
+    ShootingAdjustmentAngleMax = 0.4 //20°
+    SplashSurTirRate = true // Est-ce que les tirs ratés font des dégâts de splash ?
+    SplashRatioDamage = [0.35, 0.35, 0.20] // Stress, Suppress, Physical damages (entre 0 et 1). ratio des dégâts en périphérie du cercle de splash
+    SplashRatioDistance = [0.35, 0.35, 0.25] // Stress, Suppress, Physical damages (entre 0 et 1). Ratio du rayon de splash où les dégâts commencent à être amoindris. Ex: 0.25 si DistanceImpact / SplashRadius > 0.25
+
+    MinBlindageForRoEMissiles = ArmorDescriptor_Blindage_2 // Blindage min pour la RoE Missiles
+    TagAllowedForMissileRoE = "AllowedForMissileRoE"
+
+    // Lorsqu'un projectile explose sur un plan et fait des dégats de splash, on définit quels plans sont affectés
+    SplashCollisionPlanes = MAP
+    [
+        (
+            ~/ECollisionPlane/NoCollision,
+            [
+                ~/ECollisionPlane/NoCollision,
+                ~/ECollisionPlane/BoatOnWater,
+                ~/ECollisionPlane/Ground,
+                ~/ECollisionPlane/NearGround,
+                ~/ECollisionPlane/LowAltitude,
+                ~/ECollisionPlane/HighAltitude,
+                ~/ECollisionPlane/ProjectileAltitude,
+            ]
+        ),
+        (
+            ~/ECollisionPlane/BoatOnWater,
+            [
+                ~/ECollisionPlane/BoatOnWater,
+                ~/ECollisionPlane/Ground,
+                ~/ECollisionPlane/NearGround,
+                ~/ECollisionPlane/ProjectileAltitude,
+            ]
+        ),
+        (
+            ~/ECollisionPlane/Ground,
+            [
+                ~/ECollisionPlane/BoatOnWater,
+                ~/ECollisionPlane/Ground,
+                ~/ECollisionPlane/NearGround,
+                ~/ECollisionPlane/ProjectileAltitude,
+            ]
+        ),
+        (
+            ~/ECollisionPlane/NearGround,
+            [
+                ~/ECollisionPlane/BoatOnWater,
+                ~/ECollisionPlane/Ground,
+                ~/ECollisionPlane/NearGround,
+                ~/ECollisionPlane/LowAltitude,
+                ~/ECollisionPlane/ProjectileAltitude,
+            ]
+        ),
+        (
+            ~/ECollisionPlane/LowAltitude,
+            [
+                ~/ECollisionPlane/NearGround,
+                ~/ECollisionPlane/LowAltitude,
+                ~/ECollisionPlane/HighAltitude,
+                ~/ECollisionPlane/ProjectileAltitude,
+            ]
+        ),
+        (
+            ~/ECollisionPlane/HighAltitude,
+            [
+                ~/ECollisionPlane/LowAltitude,
+                ~/ECollisionPlane/HighAltitude,
+            ]
+        ),
+        (
+            ~/ECollisionPlane/ProjectileAltitude,
+            [
+                ~/ECollisionPlane/BoatOnWater,
+                ~/ECollisionPlane/Ground,
+                ~/ECollisionPlane/NearGround,
+                ~/ECollisionPlane/ProjectileAltitude,
+            ]
+        ),
+    ]
+)
+
+//---------------------------------------------------------------------------------//
+//---------------------------------------------------------------------------------//
+//------------------------ Spécifiques WARGAME ------------------------------------//
+//---------------------------------------------------------------------------------//
+//---------------------------------------------------------------------------------//
+
+WargameConstantes is TWargameTunableConstante
+(
+    // /!\ MERCI DE RESPECTER L'ORDRE ALPHABETIQUE !
+    // Par catégories puis par constante.
+
+//----------------------------- Constantes Affichage ------------------------------------//
+
+    DelayBeforeNewMinimapWarning = 10.0
+    ForceAffichageCercleVision = false // true
+
+//--------------------------- Constantes Conquest ---------------------------------------//
+
+    DefaultMoneyWinPerAllianceRateInConquestMode = 3 // medium
+    TimeBeforeEarningConquestPoints = 1.5 // en secondes
+
+    // Tokens de localisation pour le niveau d'income
+    //                                            none         very_low     low         medium      high         very_high
+    MoneyWinLocalisationTokensInConquestMode = [ 'CONQ_NONE', 'CONQ_VLOW', 'CONQ_LOW', 'CONQ_MED', 'CONQ_HIGH', 'CONQ_VHIGH' ]
+
+    // Multiplicateur de points de commandement gagnes par joueur par période de TimeBeforeEarningCommandPoints en mode conquete
+    //                                   none  very_low    low   medium   high    very_high
+    MoneyWinPerAllianceInConquestMode = [  0,      0.5,   0.75,      1,    1.5,       2]
+
+    ConquestPossibleScores =
+    [
+        1000,//1000 par défaut, 1800 (30mn) en limité
+        2000,//2000 par défaut, 2100 (35mn) en limité
+        4000,//4000 par défaut, 2400 (45mn) en limité
+    ]
+
+//-------------------------- Constantes Economy -----------------------------------------//
+
+    BaseIncome = MAP
+    [
+        (CombatRule/NotSpecified,   0),
+        (CombatRule/CaptureTheFlag, 260),
+        (CombatRule/Destruction,    4),
+    ]
+    DefaultIncomeMultiplierIndex    = 3 // normal
+    //                   none   very_low   low      normal    high     very_high
+    IncomeMultiplier = [   0,    0.5,    0.75,       1,      1.25,       1.5 ]
+    TimeBeforeEarningCommandPoints = MAP
+    [
+        (CombatRule/NotSpecified,   60.0),
+        (CombatRule/CaptureTheFlag, 60.0),
+        (CombatRule/Destruction,     4.0),
+    ]
+
+    TimeBeforeEarningCommandPointsFactorToAddByNbPlayers = //Facteur de TimeBeforeEarningCommandPoints à ajouter selon des paliers de joueurs
+                [
+                    (10,    0.1), // à partir de 10 joueurs, 10% de délai pour l'income
+                    (20,    0.3)  // à partir de 20 joueurs, 30% de délai pour l'income
+                ]
+
+    BreakthroughDefenderIncomeMultiplier = 1.00 // Multiplicateur pour le defenseur de l'income
+    BreakthroughAttackerIncomeMultiplier = 1.50 // Multiplicateur pour l'attaquant  de l'income
+    BreakthroughDefenderStartMoneyMultiplier = 1.00 // Multiplicateur pour le defenseur de l'argent initial.
+    BreakthroughAttackerStartMoneyMultiplier = 1.00 // Multiplicateur pour l'attaquant  de l'argent initial.
+
+    BreakthroughDefenderIncomeMultiplierForDestructionMode = 1.00 // Multiplicateur pour le defenseur de l'income
+    BreakthroughAttackerIncomeMultiplierForDestructionMode = 1.00 // Multiplicateur pour l'attaquant  de l'income
+    BreakthroughDefenderStartMoneyMultiplierForDestructionMode = 0.666 // Multiplicateur pour le defenseur de l'argent initial.
+    BreakthroughAttackerStartMoneyMultiplierForDestructionMode = 2.00 // Multiplicateur pour l'attaquant  de l'argent initial.
+
+//--------------------------- Constantes Destruction ---------------------------------------//
+
+    DefaultIncomeMultiplierIndexInDestructionMode = 3 // medium
+
+    // Tokens de localisation pour le niveau d'income
+    //                                            none         very_low     low         medium
+    IncomeMultiplierTokensInDestructionMode = [ 'CONQ_NONE', 'CONQ_VLOW', 'CONQ_LOW', 'CONQ_MED']
+
+    // Multiplicateur de points de commandement gagnes par joueur par période de TimeBeforeEarningCommandPoints en mode conquete
+    //                                   none  very_low    low   medium
+    IncomeMultiplierInDestructionMode = [  0,      0.5,   0.75,      1]
+
+//--------------------------- Constantes Défense ---------------------------------------//
+
+    AreaSnapRange = 10000.0
+    BlockedTerrainsRange = 75000.0 // Hackos !!: doit être supérieur à la valeur dans FeedbackRenderToolbox.cg pour les trucs Clipped
+    LineMinimalDistance = 3750.0 //15000.0
+    LineSnapRange = 7500.0
+    AllowedTerrainsMask = ~/AllowedTerrainsTypeForDefense
+    TrenchSlotSize = 3000.0
+
+//------------------------- Constantes IAStrat ------------------------------------------//
+    // Bonus en pourcentage donné à l'IA à l'income. Exemple : 0.0 = +0%, 0.10 = +10%
+    RelativeBonusFluxByIADifficulty = MAP
+    [
+        (IADifficulty/TresFacile,    0.0),
+        (IADifficulty/Facile,        0.0),
+        (IADifficulty/Normal,        0.0),
+        (IADifficulty/Difficile,     0.0),
+        (IADifficulty/TresDifficile, 0.5),
+        (IADifficulty/PlusDifficile, 1.0),
+    ]
+
+    // Multiplicateur sur le nombre d'unités dans le deck de l'IA (ex : 0.5 donnera 50% d'unités en plus à l'IA)
+    DeckUnitCountMultiplierByIADifficulty = MAP
+    [
+        (IADifficulty/TresFacile,       0),
+        (IADifficulty/Facile,           0),
+        (IADifficulty/Normal,           0),
+        (IADifficulty/Difficile,        0),
+        (IADifficulty/TresDifficile,    0.5),
+        (IADifficulty/PlusDifficile,    1.0),
+    ]
+
+    // Bonus d'exp additif donné à toutes les unités du deck de l'IA (ex: 1 donnera un niveau de plus à tout le monde)
+    DeckUnitExpLevelAdditiveModifierByIADifficulty = MAP
+    [
+        (IADifficulty/TresFacile,       -2),
+        (IADifficulty/Facile,           -1),
+        (IADifficulty/Normal,           0),
+        (IADifficulty/Difficile,        0),
+        (IADifficulty/TresDifficile,    0),
+        (IADifficulty/PlusDifficile,    0),
+    ]
+
+//------------------------ Constantes IAStratWargame ------------------------------------//
+
+    // Surrender de l'IA Strat
+    UnitValueLimitForSurrender = 400    // Valeur d'unité sur la map en-dessous de laquelle l'IA va surrender (0 = pas de surrender)
+
+//-------------------- Constantes InterfaceSpecific -------------------------------//
+
+    FactoriesWhichNeverCloseProductionMenuAfterValidation = [
+    ]
+
+    MaxNbMergedUnitsInGroup = 4 // Nombre maximum d'unites dans un groupe merge
+
+    MultiplicateurMetreRTSVersVitesseTactiquePourAvions = 0.45 div 1.0 // 0.45 div 1.0 est le ratio réaliste
+    MultiplicateurMetreRTSVersVitesseTactiquePourInfantrie = 0.45 div 1.0
+    MultiplicateurMetreRTSVersVitesseTactiquePourVehicule = 0.45 div 1.0
+    MultiplicateurDegresParSecondesPourVitesseDeRotation = 1.0
+    NombreUniteVisibleDesQueDetecte = true
+    NomDAffichageDesUnitesNonIdentifiees = "UNIDNM"
+
+    // Facteur utilisé pour la transformation des Plating et APValue pour l'affichage en mm dans l'UI
+    PlatingAndApDisplayFactor = 1 //10 pour du mm
+
+    PaliersDAgilite = MAP
+    [
+        (2000 *Metre, 'Value_6'),//Exceptional
+        (4000*Metre, 'Value_5'),//Very good
+        (6000*Metre, 'Value_4'), //Good
+        (7000*Metre, 'Value_3'), //Normal
+        (90000*Metre, 'Value_2'),  //Mediocre
+        (10000*Metre, 'Value_1'),  //Bad
+
+    ]
+
+    PaliersDeDissimulation = MAP
+    [
+        (1.0, 'Value_1'),
+        (1.5, 'Value_2'),
+        (2.0, 'Value_4'),
+        (2.5, 'Value_6'),
+        (3.0, 'Value_6'),
+    ]
+
+    PaliersDOptiqueDAltitude = MAP
+    [
+        (150, 'Value_3'),
+        (300, 'Value_4'),
+        (450, 'Value_6'),
+
+    ]
+
+    PaliersDOptique = MAP
+    [
+        (42.45, 'Value_1'),
+        (63.68, 'Value_2'),
+        (84.9, 'Value_3'),
+        (127.35, 'Value_4'),
+        (191.03, 'Value_5'),
+        (233.48, 'Value_6'),
+    ]
+
+    PaliersDeResilience = MAP
+    [
+        (2, 'Value_1'),
+        (5, 'Value_2'),
+        (10, 'Value_3'),
+    ]
+
+    PaliersDeTransport = MAP
+    [
+        (1, 'UIPT_VLGHT'),
+        (2, 'UIPT_LIGHT'),
+        (3, 'UIPT_HEAVY'),
+    ]
+
+    PaliersDeVitesse = MAP
+    [
+        (800, 'UISP_VLOW'),
+        (900, 'UISP_LOW'),
+        (1000, 'UISP_MED'),
+        (1300, 'UISP_HIGH'),
+        (4000, 'UISP_VHIGH'),
+    ]
+
+    TagDInfanteriePinned = "Infanterie_Cowering"
+    TempsAttenteAffichageIconeConflitQuartier = 0.5 // Permet de temporiser l'affichage de l'icône de conflit dans un quartier le temps que les étiquettes se placent
+    ValeurMinAffichageBarMoralLabel = 0.05 // compris entre 0 et 1
+    ValeurMaxBarMoralLabel = 0.8 // compris entre 0 et 1
+    ValeurMinimumCoverLeger = 4 // Terrain stealth bonus
+    ValeurMinimumCoverMoyen = 7.5 // Terrain stealth bonus
+    ValeurMinimumCoverTresLeger = 10 // Unit stealth bonus
+
+    ValeurOptionTailleNewLabelMinimal = 0.45*1.4
+    ValeurOptionTailleNewLabelVerySmall = 0.55*1.4
+    ValeurOptionTailleNewLabelSmall = 0.63*1.4
+    ValeurOptionTailleNewLabelNormal = 0.7*1.4
+    ValeurOptionTailleNewLabelLarge = 0.88*1.4
+    ValeurOptionTailleNewLabelVeryLarge = 1.0*1.4
+
+
+//------------------------ Constantes Lobby ---------------------------------------//
+
+    ConquestPointsDefaultIndex = 1 //Indice dans ConquestPossibleScores
+    DefaultArgentInitial = 1500
+    ArgentInitialSetting =
+    [
+        500,
+        1000,
+        1500,
+        2000,
+        2500,
+        3000,
+    ]
+
+    DestructionScoreToReachSetting =
+    [
+        3000,
+        4000,
+        5000,
+        6000,
+        8000,
+        0,
+    ]
+
+    ArgentInitialMinimumPourGererLIA = 250
+    VictoryTypeDestructionLevelsTable = MAP
+    [
+        // Syntaxe :
+        // (Argent Initial Courant, [liste des valeurs de scoreToReach possibles pour cette valeur d'argent initial avec 0 signifiant Total Destruction]),
+        //Toute nouvelle valeur d'ArgentInitial doit apparaitre dans VictoryTypeDestructionLevelsTable du fichier GDConstantes.ndf
+        (500,  [3000, 4000, 5000, 6000, 8000, 0]),
+        (750,  [3000, 4000, 5000, 6000, 8000, 0]),
+        (1000, [3000, 4000, 5000, 6000, 8000, 0]),
+        (1500, [3000, 4000, 5000, 6000, 8000, 0]),
+        (2000, [3000, 4000, 5000, 6000, 8000, 0]),
+        (2500, [3000, 4000, 5000, 6000, 8000, 0]),
+        (3000, [3000, 4000, 5000, 6000, 8000, 0]),
+        //(6000, [5000, 5500, 6000, 6500, 7000, 0]),
+    ]
+
+//---------------------------- Constantes Mouvement -------------------------------------//
+
+    AmphibiousSpawnLandSeaRatio = 1.5 // >=0, ponderation arbitraire pour determiner si une amphibie spawne au spawn marin ou terrestre (=1:elle prendra le plus proche a vol d'oiseau ; <1:elle preferera le marin, >1:elle preferera le terrestre)
+    InfantryTrenchDepth = 7 * Metre //9 * Metre //11.5 * Metre
+    TimeForOnePAMove = 0.2 //0.5 // temps de mouvement pour dépenser un PA : ne pas descendre trop bas. Cela affecte la qualité de certains algo
+
+//------------------------ Constantes Option_Graphique ----------------------------------//
+
+    // Valeur de 0 à 255
+    AlphaCerclePorteeVisionSelectionQuandPasseSurAutreUnite = 30
+    AlphaGhostSelection = 220
+    AlphaGhostSelectionQuandPasseSurAutreUnite = 50
+
+//------------------------- Constantes Supply -------------------------------------------//
+
+    RatioSupplyHealth = 0.1 // En dessous ce ce ratio de vie, l'unité entrera dans la boucle de ravitaillement
+    RatioSupplyToStartAMission = 0.4 // Valeur en dessous de laquelle les unités ne sont pas ajouté dans les missions (valable pour tous les type de ravitaillement contrairement aux variables au dessus)
+    SupplyFuelForBoat = false
+    SupplyHealthForBoat = false
+
+//------------------------------ Constantes Tactic --------------------------------------//
+
+    // ATTENTION NE SONT PRISES QUE SI ON NE TROUVE PAS SON BONHEUR DANS LE DECK
+    //---- Set OTAN, PACT
+    CommandUnitToSpawnForNation = [ nil, nil ]
+    CommandUnitToSpawnOverWaterForNation = [ nil, nil ]
+
+    //Order Token bloqué lorsque que l'unité est sans essence
+    OrderBlockedWhenOutOfFuel = ["Move", "SmartMove", "QuickMove", "FastMoveAndAttack", "Spread", "Reverse", "ChangeAltitude",
+        "AirplaneEvacuate", "AirplaneMoveAndEngage"]
+    OrdersAcceptedByTransporterIfTransportedUnitsCanDo = ["AIAttack", "AIDefend"]
+
+//------------------------------ Constantes Vision --------------------------------------//
+    DissimulationEnumToValue = MAP
+    [
+        (~/DissimulationValue/VEHICLE, 1.0),
+        (~/DissimulationValue/VEHICLE_RECO, 1.5),
+        (~/DissimulationValue/INFANTRY, 2.0),
+        (~/DissimulationValue/INFANTRY_RECO, 2.5),
+    ]
+
+//------------------------------ Constantes WargameBuilding --------------------------------------//
+    WargameBuildingAllowedTerrainsMask = ETerrainType/Default | ETerrainType/ForetLegere
+)
