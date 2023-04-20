@@ -7,7 +7,7 @@ grammar NdfGrammar;
 ndf_file : assignment* EOF;
 assignment : export? id K_IS r_value;
 export: K_EXPORT;
-r_value : builtin_type_value | concatination | arithmetic | object | assignment | obj_reference_value | r_value '|' r_value;
+r_value : concatination | arithmetic | builtin_type_value |object | assignment | obj_reference_value | special_value | r_value '|' r_value;
 object : obj_type '(' ( block )* ')';
 obj_type : ID;
 block : assignment | member_assignment | obj_reference_value;
@@ -42,6 +42,11 @@ vector_value: '[' (r_value (',' r_value)* ','?)? ']';
 map_value: K_MAP '[' (pair_value (',' pair_value)* ','?)? ']';
 obj_reference_value: ('$'|'~')?  (ID|'/')* ID;
 
+// special types: values
+
+special_value : rgba_value;
+rgba_value : K_RGBA '[' INT ',' INT ',' INT ',' INT ']';
+
 // --- lexer rules --- //
 
 // keywords
@@ -61,6 +66,10 @@ K_PAIR : P A I R;
 K_LIST : L I S T;
 
 K_EXPORT : E X P O R T;
+
+// special keywords
+
+K_RGBA : R G B A;
 
 // data types
 

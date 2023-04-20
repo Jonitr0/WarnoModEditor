@@ -53,7 +53,7 @@ class TestNapo(unittest.TestCase):
         self.roundtrip_test("Airplane.ndf")
 
     def test_gd_contantes(self):
-        self.roundtrip_test("GDConstantes.ndf")
+        self.roundtrip_test("arithmetic.ndf")
 
     def roundtrip_test(self, file_name: str):
         with open(file_name, encoding="utf-8") as f:

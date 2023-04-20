@@ -30,6 +30,9 @@ class Stack:
     def __len__(self):
         return len(self._stack)
 
+    def __str__(self):
+        ''.join(map(str, self._stack))
+
 
 # put on the Stack to mark end of a Stack frame
 class StackMarker:
@@ -76,42 +79,58 @@ class NapoGenerator(NdfGrammarListener):
         # assign ID to top item on stack
         self.stack.top().id = ctx.getText()
 
-    def enterPrimitive_value(self, ctx:NdfGrammarParser.Primitive_valueContext):
+    def enterBool_value(self, ctx:NdfGrammarParser.Bool_valueContext):
         if self.ignore > 0:
             return
-        # assign datatype and value to new entity
-        datatype = self.rule_names[ctx.children[0].getRuleIndex()]
-        value = ctx.getText()
         entity = NapoEntity()
-        match datatype:
-            case "bool_value":
-                entity.datatype = NapoDatatype.Boolean
-                if value.lower() == "false":
-                    entity.value = False
-                else:
-                    entity.value = True
-            case "int_value":
-                entity.datatype = NapoDatatype.Integer
-                entity.value = int(value)
-            case "hex_value":
-                entity.datatype = NapoDatatype.HexInteger
-                entity.value = value
-            case "float_value":
-                entity.datatype = NapoDatatype.Float
-                entity.value = float(value)
-            case "string_value":
-                if value[0] == "\'":
-                    entity.datatype = NapoDatatype.String_single
-                else:
-                    entity.datatype = NapoDatatype.String_double
-                entity.value = value[1:-1]
-            case "guid_value":
-                entity.datatype = NapoDatatype.GUID
-                entity.value = value
-            case _:
-                logging.warning("Unknown Data type for " + datatype)
-                entity.datatype = NapoDatatype.UNKNOWN
-                entity.value = value
+        entity.datatype = NapoDatatype.Boolean
+        if ctx.getText().lower() == "false":
+            entity.value = False
+        else:
+            entity.value = True
+        self.stack.push(entity)
+
+    def enterInt_value(self, ctx:NdfGrammarParser.Int_valueContext):
+        if self.ignore > 0:
+            return
+        entity = NapoEntity()
+        entity.value = int(ctx.getText())
+        self.stack.push(entity)
+
+    def enterString_value(self, ctx:NdfGrammarParser.String_valueContext):
+        if self.ignore > 0:
+            return
+        entity = NapoEntity()
+        value = ctx.getText()
+        if value[0] == "\'":
+            entity.datatype = NapoDatatype.String_single
+        else:
+            entity.datatype = NapoDatatype.String_double
+        entity.value = value[1:-1]
+        self.stack.push(entity)
+
+    def enterHex_value(self, ctx:NdfGrammarParser.Hex_valueContext):
+        if self.ignore > 0:
+            return
+        entity = NapoEntity()
+        entity.datatype = NapoDatatype.HexInteger
+        entity.value = ctx.getText()
+        self.stack.push(entity)
+
+    def enterFloat_value(self, ctx:NdfGrammarParser.Float_valueContext):
+        if self.ignore > 0:
+            return
+        entity = NapoEntity()
+        entity.datatype = NapoDatatype.Float
+        entity.value = float(ctx.getText())
+        self.stack.push(entity)
+
+    def enterGuid_value(self, ctx:NdfGrammarParser.Guid_valueContext):
+        if self.ignore > 0:
+            return
+        entity = NapoEntity()
+        entity.datatype = NapoDatatype.GUID
+        entity.value = ctx.getText()
         self.stack.push(entity)
 
     def enterObj_reference_value(self, ctx:NdfGrammarParser.Obj_reference_valueContext):
@@ -178,6 +197,9 @@ class NapoGenerator(NdfGrammarListener):
             self.stack.top().append(value)
 
     def enterArithmetic(self, ctx:NdfGrammarParser.ArithmeticContext):
+        # don't treat single elements as arithmetic if we aren't already inside another arithmetic
+        if len(ctx.children) <= 1 and self.ignore <= 0:
+            return
         # ignore everything until we exit arithmetic
         self.ignore += 1
         if self.ignore > 1:
@@ -188,7 +210,8 @@ class NapoGenerator(NdfGrammarListener):
         self.stack.push(arithmetic)
 
     def exitArithmetic(self, ctx:NdfGrammarParser.ArithmeticContext):
-        self.ignore -= 1
+        if self.ignore > 0:
+            self.ignore -= 1
 
     def enterObj_type(self, ctx:NdfGrammarParser.Obj_typeContext):
         if self.ignore > 0:
