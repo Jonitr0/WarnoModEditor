@@ -54,7 +54,7 @@ class NapoToNdfConverter:
                 value_str += "(\n"
                 for i in range(len(entity.value)):
                     value_str += self.convert_entity(entity.value[i])
-                value_str += ")"
+                value_str += "\n)"
             case NapoDatatype.STRUCTURAL:
                 if type(entity) == NapoAssignment:
                     value_str = self.convert_assignment(entity)

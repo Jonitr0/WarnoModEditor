@@ -133,14 +133,34 @@ class NapoGenerator(NdfGrammarListener):
         entity.value = ctx.getText()
         self.stack.push(entity)
 
-    def enterObj_reference_value(self, ctx:NdfGrammarParser.Obj_reference_valueContext):
+    def enterRgba_value(self, ctx:NdfGrammarParser.Rgba_valueContext):
         if self.ignore > 0:
+            return
+        entity = NapoEntity()
+        entity.datatype = NapoDatatype.RGBA
+
+        text = ctx.getText()
+        text = text.replace(" ", "")
+        text = text.removeprefix("RGBA[")
+        text = text.removesuffix("]")
+
+        nums = text.split(",")
+        entity.value = [int(x) for x in nums]
+        self.stack.push(entity)
+
+    def enterObj_reference_value(self, ctx:NdfGrammarParser.Obj_reference_valueContext):
+        self.ignore += 1
+        if self.ignore > 1:
             return
         # assign reference datatype and value to top item on stack
         entity = NapoEntity()
         entity.datatype = NapoDatatype.Reference
         entity.value = ctx.getText()
         self.stack.push(entity)
+
+    def exitObj_reference_value(self, ctx:NdfGrammarParser.Obj_reference_valueContext):
+        if self.ignore > 0:
+            self.ignore -= 1
 
     def enterPair_value(self, ctx:NdfGrammarParser.Pair_valueContext):
         if self.ignore > 0:

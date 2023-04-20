@@ -43,6 +43,11 @@ def napo_roundtrip(file_name: str) -> str:
     return converter.convert(listener.assignments)
 
 
+# for debugging
+def print_tree(tree, parser):
+    print(Trees.toStringTree(tree, None, parser))
+
+
 class TestNapo(unittest.TestCase):
     def test_primitives(self):
         self.roundtrip_test("primitives.ndf")
@@ -73,4 +78,3 @@ class TestNapo(unittest.TestCase):
             print("generated:\n")
             print(generated)
             raise e
-

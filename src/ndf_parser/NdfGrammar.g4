@@ -7,19 +7,19 @@ grammar NdfGrammar;
 ndf_file : assignment* EOF;
 assignment : export? id K_IS r_value;
 export: K_EXPORT;
-r_value : concatination | arithmetic | builtin_type_value | object | assignment | obj_reference_value | special_value | r_value '|' r_value;
+r_value : concatination | arithmetic | builtin_type_value | object | assignment | obj_reference_value | special_value;
 object : obj_type '(' ( block )* ')';
 obj_type : ID;
-block : assignment | member_assignment | obj_reference_value;
+block : assignment | member_assignment;
 member_assignment : id '=' ( r_value | assignment );
 id : ID (':' builtin_type_label)?;
 
 // operations
 
 arithmetic : '(' arithmetic ')' | arithmetic op arithmetic | '-' arithmetic | atom;
-atom : int_value | float_value | hex_value | ID;
+atom : int_value | float_value | hex_value | obj_reference_value;
 op: '+' | '-' | '*' | K_DIV;
-concatination : concatination '+' concatination | string_value | map_value | vector_value | ID;
+concatination : concatination '+' concatination | string_value | map_value | vector_value;
 
 // builtin types: labels
 
@@ -42,7 +42,7 @@ guid_value: GUID;
 pair_value: '(' r_value ',' r_value ')';
 vector_value: '[' (r_value (',' r_value)* ','?)? ']';
 map_value: K_MAP '[' (pair_value (',' pair_value)* ','?)? ']';
-obj_reference_value: ('$'|'~')?  (ID|'/')* ID;
+obj_reference_value: ('$'|'~')?  (ID|'/')* ID | obj_reference_value '|' obj_reference_value;
 
 // special types: values
 
