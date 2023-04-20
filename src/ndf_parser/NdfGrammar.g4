@@ -7,7 +7,7 @@ grammar NdfGrammar;
 ndf_file : assignment* EOF;
 assignment : export? id K_IS r_value;
 export: K_EXPORT;
-r_value : concatination | arithmetic | builtin_type_value |object | assignment | obj_reference_value | special_value | r_value '|' r_value;
+r_value : concatination | arithmetic | builtin_type_value | object | assignment | obj_reference_value | special_value | r_value '|' r_value;
 object : obj_type '(' ( block )* ')';
 obj_type : ID;
 block : assignment | member_assignment | obj_reference_value;
@@ -16,7 +16,9 @@ id : ID (':' builtin_type_label)?;
 
 // operations
 
-arithmetic : '(' arithmetic ')' | arithmetic OP arithmetic | int_value | float_value | hex_value | ID;
+arithmetic : '(' arithmetic ')' | arithmetic op arithmetic | '-' arithmetic | atom;
+atom : int_value | float_value | hex_value | ID;
+op: '+' | '-' | '*' | K_DIV;
 concatination : concatination '+' concatination | string_value | map_value | vector_value | ID;
 
 // builtin types: labels
@@ -83,7 +85,6 @@ GUID: 'GUID:{' (HEXDIGIT|'-')* '}';
 // other lexer rules
 
 ID : [a-zA-Z0-9_]+ ;
-OP : '+' | '-' | '*' | K_DIV ;
 WS : [ \t\r\n]+ -> skip ;
 COMMENT : '//' (.*? [\r\n] | ~[\r\n]*? EOF) -> skip ;
 

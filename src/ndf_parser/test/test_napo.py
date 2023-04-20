@@ -3,6 +3,7 @@ import unittest
 from diff_match_patch import diff_match_patch
 
 from antlr4 import *
+from antlr4.tree.Trees import Trees
 
 from src.ndf_parser.antlr_output.NdfGrammarLexer import NdfGrammarLexer
 from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
@@ -53,7 +54,7 @@ class TestNapo(unittest.TestCase):
         self.roundtrip_test("Airplane.ndf")
 
     def test_gd_contantes(self):
-        self.roundtrip_test("arithmetic.ndf")
+        self.roundtrip_test("GDConstantes.ndf")
 
     def roundtrip_test(self, file_name: str):
         with open(file_name, encoding="utf-8") as f:
