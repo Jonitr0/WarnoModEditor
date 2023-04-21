@@ -226,7 +226,14 @@ class NapoGenerator(NdfGrammarListener):
             return
         arithmetic = NapoEntity()
         arithmetic.datatype = NapoDatatype.Arithmetic
-        arithmetic.value = ctx.getText()
+        # add spaces to text
+        text = ctx.getText().lower()
+        text = text.replace("+", " + ")
+        text = text.replace("-", " - ")
+        text = text.replace("*", " * ")
+        text = text.replace("div", " div ")
+        arithmetic.value = text
+
         self.stack.push(arithmetic)
 
     def exitArithmetic(self, ctx:NdfGrammarParser.ArithmeticContext):

@@ -3,7 +3,7 @@ import logging
 from src.ndf_parser.napo_entities.napo_entity import *
 
 
-class NapoPair(NapoEntity):
+class NapoPair(NapoDeepComparable):
     def __init__(self):
         super().__init__()
         self.value = []
@@ -19,7 +19,7 @@ class NapoPair(NapoEntity):
         return "{type: pair, value: " + ''.join(map(str, self.value)) + "}"
 
 
-class NapoVector(NapoEntity):
+class NapoVector(NapoDeepComparable):
     def __init__(self):
         super().__init__()
         self.value = []
@@ -32,7 +32,7 @@ class NapoVector(NapoEntity):
         return "{type: vector, value: " + ''.join(map(str, self.value)) + "}"
 
 
-class NapoMap(NapoEntity):
+class NapoMap(NapoDeepComparable):
     def __init__(self):
         super().__init__()
         self.value = []

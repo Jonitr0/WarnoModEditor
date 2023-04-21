@@ -47,6 +47,13 @@ class NapoToNdfConverter:
                 value_str = "\'" + str(entity.value) + "\'"
             case NapoDatatype.String_double:
                 value_str = "\"" + str(entity.value) + "\""
+            case NapoDatatype.RGBA:
+                value_str = "RGBA["
+                for i in range(4):
+                    value_str += str(entity.value[i])
+                    if i < 3:
+                        value_str += ","
+                value_str += "]"
             case NapoDatatype.Object:
                 value_str = ""
                 if entity.obj_type != "":

@@ -10,4 +10,16 @@ class NapoAssignment(NapoEntity):
         self.member = False
 
     def __str__(self):
-        return "{id: " + self.id + ", type: assignment, value: " + str(self.value) + "}"
+        return "{id: " + self.id + " type: assignment, export: " + str(self.export) + ", member: " + \
+               str(self.member) + ", value: " + str(self.value) + "}"
+
+    def __eq__(self, other):
+        if not type(other) == type(self):
+            return False
+        ret = self.datatype == other.datatype and self.id == other.id and self.export == other.export \
+               and self.member == other.member and self.value == other.value
+        if not ret:
+            print(self.value == other.value)
+            print(self)
+            print(other)
+        return ret
