@@ -99,7 +99,7 @@ class BaseTabPage(QtWidgets.QWidget):
 
     # each page should return restoreable status as a dictionary which is JSON serializable
     def to_json(self) -> dict:
-        pass
+        return {}
 
     # restore page from a JSON object
     def from_json(self, json_obj: dict):

@@ -6,6 +6,7 @@ from PySide6.QtCore import Qt
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
 from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, global_search_page, guid_generator_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
+from src.wme_widgets.tab_pages.napo_pages import game_settings_page
 from src.wme_widgets import main_widget
 from src.dialogs import essential_dialogs
 from src.utils import icon_manager
@@ -20,6 +21,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         global_search_page.GlobalSearchPage: "magnify.png",
         guid_generator_page.GuidGeneratorPage: "cert.png",
         rich_text_viewer_page.RichTextViewerPage: "help.png",
+        game_settings_page.GameSettingsPage: "game_settings.png"
     }
 
     def __init__(self, parent=None):
@@ -55,6 +57,12 @@ class WMETabWidget(QtWidgets.QTabWidget):
         guid_generator_action.setToolTip("Generate GUIDs (Globally Unique Identifiers), "
                                          "which are used in some NDF objects.")
         guid_generator_action.triggered.connect(self.on_guid_generator)
+
+        self.tab_menu.addSeparator()
+
+        game_settings_action = self.tab_menu.addAction("Game Settings Editor")
+        game_settings_action.setToolTip("Edit available game settings such as starting points and income.")
+        game_settings_action.triggered.connect(self.on_game_settings)
 
         self.tab_menu.addSeparator()
 
@@ -136,6 +144,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_guid_generator(self):
         page = guid_generator_page.GuidGeneratorPage()
         self.add_tab_with_auto_icon(page, "GUID Generator")
+
+    def on_game_settings(self):
+        page = game_settings_page.GameSettingsPage()
+        self.add_tab_with_auto_icon(page, "Game Settings Editor")
 
     def on_open_quickstart(self):
         viewer = rich_text_viewer_page.RichTextViewerPage("Quickstart.html")
