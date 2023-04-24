@@ -231,6 +231,7 @@ class NapoGenerator(NdfGrammarListener):
         text = text.replace("+", " + ")
         text = text.replace("-", " - ")
         text = text.replace("*", " * ")
+        # TODO: this might be dangerous if ID contains "div"
         text = text.replace("div", " div ")
         arithmetic.value = text
 

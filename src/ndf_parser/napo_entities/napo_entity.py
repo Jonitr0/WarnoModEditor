@@ -36,3 +36,13 @@ class NapoDeepComparable(NapoEntity):
             if not self.value[i] == other.value[i]:
                 return False
         return True
+
+
+class NapoFile(NapoDeepComparable):
+    def __init__(self, assignments=[]):
+        super().__init__()
+        self.datatype = NapoDatatype.STRUCTURAL
+        self.value = assignments
+
+    def __str__(self):
+        return "{type: file, value: " + ''.join(map(str, self.value)) + "}"

@@ -4,69 +4,64 @@ from src.ndf_parser.napo_entities import napo_datastructures
 
 
 class NapoToNdfConverter:
-    result = ""
-
-    def convert(self, assignment_list: [NapoEntity]) -> str:
-        self.result = ""
-        for assignment in assignment_list:
-            self.result += self.convert_assignment(assignment)
-        return self.result
-
-    def convert_assignment(self, assignment: NapoAssignment) -> str:
-        napo_str = ""
-        if assignment.export:
-            napo_str = "export "
-        if assignment.member:
-            napo_str += assignment.id + " = "
-        else:
-            napo_str += assignment.id + " is "
-        entity = assignment.value
-        napo_str += self.convert_entity(entity) + "\n"
-        return napo_str
+    def convert(self, napo_file: NapoFile) -> str:
+        return self.convert_entity(napo_file)
 
     def convert_entity(self, entity: NapoEntity) -> str:
         match entity.datatype:
             case NapoDatatype.Pair:
-                value_str = "(" + self.convert_entity(entity.value[0]) + ", " + \
+                result_str = "(" + self.convert_entity(entity.value[0]) + ", " + \
                             self.convert_entity(entity.value[1]) + ")"
             case NapoDatatype.Vector:
-                value_str = "["
+                result_str = "["
                 for i in range(len(entity.value)):
-                    value_str += self.convert_entity(entity.value[i])
+                    result_str += self.convert_entity(entity.value[i])
                     if i < len(entity.value)-1:
-                        value_str += ", "
-                value_str += "]"
+                        result_str += ", "
+                result_str += "]"
             case NapoDatatype.Map:
-                value_str = "MAP["
+                result_str = "MAP["
                 for i in range(len(entity.value)):
-                    value_str += self.convert_entity(entity.value[i])
+                    result_str += self.convert_entity(entity.value[i])
                     if i < len(entity.value)-1:
-                        value_str += ", "
-                value_str += "]"
+                        result_str += ", "
+                result_str += "]"
             case NapoDatatype.String_single:
-                value_str = "\'" + str(entity.value) + "\'"
+                result_str = "\'" + str(entity.value) + "\'"
             case NapoDatatype.String_double:
-                value_str = "\"" + str(entity.value) + "\""
+                result_str = "\"" + str(entity.value) + "\""
             case NapoDatatype.RGBA:
-                value_str = "RGBA["
+                result_str = "RGBA["
                 for i in range(4):
-                    value_str += str(entity.value[i])
+                    result_str += str(entity.value[i])
                     if i < 3:
-                        value_str += ","
-                value_str += "]"
+                        result_str += ","
+                result_str += "]"
             case NapoDatatype.Object:
-                value_str = ""
+                result_str = ""
                 if entity.obj_type != "":
-                    value_str = entity.obj_type + "\n"
-                value_str += "(\n"
+                    result_str = entity.obj_type + "\n"
+                result_str += "(\n"
                 for i in range(len(entity.value)):
-                    value_str += self.convert_entity(entity.value[i])
-                value_str += "\n)"
+                    result_str += self.convert_entity(entity.value[i])
+                result_str += "\n)"
             case NapoDatatype.STRUCTURAL:
                 if type(entity) == NapoAssignment:
-                    value_str = self.convert_assignment(entity)
+                    result_str = ""
+                    if entity.export:
+                        result_str = "export "
+                    if entity.member:
+                        result_str += entity.id + " = "
+                    else:
+                        result_str += entity.id + " is "
+                    val_entity = entity.value
+                    result_str += self.convert_entity(val_entity) + "\n"
+                elif type(entity) == NapoFile:
+                    result_str = ""
+                    for val in entity.value:
+                        result_str += self.convert_entity(val)
                 else:
-                    value_str = ""
+                    result_str = ""
             case _:
-                value_str = str(entity.value)
-        return value_str
+                result_str = str(entity.value)
+        return result_str

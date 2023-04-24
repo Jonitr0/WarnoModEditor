@@ -19,6 +19,8 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
     # parse a whole NDF file and return it as a Napo Entity List
     def get_napo_from_file(self, file_name: str) -> [NapoAssignment]:
+        self.open_file(file_name)
+
         input_stream = FileStream(file_name, encoding="utf8")
 
         lexer = NdfGrammarLexer(input_stream)
@@ -30,15 +32,15 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         walker = ParseTreeWalker()
         walker.walk(listener, tree)
 
-        return listener.assignments
+        return NapoFile(listener.assignments)
 
     # parse a part (e.g. object) of a given NDF file and return it as Napo Entity
     def get_napo_from_object(self, file_name: str, obj_name: str) -> NapoEntity:
         pass
 
-    def write_napo_file(self, file_name: str, assignments: [NapoAssignment]):
+    def write_napo_file(self, file_name: str, napo_file: NapoFile):
         converter = napo_to_ndf_converter.NapoToNdfConverter()
-        ndf_text = converter.convert(assignments)
+        ndf_text = converter.convert(napo_file)
         with open(file_name, "t", encoding="utf-8") as f:
             f.write(ndf_text)
 

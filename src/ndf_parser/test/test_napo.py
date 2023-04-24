@@ -10,6 +10,7 @@ from src.ndf_parser.antlr_output.NdfGrammarLexer import NdfGrammarLexer
 from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
 
 from src.ndf_parser.object_generator import napo_generator
+from src.ndf_parser.napo_entities.napo_entity import *
 from src.ndf_parser.napo_entities.napo_assignment import NapoAssignment
 from src.ndf_parser.ndf_converter import napo_to_ndf_converter
 
@@ -41,13 +42,13 @@ def generate_napo(file_name: str) -> [NapoAssignment]:
     walker = ParseTreeWalker()
     walker.walk(listener, tree)
 
-    return listener.assignments
+    return NapoFile(listener.assignments)
 
 
 def napo_roundtrip(file_name: str):
     converter = napo_to_ndf_converter.NapoToNdfConverter()
-    assignments = generate_napo(file_name)
-    return converter.convert(assignments), assignments
+    napo_file = generate_napo(file_name)
+    return converter.convert(napo_file), napo_file
 
 
 # for debugging
@@ -95,9 +96,6 @@ class TestNapo(unittest.TestCase):
             f.write(generated)
             generated_napo = generate_napo("tmp.txt")
         os.remove("tmp.txt")
-        if len(orig_napo) != len(generated_napo):
-            raise Exception("Not the same number of assignments!")
-        for i in range(len(orig_napo)):
-            if orig_napo[i] != generated_napo[i]:
-                raise Exception("Assignments not equal")
+        if orig_napo != generated_napo:
+            raise Exception("Assignments not equal")
 
