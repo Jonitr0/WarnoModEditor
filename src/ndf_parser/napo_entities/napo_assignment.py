@@ -18,8 +18,19 @@ class NapoAssignment(NapoEntity):
             return False
         ret = self.datatype == other.datatype and self.id == other.id and self.export == other.export \
                and self.member == other.member and self.value == other.value
-        if not ret:
-            print(self.value == other.value)
-            print(self)
-            print(other)
         return ret
+
+    def find(self, path: str, default=None):
+        # get current ID
+        current = path.split("/")[0]
+        # build remaining path
+        remaining = path.removeprefix(current)
+        remaining = remaining.removeprefix("/")
+        # if nothing remains, return own value
+        if remaining == "":
+            return self.value
+        elif isinstance(self.value, NapoEntity):
+            return self.value.find(remaining, default)
+        else:
+            return default
+

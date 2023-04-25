@@ -10,6 +10,7 @@ from src.ndf_parser.ndf_converter import napo_to_ndf_converter
 
 from src.wme_widgets.tab_pages import base_tab_page
 
+from src.ndf_parser.napo_entities.napo_collection import *
 from src.ndf_parser.napo_entities.napo_assignment import *
 
 

@@ -21,28 +21,6 @@ class NapoEntity:
     def __hash__(self):
         return hash((self.datatype, self.value))
 
-
-class NapoDeepComparable(NapoEntity):
-    def __init__(self):
-        super().__init__()
-        self.value = []
-
-    def __eq__(self, other):
-        if not type(other) == type(self):
-            return False
-        if not len(self.value) == len(other.value):
-            return False
-        for i in range(len(self.value)):
-            if not self.value[i] == other.value[i]:
-                return False
-        return True
-
-
-class NapoFile(NapoDeepComparable):
-    def __init__(self, assignments=[]):
-        super().__init__()
-        self.datatype = NapoDatatype.STRUCTURAL
-        self.value = assignments
-
-    def __str__(self):
-        return "{type: file, value: " + ''.join(map(str, self.value)) + "}"
+    def find(self, path: str, default=None):
+        # to be implemented by subclasses
+        return default

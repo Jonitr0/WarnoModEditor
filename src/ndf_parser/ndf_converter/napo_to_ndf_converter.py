@@ -1,6 +1,5 @@
-from src.ndf_parser.napo_entities.napo_entity import *
+from src.ndf_parser.napo_entities.napo_collection import *
 from src.ndf_parser.napo_entities.napo_assignment import *
-from src.ndf_parser.napo_entities import napo_datastructures
 
 
 class NapoToNdfConverter:
