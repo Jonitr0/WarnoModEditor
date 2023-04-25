@@ -5,7 +5,6 @@ from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
 from src.ndf_parser.napo_entities.napo_entity import *
 from src.ndf_parser.napo_entities.napo_assignment import *
 from src.ndf_parser.napo_entities.napo_datastructures import *
-from src.ndf_parser.napo_entities.napo_object import *
 
 import logging
 

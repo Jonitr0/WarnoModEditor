@@ -69,7 +69,11 @@ class TestNapo(unittest.TestCase):
     def test_gd_contantes(self):
         self.object_comparison_test("GDConstantes.ndf")
         self.roundtrip_test("GDConstantes.ndf")
-        self.find_test("GDConstantes.ndf", "EShowGhostOverSpecificTerrainConditionFilterType/None", 0)
+
+    def test_find(self):
+        # TODO: find results may have to converted into easily editable Python Objects
+        self.find_test("GDConstantes.ndf", "EShowGhostOverSpecificTerrainConditionFilterType\\None", 0)
+        self.find_test("GDConstantes.ndf", "Constantes\\DefaultGhostColors\\GhostColor", 0)
 
     def roundtrip_test(self, file_name: str):
         with open(file_name, encoding="utf-8") as f:
@@ -103,7 +107,7 @@ class TestNapo(unittest.TestCase):
 
     def find_test(self, file_name: str, path: str, expected):
         napo_file = generate_napo(file_name)
-        res = str(napo_file.find(path))
+        res = str(napo_file.find(path).value)
         expected = str(expected)
         if res != expected:
             print("found:\n")

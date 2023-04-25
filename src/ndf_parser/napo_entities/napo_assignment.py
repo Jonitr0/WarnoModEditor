@@ -23,14 +23,11 @@ class NapoAssignment(NapoEntity):
     def find(self, path: str, default=None):
         # get current ID
         current = path.split("/")[0]
-        # build remaining path
-        remaining = path.removeprefix(current)
-        remaining = remaining.removeprefix("/")
         # if nothing remains, return own value
-        if remaining == "":
+        if current == "":
             return self.value
         elif isinstance(self.value, NapoEntity):
-            return self.value.find(remaining, default)
+            return self.value.find(path, default)
         else:
             return default
 

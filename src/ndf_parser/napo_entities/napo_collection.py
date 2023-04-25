@@ -17,12 +17,12 @@ class NapoCollection(NapoEntity):
 
     def find(self, path: str, default=None):
         # get current ID
-        current = path.split("/")[0]
+        current = path.split("\\")[0]
         # build remaining path
         remaining = path.removeprefix(current)
-        remaining = remaining.removeprefix("/")
+        remaining = remaining.removeprefix("\\")
         # if nothing remains, return own value
-        if remaining == "":
+        if current == "":
             return self.value
         # otherwise, call function on own value
         elif self.lookup.__contains__(current):
@@ -58,9 +58,6 @@ class NapoObject(NapoCollection):
         self.value = []
         self.obj_type = ""
         self.datatype = NapoDatatype.Object
-
-    def append(self, member: NapoEntity):
-        self.value.append(member)
 
     def __str__(self):
         return "{type: object, value: " + ''.join(map(str, self.value)) + "}"
