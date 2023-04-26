@@ -127,3 +127,7 @@ QSplashScreen {{
 }}
 
 QSizeGrip {{ image: none; }}
+
+QListWidget::item {{
+  padding: 2px;
+}}
