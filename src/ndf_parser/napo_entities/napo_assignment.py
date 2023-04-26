@@ -20,14 +20,14 @@ class NapoAssignment(NapoEntity):
                and self.member == other.member and self.value == other.value
         return ret
 
-    def find(self, path: str, default=None):
+    def _find(self, path: str, default=None):
         # get current ID
         current = path.split("/")[0]
         # if nothing remains, return own value
         if current == "":
             return self.value
         elif isinstance(self.value, NapoEntity):
-            return self.value.find(path, default)
+            return self.value._find(path, default)
         else:
             return default
 

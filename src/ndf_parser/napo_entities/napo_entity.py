@@ -22,6 +22,6 @@ class NapoEntity:
         return hash((self.datatype, self.value))
 
     # TODO: create analogous method to set values
-    def find(self, path: str, default=None):
+    def _find(self, path: str, default=None):
         # to be implemented by subclasses
         return default

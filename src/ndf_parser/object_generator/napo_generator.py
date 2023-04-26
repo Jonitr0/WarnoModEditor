@@ -2,9 +2,8 @@ from antlr4 import *
 from src.ndf_parser.antlr_output.NdfGrammarListener import NdfGrammarListener
 from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
 
-from src.ndf_parser.napo_entities.napo_entity import *
+from src.ndf_parser.napo_entities.napo_collection import *
 from src.ndf_parser.napo_entities.napo_assignment import *
-from src.ndf_parser.napo_entities.napo_datastructures import *
 
 import logging
 
@@ -93,6 +92,7 @@ class NapoGenerator(NdfGrammarListener):
         if self.ignore > 0:
             return
         entity = NapoEntity()
+        entity.datatype = NapoDatatype.Integer
         entity.value = int(ctx.getText())
         self.stack.push(entity)
 
