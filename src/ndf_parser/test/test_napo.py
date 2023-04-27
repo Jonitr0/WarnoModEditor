@@ -70,9 +70,15 @@ class TestNapo(unittest.TestCase):
         self.object_comparison_test("GDConstantes.ndf")
         self.roundtrip_test("GDConstantes.ndf")
 
-    def test_find(self):
-        self.find_test("GDConstantes.ndf", "EShowGhostOverSpecificTerrainConditionFilterType\\None", 0)
-        self.find_test("GDConstantes.ndf", "Constantes\\DefaultGhostColors\\GhostColor", [255, 255, 255, 255])
+    def test_get_val_constantes(self):
+        self.get_val_test("GDConstantes.ndf", "EShowGhostOverSpecificTerrainConditionFilterType\\None", 0)
+        self.get_val_test("GDConstantes.ndf", "Constantes\\DefaultGhostColors\\GhostColor", [255, 255, 255, 255])
+
+    def test_set_val_constantes(self):
+        #self.set_val_test("GDConstantes.ndf", "EShowGhostOverSpecificTerrainConditionFilterType\\None",
+        #                  10, [NapoDatatype.Integer])
+        self.set_val_test("GDConstantes.ndf", "Constantes\\DefaultGhostColors\\GhostColor",
+                          [1, 1, 1, 1], [NapoDatatype.Integer]*4)
 
     def roundtrip_test(self, file_name: str):
         with open(file_name, encoding="utf-8") as f:
@@ -104,9 +110,9 @@ class TestNapo(unittest.TestCase):
             raise Exception("Assignments not equal")
 
 
-    def find_test(self, file_name: str, path: str, expected):
+    def get_val_test(self, file_name: str, path: str, expected):
         napo_file = generate_napo(file_name)
-        res = napo_file.find(path)
+        res = napo_file.get_value(path)
         if res != expected:
             print("found:\n")
             print(res)
@@ -115,4 +121,27 @@ class TestNapo(unittest.TestCase):
             print(expected)
             print(type(expected))
             raise Exception("Find results not equal")
+
+    def set_val_test(self, file_name: str, path: str, value, dtypes: [NapoDatatype]):
+        # set value on napo
+        napo_file = generate_napo(file_name)
+        napo_file.set_value(path, value, dtypes)
+        # convert to string
+        converter = napo_to_ndf_converter.NapoToNdfConverter()
+        napo_str = converter.convert(napo_file)
+        # write to a new file
+        with open("tmp.txt", encoding="utf-8", mode="x") as f:
+            f.write(napo_str)
+            generated_napo = generate_napo("tmp.txt")
+        #os.remove("tmp.txt")
+
+        res = generated_napo.get_value(path)
+        if res != value:
+            print("found:\n")
+            print(res)
+            print(type(res))
+            print("expected:\n")
+            print(value)
+            print(type(value))
+            raise Exception("Find results not equal after setting value")
 

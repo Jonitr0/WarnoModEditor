@@ -17,7 +17,7 @@ class NapoCollection(NapoEntity):
         elif isinstance(data, NapoObject):
             self.lookup[data.obj_type] = len(self.value) - 1
 
-    def _find(self, path: str, default=None):
+    def _get_value(self, path: str, default=None):
         # get current ID
         current = path.split("\\")[0]
         # build remaining path
@@ -28,9 +28,24 @@ class NapoCollection(NapoEntity):
             return self.value
         # otherwise, call function on own value
         elif self.lookup.__contains__(current):
-            return self.value[self.lookup[current]]._find(remaining, default)
+            return self.value[self.lookup[current]]._get_value(remaining, default)
         else:
             return default
+
+    def _set_value(self, path: str, value):
+        # get current ID
+        current = path.split("\\")[0]
+        # build remaining path
+        remaining = path.removeprefix(current)
+        remaining = remaining.removeprefix("\\")
+        # if nothing remains, return own value
+        if current == "":
+            self.value = value
+        # otherwise, call function on own value
+        elif self.lookup.__contains__(current):
+            self.value[self.lookup[current]]._set_value(remaining, value)
+        else:
+            print("could not find " + path + "\nremaining: " + remaining)
 
     def __eq__(self, other):
         if not type(other) == type(self):
@@ -50,8 +65,12 @@ class NapoFile(NapoCollection):
         for assignment in assignments:
             self.append(assignment)
 
-    def find(self, path: str, default=None):
-        result = self._find(path, default)
+    def set_value(self, path: str, value, dtypes: [NapoDatatype]):
+        entity = napo_from_value(value, dtypes)
+        self._set_value(path, entity)
+
+    def get_value(self, path: str, default=None):
+        result = self._get_value(path, default)
         return value_from_napo(result)
 
     def __str__(self):
@@ -74,6 +93,7 @@ class NapoObject(NapoCollection):
         if self.obj_type != other.obj_type or self.value != other.value:
             return False
         return super().__eq__(other)
+
 
 class NapoPair(NapoCollection):
     def __init__(self):
@@ -137,3 +157,31 @@ def value_from_napo(entity: NapoEntity):
             return float(entity.value)
         case _:
             return str(entity.value)
+
+
+def napo_from_value(value, dtypes: [NapoDatatype]) -> NapoEntity:
+    if isinstance(value, map):
+        napo_map = NapoMap()
+        for key in value.keys():
+            napo_pair = NapoPair()
+            napo_pair.append(napo_from_value(key, dtypes))
+            napo_pair.append(napo_from_value(value[key], dtypes))
+        return napo_map
+    elif isinstance(value, list):
+        napo_list = NapoVector()
+        for val in value:
+            napo_list.append(napo_from_value(val, dtypes))
+        return napo_list
+    # else construct primitive entity
+    entity = NapoEntity()
+    entity.datatype = dtypes.pop()
+    match entity.datatype:
+        case NapoDatatype.Integer:
+            entity.value = int(value)
+        case NapoDatatype.Boolean:
+            entity.value = bool(value)
+        case NapoDatatype.Float:
+            entity.value = float(value)
+        case _:
+            entity.value = str(value)
+    return entity
