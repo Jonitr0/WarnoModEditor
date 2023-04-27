@@ -175,8 +175,6 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
             ret = True
         except Exception as e:
             logging.error("Could not save to file " + self.file_path + ": " + str(e))
-        if ret:
-            self.unsaved_changes = False
         return ret
 
     def on_save_as(self):

@@ -42,7 +42,7 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
     def write_napo_file(self, file_name: str, napo_file: NapoFile):
         converter = napo_to_ndf_converter.NapoToNdfConverter()
         ndf_text = converter.convert(napo_file)
-        with open(file_name, "t", encoding="utf-8") as f:
+        with open(file_name, "w", encoding="utf-8") as f:
             f.write(ndf_text)
 
     def write_napo_object(self, file_name: str, obj_name: str, entity: NapoEntity):
