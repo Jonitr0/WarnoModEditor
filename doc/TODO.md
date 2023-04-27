@@ -10,3 +10,4 @@ User manual:
 - overview
 - features (detached tabs, project explorer, scripts, backups,...)
 - short explanation of each tool, similar to existing "help" files
+- shortcut guide

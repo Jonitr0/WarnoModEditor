@@ -22,25 +22,29 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.actions = []
         self.main_widget_ref = main_widget_ref
 
-        self.file_menu = self.addMenu("File")
+        self.file_menu = self.addMenu("&File")
         self.file_menu.setToolTipsVisible(True)
 
-        self.add_action_to_menu("New Mod", self.file_menu, False, self.on_new_action, "Create a new mod.")
-        self.add_action_to_menu("Open Mod", self.file_menu, False, self.on_load_action, "Open an existing mod.")
-        self.add_action_to_menu("Delete Mod", self.file_menu, False, self.on_delete_action, "Delete an existing mod.")
+        self.add_action_to_menu("New Mod", self.file_menu, False, self.on_new_action, "Create a new mod.", "Ctrl+Alt+N")
+        self.add_action_to_menu("Open Mod", self.file_menu, False, self.on_load_action,
+                                "Open an existing mod.", "Ctrl+Alt+O")
+        self.add_action_to_menu("Delete Mod", self.file_menu, False, self.on_delete_action,
+                                "Delete an existing mod.", "Ctrl+Del")
 
         self.file_menu.addSeparator()
 
-        self.add_action_to_menu("Options", self.file_menu, False, self.on_options_action, "Change WME settings.")
+        self.add_action_to_menu("Options", self.file_menu, False, self.on_options_action,
+                                "Change WME settings.", "Ctrl+Alt+S")
         self.add_action_to_menu("Report Issue..", self.file_menu, False, self.on_report_issue_action,
                                 "Report an issue on the WME GitHub page (opened in web browser).")
+        self.add_action_to_menu("Exit", self.file_menu, False, self.on_exit_action, "Quit WME.", "Alt+X")
 
-        self.edit_menu = self.addMenu("Edit")
+        self.edit_menu = self.addMenu("&Edit")
         self.edit_menu.setToolTipsVisible(True)
 
         self.add_action_to_menu("Generate Mod", self.edit_menu, True, self.on_generate_action,
                                 "Generate the binary files for the mod. Launches another application.\n"
-                                "This step is required to apply changes made to the mods files in-game.")
+                                "This step is required to apply changes made to the mods files in-game.", "Alt+G")
         self.add_action_to_menu("Update Mod", self.edit_menu, True, self.on_update_action,
                                 "Update the mod to a new version of WARNO.")
         self.add_action_to_menu("Upload Mod", self.edit_menu, True, self.on_upload_action,
@@ -50,16 +54,16 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.edit_menu.addSeparator()
 
         self.add_action_to_menu("Create Mod Backup", self.edit_menu, True, self.on_new_backup_action,
-                                "Create a backup from the current state of the mod.")
+                                "Create a backup from the current state of the mod.", "Alt+B")
         self.add_action_to_menu("Retrieve Mod Backup", self.edit_menu, True,
-                                self.on_retrieve_backup_action, "Restore an existing mod backup.")
+                                self.on_retrieve_backup_action, "Restore an existing mod backup.", "Ctrl+Alt+R")
         self.add_action_to_menu("Delete Mod Backup", self.edit_menu, True, self.on_delete_backup_action,
                                 "Delete an existing mod backup.")
 
         self.edit_menu.addSeparator()
 
         self.add_action_to_menu("Edit Mod Configuration", self.edit_menu, True, self.on_edit_config_action,
-                                "Edit the mods Config.ini file.")
+                                "Edit the mods Config.ini file.", "Ctrl+Alt+C")
         self.add_action_to_menu("Delete Mod Configuration", self.edit_menu, True, self.on_delete_config_action,
                                 "Delete the mods Config.ini file.")
 
@@ -115,7 +119,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def on_delete_action(self):
         # let user select a mod
         while True:
-            mod_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter mod path",
+            mod_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter path of mod to delete",
                                                                     self.main_widget_ref.get_warno_path() + "/Mods",
                                                                     options=(QtWidgets.QFileDialog.ShowDirsOnly |
                                                                              QtWidgets.QFileDialog.ReadOnly))
@@ -170,6 +174,9 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
     def on_report_issue_action(self):
         QtGui.QDesktopServices.openUrl("https://github.com/Jonitr0/WarnoModEditor/issues")
+
+    def on_exit_action(self):
+        self.window().close()
 
     def generate_mod(self):
         # for whatever reason, the successful run returns 18?
@@ -343,11 +350,13 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             logging.error(ex)
 
     def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
-                           slot=None, tooltip: str = "") -> QtGui.QAction:
+                           slot=None, tooltip: str = "", shortcut: str = "") -> QtGui.QAction:
         action = QtGui.QAction(name)
         menu.addAction(action)
         action.triggered.connect(slot)
         action.setToolTip(tooltip)
+        # TODO: does not work on detached
+        action.setShortcut(shortcut)
 
         if start_disabled:
             action.setDisabled(True)

@@ -47,10 +47,13 @@ class WMETabWidget(QtWidgets.QTabWidget):
 
         text_editor_action = self.tab_menu.addAction("Text Editor")
         text_editor_action.setToolTip("Create or edit .ndf files.")
+        # TODO: does not work on main window
+        text_editor_action.setShortcut("Ctrl+Alt+E")
         text_editor_action.triggered.connect(self.on_text_editor)
 
         global_search_action = self.tab_menu.addAction("Global Search")
         global_search_action.setToolTip("Search for text in all files of your mod.")
+        global_search_action.setShortcut("Ctrl+Alt+S")
         global_search_action.triggered.connect(self.on_global_search)
 
         guid_generator_action = self.tab_menu.addAction("GUID Generator")
