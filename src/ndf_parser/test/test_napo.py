@@ -75,8 +75,8 @@ class TestNapo(unittest.TestCase):
         self.get_val_test("GDConstantes.ndf", "Constantes\\DefaultGhostColors\\GhostColor", [255, 255, 255, 255])
 
     def test_set_val_constantes(self):
-        #self.set_val_test("GDConstantes.ndf", "EShowGhostOverSpecificTerrainConditionFilterType\\None",
-        #                  10, [NapoDatatype.Integer])
+        self.set_val_test("GDConstantes.ndf", "EShowGhostOverSpecificTerrainConditionFilterType\\None",
+                          10, [NapoDatatype.Integer])
         self.set_val_test("GDConstantes.ndf", "Constantes\\DefaultGhostColors\\GhostColor",
                           [1, 1, 1, 1], [NapoDatatype.Integer]*4)
 

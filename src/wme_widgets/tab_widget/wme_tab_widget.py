@@ -204,10 +204,12 @@ class WMETabWidget(QtWidgets.QTabWidget):
             # on save
             elif dialog.save_changes:
                 if not page.save_changes():
+                    self.setTabText(i, self.tabText(i).removesuffix("(*)"))
                     restore_list.append(i)
                     return self.cancel_ask_all_tabs(restore_list)
             # on discard, remove tab
             else:
+                self.setTabText(i, self.tabText(i).removesuffix("(*)"))
                 restore_list.append(i)
             i += 1
 
