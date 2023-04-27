@@ -19,7 +19,8 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
     def setup_ui(self):
         main_layout = QtWidgets.QVBoxLayout()
 
-        self.starting_pts_list_widget = napo_list_widget.NapoListWidget("Starting Points")
+        self.starting_pts_list_widget = napo_list_widget.NapoListWidget("Starting Points", "\\d+")
+        self.starting_pts_list_widget.list_updated.connect(self.on_starting_points_changed)
         main_layout.addWidget(self.starting_pts_list_widget)
 
         main_layout.addStretch(1)
@@ -32,8 +33,15 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
                                  "GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
 
         self.constants_napo = self.get_napo_from_file(file_path)
-        self.starting_points = self.constants_napo.find("WargameConstantes\\ConquestPossibleScores")
+        self.starting_points = self.constants_napo.get_value("WargameConstantes\\ConquestPossibleScores")
 
         self.starting_pts_list_widget.update_list(self.starting_points)
 
         main_widget.MainWidget.instance.hide_loading_screen()
+
+    def on_starting_points_changed(self, starting_points: [str]):
+        # convert to int list
+        starting_points = [int(i) for i in starting_points]
+        if self.starting_points != starting_points:
+            self.unsaved_changes = True
+
