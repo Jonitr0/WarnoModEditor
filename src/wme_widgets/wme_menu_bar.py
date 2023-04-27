@@ -130,7 +130,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             essential_dialogs.MessageDialog("Path invalid", "The given path does not to point to a valid "
                                                             "WARNO mod directory. Please enter a valid path").exec()
         # ask to really delete
-        ret = essential_dialogs.ConfirmationDialog("The selected mod including all backups in its directory"
+        mod_name = mod_path[mod_path.rindex("\\") + 1:]
+        ret = essential_dialogs.ConfirmationDialog(mod_name + " including all backups in its directory"
                                                    " will be deleted. You might be unable to recover it.\n"
                                                    "Do you really want to continue?", "Warning!").exec()
         if ret != QtWidgets.QDialog.Accepted:
@@ -382,4 +383,4 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         logging.info("Process output: " + str(self.process.readAllStandardOutput()))
 
     def print_porcess_error(self):
-        logging.warning("Process error: " + str(self.process.readAllStandardError()))
+        logging.warning("Possible process error: " + str(self.process.readAllStandardError()))

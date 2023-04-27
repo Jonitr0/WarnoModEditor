@@ -166,7 +166,7 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
             # set tab name
             self.file_path = self.file_path.replace("/", "\\")
             if not self.file_path.endswith(".ndf"):
-                file_path = self.file_path.append(".ndf")
+                self.file_path = self.file_path.append(".ndf")
             self.tab_name = self.file_path[self.file_path.rindex('\\') + 1:]
         ret = False
         try:
