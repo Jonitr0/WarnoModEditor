@@ -45,3 +45,7 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         if self.starting_points != starting_points:
             self.unsaved_changes = True
 
+    def _save_changes(self) -> bool:
+        # TODO
+        pass
+

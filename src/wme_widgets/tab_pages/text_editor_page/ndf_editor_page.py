@@ -156,7 +156,7 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
 
         main_widget.MainWidget.instance.hide_loading_screen()
 
-    def save_changes_overwrite(self):
+    def _save_changes(self):
         if self.file_path == "":
             mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
             # get file path

@@ -133,7 +133,7 @@ class TestNapo(unittest.TestCase):
         with open("tmp.txt", encoding="utf-8", mode="x") as f:
             f.write(napo_str)
             generated_napo = generate_napo("tmp.txt")
-        #os.remove("tmp.txt")
+        os.remove("tmp.txt")
 
         res = generated_napo.get_value(path)
         if res != value:

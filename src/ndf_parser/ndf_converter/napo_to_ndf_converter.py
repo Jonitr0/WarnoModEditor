@@ -3,6 +3,7 @@ from src.ndf_parser.napo_entities.napo_assignment import *
 
 
 class NapoToNdfConverter:
+    # TODO: formatting: add variable indent
     def convert(self, napo_file: NapoFile) -> str:
         return self.convert_entity(napo_file)
 

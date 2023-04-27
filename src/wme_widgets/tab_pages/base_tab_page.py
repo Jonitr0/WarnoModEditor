@@ -72,7 +72,7 @@ class BaseTabPage(QtWidgets.QWidget):
             if res == QtWidgets.QDialog.Rejected:
                 return False
 
-        if not self.save_changes_overwrite():
+        if not self._save_changes():
             return False
 
         # restore changes for other pages after successful save
@@ -84,7 +84,7 @@ class BaseTabPage(QtWidgets.QWidget):
         return True
 
     # called by actual save_changes function, should be overwritten in child class
-    def save_changes_overwrite(self) -> bool:
+    def _save_changes(self) -> bool:
         pass
 
     # restore widget to match file status
