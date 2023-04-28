@@ -237,6 +237,10 @@ class NapoGenerator(NdfGrammarListener):
 
         self.stack.push(arithmetic)
 
+    def enterOp(self, ctx:NdfGrammarParser.Obj_typeContext):
+        # TODO: edit text, add spaces around op
+        pass
+
     def exitArithmetic(self, ctx:NdfGrammarParser.ArithmeticContext):
         if self.ignore > 0:
             self.ignore -= 1

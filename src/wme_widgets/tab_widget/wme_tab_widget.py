@@ -47,13 +47,14 @@ class WMETabWidget(QtWidgets.QTabWidget):
 
         text_editor_action = self.tab_menu.addAction("Text Editor")
         text_editor_action.setToolTip("Create or edit .ndf files.")
-        # TODO: does not work on main window
         text_editor_action.setShortcut("Ctrl+Alt+E")
+        text_editor_action.setShortcutContext(Qt.WindowShortcut)
         text_editor_action.triggered.connect(self.on_text_editor)
 
         global_search_action = self.tab_menu.addAction("Global Search")
         global_search_action.setToolTip("Search for text in all files of your mod.")
-        global_search_action.setShortcut("Ctrl+Alt+S")
+        global_search_action.setShortcut("Ctrl+Alt+F")
+        global_search_action.setShortcutContext(Qt.WindowShortcut)
         global_search_action.triggered.connect(self.on_global_search)
 
         guid_generator_action = self.tab_menu.addAction("GUID Generator")
@@ -75,7 +76,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         ndf_reference_action = self.tab_menu.addAction("NDF Reference")
         ndf_reference_action.setToolTip("The NDF Reference contains rules and conventions of the NDF language.")
         ndf_reference_action.triggered.connect(self.on_open_ndf_reference)
-        # TODO (0.1.1): add action as soon as html files are ready
+        # TODO (0.1.3): add action as soon as html files are ready
         #manual_action = self.tab_menu.addAction("User Manual")
         #manual_action.setToolTip("The User Manual explains WME features in depth.")
         #manual_action.triggered.connect(self.on_open_manual)
@@ -162,7 +163,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
 
     def on_open_manual(self):
         viewer = rich_text_viewer_page.RichTextViewerPage("UserManual.md")
-        # TODO (0.1.1): fill md file, convert to html
+        # TODO (0.1.3): fill md file, convert to html
         self.add_tab_with_auto_icon(viewer, "User Manual")
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:

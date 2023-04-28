@@ -36,6 +36,9 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.starting_pts_list_widget.list_updated.connect(self.on_starting_points_changed)
         main_layout.addWidget(self.starting_pts_list_widget)
 
+        # TODO: add scroll area
+        # TODO: add more options (destruction score, income,...)
+
         main_layout.addStretch(1)
         self.setLayout(main_layout)
 

@@ -47,6 +47,3 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
     def write_napo_object(self, file_name: str, obj_name: str, entity: NapoEntity):
         pass
-
-
-# TODO: maybe include specific UI elements which can be linked to NAPO properties
