@@ -32,12 +32,15 @@ class NapoToNdfConverter:
                         result_str += ", "
                 result_str += "]"
             case NapoDatatype.Map:
-                result_str = "MAP["
+                result_str = "MAP\n"
+                result_str += (self.indent - INDENT_SIZE) * " " + "[\n"
                 for i in range(len(entity.value)):
+                    result_str += self.indent * " "
                     result_str += self.convert_entity(entity.value[i])
                     if i < len(entity.value)-1:
-                        result_str += ", "
-                result_str += "]"
+                        result_str += ","
+                    result_str += "\n"
+                result_str += (self.indent - INDENT_SIZE) * " " + "]"
             case NapoDatatype.String_single:
                 result_str = "\'" + str(entity.value) + "\'"
             case NapoDatatype.String_double:
