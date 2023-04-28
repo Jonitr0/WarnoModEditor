@@ -6,6 +6,7 @@ import shutil
 from pathlib import Path
 
 from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6.QtCore import Qt
 
 from src.dialogs import new_mod_dialog, edit_config_dialog
 from src.dialogs import essential_dialogs, options_dialog, new_backup_dialog
@@ -355,8 +356,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         menu.addAction(action)
         action.triggered.connect(slot)
         action.setToolTip(tooltip)
-        # TODO: does not work on detached
         action.setShortcut(shortcut)
+        action.setShortcutContext(Qt.ApplicationShortcut)
 
         if start_disabled:
             action.setDisabled(True)
