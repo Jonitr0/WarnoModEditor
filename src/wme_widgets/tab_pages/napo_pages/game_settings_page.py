@@ -17,6 +17,8 @@ from src.ndf_parser.napo_entities.napo_entity import *
 class GameSettingsPage(base_napo_page.BaseNapoPage):
     def __init__(self):
         super().__init__()
+        self.destruction_income_widget = BaseIncomeWidget(self, "Destruction income: ")
+        self.conquest_income_widget = BaseIncomeWidget(self, "Conquest income: ")
         self.starting_pts_list_widget = napo_list_widget.NapoListWidget("Starting Points in Skirmish and Multiplayer",
                                                                         "\\d+")
         self.conquest_score_list_widget = napo_list_widget.NapoListWidget("Conquest Scores", "\\d+")
@@ -65,10 +67,13 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.conquest_score_list_widget.list_updated.connect(self.on_conquest_scores_changed)
         scroll_layout.addWidget(self.conquest_score_list_widget)
 
+        scroll_layout.addWidget(self.conquest_income_widget)
+
+        scroll_layout.addWidget(self.destruction_income_widget)
+
         # TODO: add more options (destruction score, income,...)
 
         scroll_layout.addStretch(1)
-        main_layout.addStretch(1)
         self.setLayout(main_layout)
 
     def on_restore(self):
@@ -102,7 +107,6 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
 
     def on_conquest_scores_changed(self, conquest_scores: [str]):
         # convert to int list
-        print("changed")
         conquest_scores = [int(i) for i in conquest_scores]
         if self.conquest_scores != conquest_scores:
             self.unsaved_changes = True
@@ -137,3 +141,29 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
             logging.error("Error while saving game settings: " + str(e))
             return False
         return True
+
+
+class BaseIncomeWidget(QtWidgets.QWidget):
+    def __init__(self, parent: QtWidgets.QWidget = None, label_text: str = ""):
+        super().__init__(parent)
+
+        main_layout = QtWidgets.QHBoxLayout()
+        self.setLayout(main_layout)
+
+        main_layout.addWidget(QtWidgets.QLabel(label_text))
+        self.points_spin_box = QtWidgets.QSpinBox()
+        self.points_spin_box.setRange(0, 10000)
+        main_layout.addWidget(self.points_spin_box)
+        main_layout.addWidget(QtWidgets.QLabel(" points every "))
+        self.tick_spin_box = QtWidgets.QDoubleSpinBox()
+        self.tick_spin_box.setRange(0.1, 36000.)
+        main_layout.addWidget(self.tick_spin_box)
+        main_layout.addWidget(QtWidgets.QLabel(" seconds"))
+        main_layout.addStretch(1)
+
+    def set_values(self, income: int, tick: float):
+        self.points_spin_box.setValue(income)
+        self.tick_spin_box.setValue(tick)
+
+    def get_values(self):
+        return int(self.points_spin_box.text()), float(self.tick_spin_box.text())
