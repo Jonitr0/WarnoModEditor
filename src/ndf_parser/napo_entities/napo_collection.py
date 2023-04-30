@@ -16,6 +16,8 @@ class NapoCollection(NapoEntity):
             self.lookup[data.id] = len(self.value) - 1
         elif isinstance(data, NapoObject):
             self.lookup[data.obj_type] = len(self.value) - 1
+        elif isinstance(data, NapoPair):
+            self.lookup[data.value[0]] = len(self.value) - 1
 
     def _get_value(self, path: str, default=None):
         # get current ID
@@ -30,6 +32,7 @@ class NapoCollection(NapoEntity):
         elif self.lookup.__contains__(current):
             return self.value[self.lookup[current]]._get_value(remaining, default)
         else:
+            print("Could not find value for " + str(path))
             return default
 
     def _set_value(self, path: str, value):
@@ -106,6 +109,10 @@ class NapoPair(NapoCollection):
         if len(self.value) > 2:
             logging.warning("Tried to append " + str(data) + " to a full Pair. Discarded")
             del self.value[2]
+
+    def _get_value(self, path: str, default=None):
+        # TODO: handle path properly
+        pass
 
     def __str__(self):
         return "{type: pair, value: " + ''.join(map(str, self.value)) + "}"

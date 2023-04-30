@@ -25,6 +25,10 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.constants_napo = None
         self.starting_points = []
         self.conquest_scores = []
+        self.conquest_income = 0
+        self.conquest_tick = 0.
+        self.destruction_income = 0
+        self.destruction_tick = 0.
 
         self.setup_ui()
         self.update_page()
@@ -96,6 +100,17 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.starting_pts_list_widget.update_list(self.starting_points)
         self.conquest_scores = self.constants_napo.get_value("WargameConstantes\\ConquestPossibleScores")
         self.conquest_score_list_widget.update_list(self.conquest_scores)
+
+        self.conquest_income = self.constants_napo.get_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag")
+        print(self.conquest_income)
+        self.conquest_tick = self.constants_napo.get_value(
+            "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/CaptureTheFlag")
+        self.conquest_income_widget.set_values(self.conquest_income, self.conquest_tick)
+
+        self.destruction_income = self.constants_napo.get_value("WargameConstantes\\BaseIncome\\CombatRule/Destruction")
+        self.destruction_tick = self.constants_napo.get_value(
+            "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/Destruction")
+        self.destruction_income_widget.set_values(self.destruction_income, self.destruction_tick)
 
         main_widget.MainWidget.instance.hide_loading_screen()
 
