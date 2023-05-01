@@ -16,8 +16,6 @@ class NapoCollection(NapoEntity):
             self.lookup[data.id] = len(self.value) - 1
         elif isinstance(data, NapoObject):
             self.lookup[data.obj_type] = len(self.value) - 1
-        elif isinstance(data, NapoPair):
-            self.lookup[data.value[0]] = len(self.value) - 1
 
     def _get_value(self, path: str, default=None):
         # get current ID
@@ -32,7 +30,7 @@ class NapoCollection(NapoEntity):
         elif self.lookup.__contains__(current):
             return self.value[self.lookup[current]]._get_value(remaining, default)
         else:
-            print("Could not find value for " + str(path))
+            print("Could not find value for " + str(path) + " on " + str(self))
             return default
 
     def _set_value(self, path: str, value):
@@ -110,10 +108,6 @@ class NapoPair(NapoCollection):
             logging.warning("Tried to append " + str(data) + " to a full Pair. Discarded")
             del self.value[2]
 
-    def _get_value(self, path: str, default=None):
-        # TODO: handle path properly
-        pass
-
     def __str__(self):
         return "{type: pair, value: " + ''.join(map(str, self.value)) + "}"
 
@@ -137,7 +131,27 @@ class NapoMap(NapoCollection):
 
     def append(self, data: NapoPair):
         super().append(data)
-        self.map[data.value[0]] = data.value[1]
+        self.map[str(data.value[0].value)] = data.value[1]
+        self.lookup[str(data.value[0].value)] = len(self.value) - 1
+
+    def _get_value(self, path: str, default=None):
+        # get current ID
+        current = path.split("\\")[0]
+        # build remaining path
+        remaining = path.removeprefix(current)
+        remaining = remaining.removeprefix("\\")
+        # if nothing remains, return own value
+        if current == "":
+            return self.value
+        # if value is in map, return it
+        elif self.lookup.__contains__(current) and remaining == "":
+            return self.map[current]
+        # otherwise, call function on own value
+        elif self.lookup.__contains__(current):
+            return self.map[current]._get_value(remaining, default)
+        else:
+            print("Could not find value for " + str(path) + " on " + str(self))
+            return default
 
     def __str__(self):
         return "{type: map, value: " + ''.join(map(str, self.value)) + "}"

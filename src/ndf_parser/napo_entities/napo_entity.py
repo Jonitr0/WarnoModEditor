@@ -23,9 +23,11 @@ class NapoEntity:
 
     def _get_value(self, path: str, default=None):
         # to be implemented by subclasses
+        print(self)
         print("not implemented")
         return default
 
     def _set_value(self, path: str, value):
         # to be implemented by subclasses
+        print(self)
         print("not implemented")

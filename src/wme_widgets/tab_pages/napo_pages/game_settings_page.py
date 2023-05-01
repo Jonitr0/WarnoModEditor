@@ -17,8 +17,8 @@ from src.ndf_parser.napo_entities.napo_entity import *
 class GameSettingsPage(base_napo_page.BaseNapoPage):
     def __init__(self):
         super().__init__()
-        self.destruction_income_widget = BaseIncomeWidget(self, "Destruction income: ")
-        self.conquest_income_widget = BaseIncomeWidget(self, "Conquest income: ")
+        self.destruction_income_widget = BaseIncomeWidget(self, "Destruction base income: ")
+        self.conquest_income_widget = BaseIncomeWidget(self, "Conquest base income: ")
         self.starting_pts_list_widget = napo_list_widget.NapoListWidget("Starting Points in Skirmish and Multiplayer",
                                                                         "\\d+")
         self.conquest_score_list_widget = napo_list_widget.NapoListWidget("Conquest Scores", "\\d+")
@@ -102,7 +102,6 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.conquest_score_list_widget.update_list(self.conquest_scores)
 
         self.conquest_income = self.constants_napo.get_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag")
-        print(self.conquest_income)
         self.conquest_tick = self.constants_napo.get_value(
             "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/CaptureTheFlag")
         self.conquest_income_widget.set_values(self.conquest_income, self.conquest_tick)
