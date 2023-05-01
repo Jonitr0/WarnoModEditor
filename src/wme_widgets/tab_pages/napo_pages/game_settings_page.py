@@ -17,6 +17,7 @@ from src.ndf_parser.napo_entities.napo_entity import *
 class GameSettingsPage(base_napo_page.BaseNapoPage):
     def __init__(self):
         super().__init__()
+        # TODO: add on widget changed functions
         self.destruction_income_widget = BaseIncomeWidget(self, "Destruction base income: ")
         self.conquest_income_widget = BaseIncomeWidget(self, "Conquest base income: ")
         self.starting_pts_list_widget = napo_list_widget.NapoListWidget("Starting Points in Skirmish and Multiplayer",
@@ -126,38 +127,49 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
             self.unsaved_changes = True
 
     def _save_changes(self) -> bool:
-        try:
-            starting_points = self.starting_pts_list_widget.list_widget.all_item_labels()
-            conquest_scores = self.conquest_score_list_widget.list_widget.all_item_labels()
+        #try:
+        starting_points = self.starting_pts_list_widget.list_widget.all_item_labels()
+        conquest_scores = self.conquest_score_list_widget.list_widget.all_item_labels()
 
-            default_starting_points = starting_points[0]
-            if starting_points.__contains__("1500"):
-                default_starting_points = "1500"
-            elif len(starting_points) > 2:
-                default_starting_points = starting_points[2]
+        conquest_income, conquest_tick = self.conquest_income_widget.get_values()
 
-            self.constants_napo.set_value("WargameConstantes\\ArgentInitialSetting", starting_points,
-                                          len(starting_points) * [NapoDatatype.Integer])
-            self.constants_napo.set_value("WargameConstantes\\DefaultArgentInitial", default_starting_points,
-                                          [NapoDatatype.Integer])
-            self.constants_napo.set_value("WargameConstantes\\ConquestPossibleScores", conquest_scores,
-                                          len(conquest_scores) * [NapoDatatype.Integer])
+        default_starting_points = starting_points[0]
+        if starting_points.__contains__("1500"):
+            default_starting_points = "1500"
+        elif len(starting_points) > 2:
+            default_starting_points = starting_points[2]
 
-            # write to file
-            file_path = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(),
-                                     "GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
-            self.write_napo_file(file_path, self.constants_napo)
+        self.constants_napo.set_value("WargameConstantes\\ArgentInitialSetting", starting_points,
+                                      len(starting_points) * [NapoDatatype.Integer])
+        self.constants_napo.set_value("WargameConstantes\\DefaultArgentInitial", default_starting_points,
+                                      [NapoDatatype.Integer])
+        self.constants_napo.set_value("WargameConstantes\\ConquestPossibleScores", conquest_scores,
+                                      len(conquest_scores) * [NapoDatatype.Integer])
+        self.constants_napo.set_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag", conquest_income,
+                                      [NapoDatatype.Integer])
+        self.constants_napo.set_value(
+            "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/CaptureTheFlag",
+            conquest_tick, [NapoDatatype.Float])
 
-            # set own variables
-            self.starting_points = [int(i) for i in starting_points]
-            self.conquest_scores = [int(i) for i in conquest_scores]
-        except Exception as e:
-            logging.error("Error while saving game settings: " + str(e))
-            return False
+        # write to file
+        file_path = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(),
+                                 "GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
+        self.write_napo_file(file_path, self.constants_napo)
+
+        # set own variables
+        self.starting_points = [int(i) for i in starting_points]
+        self.conquest_scores = [int(i) for i in conquest_scores]
+        self.conquest_income = int(conquest_income)
+        self.conquest_tick = float(conquest_tick)
+
+        #except Exception as e:
+        #    logging.error("Error while saving game settings: " + str(e))
+        #    return False
         return True
 
 
 class BaseIncomeWidget(QtWidgets.QWidget):
+    # TODO: signal on value change
     def __init__(self, parent: QtWidgets.QWidget = None, label_text: str = ""):
         super().__init__(parent)
 
@@ -180,4 +192,4 @@ class BaseIncomeWidget(QtWidgets.QWidget):
         self.tick_spin_box.setValue(tick)
 
     def get_values(self):
-        return int(self.points_spin_box.text()), float(self.tick_spin_box.text())
+        return int(self.points_spin_box.text()), float(self.tick_spin_box.text().replace(",", "."))
