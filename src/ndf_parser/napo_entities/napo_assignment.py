@@ -22,7 +22,7 @@ class NapoAssignment(NapoEntity):
 
     def _get_value(self, path: str, default=None):
         # get current ID
-        current = path.split("/")[0]
+        current = path.split("\\")[0]
         # if nothing remains, return own value
         if current == "":
             return self.value
@@ -33,7 +33,7 @@ class NapoAssignment(NapoEntity):
 
     def _set_value(self, path: str, value):
         # get current ID
-        current = path.split("/")[0]
+        current = path.split("\\")[0]
         # if nothing remains, return own value
         if current == "":
             self.value = value

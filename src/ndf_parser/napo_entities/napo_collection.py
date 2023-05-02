@@ -154,24 +154,22 @@ class NapoMap(NapoCollection):
             return default
 
     def _set_value(self, path: str, value):
-        def _set_value(self, path: str, value):
-            # get current ID
-            current = path.split("\\")[0]
-            # build remaining path
-            remaining = path.removeprefix(current)
-            remaining = remaining.removeprefix("\\")
-            # if nothing remains, return own value
-            if current == "":
-                self.value = value
-            # if no more path, insert in current map
-            elif self.lookup.__contains__(current) and remaining == "":
-                # TODO: set value properly on pair
-                self.value[self.lookup[current]] = value
-            # otherwise, call function on own value
-            elif self.lookup.__contains__(current):
-                self.value[self.lookup[current]]._set_value(remaining, value)
-            else:
-                print("could not find " + path + "\nremaining: " + remaining)
+        # get current ID
+        current = path.split("\\")[0]
+        # build remaining path
+        remaining = path.removeprefix(current)
+        remaining = remaining.removeprefix("\\")
+        # if nothing remains, return own value
+        if current == "":
+            self.value = value
+        # if no more path, insert in current map
+        elif self.lookup.__contains__(current) and remaining == "":
+            self.value[self.lookup[current]].value[1] = value
+        # otherwise, call function on own value
+        elif self.lookup.__contains__(current):
+            self.map[current]._set_value(remaining, value)
+        else:
+            print("could not find " + path + "\nremaining: " + remaining)
 
     def __str__(self):
         return "{type: map, value: " + ''.join(map(str, self.value)) + "}"

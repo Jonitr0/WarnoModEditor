@@ -1,8 +1,8 @@
 from src.ndf_parser.napo_entities.napo_collection import *
 from src.ndf_parser.napo_entities.napo_assignment import *
 
-
 INDENT_SIZE = 4
+
 
 class NapoToNdfConverter:
     def __init__(self):
@@ -23,12 +23,12 @@ class NapoToNdfConverter:
         match entity.datatype:
             case NapoDatatype.Pair:
                 result_str = "(" + self.convert_entity(entity.value[0]) + ", " + \
-                            self.convert_entity(entity.value[1]) + ")"
+                             self.convert_entity(entity.value[1]) + ")"
             case NapoDatatype.Vector:
                 result_str = "["
                 for i in range(len(entity.value)):
                     result_str += self.convert_entity(entity.value[i])
-                    if i < len(entity.value)-1:
+                    if i < len(entity.value) - 1:
                         result_str += ", "
                 result_str += "]"
             case NapoDatatype.Map:
@@ -37,7 +37,7 @@ class NapoToNdfConverter:
                 for i in range(len(entity.value)):
                     result_str += self.indent * " "
                     result_str += self.convert_entity(entity.value[i])
-                    if i < len(entity.value)-1:
+                    if i < len(entity.value) - 1:
                         result_str += ","
                     result_str += "\n"
                 result_str += (self.indent - INDENT_SIZE) * " " + "]"

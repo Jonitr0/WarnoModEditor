@@ -6,6 +6,7 @@ from src.utils.color_manager import *
 
 
 class NapoListWidget(QtWidgets.QWidget):
+    # TODO: handle duplicates and empty items
     list_updated = QtCore.Signal(list)
 
     def __init__(self, title: str = "", input_mask: str = ".*", allow_empty: bool = False):
