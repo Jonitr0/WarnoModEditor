@@ -6,7 +6,7 @@ Open the "File" menu in the top-left corner and click "New Mod". You will be ask
 
 ### Editing files
 
-Search for files you want to edit using the search bar at the top of the project explorer. Double click a file to open it in the **text editor**. A new tab will open and let you edit the selected file. For more information about tools like the text editor, right-click the tab and select "Help" from the context menu.
+Search for files you want to edit using the search bar at the top of the project explorer. Double click a file to open it in the **text editor**. A new tab will open and let you edit the selected file. For more information about tools like the text editor, right-click the tab and select "Help" from the context menu or press *Alt + H*.
 
 ### Generating a mod
 

@@ -1,7 +1,7 @@
 import logging
 import os
 
-from PySide6 import QtWidgets, QtGui
+from PySide6 import QtWidgets, QtCore, QtGui
 
 from src.wme_widgets import main_widget
 from src.wme_widgets.tab_pages.napo_pages import base_napo_page
@@ -33,6 +33,15 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
 
         self.setup_ui()
         self.update_page()
+
+        # connect slots
+        self.starting_pts_list_widget.list_updated.connect(self.on_starting_points_changed)
+        self.conquest_score_list_widget.list_updated.connect(self.on_conquest_scores_changed)
+        self.conquest_income_widget.value_changed.connect(self.on_conquest_income_changed)
+        self.destruction_income_widget.value_changed.connect(self.on_destruction_income_changed)
+
+        # TODO: write help page
+        self.help_page = ""
 
     def setup_ui(self):
         main_layout = QtWidgets.QVBoxLayout()
@@ -66,14 +75,9 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         scroll_layout.setContentsMargins(0, 0, 0, 0)
         scroll_widget.setLayout(scroll_layout)
 
-        self.starting_pts_list_widget.list_updated.connect(self.on_starting_points_changed)
         scroll_layout.addWidget(self.starting_pts_list_widget)
-
-        self.conquest_score_list_widget.list_updated.connect(self.on_conquest_scores_changed)
         scroll_layout.addWidget(self.conquest_score_list_widget)
-
         scroll_layout.addWidget(self.conquest_income_widget)
-
         scroll_layout.addWidget(self.destruction_income_widget)
 
         # TODO: add more options (destruction score, income,...)
@@ -126,12 +130,21 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         if self.conquest_scores != conquest_scores:
             self.unsaved_changes = True
 
+    def on_conquest_income_changed(self, conquest_income: int, conquest_tick: float):
+        if self.conquest_income != conquest_income or self.conquest_tick != conquest_tick:
+            self.unsaved_changes = True
+
+    def on_destruction_income_changed(self, destruction_income: int, destruction_tick: float):
+        if self.destruction_income != destruction_income or self.destruction_tick != destruction_tick:
+            self.unsaved_changes = True
+
     def _save_changes(self) -> bool:
         #try:
         starting_points = self.starting_pts_list_widget.list_widget.all_item_labels()
         conquest_scores = self.conquest_score_list_widget.list_widget.all_item_labels()
 
         conquest_income, conquest_tick = self.conquest_income_widget.get_values()
+        dest_income, dest_tick = self.destruction_income_widget.get_values()
 
         default_starting_points = starting_points[0]
         if starting_points.__contains__("1500"):
@@ -150,6 +163,11 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.constants_napo.set_value(
             "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/CaptureTheFlag",
             conquest_tick, [NapoDatatype.Float])
+        self.constants_napo.set_value("WargameConstantes\\BaseIncome\\CombatRule/Destruction", dest_income,
+                                      [NapoDatatype.Integer])
+        self.constants_napo.set_value(
+            "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/Destruction",
+            dest_tick, [NapoDatatype.Float])
 
         # write to file
         file_path = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(),
@@ -159,8 +177,11 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         # set own variables
         self.starting_points = [int(i) for i in starting_points]
         self.conquest_scores = [int(i) for i in conquest_scores]
+
         self.conquest_income = int(conquest_income)
         self.conquest_tick = float(conquest_tick)
+        self.destruction_income = int(dest_income)
+        self.destruction_tick = float(dest_tick)
 
         #except Exception as e:
         #    logging.error("Error while saving game settings: " + str(e))
@@ -169,7 +190,8 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
 
 
 class BaseIncomeWidget(QtWidgets.QWidget):
-    # TODO: signal on value change
+    value_changed = QtCore.Signal(int, float)
+
     def __init__(self, parent: QtWidgets.QWidget = None, label_text: str = ""):
         super().__init__(parent)
 
@@ -179,11 +201,15 @@ class BaseIncomeWidget(QtWidgets.QWidget):
         main_layout.addWidget(QtWidgets.QLabel(label_text))
         self.points_spin_box = QtWidgets.QSpinBox()
         self.points_spin_box.setRange(0, 10000)
+        self.points_spin_box.valueChanged.connect(self.on_value_changed)
         main_layout.addWidget(self.points_spin_box)
+
         main_layout.addWidget(QtWidgets.QLabel(" points every "))
         self.tick_spin_box = QtWidgets.QDoubleSpinBox()
-        self.tick_spin_box.setRange(0.1, 36000.)
+        self.tick_spin_box.setRange(0.01, 36000.)
+        self.tick_spin_box.valueChanged.connect(self.on_value_changed)
         main_layout.addWidget(self.tick_spin_box)
+
         main_layout.addWidget(QtWidgets.QLabel(" seconds"))
         main_layout.addStretch(1)
 
@@ -193,3 +219,7 @@ class BaseIncomeWidget(QtWidgets.QWidget):
 
     def get_values(self):
         return int(self.points_spin_box.text()), float(self.tick_spin_box.text().replace(",", "."))
+
+    def on_value_changed(self, _):
+        income, tick = self.get_values()
+        self.value_changed.emit(income, tick)

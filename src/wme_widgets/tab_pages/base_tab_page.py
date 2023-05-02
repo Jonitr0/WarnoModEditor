@@ -1,5 +1,7 @@
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 from src.dialogs import essential_dialogs, rich_text_dialog
+
+from PySide6.QtCore import Qt
 
 import json
 
@@ -31,6 +33,9 @@ class BaseTabPage(QtWidgets.QWidget):
         self.file_path = ""
         self.help_file_path = ""
         self.help_page = None
+
+        help_shortcut = QtGui.QShortcut("Alt+H", self, self.on_help)
+        help_shortcut.setContext(Qt.ApplicationShortcut)
 
     @property
     def unsaved_changes(self) -> bool:
