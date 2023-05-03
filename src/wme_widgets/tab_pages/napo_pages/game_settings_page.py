@@ -19,12 +19,9 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.starting_pts_list_widget = napo_list_widget.NapoListWidget("Starting Points in Skirmish and Multiplayer",
                                                                         "\\d+")
         self.conquest_score_list_widget = napo_list_widget.NapoListWidget("Conquest Scores", "\\d+")
-        self.destruction_score_list_widget = napo_list_widget.NapoListWidget(
-            "Destruction Scores (0 is Total Destruction)", "\\d+")
         self.constants_napo = None
         self.starting_points = []
         self.conquest_scores = []
-        self.destruction_scores = []
         self.conquest_income = 0
         self.conquest_tick = 0.
         self.destruction_income = 0
@@ -33,7 +30,6 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.scroll_layout.addWidget(self.starting_pts_list_widget)
         self.scroll_layout.addWidget(self.conquest_score_list_widget)
         self.scroll_layout.addWidget(self.conquest_income_widget)
-        self.scroll_layout.addWidget(self.destruction_score_list_widget)
         self.scroll_layout.addWidget(self.destruction_income_widget)
         # TODO: add more options (destruction score, income,...)
 
@@ -45,7 +41,6 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.starting_pts_list_widget.list_updated.connect(self.on_starting_points_changed)
         self.conquest_score_list_widget.list_updated.connect(self.on_conquest_scores_changed)
         self.conquest_income_widget.value_changed.connect(self.on_conquest_income_changed)
-        self.destruction_score_list_widget.list_updated.connect(self.on_destruction_scores_changed)
         self.destruction_income_widget.value_changed.connect(self.on_destruction_income_changed)
 
         # TODO: write help page
@@ -71,8 +66,6 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.starting_pts_list_widget.update_list(self.starting_points)
         self.conquest_scores = self.constants_napo.get_value("WargameConstantes\\ConquestPossibleScores")
         self.conquest_score_list_widget.update_list(self.conquest_scores)
-        self.destruction_scores = self.constants_napo.get_value("WargameConstantes\\DestructionScoreToReachSetting")
-        self.destruction_score_list_widget.update_list(self.destruction_scores)
 
         self.conquest_income = self.constants_napo.get_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag")
         self.conquest_tick = self.constants_napo.get_value(
@@ -98,12 +91,6 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         if self.conquest_scores != conquest_scores:
             self.unsaved_changes = True
 
-    def on_destruction_scores_changed(self, destruction_scores: [str]):
-        # convert to int list
-        destruction_scores = [int(i) for i in destruction_scores]
-        if self.destruction_scores != destruction_scores:
-            self.unsaved_changes = True
-
     def on_conquest_income_changed(self, conquest_income: int, conquest_tick: float):
         if self.conquest_income != conquest_income or self.conquest_tick != conquest_tick:
             self.unsaved_changes = True
@@ -116,7 +103,6 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         #try:
         starting_points = self.starting_pts_list_widget.list_widget.all_item_labels()
         conquest_scores = self.conquest_score_list_widget.list_widget.all_item_labels()
-        destruction_scores = self.destruction_score_list_widget.list_widget.all_item_labels()
 
         conquest_income, conquest_tick = self.conquest_income_widget.get_values()
         dest_income, dest_tick = self.destruction_income_widget.get_values()
@@ -133,10 +119,6 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
                                       [NapoDatatype.Integer])
         self.constants_napo.set_value("WargameConstantes\\ConquestPossibleScores", conquest_scores,
                                       len(conquest_scores) * [NapoDatatype.Integer])
-        # TODO: look at index/max length
-        # TODO: adjust VictoryTypeDestructionLevelsTable
-        self.constants_napo.set_value("WargameConstantes\\DestructionScoreToReachSetting", destruction_scores,
-                                      len(destruction_scores) * [NapoDatatype.Integer])
         self.constants_napo.set_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag", conquest_income,
                                       [NapoDatatype.Integer])
         self.constants_napo.set_value(
@@ -156,7 +138,6 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         # set own variables
         self.starting_points = [int(i) for i in starting_points]
         self.conquest_scores = [int(i) for i in conquest_scores]
-        self.destruction_scores = [int(i) for i in destruction_scores]
 
         self.conquest_income = int(conquest_income)
         self.conquest_tick = float(conquest_tick)
