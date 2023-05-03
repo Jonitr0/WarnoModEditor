@@ -179,7 +179,7 @@ def value_from_napo(entity: NapoEntity):
     if isinstance(entity, NapoMap):
         py_map = {}
         for key in entity.map.keys():
-            py_map[value_from_napo(key)] = value_from_napo(entity.map[key])
+            py_map[key] = value_from_napo(entity.map[key])
         return py_map
     elif isinstance(entity, NapoCollection):
         vals = []
@@ -199,12 +199,13 @@ def value_from_napo(entity: NapoEntity):
 
 
 def napo_from_value(value, dtypes: [NapoDatatype]) -> NapoEntity:
-    if isinstance(value, map):
+    if isinstance(value, dict):
         napo_map = NapoMap()
         for key in value.keys():
             napo_pair = NapoPair()
             napo_pair.append(napo_from_value(key, dtypes))
             napo_pair.append(napo_from_value(value[key], dtypes))
+            napo_map.append(napo_pair)
         return napo_map
     elif isinstance(value, list):
         napo_list = NapoVector()

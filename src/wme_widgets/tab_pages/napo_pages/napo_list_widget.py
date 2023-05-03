@@ -9,7 +9,7 @@ class NapoListWidget(QtWidgets.QWidget):
     # TODO: handle duplicates and empty items
     list_updated = QtCore.Signal(list)
 
-    def __init__(self, title: str = "", input_mask: str = ".*", allow_empty: bool = False):
+    def __init__(self, title: str = "", input_mask: str = ".*", allow_empty: bool = False, fixed_length: bool = False):
         super().__init__()
 
         self.title_label = QtWidgets.QLabel(title)
@@ -21,6 +21,7 @@ class NapoListWidget(QtWidgets.QWidget):
         self.list_widget.setItemDelegate(delegate)
         self.input_mask = input_mask
         self.allow_empty = allow_empty
+        self.fixed_length = fixed_length
 
         self.add_button = QtWidgets.QToolButton()
         self.remove_button = QtWidgets.QToolButton()
@@ -44,6 +45,7 @@ class NapoListWidget(QtWidgets.QWidget):
         self.add_button.setIconSize(QtCore.QSize(36, 36))
         self.add_button.setToolTip("Add entry")
         self.add_button.clicked.connect(self.on_add)
+        self.add_button.setVisible(not self.fixed_length)
 
         header_layout.addWidget(self.remove_button)
         remove_icon = QtGui.QIcon()
@@ -54,6 +56,7 @@ class NapoListWidget(QtWidgets.QWidget):
         self.remove_button.setIconSize(QtCore.QSize(36, 36))
         self.remove_button.setToolTip("Remove selected entry")
         self.remove_button.clicked.connect(self.on_remove)
+        self.remove_button.setVisible(not self.fixed_length)
 
         main_layout.addWidget(self.list_widget)
 
@@ -68,7 +71,7 @@ class NapoListWidget(QtWidgets.QWidget):
         self.list_widget.addItems(items_filtered)
         self.list_widget.sortItems()
 
-        remove = self.list_widget.count() > 1 or self.allow_empty
+        remove = (self.list_widget.count() > 1 or self.allow_empty) and not self.fixed_length
         self.remove_button.setEnabled(remove)
 
     def update_widget(self):

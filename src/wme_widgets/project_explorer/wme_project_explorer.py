@@ -13,9 +13,9 @@ class WMEProjectExplorer(QtWidgets.QWidget):
         self.setLayout(main_layout)
 
         # create minimalistic search bar
-        search_bar = wme_lineedit.WMELineEdit()
-        search_bar.setPlaceholderText("Find .ndf files in Directory...")
-        main_layout.addWidget(search_bar)
+        self.search_bar = wme_lineedit.WMELineEdit()
+        self.search_bar.setPlaceholderText("Find .ndf files in Directory...")
+        main_layout.addWidget(self.search_bar)
 
         # file size checkbox
         file_size_label = QtWidgets.QLabel("Show file sizes: ")
@@ -35,7 +35,7 @@ class WMEProjectExplorer(QtWidgets.QWidget):
         main_layout.addWidget(self.tree_view)
         self.file_size_checkbox.stateChanged.connect(self.tree_view.on_show_size_changed)
 
-        search_bar.textChanged.connect(self.tree_view.on_find_text_changed)
+        self.search_bar.textChanged.connect(self.tree_view.on_find_text_changed)
 
     def update_model(self, mod_path: str):
         self.tree_view.update_model(mod_path)
@@ -50,6 +50,7 @@ class WMEProjectExplorer(QtWidgets.QWidget):
 
         self.tree_view.collapseAll()
 
+        self.search_bar.setText("")
         main_widget.MainWidget.instance.hide_loading_screen()
 
 
