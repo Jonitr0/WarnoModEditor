@@ -147,8 +147,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         except Exception as e:
             logging.error(e)
 
-        # TODO: delete mod config from wme_config.json
-
         # find config dir
         mod_name = mod_path[mod_path.rindex('\\') + 1:]
         config_dir = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + mod_name
