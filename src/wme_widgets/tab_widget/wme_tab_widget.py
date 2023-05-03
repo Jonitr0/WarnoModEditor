@@ -45,39 +45,46 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.tab_menu.setToolTipsVisible(True)
         new_tab_button.setMenu(self.tab_menu)
 
-        text_editor_action = self.tab_menu.addAction("Text Editor")
+        text_editor_icon = self.get_icon_for_page_type(ndf_editor_page.NdfEditorPage)
+        text_editor_action = self.tab_menu.addAction(text_editor_icon, "Text Editor")
         text_editor_action.setToolTip("Create or edit .ndf files.")
         text_editor_action.setShortcut("Ctrl+Alt+E")
         text_editor_action.setShortcutContext(Qt.WindowShortcut)
         text_editor_action.triggered.connect(self.on_text_editor)
 
-        global_search_action = self.tab_menu.addAction("Global Search")
+        global_search_icon = self.get_icon_for_page_type(global_search_page.GlobalSearchPage)
+        global_search_action = self.tab_menu.addAction(global_search_icon, "Global Search")
         global_search_action.setToolTip("Search for text in all files of your mod.")
         global_search_action.setShortcut("Ctrl+Alt+F")
         global_search_action.setShortcutContext(Qt.WindowShortcut)
         global_search_action.triggered.connect(self.on_global_search)
 
-        guid_generator_action = self.tab_menu.addAction("GUID Generator")
+        guid_generator_icon = self.get_icon_for_page_type(guid_generator_page.GuidGeneratorPage)
+        guid_generator_action = self.tab_menu.addAction(guid_generator_icon, "GUID Generator")
         guid_generator_action.setToolTip("Generate GUIDs (Globally Unique Identifiers), "
                                          "which are used in some NDF objects.")
         guid_generator_action.triggered.connect(self.on_guid_generator)
 
         self.tab_menu.addSeparator()
 
-        game_settings_action = self.tab_menu.addAction("Game Settings Editor")
+        game_settings_icon = self.get_icon_for_page_type(game_settings_page.GameSettingsPage)
+        game_settings_action = self.tab_menu.addAction(game_settings_icon, "Game Settings Editor")
         game_settings_action.setToolTip("Edit available game settings such as starting points and income.")
         game_settings_action.triggered.connect(self.on_game_settings)
 
         self.tab_menu.addSeparator()
 
-        quickstart_action = self.tab_menu.addAction("Quickstart Guide")
+        documentation_icon = icon_manager.load_icon("help.png", COLORS.PRIMARY)
+        documentation_menu = self.tab_menu.addMenu(documentation_icon, "Help && Documentation")
+
+        quickstart_action = documentation_menu.addAction("Quickstart Guide")
         quickstart_action.setToolTip("The Quickstart Guide walks you through the basics of using WME.")
         quickstart_action.triggered.connect(self.on_open_quickstart)
-        ndf_reference_action = self.tab_menu.addAction("NDF Reference")
+        ndf_reference_action = documentation_menu.addAction("NDF Reference")
         ndf_reference_action.setToolTip("The NDF Reference contains rules and conventions of the NDF language.")
         ndf_reference_action.triggered.connect(self.on_open_ndf_reference)
         # TODO (0.1.3): add action as soon as html files are ready
-        #manual_action = self.tab_menu.addAction("User Manual")
+        #manual_action = documentation_menu.addAction("User Manual")
         #manual_action.setToolTip("The User Manual explains WME features in depth.")
         #manual_action.triggered.connect(self.on_open_manual)
 
@@ -115,8 +122,11 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.removeTab(index)
         self.tab_removed_by_button.emit()
 
+    def get_icon_for_page_type(self, page_type):
+        return icon_manager.load_icon(self.icon_paths_for_pages[page_type], COLORS.PRIMARY)
+
     def add_tab_with_auto_icon(self, page: base_tab_page.BaseTabPage, title: str):
-        icon = icon_manager.load_icon(self.icon_paths_for_pages[type(page)], COLORS.PRIMARY)
+        icon = self.get_icon_for_page_type(type(page))
         self.addTab(page, icon, title)
 
     def on_open_ndf_editor(self, file_path: str) -> ndf_editor_page.NdfEditorPage:
