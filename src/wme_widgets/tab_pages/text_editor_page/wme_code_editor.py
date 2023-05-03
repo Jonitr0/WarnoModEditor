@@ -56,6 +56,9 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         font = QtGui.QFont('Courier New', 10)
         self.setTabStopDistance(4 * QtGui.QFontMetrics(font).horizontalAdvance(" "))
 
+        # "duplicate" shortcut
+        shortcut = QtGui.QShortcut("Ctrl+D", self, self.on_duplicate)
+
     def lineNumberAreaWidth(self):
         digits = 1
         count = max(1, self.blockCount())
@@ -292,4 +295,24 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         for i in range(end - start + 1):
             block = self.document().findBlockByNumber(start + i)
             self.highlighter.rehighlightBlock(block)
+
+    def on_duplicate(self):
+        cursor = self.textCursor()
+        selection = cursor.selectedText()
+        if selection == "":
+            # select current line
+            cursor.select(QtGui.QTextCursor.LineUnderCursor)
+            selection = cursor.selectedText()
+            cursor.movePosition(QtGui.QTextCursor.EndOfLine, QtGui.QTextCursor.MoveAnchor)
+            cursor.clearSelection()
+            # create new block and paste
+            cursor.insertBlock()
+            cursor.insertText(selection)
+            # move cursor down
+            cursor = self.textCursor()
+            cursor.movePosition(QtGui.QTextCursor.Down, QtGui.QTextCursor.MoveAnchor)
+            self.setTextCursor(cursor)
+        else:
+            cursor.clearSelection()
+            cursor.insertText(selection)
 

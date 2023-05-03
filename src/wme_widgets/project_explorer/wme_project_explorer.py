@@ -1,4 +1,5 @@
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtGui
+from PySide6.QtCore import Qt
 
 from src.utils.color_manager import *
 from src.wme_widgets import wme_lineedit, main_widget
@@ -36,6 +37,9 @@ class WMEProjectExplorer(QtWidgets.QWidget):
         self.file_size_checkbox.stateChanged.connect(self.tree_view.on_show_size_changed)
 
         self.search_bar.textChanged.connect(self.tree_view.on_find_text_changed)
+
+        shortcut = QtGui.QShortcut("Ctrl+Shift+F", self, self.search_bar.setFocus)
+        shortcut.setContext(Qt.ApplicationShortcut)
 
     def update_model(self, mod_path: str):
         self.tree_view.update_model(mod_path)

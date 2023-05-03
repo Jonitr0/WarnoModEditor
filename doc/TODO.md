@@ -10,7 +10,15 @@ User manual:
 - overview
 - features (detached tabs, project explorer, scripts, backups,...)
 - short explanation of each tool, similar to existing "help" files
-- shortcut guide
+- shortcut guide:
+  - everything in wme_menu_bar + menus themselves
+  - Alt+H on pages
+  - Ctrl+D in text editor + other shortcuts from help page
+  - Napo page default shortcuts
+  - Ctrl+T for new tab
+  - Ctrl+L for event log
+  - Ctrl+Shift+F for explorer search
+
 
 **Roadmap**
 
