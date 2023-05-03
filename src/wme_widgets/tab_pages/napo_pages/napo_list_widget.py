@@ -111,11 +111,16 @@ class ListValidatorDelegate(QtWidgets.QItemDelegate):
 
 
 class ListFitToContents(QtWidgets.QListWidget):
-    # TODO: this might have to have a fixed height
+    def minimumSizeHint(self) -> QtCore.QSize:
+        return self.calculate_size()
+
     def sizeHint(self) -> QtCore.QSize:
+        return self.calculate_size()
+
+    def calculate_size(self):
         height = 0
         if self.count() > 0:
-            height = self.sizeHintForRow(0) * (self.count() + 1)
+            height = self.sizeHintForRow(0) * self.count() + 8
 
         s = QtCore.QSize()
         s.setHeight(height)

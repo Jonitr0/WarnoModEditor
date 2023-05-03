@@ -2,21 +2,57 @@
 
 from antlr4 import *
 
+from PySide6 import QtWidgets, QtGui
+
 from src.ndf_parser.antlr_output.NdfGrammarLexer import NdfGrammarLexer
 from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
 
 from src.ndf_parser.object_generator import napo_generator
 from src.ndf_parser.ndf_converter import napo_to_ndf_converter
 
-from src.wme_widgets.tab_pages import base_tab_page
-
 from src.ndf_parser.napo_entities.napo_collection import *
 from src.ndf_parser.napo_entities.napo_assignment import *
+
+from src.wme_widgets.tab_pages import base_tab_page
+from src.utils import icon_manager
+from src.utils.color_manager import *
 
 
 class BaseNapoPage(base_tab_page.BaseTabPage):
     def __init__(self):
         super().__init__()
+
+        main_layout = QtWidgets.QVBoxLayout()
+
+        tool_bar = QtWidgets.QToolBar()
+        main_layout.addWidget(tool_bar)
+
+        save_action = tool_bar.addAction(icon_manager.load_icon("save.png", COLORS.PRIMARY), "Save (Ctrl + S)")
+        save_action.setShortcut("Ctrl+S")
+        save_action.triggered.connect(self.save_changes)
+
+        restore_icon = QtGui.QIcon()
+        restore_icon.addPixmap(icon_manager.load_pixmap("restore.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
+        restore_icon.addPixmap(icon_manager.load_pixmap("restore.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
+
+        self.restore_action = tool_bar.addAction(restore_icon, "Discard changes and restore page (F5)")
+        self.restore_action.setShortcut("F5")
+        self.restore_action.triggered.connect(self.on_restore)
+        self.restore_action.setEnabled(False)
+
+        self.unsaved_status_change.connect(self.on_unsaved_changed)
+
+        scroll_area = QtWidgets.QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        main_layout.addWidget(scroll_area)
+
+        scroll_widget = QtWidgets.QWidget()
+        scroll_area.setWidget(scroll_widget)
+        self.scroll_layout = QtWidgets.QVBoxLayout()
+        self.scroll_layout.setContentsMargins(0, 0, 0, 0)
+        scroll_widget.setLayout(self.scroll_layout)
+
+        self.setLayout(main_layout)
 
     # parse a whole NDF file and return it as a Napo Entity List
     def get_napo_from_file(self, file_name: str) -> [NapoAssignment]:
