@@ -6,7 +6,6 @@ from src.utils.color_manager import *
 
 
 class NapoListWidget(QtWidgets.QWidget):
-    # TODO: handle duplicates and empty items
     list_updated = QtCore.Signal(list)
 
     def __init__(self, title: str = "", input_mask: str = ".*", allow_empty: bool = False, fixed_length: bool = False):
@@ -16,12 +15,16 @@ class NapoListWidget(QtWidgets.QWidget):
         self.title_label.setHidden(title == "")
 
         self.list_widget = ListFitToContents()
+
         delegate = ListValidatorDelegate(input_mask)
         delegate.closeEditor.connect(self.on_edit_finished)
+        delegate.editor_opened.connect(self.on_edit_started)
         self.list_widget.setItemDelegate(delegate)
+
         self.input_mask = input_mask
         self.allow_empty = allow_empty
         self.fixed_length = fixed_length
+        self.last_opened_text = ""
 
         self.add_button = QtWidgets.QToolButton()
         self.remove_button = QtWidgets.QToolButton()
@@ -67,6 +70,21 @@ class NapoListWidget(QtWidgets.QWidget):
         # remove items that don't fit input mask
         regex = QtCore.QRegularExpression(self.input_mask)
         items_filtered = [i for i in items if regex.match(i).hasMatch()]
+        items_filtered.sort()
+
+        items = items_filtered
+        items_filtered = []
+
+        # remove duplicates
+        last = None
+        for item in items:
+            if item != last:
+                items_filtered.append(item)
+            last = item
+
+        # append last pre-edit item if we removed at least one
+        if len(items) > len(items_filtered) and regex.match(self.last_opened_text).hasMatch():
+            items_filtered.append(self.last_opened_text)
 
         self.list_widget.addItems(items_filtered)
         self.list_widget.sortItems()
@@ -80,6 +98,9 @@ class NapoListWidget(QtWidgets.QWidget):
     def on_edit_finished(self):
         self.update_widget()
         self.list_updated.emit(self.list_widget.all_item_labels())
+
+    def on_edit_started(self, index: QtCore.QModelIndex):
+        self.last_opened_text = self.list_widget.item(index.row()).text()
 
     def on_add(self):
         self.update_widget()
@@ -102,12 +123,16 @@ class NapoListWidget(QtWidgets.QWidget):
 
 
 class ListValidatorDelegate(QtWidgets.QItemDelegate):
+    editor_opened = QtCore.Signal(QtCore.QModelIndex)
+
     def __init__(self, input_mask: str):
         super().__init__()
         self.input_mask = input_mask
 
     def createEditor(self, parent: QtWidgets.QWidget, option: QtWidgets.QStyleOptionViewItem,
                      index) -> QtWidgets.QWidget:
+        self.editor_opened.emit(index)
+
         editor = QtWidgets.QLineEdit(parent)
         editor.setValidator(QtGui.QRegularExpressionValidator(self.input_mask))
         return editor
