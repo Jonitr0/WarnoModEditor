@@ -15,30 +15,6 @@ import json
 from pydoc import locate
 
 
-def open_config() -> dict:
-    file_path = resource_loader.get_persistant_path("wme_config.json")
-    json_obj = {}
-
-    try:
-        with open(file_path, "r") as f:
-            json_obj = json.load(f)
-    except Exception as e:
-        logging.info("Config not found or could not be opened: " + str(e))
-
-    return json_obj
-
-
-def save_config(json_obj: dict):
-    file_path = resource_loader.get_persistant_path("wme_config.json")
-    json_str = json.dumps(json_obj)
-
-    try:
-        with open(file_path, "w+") as f:
-            f.write(json_str)
-    except Exception as e:
-        logging.info("Config could not be saved: " + str(e))
-
-
 def restore_window(window_obj: dict, window: base_window.BaseWindow):
     window.move(window_obj["x"], window_obj["y"])
     if window_obj["maximized"]:
@@ -223,19 +199,19 @@ class MainWidget(QtWidgets.QWidget):
         # TODO (0.1.3): auto-backup
 
         try:
-            json_obj = open_config()
+            json_obj = settings_manager.get_settings_value(settings_manager.APP_STATE, default={})
 
             main_window_state = self.window().get_window_state()
             main_window_state["splitterSizes"] = self.splitter.sizes()
             main_window_state["explorerWidth"] = self.explorer_width
             json_obj["mainWindowState"] = main_window_state
 
-            save_config(json_obj)
+            settings_manager.write_settings_value(settings_manager.APP_STATE, json_obj)
         except Exception as e:
             logging.error("Could not save workspace state: " + str(e))
 
     def load_main_window_state(self):
-        json_obj = open_config()
+        json_obj = settings_manager.get_settings_value(settings_manager.APP_STATE)
         if not json_obj:
             return
 
@@ -248,7 +224,7 @@ class MainWidget(QtWidgets.QWidget):
         self.explorer_width = main_window_obj["explorerWidth"]
 
     def save_mod_state(self):
-        json_obj = open_config()
+        json_obj = settings_manager.get_settings_value(settings_manager.APP_STATE, default={})
 
         main_window_tabs = self.tab_widget.to_json()
         json_obj[self.loaded_mod_name] = {"mainWindowTabs": main_window_tabs}
@@ -263,10 +239,10 @@ class MainWidget(QtWidgets.QWidget):
 
         json_obj[self.loaded_mod_name]["detached"] = detached_objs
 
-        save_config(json_obj)
+        settings_manager.write_settings_value(settings_manager.APP_STATE, json_obj)
 
     def load_mod_state(self):
-        json_obj = open_config()
+        json_obj = settings_manager.get_settings_value(settings_manager.APP_STATE)
         if not json_obj:
             return
 
