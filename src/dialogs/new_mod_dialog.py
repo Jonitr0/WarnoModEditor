@@ -13,11 +13,12 @@ class NewModDialog(BaseDialog):
         super().__init__()
         self.setWindowTitle("Create new mod")
 
+        self.name_line_edit.setFocus()
+
     def setup_ui(self):
         self.name_line_edit.setPlaceholderText("Enter the name of your new mod")
         self.name_line_edit.setMinimumWidth(400)
         self.name_line_edit.returnPressed.connect(self.accept)
-        # TODO: set focus
         self.main_layout.addWidget(self.name_line_edit)
 
     def accept(self):

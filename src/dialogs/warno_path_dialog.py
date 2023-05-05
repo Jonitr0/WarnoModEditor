@@ -24,7 +24,6 @@ class WarnoPathDialog(BaseDialog):
 
         # setup line edit
         self.line_edit.setText(self.warno_path)
-        # TODO: set focus
         text_layout.addWidget(self.line_edit)
 
         # setup "browse" button
@@ -32,6 +31,8 @@ class WarnoPathDialog(BaseDialog):
         browse_button.setText("Browse..")
         browse_button.clicked.connect(self.open_warno_path_dialog)
         text_layout.addWidget(browse_button)
+
+        self.line_edit.setFocus()
 
     def open_warno_path_dialog(self):
         warno_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter WARNO path", self.line_edit.text(),
