@@ -24,6 +24,7 @@ class WarnoPathDialog(BaseDialog):
 
         # setup line edit
         self.line_edit.setText(self.warno_path)
+        # TODO: set focus
         text_layout.addWidget(self.line_edit)
 
         # setup "browse" button

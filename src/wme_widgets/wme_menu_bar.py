@@ -10,7 +10,7 @@ from PySide6.QtCore import Qt
 
 from src.dialogs import new_mod_dialog, edit_config_dialog
 from src.dialogs import essential_dialogs, options_dialog, new_backup_dialog
-from src.utils import path_validator
+from src.utils import path_validator, settings_manager
 from src.wme_widgets import main_widget
 
 
@@ -147,8 +147,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         except Exception as e:
             logging.error(e)
 
-        # TODO: delete mod config from wme_config.json
-
         # find config dir
         mod_name = mod_path[mod_path.rindex('\\') + 1:]
         config_dir = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + mod_name
@@ -171,6 +169,12 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                 if not (action.isSeparator() or action.menu()):
                     action.setDisabled(True)
             self.main_widget_ref.unload_mod()
+
+        # delete mod from config
+        app_state = settings_manager.get_settings_value(settings_manager.APP_STATE)
+        if app_state:
+            app_state[mod_name] = {}
+            settings_manager.write_settings_value(settings_manager.APP_STATE, app_state)
 
     def on_options_action(self):
         options_dialog.OptionsDialog().exec()
