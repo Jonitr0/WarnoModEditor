@@ -1,7 +1,7 @@
 import logging
 import os.path
 
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.wme_widgets import wme_menu_bar, base_window
@@ -113,9 +113,11 @@ class MainWidget(QtWidgets.QWidget):
         self.log_button.setIcon(icon_manager.load_icon("message_empty.png", COLORS.SECONDARY_TEXT))
         self.log_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.log_button.setFixedHeight(36)
-        self.log_button.setShortcut("Ctrl+L")
         self.log_button.setToolTip("Open the event log for the current session (Ctrl + L)")
         self.log_button.clicked.connect(self.on_log_button_clicked)
+
+        log_shortcut = QtGui.QShortcut("Ctrl+L", self.log_button, self.on_log_button_clicked)
+        log_shortcut.setContext(Qt.ApplicationShortcut)
 
         label_layout.addWidget(self.log_button)
         label_layout.setAlignment(self.log_button, Qt.AlignRight)

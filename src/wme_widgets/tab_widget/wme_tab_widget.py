@@ -83,10 +83,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
         ndf_reference_action = documentation_menu.addAction("NDF Reference")
         ndf_reference_action.setToolTip("The NDF Reference contains rules and conventions of the NDF language.")
         ndf_reference_action.triggered.connect(self.on_open_ndf_reference)
-        # TODO (0.1.3): add action as soon as html files are ready
-        #manual_action = documentation_menu.addAction("User Manual")
-        #manual_action.setToolTip("The User Manual explains WME features in depth.")
-        #manual_action.triggered.connect(self.on_open_manual)
+        # TODO (0.1.3): finish manual
+        manual_action = documentation_menu.addAction("Shortcut Reference")
+        manual_action.setToolTip("A list of available shortcuts.")
+        manual_action.triggered.connect(self.on_open_manual)
 
         self.setTabsClosable(True)
         self.tabCloseRequested.connect(self.on_tab_close_pressed)
@@ -172,9 +172,8 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.add_tab_with_auto_icon(viewer, "NDF Reference")
 
     def on_open_manual(self):
-        viewer = rich_text_viewer_page.RichTextViewerPage("UserManual.md")
-        # TODO (0.1.3): fill md file, convert to html
-        self.add_tab_with_auto_icon(viewer, "User Manual")
+        viewer = rich_text_viewer_page.RichTextViewerPage("UserManual.html")
+        self.add_tab_with_auto_icon(viewer, "Shortcut Reference")
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
         ret = super().addTab(widget, icon, title)

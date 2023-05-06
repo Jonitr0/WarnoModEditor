@@ -3,7 +3,6 @@ from src.utils import resource_loader
 import json
 import logging
 
-# TODO: some of this can be saved in the config
 LAST_OPEN_KEY = "wme_last_open"
 WARNO_PATH_KEY = "wme_warno_path"
 VERSION_KEY = "wme_version"
