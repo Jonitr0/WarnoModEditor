@@ -32,7 +32,9 @@ class MainWidget(QtWidgets.QWidget):
     def __init__(self, parent, warno_path: str, title_bar):
         super().__init__(parent=parent)
         self.explorer = wme_project_explorer.WMEProjectExplorer(self)
-        self.load_screen = QtWidgets.QLabel("Open the \"File\" menu to create or load a mod.")
+        self.no_mod_loaded_msg = "Open the \"File\" menu (Alt +F) to create a new mod (Ctrl + Alt + N) or open an" \
+                                 " existing one (Ctrl + Alt+ O)."
+        self.load_screen = QtWidgets.QLabel(self.no_mod_loaded_msg)
         self.splitter = QtWidgets.QSplitter(self)
         self.tab_widget = wme_tab_widget.WMETabWidget()
         self.menu_bar = wme_menu_bar.WMEMainMenuBar(main_widget_ref=self)
@@ -86,8 +88,10 @@ class MainWidget(QtWidgets.QWidget):
         self.menu_bar.request_load_mod.connect(self.load_mod)
         self.menu_bar.request_quickstart.connect(self.tab_widget.on_open_quickstart)
 
-        self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.mod_loaded.connect(self.explorer.update_model)
+        self.explorer.request_open_explorer.connect(self.on_open_explorer)
+
+        self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.splitter.addWidget(self.explorer)
         self.splitter.addWidget(self.tab_widget)
         self.splitter.handle(1).installEventFilter(self)
@@ -151,7 +155,7 @@ class MainWidget(QtWidgets.QWidget):
         self.loaded_mod_path = ""
         self.loaded_mod_name = ""
         self.title_label.setText("")
-        self.show_loading_screen("Open the \"File\" menu to create or load a mod.")
+        self.show_loading_screen(self.no_mod_loaded_msg)
 
     def ask_all_tabs_to_save(self):
         # ask all tabs on all windows to save/discard, return False on cancel
@@ -184,6 +188,13 @@ class MainWidget(QtWidgets.QWidget):
             else:
                 self.splitter.setSizes([self.explorer_width, self.tab_widget.width() - self.explorer_width])
         return False
+
+    def on_open_explorer(self):
+        if self.loaded_mod_name == "":
+            return
+
+        if self.splitter.sizes()[0] == 0:
+            self.splitter.setSizes([self.explorer_width, self.tab_widget.width() - self.explorer_width])
 
     def on_log_button_clicked(self):
         self.log_button.setIcon(icon_manager.load_icon("message_empty.png", COLORS.SECONDARY_TEXT))

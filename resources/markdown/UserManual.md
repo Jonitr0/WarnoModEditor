@@ -9,6 +9,7 @@ These shortcuts are always available.
 - **Ctrl + Alt + O:** open an existing mod
 - **Ctrl + Del:** delete an existing mod
 - **Ctrl + L:** open evet log
+- **Alt + X:** exit WME
 
 #### Mod Management
 
@@ -23,6 +24,7 @@ These shortcuts are available when a mod is loaded.
 - **Ctrl + Alt + C:** edit mod configuration
 - **Ctrl + Alt + E:** open the text editor
 - **Ctrl + Alt + F:** open global search
+- **Ctrl + Shift + F:** find .ndf files in project
 
 #### Text Editor
 

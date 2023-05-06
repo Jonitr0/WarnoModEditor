@@ -23,6 +23,6 @@ User manual:
 **Roadmap**
 
 - 0.1.2: Settings Editor, Shortcuts
-- 0.1.3: Auto-Update, User Manual
+- 0.1.3: Auto-Update, User Manual, Operation Editor?
 - 0.2: Unit Editor, Division Editor, Diff Tool?
 - When available: asset modding

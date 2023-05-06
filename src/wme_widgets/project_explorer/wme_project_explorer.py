@@ -1,4 +1,4 @@
-from PySide6 import QtWidgets, QtGui
+from PySide6 import QtWidgets, QtGui, QtCore
 from PySide6.QtCore import Qt
 
 from src.utils.color_manager import *
@@ -7,6 +7,8 @@ from src.wme_widgets.project_explorer import file_system_treeview
 
 
 class WMEProjectExplorer(QtWidgets.QWidget):
+    request_open_explorer = QtCore.Signal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         main_layout = QtWidgets.QVBoxLayout()
@@ -38,8 +40,12 @@ class WMEProjectExplorer(QtWidgets.QWidget):
 
         self.search_bar.textChanged.connect(self.tree_view.on_find_text_changed)
 
-        shortcut = QtGui.QShortcut("Ctrl+Shift+F", self, self.search_bar.setFocus)
+        shortcut = QtGui.QShortcut("Ctrl+Shift+F", self, self.on_focus_search)
         shortcut.setContext(Qt.ApplicationShortcut)
+
+    def on_focus_search(self):
+        self.search_bar.setFocus()
+        self.request_open_explorer.emit()
 
     def update_model(self, mod_path: str):
         self.tree_view.update_model(mod_path)
