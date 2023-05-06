@@ -69,6 +69,6 @@ class OptionsDialog(BaseDialog):
         if self.theme_checkbox.isChecked():
             theme = "dark "
         theme += str(self.color_combobox.currentText())
-        settings_manager.write_settings_value(settings_manager.THEME_KEY, theme)
+        settings_manager.write_settings_value(settings_manager.NEXT_THEME_KEY, theme)
 
         super().accept()

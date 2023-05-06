@@ -209,6 +209,10 @@ class MainWidget(QtWidgets.QWidget):
     def on_quit(self):
         self.unload_mod()
 
+        next_theme = settings_manager.get_settings_value(settings_manager.NEXT_THEME_KEY)
+        if next_theme:
+            settings_manager.write_settings_value(settings_manager.THEME_KEY, next_theme)
+
         # TODO (0.1.3): auto-backup
 
         try:
