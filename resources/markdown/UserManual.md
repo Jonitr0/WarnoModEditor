@@ -15,7 +15,7 @@ These shortcuts are always available.
 
 These shortcuts are available when a mod is loaded.
 
-- **Alt + T:** open the “new tab” menu
+- **Ctrl + T:** open the “new tab” menu
 - **Alt + H:** open “help” popup for current tool
 - **Alt + E:** open “Edit” menu
 - **Alt + G:** generate mod
