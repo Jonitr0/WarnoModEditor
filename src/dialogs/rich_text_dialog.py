@@ -22,7 +22,13 @@ class RichTextDialog(base_window.BaseWindow):
         self.rich_text_label.setText(markdown_loader.get_md_text(md_file_path))
         self.rich_text_label.setWordWrap(True)
 
-        self.content_layout.addWidget(self.rich_text_label)
+        scroll_area = QtWidgets.QScrollArea()
+        scroll_area.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setAlignment(Qt.AlignCenter)
+        scroll_area.setWidget(self.rich_text_label)
+
+        self.content_layout.addWidget(scroll_area)
 
         self.setWindowTitle(title)
         self.title_bar.set_title(title)
