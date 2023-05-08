@@ -58,4 +58,6 @@ if __name__ == '__main__':
     main_window = main_window.MainWindow()
     splash_screen.finish(main_window)
 
-    sys.exit(app.exec())
+    # only start app if warno path was verified
+    if main_window.isVisible():
+        sys.exit(app.exec())

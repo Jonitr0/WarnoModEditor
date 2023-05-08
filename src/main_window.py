@@ -21,7 +21,8 @@ class MainWindow(base_window.BaseWindow):
             settings_manager.write_settings_value(settings_manager.WARNO_PATH_KEY, tmp_path)
 
         if not warno_path_loader.load_warno_path_from_settings():
-            QtCore.QCoreApplication.quit()
+            self.close()
+            return
 
         warno_path = settings_manager.get_settings_value(settings_manager.WARNO_PATH_KEY)
         self.resize(1408, 792)
@@ -38,7 +39,7 @@ class MainWindow(base_window.BaseWindow):
         if self.main_widget_ref is None:
             super().close()
             QtWidgets.QApplication.quit()
-        if self.main_widget_ref.ask_all_tabs_to_save():
+        elif self.main_widget_ref.ask_all_tabs_to_save():
             self.main_widget_ref.on_quit()
             self.state_saved = True
             wme_detached_tab.clear_detached_list()
