@@ -47,7 +47,7 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.destruction_score_list_widget.list_updated.connect(self.on_destruction_scores_changed)
         self.destruction_income_widget.value_changed.connect(self.on_destruction_income_changed)
 
-        self.help_page = "Help_GameSettingsEditor.html"
+        self.help_file_path = "Help_GameSettingsEditor.html"
 
     def on_restore(self):
         if not essential_dialogs.ConfirmationDialog("Your changes will be discarded! Are you sure?", "Warning!").exec():
