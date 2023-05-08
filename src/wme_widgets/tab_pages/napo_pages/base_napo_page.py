@@ -16,6 +16,7 @@ from src.ndf_parser.napo_entities.napo_assignment import *
 from src.wme_widgets.tab_pages import base_tab_page
 from src.utils import icon_manager
 from src.utils.color_manager import *
+from src.dialogs import essential_dialogs
 
 
 class BaseNapoPage(base_tab_page.BaseTabPage):
@@ -24,10 +25,10 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
         main_layout = QtWidgets.QVBoxLayout()
 
-        tool_bar = QtWidgets.QToolBar()
-        main_layout.addWidget(tool_bar)
+        self.tool_bar = QtWidgets.QToolBar()
+        main_layout.addWidget(self.tool_bar)
 
-        save_action = tool_bar.addAction(icon_manager.load_icon("save.png", COLORS.PRIMARY), "Save (Ctrl + S)")
+        save_action = self.tool_bar.addAction(icon_manager.load_icon("save.png", COLORS.PRIMARY), "Save (Ctrl + S)")
         save_action.setShortcut("Ctrl+S")
         save_action.triggered.connect(self.save_changes)
 
@@ -35,7 +36,7 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         restore_icon.addPixmap(icon_manager.load_pixmap("restore.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
         restore_icon.addPixmap(icon_manager.load_pixmap("restore.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
 
-        self.restore_action = tool_bar.addAction(restore_icon, "Discard changes and restore page (F5)")
+        self.restore_action = self.tool_bar.addAction(restore_icon, "Discard changes and restore page (F5)")
         self.restore_action.setShortcut("F5")
         self.restore_action.triggered.connect(self.on_restore)
         self.restore_action.setEnabled(False)
@@ -83,3 +84,11 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
     def write_napo_object(self, file_name: str, obj_name: str, entity: NapoEntity):
         pass
+
+    def on_restore(self):
+        if not essential_dialogs.ConfirmationDialog("Your changes will be discarded! Are you sure?", "Warning!").exec():
+            return
+        self.update_page()
+
+    def on_unsaved_changed(self, unsaved: bool, widget):
+        self.restore_action.setEnabled(unsaved)

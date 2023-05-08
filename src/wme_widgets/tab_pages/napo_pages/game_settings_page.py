@@ -6,7 +6,6 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from src.wme_widgets import main_widget
 from src.wme_widgets.tab_pages.napo_pages import base_napo_page
 from src.wme_widgets.tab_pages.napo_pages import napo_list_widget
-from src.dialogs import essential_dialogs
 
 from src.ndf_parser.napo_entities.napo_entity import *
 
@@ -48,14 +47,6 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.destruction_income_widget.value_changed.connect(self.on_destruction_income_changed)
 
         self.help_file_path = "Help_GameSettingsEditor.html"
-
-    def on_restore(self):
-        if not essential_dialogs.ConfirmationDialog("Your changes will be discarded! Are you sure?", "Warning!").exec():
-            return
-        self.update_page()
-
-    def on_unsaved_changed(self, unsaved: bool, widget):
-        self.restore_action.setEnabled(unsaved)
 
     def update_page(self):
         main_widget.MainWidget.instance.show_loading_screen("loading GDConstantes.ndf...")
