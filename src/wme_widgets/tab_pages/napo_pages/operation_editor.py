@@ -10,6 +10,8 @@ from PySide6 import QtWidgets
 
 from src.wme_widgets.tab_pages.napo_pages import base_napo_page
 
+from src.ndf_parser import ndf_scanner
+
 
 class OperationEditor(base_napo_page.BaseNapoPage):
     def __init__(self):
@@ -19,6 +21,13 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.op_combobox.addItems(["Black Horse's Last Stand", "Red Juggernaut"])
 
         self.tool_bar.addSeparator()
-        # TODO: add spacing
-        self.tool_bar.addWidget(QtWidgets.QLabel("Operation: "))
-        self.tool_bar.addWidget(self.op_combobox)
+
+        op_selector = QtWidgets.QWidget()
+        op_selector_layout = QtWidgets.QHBoxLayout()
+        op_selector.setLayout(op_selector_layout)
+        self.tool_bar.addWidget(op_selector)
+
+        op_selector_layout.addWidget(QtWidgets.QLabel("Operation: "))
+        op_selector_layout.addWidget(self.op_combobox)
+
+        ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")
