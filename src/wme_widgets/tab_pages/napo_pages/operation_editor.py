@@ -30,4 +30,4 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         op_selector_layout.addWidget(QtWidgets.QLabel("Operation: "))
         op_selector_layout.addWidget(self.op_combobox)
 
-        ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")
+        print(ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf"))

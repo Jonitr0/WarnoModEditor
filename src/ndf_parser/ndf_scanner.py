@@ -10,8 +10,27 @@ def get_assignment_ids(file_name: str) -> [str]:
         file_content = f.read()
 
     current_index = 0
-    assignment_regex = re.compile("([\w\d_]+)\sis\s")
+    assignment_regex = re.compile("(\\w+)\\sis\\s")
+    ids = []
 
-    # TODO: iterate over content
+    while True:
+        res = assignment_regex.search(file_content, current_index, file_content.find("(", current_index))
+        if not res:
+            break
+        ids.append(res.group(1))
 
-    return []
+        current_index = file_content.find("(", current_index) + 1
+        level = 1
+        while level > 0:
+            next_open = file_content.find("(", current_index)
+            next_close = file_content.find(")", current_index)
+            if next_open < 0 or next_close < 0:
+                break
+            if next_open < next_close:
+                level += 1
+                current_index = next_open + 1
+            else:
+                level -= 1
+                current_index = next_close + 1
+
+    return ids
