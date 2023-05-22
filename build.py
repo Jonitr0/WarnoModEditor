@@ -19,3 +19,5 @@ if __name__ == '__main__':
                               "--noconsole",
                               "-n", "WarnoModEditor"
                               ])
+
+    # TODO: sign exe

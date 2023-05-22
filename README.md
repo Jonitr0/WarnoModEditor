@@ -14,7 +14,9 @@ Head to [releases](https://github.com/Jonitr0/WarnoModEditor/releases) and downl
 
 ##### Running WME from source
 
-Set up a Python 3.10 environment, install [PySide6](https://pypi.org/project/PySide6/) and [qt-material](https://pypi.org/project/qt-material/), download the source code from this repository and run [main.py](https://github.com/Jonitr0/WarnoModEditor/blob/main/main.py).
+Set up a Python 3.10 environment, install [PySide6](https://pypi.org/project/PySide6/), [antlr4](https://www.antlr.org/) and [qt-material](https://pypi.org/project/qt-material/), download the source code from this repository and run [main.py](https://github.com/Jonitr0/WarnoModEditor/blob/main/main.py).
+
+A more comprehensive documentation on how to build or run WME from source will come in a future update.
 
 ##### First steps
 
@@ -38,6 +40,10 @@ You can run scripts ("Generate Mod", "Upload Mod", "Create Backup",...) from the
 
 Double-click a .ndf file in the project explorer to open it in the text editor. It supports NDF syntax highlighting and has find and replace functions.
 
+##### Game Settings Editor
+
+A page to edit starting points, income and victory conditions for skirmish and multiplayer.
+
 ##### Global Search
 
 Allows you to find text in any .ndf file of our mod. Useful to find object references across files.
@@ -48,7 +54,7 @@ Generates random GUIDs which are required by some NDF objects.
 
 ##### Resources
 
-In addition, WME includes a Quickstart Guide and a reference for the NDF language.
+In addition, WME includes a Quickstart Guide, a Shortcut Reference and a reference for the NDF language.
 
 ### Feedback
 
