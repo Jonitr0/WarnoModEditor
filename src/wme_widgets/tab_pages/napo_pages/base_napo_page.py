@@ -1,5 +1,7 @@
 # provides common functionality for Napo Tool Pages
 
+import os
+
 from antlr4 import *
 
 from PySide6 import QtWidgets, QtGui
@@ -14,6 +16,8 @@ from src.ndf_parser.napo_entities.napo_collection import *
 from src.ndf_parser.napo_entities.napo_assignment import *
 
 from src.wme_widgets.tab_pages import base_tab_page
+from src.wme_widgets import main_widget
+
 from src.utils import icon_manager
 from src.utils.color_manager import *
 from src.dialogs import essential_dialogs
@@ -57,9 +61,11 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
     # parse a whole NDF file and return it as a Napo Entity List
     def get_napo_from_file(self, file_name: str) -> [NapoAssignment]:
-        self.open_file(file_name)
+        file_path = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(), file_name)
 
-        input_stream = FileStream(file_name, encoding="utf8")
+        self.open_file(file_path)
+
+        input_stream = FileStream(file_path, encoding="utf8")
 
         lexer = NdfGrammarLexer(input_stream)
         stream = CommonTokenStream(lexer)
@@ -77,9 +83,10 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         pass
 
     def write_napo_file(self, file_name: str, napo_file: NapoFile):
+        file_path = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(), file_name)
         converter = napo_to_ndf_converter.NapoToNdfConverter()
         ndf_text = converter.convert(napo_file)
-        with open(file_name, "w", encoding="utf-8") as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(ndf_text)
 
     def write_napo_object(self, file_name: str, obj_name: str, entity: NapoEntity):
@@ -92,3 +99,6 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
     def on_unsaved_changed(self, unsaved: bool, widget):
         self.restore_action.setEnabled(unsaved)
+
+    def update_page(self):
+        pass

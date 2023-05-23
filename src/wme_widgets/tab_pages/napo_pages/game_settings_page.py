@@ -1,7 +1,7 @@
 import logging
 import os
 
-from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets, QtCore
 
 from src.wme_widgets import main_widget
 from src.wme_widgets.tab_pages.napo_pages import base_napo_page
@@ -51,10 +51,7 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
     def update_page(self):
         main_widget.MainWidget.instance.show_loading_screen("loading GDConstantes.ndf...")
 
-        file_path = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(),
-                                 "GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
-
-        self.constants_napo = self.get_napo_from_file(file_path)
+        self.constants_napo = self.get_napo_from_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
 
         self.starting_points = self.constants_napo.get_value("WargameConstantes\\ArgentInitialSetting")
         self.starting_pts_list_widget.update_list(self.starting_points)
@@ -146,9 +143,7 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
                 dest_tick, [NapoDatatype.Float])
 
             # write to file
-            file_path = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(),
-                                     "GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
-            self.write_napo_file(file_path, self.constants_napo)
+            self.write_napo_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf", self.constants_napo)
 
             # set own variables
             self.starting_points = [int(i) for i in starting_points]

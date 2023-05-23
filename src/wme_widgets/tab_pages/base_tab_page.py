@@ -30,6 +30,7 @@ class BaseTabPage(QtWidgets.QWidget):
 
         self._unsaved_changes = False
         self.tab_name = ""
+        # TODO: make this a list
         self.file_path = ""
         self.help_file_path = ""
         self.help_page = None
