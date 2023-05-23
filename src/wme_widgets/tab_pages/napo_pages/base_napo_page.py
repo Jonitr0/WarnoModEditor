@@ -9,6 +9,7 @@ from PySide6 import QtWidgets, QtGui
 from src.ndf_parser.antlr_output.NdfGrammarLexer import NdfGrammarLexer
 from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
 
+from src.ndf_parser import ndf_scanner
 from src.ndf_parser.object_generator import napo_generator
 from src.ndf_parser.ndf_converter import napo_to_ndf_converter
 
@@ -80,7 +81,19 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
     # parse a part (e.g. object) of a given NDF file and return it as Napo Entity
     def get_napo_from_object(self, file_name: str, obj_name: str) -> NapoEntity:
-        pass
+        content, _, _ = ndf_scanner.get_object_range(file_name, obj_name)
+
+        input_stream = InputStream(content)
+        lexer = NdfGrammarLexer(input_stream)
+        stream = CommonTokenStream(lexer)
+        parser = NdfGrammarParser(stream)
+        tree = parser.ndf_file()
+
+        listener = napo_generator.NapoGenerator(parser)
+        walker = ParseTreeWalker()
+        walker.walk(listener, tree)
+
+        return NapoFile(listener.assignments)
 
     def write_napo_file(self, file_name: str, napo_file: NapoFile):
         file_path = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(), file_name)

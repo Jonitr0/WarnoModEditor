@@ -112,7 +112,7 @@ class TestNapo(unittest.TestCase):
 
     def get_val_test(self, file_name: str, path: str, expected):
         napo_file = generate_napo(file_name)
-        res = napo_file.get_value(path)
+        res = napo_file.get_raw_value(path)
         if res != expected:
             print("found:\n")
             print(res)
@@ -125,7 +125,7 @@ class TestNapo(unittest.TestCase):
     def set_val_test(self, file_name: str, path: str, value, dtypes: [NapoDatatype]):
         # set value on napo
         napo_file = generate_napo(file_name)
-        napo_file.set_value(path, value, dtypes)
+        napo_file.set_raw_value(path, value, dtypes)
         # convert to string
         converter = napo_to_ndf_converter.NapoToNdfConverter()
         napo_str = converter.convert(napo_file)
@@ -135,7 +135,7 @@ class TestNapo(unittest.TestCase):
             generated_napo = generate_napo("tmp.txt")
         os.remove("tmp.txt")
 
-        res = generated_napo.get_value(path)
+        res = generated_napo.get_raw_value(path)
         if res != value:
             print("found:\n")
             print(res)

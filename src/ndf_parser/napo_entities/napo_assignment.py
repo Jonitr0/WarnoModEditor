@@ -21,25 +21,25 @@ class NapoAssignment(NapoEntity):
                and self.member == other.member and self.value == other.value
         return ret
 
-    def _get_value(self, path: str, default=None):
+    def get_napo_value(self, path: str, default=None):
         # get current ID
         current = path.split("\\")[0]
         # if nothing remains, return own value
         if current == "":
             return self.value
         elif isinstance(self.value, NapoEntity):
-            return self.value._get_value(path, default)
+            return self.value.get_napo_value(path, default)
         else:
             return default
 
-    def _set_value(self, path: str, value):
+    def set_napo_value(self, path: str, value):
         # get current ID
         current = path.split("\\")[0]
         # if nothing remains, return own value
         if current == "":
             self.value = value
         elif isinstance(self.value, NapoEntity):
-            self.value._set_value(path, value)
+            self.value.set_napo_value(path, value)
         else:
             print("could not find " + path + "\ncurrent: " + current)
 

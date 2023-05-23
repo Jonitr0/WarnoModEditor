@@ -53,22 +53,22 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
 
         self.constants_napo = self.get_napo_from_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
 
-        self.starting_points = self.constants_napo.get_value("WargameConstantes\\ArgentInitialSetting")
+        self.starting_points = self.constants_napo.get_raw_value("WargameConstantes\\ArgentInitialSetting")
         self.starting_pts_list_widget.update_list(self.starting_points)
-        self.conquest_scores = self.constants_napo.get_value("WargameConstantes\\ConquestPossibleScores")
+        self.conquest_scores = self.constants_napo.get_raw_value("WargameConstantes\\ConquestPossibleScores")
         self.conquest_score_list_widget.update_list(self.conquest_scores)
-        self.destruction_scores = self.constants_napo.get_value("WargameConstantes\\DestructionScoreToReachSetting")
+        self.destruction_scores = self.constants_napo.get_raw_value("WargameConstantes\\DestructionScoreToReachSetting")
         destruction_scores = self.destruction_scores
         destruction_scores.remove(0)
         self.destruction_score_list_widget.update_list(destruction_scores)
 
-        self.conquest_income = self.constants_napo.get_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag")
-        self.conquest_tick = self.constants_napo.get_value(
+        self.conquest_income = self.constants_napo.get_raw_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag")
+        self.conquest_tick = self.constants_napo.get_raw_value(
             "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/CaptureTheFlag")
         self.conquest_income_widget.set_values(self.conquest_income, self.conquest_tick)
 
-        self.destruction_income = self.constants_napo.get_value("WargameConstantes\\BaseIncome\\CombatRule/Destruction")
-        self.destruction_tick = self.constants_napo.get_value(
+        self.destruction_income = self.constants_napo.get_raw_value("WargameConstantes\\BaseIncome\\CombatRule/Destruction")
+        self.destruction_tick = self.constants_napo.get_raw_value(
             "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/Destruction")
         self.destruction_income_widget.set_values(self.destruction_income, self.destruction_tick)
 
@@ -122,23 +122,23 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
             for val in starting_points:
                 dest_table[val] = destruction_scores
 
-            self.constants_napo.set_value("WargameConstantes\\ArgentInitialSetting", starting_points,
-                                          len(starting_points) * [NapoDatatype.Integer])
-            self.constants_napo.set_value("WargameConstantes\\DefaultArgentInitial", default_starting_points,
-                                          [NapoDatatype.Integer])
-            self.constants_napo.set_value("WargameConstantes\\ConquestPossibleScores", conquest_scores,
-                                          len(conquest_scores) * [NapoDatatype.Integer])
-            self.constants_napo.set_value("WargameConstantes\\DestructionScoreToReachSetting", destruction_scores,
-                                          len(destruction_scores) * [NapoDatatype.Integer])
-            self.constants_napo.set_value("WargameConstantes\\VictoryTypeDestructionLevelsTable", dest_table, dest_types)
-            self.constants_napo.set_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag", conquest_income,
-                                          [NapoDatatype.Integer])
-            self.constants_napo.set_value(
+            self.constants_napo.set_raw_value("WargameConstantes\\ArgentInitialSetting", starting_points,
+                                              len(starting_points) * [NapoDatatype.Integer])
+            self.constants_napo.set_raw_value("WargameConstantes\\DefaultArgentInitial", default_starting_points,
+                                              [NapoDatatype.Integer])
+            self.constants_napo.set_raw_value("WargameConstantes\\ConquestPossibleScores", conquest_scores,
+                                              len(conquest_scores) * [NapoDatatype.Integer])
+            self.constants_napo.set_raw_value("WargameConstantes\\DestructionScoreToReachSetting", destruction_scores,
+                                              len(destruction_scores) * [NapoDatatype.Integer])
+            self.constants_napo.set_raw_value("WargameConstantes\\VictoryTypeDestructionLevelsTable", dest_table, dest_types)
+            self.constants_napo.set_raw_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag", conquest_income,
+                                              [NapoDatatype.Integer])
+            self.constants_napo.set_raw_value(
                 "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/CaptureTheFlag",
                 conquest_tick, [NapoDatatype.Float])
-            self.constants_napo.set_value("WargameConstantes\\BaseIncome\\CombatRule/Destruction", dest_income,
-                                          [NapoDatatype.Integer])
-            self.constants_napo.set_value(
+            self.constants_napo.set_raw_value("WargameConstantes\\BaseIncome\\CombatRule/Destruction", dest_income,
+                                              [NapoDatatype.Integer])
+            self.constants_napo.set_raw_value(
                 "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/Destruction",
                 dest_tick, [NapoDatatype.Float])
 

@@ -17,7 +17,7 @@ class NapoCollection(NapoEntity):
         elif isinstance(data, NapoObject):
             self.lookup[data.obj_type] = len(self.value) - 1
 
-    def _get_value(self, path: str, default=None):
+    def get_napo_value(self, path: str, default=None):
         # get current ID
         current = path.split("\\")[0]
         # build remaining path
@@ -28,12 +28,12 @@ class NapoCollection(NapoEntity):
             return self.value
         # otherwise, call function on own value
         elif self.lookup.__contains__(current):
-            return self.value[self.lookup[current]]._get_value(remaining, default)
+            return self.value[self.lookup[current]].get_napo_value(remaining, default)
         else:
             print("Could not find value for " + str(path) + " on " + str(self))
             return default
 
-    def _set_value(self, path: str, value):
+    def set_napo_value(self, path: str, value):
         # get current ID
         current = path.split("\\")[0]
         # build remaining path
@@ -44,9 +44,17 @@ class NapoCollection(NapoEntity):
             self.value = value
         # otherwise, call function on own value
         elif self.lookup.__contains__(current):
-            self.value[self.lookup[current]]._set_value(remaining, value)
+            self.value[self.lookup[current]].set_napo_value(remaining, value)
         else:
             print("could not find " + path + "\nremaining: " + remaining)
+
+    def set_raw_value(self, path: str, value, dtypes: [NapoDatatype]):
+        entity = napo_from_value(value, dtypes)
+        self.set_napo_value(path, entity)
+
+    def get_raw_value(self, path: str, default=None):
+        result = self.get_napo_value(path, default)
+        return value_from_napo(result)
 
     def __eq__(self, other):
         if not type(other) == type(self):
@@ -58,6 +66,9 @@ class NapoCollection(NapoEntity):
                 return False
         return True
 
+    def __len__(self):
+        return len(self.value)
+
 
 class NapoFile(NapoCollection):
     def __init__(self, assignments=[]):
@@ -65,14 +76,6 @@ class NapoFile(NapoCollection):
         self.datatype = NapoDatatype.STRUCTURAL
         for assignment in assignments:
             self.append(assignment)
-
-    def set_value(self, path: str, value, dtypes: [NapoDatatype]):
-        entity = napo_from_value(value, dtypes)
-        self._set_value(path, entity)
-
-    def get_value(self, path: str, default=None):
-        result = self._get_value(path, default)
-        return value_from_napo(result)
 
     def __str__(self):
         return "{type: file, value: " + ''.join(map(str, self.value)) + "}"
@@ -134,7 +137,7 @@ class NapoMap(NapoCollection):
         self.map[str(data.value[0].value)] = data.value[1]
         self.lookup[str(data.value[0].value)] = len(self.value) - 1
 
-    def _get_value(self, path: str, default=None):
+    def get_napo_value(self, path: str, default=None):
         # get current ID
         current = path.split("\\")[0]
         # build remaining path
@@ -148,12 +151,12 @@ class NapoMap(NapoCollection):
             return self.map[current]
         # otherwise, call function on own value
         elif self.lookup.__contains__(current):
-            return self.map[current]._get_value(remaining, default)
+            return self.map[current].get_napo_value(remaining, default)
         else:
             print("Could not find value for " + str(path) + " on " + str(self))
             return default
 
-    def _set_value(self, path: str, value):
+    def set_napo_value(self, path: str, value):
         # get current ID
         current = path.split("\\")[0]
         # build remaining path
@@ -167,7 +170,7 @@ class NapoMap(NapoCollection):
             self.value[self.lookup[current]].value[1] = value
         # otherwise, call function on own value
         elif self.lookup.__contains__(current):
-            self.map[current]._set_value(remaining, value)
+            self.map[current].set_napo_value(remaining, value)
         else:
             print("could not find " + path + "\nremaining: " + remaining)
 

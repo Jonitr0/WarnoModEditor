@@ -11,6 +11,11 @@ from src.wme_widgets import main_widget
 
 from src.ndf_parser import ndf_scanner
 
+PLAYER_DIVS = {
+    "Black Horse's Last Stand": "Descriptor_Deck_US_11ACR_multi_HB_OP_01_DEP_PLAYER",
+    "Red Juggernaut": "Descriptor_Deck_SOV_79_Gds_Tank_challenge_OP_03_STR_Player"
+}
+
 
 class OperationEditor(base_napo_page.BaseNapoPage):
     def __init__(self):
@@ -38,7 +43,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         test_combobox.addItems(units)
         self.scroll_layout.addWidget(test_combobox)
 
-        self.decks_napo = None
+        self.player_deck_napo = None
         # TODO: read Decks.ndf, get CombatGroups and DeckPackList
         # TODO: get actual units from Packs.ndf
         # TODO: create Widgets
@@ -50,7 +55,22 @@ class OperationEditor(base_napo_page.BaseNapoPage):
     def update_page(self):
         main_widget.MainWidget.instance.show_loading_screen("loading files...")
 
-        # TODO: load relevant parts only
-        self.decks_napo = self.get_napo_from_file("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf")
+        player_div = PLAYER_DIVS[self.op_combobox.currentText()]
+        self.player_deck_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div)
+
+        # get group list
+        group_list = self.player_deck_napo.get_napo_value(player_div + "\\DeckCombatGroupList")
+        for i in range(len(group_list)):
+            # get unit object
+            group = group_list.value[i]
+            group_name = group.get_raw_value("Name")
+            platoon_list = group.get_napo_value("SmartGroupList")
+            for j in range(len(platoon_list)):
+                # get platoon (index/availability mapping)
+                platoon = platoon_list.value[j]
+                platoon_name = platoon.get_raw_value("Name")
+                platoon_packs = platoon.get_napo_value("PackIndexUnitNumberList")
+                print(platoon_name)
+                print(platoon_packs)
 
         main_widget.MainWidget.instance.hide_loading_screen()
