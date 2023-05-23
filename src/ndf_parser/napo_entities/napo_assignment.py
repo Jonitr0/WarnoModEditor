@@ -7,11 +7,12 @@ class NapoAssignment(NapoEntity):
         self.id = ""
         self.datatype = NapoDatatype.STRUCTURAL
         self.export = False
+        self.private = False
         self.member = False
 
     def __str__(self):
-        return "{id: " + self.id + " type: assignment, export: " + str(self.export) + ", member: " + \
-               str(self.member) + ", value: " + str(self.value) + "}"
+        return "{id: " + self.id + " type: assignment, export: " + str(self.export) + ", private:" + \
+               str(self.private) + ", member: " + str(self.member) + ", value: " + str(self.value) + "}"
 
     def __eq__(self, other):
         if not type(other) == type(self):

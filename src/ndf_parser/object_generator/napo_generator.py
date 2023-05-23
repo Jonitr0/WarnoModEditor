@@ -21,7 +21,7 @@ class Stack:
     # return top element without removing it
     def top(self):
         if len(self._stack) > 0:
-            return self._stack[len(self._stack)-1]
+            return self._stack[len(self._stack) - 1]
         else:
             return None
 
@@ -48,13 +48,13 @@ class NapoGenerator(NdfGrammarListener):
         # Track depth of rules to be ignored
         self.ignore = 0
 
-    def enterAssignment(self, ctx:NdfGrammarParser.AssignmentContext):
+    def enterAssignment(self, ctx: NdfGrammarParser.AssignmentContext):
         if self.ignore > 0:
             return
         # push new assignment to stack
         self.stack.push(NapoAssignment())
 
-    def exitAssignment(self, ctx:NdfGrammarParser.AssignmentContext):
+    def exitAssignment(self, ctx: NdfGrammarParser.AssignmentContext):
         if self.ignore > 0:
             return
         # pop value off stack and assign to assignment
@@ -65,19 +65,25 @@ class NapoGenerator(NdfGrammarListener):
             assignment = self.stack.pop()
             self.assignments.append(assignment)
 
-    def enterExport(self, ctx:NdfGrammarParser.ExportContext):
+    def enterExport(self, ctx: NdfGrammarParser.ExportContext):
         if self.ignore > 0:
             return
         # assign "export" to top item on stack
         self.stack.top().export = True
 
-    def enterId(self, ctx:NdfGrammarParser.IdContext):
+    def enterPrivate_prefix(self, ctx: NdfGrammarParser.Private_prefixContext):
+        if self.ignore > 0:
+            return
+        # assign "private" to top item on stack
+        self.stack.top().private = True
+
+    def enterId(self, ctx: NdfGrammarParser.IdContext):
         if self.ignore > 0:
             return
         # assign ID to top item on stack
         self.stack.top().id = ctx.getText()
 
-    def enterBool_value(self, ctx:NdfGrammarParser.Bool_valueContext):
+    def enterBool_value(self, ctx: NdfGrammarParser.Bool_valueContext):
         if self.ignore > 0:
             return
         entity = NapoEntity()
@@ -88,7 +94,7 @@ class NapoGenerator(NdfGrammarListener):
             entity.value = True
         self.stack.push(entity)
 
-    def enterInt_value(self, ctx:NdfGrammarParser.Int_valueContext):
+    def enterInt_value(self, ctx: NdfGrammarParser.Int_valueContext):
         if self.ignore > 0:
             return
         entity = NapoEntity()
@@ -96,7 +102,7 @@ class NapoGenerator(NdfGrammarListener):
         entity.value = int(ctx.getText())
         self.stack.push(entity)
 
-    def enterString_value(self, ctx:NdfGrammarParser.String_valueContext):
+    def enterString_value(self, ctx: NdfGrammarParser.String_valueContext):
         if self.ignore > 0:
             return
         entity = NapoEntity()
@@ -108,7 +114,7 @@ class NapoGenerator(NdfGrammarListener):
         entity.value = value[1:-1]
         self.stack.push(entity)
 
-    def enterHex_value(self, ctx:NdfGrammarParser.Hex_valueContext):
+    def enterHex_value(self, ctx: NdfGrammarParser.Hex_valueContext):
         if self.ignore > 0:
             return
         entity = NapoEntity()
@@ -116,7 +122,7 @@ class NapoGenerator(NdfGrammarListener):
         entity.value = ctx.getText()
         self.stack.push(entity)
 
-    def enterFloat_value(self, ctx:NdfGrammarParser.Float_valueContext):
+    def enterFloat_value(self, ctx: NdfGrammarParser.Float_valueContext):
         if self.ignore > 0:
             return
         entity = NapoEntity()
@@ -124,7 +130,7 @@ class NapoGenerator(NdfGrammarListener):
         entity.value = float(ctx.getText())
         self.stack.push(entity)
 
-    def enterGuid_value(self, ctx:NdfGrammarParser.Guid_valueContext):
+    def enterGuid_value(self, ctx: NdfGrammarParser.Guid_valueContext):
         if self.ignore > 0:
             return
         entity = NapoEntity()
@@ -132,7 +138,7 @@ class NapoGenerator(NdfGrammarListener):
         entity.value = ctx.getText()
         self.stack.push(entity)
 
-    def enterRgba_value(self, ctx:NdfGrammarParser.Rgba_valueContext):
+    def enterRgba_value(self, ctx: NdfGrammarParser.Rgba_valueContext):
         if self.ignore > 0:
             return
         entity = NapoEntity()
@@ -147,7 +153,7 @@ class NapoGenerator(NdfGrammarListener):
         entity.value = [int(x) for x in nums]
         self.stack.push(entity)
 
-    def enterObj_reference_value(self, ctx:NdfGrammarParser.Obj_reference_valueContext):
+    def enterObj_reference_value(self, ctx: NdfGrammarParser.Obj_reference_valueContext):
         self.ignore += 1
         if self.ignore > 1:
             return
@@ -157,17 +163,17 @@ class NapoGenerator(NdfGrammarListener):
         entity.value = ctx.getText()
         self.stack.push(entity)
 
-    def exitObj_reference_value(self, ctx:NdfGrammarParser.Obj_reference_valueContext):
+    def exitObj_reference_value(self, ctx: NdfGrammarParser.Obj_reference_valueContext):
         if self.ignore > 0:
             self.ignore -= 1
 
-    def enterPair_value(self, ctx:NdfGrammarParser.Pair_valueContext):
+    def enterPair_value(self, ctx: NdfGrammarParser.Pair_valueContext):
         if self.ignore > 0:
             return
         self.stack.push(NapoPair())
         self.stack.push(StackMarker())
 
-    def exitPair_value(self, ctx:NdfGrammarParser.Pair_valueContext):
+    def exitPair_value(self, ctx: NdfGrammarParser.Pair_valueContext):
         if self.ignore > 0:
             return
         pair_values = []
@@ -179,13 +185,13 @@ class NapoGenerator(NdfGrammarListener):
         for value in pair_values:
             self.stack.top().append(value)
 
-    def enterVector_value(self, ctx:NdfGrammarParser.Vector_valueContext):
+    def enterVector_value(self, ctx: NdfGrammarParser.Vector_valueContext):
         if self.ignore > 0:
             return
         self.stack.push(NapoVector())
         self.stack.push(StackMarker())
-        
-    def exitVector_value(self, ctx:NdfGrammarParser.Vector_valueContext):
+
+    def exitVector_value(self, ctx: NdfGrammarParser.Vector_valueContext):
         if self.ignore > 0:
             return
         vector_values = []
@@ -197,13 +203,13 @@ class NapoGenerator(NdfGrammarListener):
         for value in vector_values:
             self.stack.top().append(value)
 
-    def enterMap_value(self, ctx:NdfGrammarParser.Map_valueContext):
+    def enterMap_value(self, ctx: NdfGrammarParser.Map_valueContext):
         if self.ignore > 0:
             return
         self.stack.push(NapoMap())
         self.stack.push(StackMarker())
 
-    def exitMap_value(self, ctx:NdfGrammarParser.Map_valueContext):
+    def exitMap_value(self, ctx: NdfGrammarParser.Map_valueContext):
         if self.ignore > 0:
             return
         map_values = []
@@ -215,7 +221,7 @@ class NapoGenerator(NdfGrammarListener):
         for value in map_values:
             self.stack.top().append(value)
 
-    def enterArithmetic(self, ctx:NdfGrammarParser.ArithmeticContext):
+    def enterArithmetic(self, ctx: NdfGrammarParser.ArithmeticContext):
         # don't treat single elements as arithmetic if we aren't already inside another arithmetic
         if len(ctx.children) <= 1 and self.ignore <= 0:
             return
@@ -237,15 +243,15 @@ class NapoGenerator(NdfGrammarListener):
 
         self.stack.push(arithmetic)
 
-    def enterOp(self, ctx:NdfGrammarParser.Obj_typeContext):
+    def enterOp(self, ctx: NdfGrammarParser.Obj_typeContext):
         # TODO: edit text, add spaces around op
         pass
 
-    def exitArithmetic(self, ctx:NdfGrammarParser.ArithmeticContext):
+    def exitArithmetic(self, ctx: NdfGrammarParser.ArithmeticContext):
         if self.ignore > 0:
             self.ignore -= 1
 
-    def enterObj_type(self, ctx:NdfGrammarParser.Obj_typeContext):
+    def enterObj_type(self, ctx: NdfGrammarParser.Obj_typeContext):
         if self.ignore > 0:
             return
         obj = NapoObject()
@@ -253,7 +259,7 @@ class NapoGenerator(NdfGrammarListener):
         self.stack.push(obj)
         self.stack.push(StackMarker())
 
-    def exitObject(self, ctx:NdfGrammarParser.ObjectContext):
+    def exitObject(self, ctx: NdfGrammarParser.ObjectContext):
         if self.ignore > 0:
             return
         members = []
@@ -265,7 +271,7 @@ class NapoGenerator(NdfGrammarListener):
         for value in members:
             self.stack.top().append(value)
 
-    def enterMember_assignment(self, ctx:NdfGrammarParser.Member_assignmentContext):
+    def enterMember_assignment(self, ctx: NdfGrammarParser.Member_assignmentContext):
         if self.ignore > 0:
             return
         assignment = NapoAssignment()
@@ -273,15 +279,9 @@ class NapoGenerator(NdfGrammarListener):
         # push new assignment to stack
         self.stack.push(assignment)
 
-    def exitMember_assignment(self, ctx:NdfGrammarParser.Member_assignmentContext):
+    def exitMember_assignment(self, ctx: NdfGrammarParser.Member_assignmentContext):
         if self.ignore > 0:
             return
         # pop value off stack and assign to assignment
         value = self.stack.pop()
         self.stack.top().value = value
-
-
-
-
-
-

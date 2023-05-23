@@ -39,23 +39,18 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.scroll_layout.addWidget(test_combobox)
 
         self.decks_napo = None
-        self.packs_napo = None
-        self.ddivisionrules_napo = None
         # TODO: read Decks.ndf, get CombatGroups and DeckPackList
         # TODO: get actual units from Packs.ndf
         # TODO: create Widgets
         # TODO: on save: update availability in CombatGroups, add any needed Packs to DeckPackList and Packs.ndf
         # TODO: add new units to DivisionRules.ndf
 
-        #self.update_page()
+        self.update_page()
 
     def update_page(self):
         main_widget.MainWidget.instance.show_loading_screen("loading files...")
 
         # TODO: load relevant parts only
-        # TODO: "private" keyword in parser
         self.decks_napo = self.get_napo_from_file("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf")
-        self.packs_napo = self.get_napo_from_file("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
-        self.packs_napo = self.get_napo_from_file("GameData\\Generated\\Gameplay\\Decks\\DivisionRules.ndf")
 
         main_widget.MainWidget.instance.hide_loading_screen()

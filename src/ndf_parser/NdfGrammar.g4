@@ -5,7 +5,8 @@ grammar NdfGrammar;
 // general structure
 
 ndf_file : assignment* EOF;
-assignment : export? id K_IS r_value;
+assignment : ( export | private_prefix )? id K_IS r_value;
+private_prefix: K_PRIVATE;
 export: K_EXPORT;
 r_value : concatination | arithmetic | builtin_type_value | object | assignment | obj_reference_value | special_value;
 object : obj_type '(' ( block )* ')';
@@ -68,6 +69,7 @@ K_PAIR : P A I R;
 K_LIST : L I S T;
 
 K_EXPORT : E X P O R T;
+K_PRIVATE : P R I V A T E;
 
 // special keywords
 

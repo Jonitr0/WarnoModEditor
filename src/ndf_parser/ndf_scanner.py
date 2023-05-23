@@ -8,6 +8,7 @@ def get_assignment_ids(file_name: str) -> [str]:
     file_name = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(), file_name)
     with open(file_name, mode="r", encoding="utf-8") as f:
         file_content = f.read()
+        f.close()
 
     current_index = 0
     assignment_regex = re.compile("(\\w+)\\sis\\s")
@@ -34,3 +35,10 @@ def get_assignment_ids(file_name: str) -> [str]:
                 current_index = next_close + 1
 
     return ids
+
+def get_object_range(file_name: str, obj_name: str) -> (int, int):
+    file_name = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(), file_name)
+    with open(file_name, mode="r", encoding="utf-8") as f:
+        file_content = f.read()
+        f.close()
+
