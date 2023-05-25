@@ -94,13 +94,15 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             # get unit object
             group = group_list.value[i]
             group_name = group.get_raw_value("Name")
-            self.scroll_layout.addWidget(unit_widgets.UnitGroupWidget(group_name))
+            group_widget = unit_widgets.UnitGroupWidget(group_name)
+            self.scroll_layout.addWidget(group_widget)
             platoon_list = group.get_napo_value("SmartGroupList")
             for j in range(len(platoon_list)):
                 # get platoon (index/availability mapping)
                 platoon = platoon_list.value[j]
                 platoon_name = platoon.get_raw_value("Name")
                 platoon_packs = platoon.get_napo_value("PackIndexUnitNumberList")
+                group_widget.add_platoon(platoon_name, platoon_packs)
 
         self.scroll_layout.addStretch(1)
 
