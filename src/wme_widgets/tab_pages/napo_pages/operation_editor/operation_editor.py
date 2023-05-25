@@ -16,7 +16,9 @@ from src.ndf_parser import ndf_scanner
 # TODO: add new operations
 PLAYER_DIVS = {
     "Black Horse's Last Stand": "Descriptor_Deck_US_11ACR_multi_HB_OP_01_DEP_PLAYER",
-    "Red Juggernaut": "Descriptor_Deck_SOV_79_Gds_Tank_challenge_OP_03_STR_Player"
+    "Red Juggernaut": "Descriptor_Deck_SOV_79_Gds_Tank_challenge_OP_03_STR_Player",
+    "Backhand Blow": "Descriptor_Deck_US_3rd_Arm_challenge_OP_09_STB_Player",
+    "The Kitzingen Ruse": "Descriptor_Deck_SOV_35_AirAslt_Brig_challenge_OP_12_AA_Player"
 }
 
 
@@ -25,7 +27,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         super().__init__()
 
         self.op_combobox = QtWidgets.QComboBox()
-        self.op_combobox.addItems(["Black Horse's Last Stand", "Red Juggernaut"])
+        self.op_combobox.addItems(PLAYER_DIVS.keys())
         self.op_combobox.currentIndexChanged.connect(self.on_new_op_selected)
 
         self.last_op_index = 0
@@ -81,19 +83,17 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.player_deck_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div)
 
         # get group list
+        print(self.op_combobox.currentText())
         group_list = self.player_deck_napo.get_napo_value(player_div + "\\DeckCombatGroupList")
         for i in range(len(group_list)):
             # get unit object
             group = group_list.value[i]
             group_name = group.get_raw_value("Name")
-            print(group_name)
             platoon_list = group.get_napo_value("SmartGroupList")
             for j in range(len(platoon_list)):
                 # get platoon (index/availability mapping)
                 platoon = platoon_list.value[j]
                 platoon_name = platoon.get_raw_value("Name")
                 platoon_packs = platoon.get_napo_value("PackIndexUnitNumberList")
-                print(platoon_name)
-                # TODO: create a predefined list of names for players to choose from
 
         main_widget.MainWidget.instance.hide_loading_screen()
