@@ -1,3 +1,5 @@
+import logging
+
 STRINGS = {
     "BETUFEMGDL": "A-1-11th ACR",
     "SLWSVLLPZP": "Troop HQ",
@@ -38,3 +40,10 @@ STRINGS = {
     "MMISGNOMQO": "AT Platoon",
     "OMMSABUJXJ": "Support Platoon",
 }
+
+
+def get_string(token: str):
+    if not STRINGS.__contains__(token):
+        logging.warning("String for token \"" + token + "\" not found!")
+        return "String not found!"
+    return STRINGS[token]

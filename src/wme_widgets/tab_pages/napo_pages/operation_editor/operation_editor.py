@@ -6,6 +6,7 @@
 
 from PySide6 import QtWidgets
 
+from src.wme_widgets.tab_pages.napo_pages.operation_editor import unit_widgets
 from src.wme_widgets.tab_pages.napo_pages import base_napo_page
 from src.wme_widgets import main_widget
 
@@ -13,7 +14,6 @@ from src.dialogs import essential_dialogs
 
 from src.ndf_parser import ndf_scanner
 
-# TODO: add new operations
 PLAYER_DIVS = {
     "Black Horse's Last Stand": "Descriptor_Deck_US_11ACR_multi_HB_OP_01_DEP_PLAYER",
     "Red Juggernaut": "Descriptor_Deck_SOV_79_Gds_Tank_challenge_OP_03_STR_Player",
@@ -79,16 +79,22 @@ class OperationEditor(base_napo_page.BaseNapoPage):
     def update_page(self):
         main_widget.MainWidget.instance.show_loading_screen("loading files...")
 
+        # clear layout
+        while self.scroll_layout.count():
+            child = self.scroll_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
         player_div = PLAYER_DIVS[self.op_combobox.currentText()]
         self.player_deck_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div)
 
         # get group list
-        print(self.op_combobox.currentText())
         group_list = self.player_deck_napo.get_napo_value(player_div + "\\DeckCombatGroupList")
         for i in range(len(group_list)):
             # get unit object
             group = group_list.value[i]
             group_name = group.get_raw_value("Name")
+            self.scroll_layout.addWidget(unit_widgets.UnitGroupWidget(group_name))
             platoon_list = group.get_napo_value("SmartGroupList")
             for j in range(len(platoon_list)):
                 # get platoon (index/availability mapping)
@@ -96,4 +102,13 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 platoon_name = platoon.get_raw_value("Name")
                 platoon_packs = platoon.get_napo_value("PackIndexUnitNumberList")
 
+        self.scroll_layout.addStretch(1)
+
         main_widget.MainWidget.instance.hide_loading_screen()
+
+    def to_json(self) -> dict:
+        page_json = {"currentOp": self.op_combobox.currentText()}
+        return page_json
+
+    def from_json(self, json_obj: dict):
+        self.op_combobox.setCurrentIndex(self.op_combobox.findText(json_obj["currentOp"]))
