@@ -9,8 +9,11 @@ from PySide6 import QtWidgets
 from src.wme_widgets.tab_pages.napo_pages import base_napo_page
 from src.wme_widgets import main_widget
 
+from src.dialogs import essential_dialogs
+
 from src.ndf_parser import ndf_scanner
 
+# TODO: add new operations
 PLAYER_DIVS = {
     "Black Horse's Last Stand": "Descriptor_Deck_US_11ACR_multi_HB_OP_01_DEP_PLAYER",
     "Red Juggernaut": "Descriptor_Deck_SOV_79_Gds_Tank_challenge_OP_03_STR_Player"
@@ -23,6 +26,9 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         self.op_combobox = QtWidgets.QComboBox()
         self.op_combobox.addItems(["Black Horse's Last Stand", "Red Juggernaut"])
+        self.op_combobox.currentIndexChanged.connect(self.on_new_op_selected)
+
+        self.last_op_index = 0
 
         self.tool_bar.addSeparator()
 
@@ -52,6 +58,22 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         self.update_page()
 
+    def on_new_op_selected(self, index: int):
+        if index == self.last_op_index:
+            return
+
+        if self.unsaved_changes:
+            dialog = essential_dialogs.AskToSaveDialog(self.op_combobox.currentText())
+            res = dialog.exec()
+            if not res:
+                self.op_combobox.setCurrentIndex(self.last_op_index)
+                return
+            elif dialog.save_changes:
+                self.save_changes()
+
+        self.last_op_index = index
+        self.update_page()
+
     def update_page(self):
         main_widget.MainWidget.instance.show_loading_screen("loading files...")
 
@@ -64,6 +86,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             # get unit object
             group = group_list.value[i]
             group_name = group.get_raw_value("Name")
+            print(group_name)
             platoon_list = group.get_napo_value("SmartGroupList")
             for j in range(len(platoon_list)):
                 # get platoon (index/availability mapping)
@@ -71,6 +94,6 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 platoon_name = platoon.get_raw_value("Name")
                 platoon_packs = platoon.get_napo_value("PackIndexUnitNumberList")
                 print(platoon_name)
-                print(platoon_packs)
+                # TODO: create a predefined list of names for players to choose from
 
         main_widget.MainWidget.instance.hide_loading_screen()

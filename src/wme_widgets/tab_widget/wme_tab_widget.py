@@ -6,8 +6,8 @@ from PySide6.QtCore import Qt
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
 from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, global_search_page, guid_generator_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
-from src.wme_widgets.tab_pages.napo_pages import game_settings_page, operation_editor
-from src.wme_widgets import main_widget
+from src.wme_widgets.tab_pages.napo_pages import game_settings_page
+from src.wme_widgets.tab_pages.napo_pages.operation_editor import operation_editor
 from src.dialogs import essential_dialogs
 from src.utils import icon_manager
 from src.utils.color_manager import *
