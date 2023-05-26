@@ -1,12 +1,12 @@
 from PySide6 import QtWidgets
 
 from src.dialogs import base_dialog
-from src.wme_widgets import wme_lineedit
+from src.wme_widgets import wme_essentials
 
 
 class NewBackupDialog(base_dialog.BaseDialog):
     def __init__(self):
-        self.line_edit = wme_lineedit.WMELineEdit()
+        self.line_edit = wme_essentials.WMELineEdit()
 
         super().__init__()
         self.setWindowTitle("Create backup")

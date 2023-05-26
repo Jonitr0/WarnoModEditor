@@ -131,3 +131,7 @@ QSizeGrip {{ image: none; }}
 QListWidget::item {{
   padding: 2px;
 }}
+
+StringSelectionCombobox {{
+  background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
+}}

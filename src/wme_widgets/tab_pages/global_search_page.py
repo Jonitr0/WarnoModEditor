@@ -5,7 +5,7 @@ import os
 from PySide6 import QtWidgets
 from PySide6.QtCore import Qt
 
-from src.wme_widgets import wme_lineedit, main_widget
+from src.wme_widgets import wme_essentials, main_widget
 from src.wme_widgets.tab_pages import base_tab_page
 from src.utils import icon_manager
 from src.utils.color_manager import *
@@ -23,7 +23,7 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
         main_layout.setContentsMargins(0, 8, 0, 8)
         main_layout.addLayout(search_bar)
 
-        self.search_line_edit = wme_lineedit.WMELineEdit()
+        self.search_line_edit = wme_essentials.WMELineEdit()
         self.search_line_edit.setPlaceholderText("Find text in all .ndf files of your mod")
         self.search_line_edit.returnPressed.connect(self.on_search)
         search_bar.addWidget(self.search_line_edit)

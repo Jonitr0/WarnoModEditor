@@ -1,4 +1,6 @@
 from PySide6 import QtWidgets
+from PySide6.QtCore import Qt
+
 from src.utils.color_manager import *
 
 
@@ -18,3 +20,17 @@ class WMELineEdit(QtWidgets.QLineEdit):
                                "; font: italic; }")
         else:
             self.setStyleSheet("QLineEdit { color: " + get_color_for_key(COLORS.PRIMARY.value) + "; }")
+
+
+class WMECombobox(QtWidgets.QComboBox):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setEditable(True)
+        self.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
+        self.setFocusPolicy(Qt.StrongFocus)
+
+    def wheelEvent(self, e) -> None:
+        if self.hasFocus():
+            super().wheelEvent(e)
+        else:
+            e.ignore()

@@ -2,12 +2,12 @@ from PySide6 import QtCore
 
 from src.dialogs.base_dialog import BaseDialog
 from src.dialogs import essential_dialogs
-from src.wme_widgets import wme_lineedit
+from src.wme_widgets import wme_essentials
 
 
 class NewModDialog(BaseDialog):
     def __init__(self, warno_path):
-        self.name_line_edit = wme_lineedit.WMELineEdit()
+        self.name_line_edit = wme_essentials.WMELineEdit()
         self.warno_path = warno_path
 
         super().__init__()

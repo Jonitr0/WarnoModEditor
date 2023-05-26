@@ -5,14 +5,14 @@ from src.dialogs import essential_dialogs
 from src.utils import path_validator, settings_manager
 from src.utils import theme_manager
 from src.wme_widgets import main_widget
-from src.wme_widgets import wme_lineedit
+from src.wme_widgets import wme_essentials
 
 
 class OptionsDialog(BaseDialog):
     def __init__(self):
-        self.color_combobox = QtWidgets.QComboBox()
+        self.color_combobox = wme_essentials.WMECombobox()
         self.theme_checkbox = QtWidgets.QCheckBox()
-        self.path_line_edit = wme_lineedit.WMELineEdit()
+        self.path_line_edit = wme_essentials.WMELineEdit()
 
         super().__init__()
         self.setWindowTitle("Options")

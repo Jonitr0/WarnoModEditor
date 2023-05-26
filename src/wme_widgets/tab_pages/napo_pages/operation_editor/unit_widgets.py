@@ -1,10 +1,11 @@
 from PySide6 import QtWidgets
-from PySide6.QtCore import Qt
 
 from src.utils import icon_manager, string_dict
 from src.utils.color_manager import *
 
 from src.ndf_parser.napo_entities.napo_collection import *
+
+from src.wme_widgets import wme_essentials
 
 
 # represents one group of smart groups in Operation Editor
@@ -34,42 +35,67 @@ class UnitGroupWidget(QtWidgets.QWidget):
         self.platoon_layout = QtWidgets.QVBoxLayout()
         main_layout.addLayout(self.platoon_layout)
 
-        # TODO: display name, remove button
         # TODO: make collapsible
-        # TODO: add platoon
 
-    def add_platoon(self, name_token: str, unit_list: NapoVector):
-        self.platoon_layout.addWidget(UnitPlatoonWidget(name_token, unit_list))
+    def add_platoon(self, name_token: str, unit_list: NapoVector, all_units: [str]):
+        self.platoon_layout.addWidget(UnitPlatoonWidget(name_token, unit_list, all_units))
 
 
 # represents one platoon/smart group in Operation Editor
 class UnitPlatoonWidget(QtWidgets.QWidget):
-    def __init__(self, name_token: str, unit_list: NapoVector, parent=None):
+    def __init__(self, name_token: str, unit_list: NapoVector, all_units: [str], parent=None):
         super().__init__(parent)
 
-        main_layout = QtWidgets.QHBoxLayout()
-        self.setLayout(main_layout)
+        UnitSelectionCombobox.units = all_units
+
+        self.main_layout = QtWidgets.QVBoxLayout()
+        self.setLayout(self.main_layout)
 
         platoon_name_selector = StringSelectionCombobox(name_token)
-        main_layout.addWidget(platoon_name_selector)
+        self.main_layout.addWidget(platoon_name_selector)
         # TODO: name, remove
         # TODO: list units
         # TODO: add/remove units
 
+        for pair in unit_list.value:
+            index = pair.value[0].value
+            count = pair.value[1].value
+            self.add_unit(index, count)
+
+    def add_unit(self, index: int, count: int):
+        unit_name = self.get_unit_name_for_index(index)
+        self.main_layout.addWidget(UnitSelectorWidget(count, unit_name))
+
+    def get_unit_name_for_index(self, index: int):
+        # TODO
+        return ""
+
+
+class UnitSelectorWidget(QtWidgets.QWidget):
+    def __init__(self, count: int, unit_name: str = "", parent=None):
+        super().__init__(parent)
+
+        layout = QtWidgets.QHBoxLayout()
+        self.setLayout(layout)
+
+        count_spinbox = QtWidgets.QSpinBox()
+        count_spinbox.setRange(1, 100)
+        count_spinbox.setValue(count)
+        layout.addWidget(count_spinbox)
+
+        unit_selector = UnitSelectionCombobox(unit_name)
+        layout.addWidget(unit_selector)
+
+        # TODO: transport if applicable
+
 
 # Combobox for selecting strings. Displays them as ingame but maps them to tokens
-class StringSelectionCombobox(QtWidgets.QComboBox):
-    _key_list = []
-
+class StringSelectionCombobox(wme_essentials.WMECombobox):
     def __init__(self, token: str = "", parent=None):
         super().__init__(parent)
 
-        for key in self.key_list():
+        for key in string_dict.STRINGS.keys():
             self.addItem(string_dict.STRINGS[key], key)
-
-        self.setEditable(True)
-        self.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
-        self.setFocusPolicy(Qt.StrongFocus)
 
         if not token == "":
             self.set_index_for_token(token)
@@ -78,22 +104,14 @@ class StringSelectionCombobox(QtWidgets.QComboBox):
         index = self.findData(token)
         self.setCurrentIndex(index)
 
-    def key_list(self):
-        # TODO: fix "Recon platoon" double mapping problem
-        if self._key_list:
-            return self._key_list
 
-        values = list(string_dict.STRINGS.values())
-        values_sorted = sorted(values)
-        keys = list(string_dict.STRINGS.keys())
+class UnitSelectionCombobox(wme_essentials.WMECombobox):
+    units = []
 
-        for val in values_sorted:
-            self._key_list.append(keys[values.index(val)])
+    def __init__(self, unit_name: str = "", parent=None):
+        super().__init__(parent)
 
-        return self._key_list
+        self.addItems(self.units)
 
-    def wheelEvent(self, e) -> None:
-        if self.hasFocus():
-            super().wheelEvent(e)
-        else:
-            e.ignore()
+        if not unit_name == "":
+            self.findText(unit_name)

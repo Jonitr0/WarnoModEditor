@@ -3,13 +3,14 @@
 from PySide6 import QtWidgets
 
 from src.dialogs import base_dialog
+from src.wme_widgets import wme_essentials
 
 
 # dialog asking user to select an item from a combobox
 class SelectionDialog(base_dialog.BaseDialog):
     def __init__(self, text: str, title: str, item_list: []):
         self.label = QtWidgets.QLabel(text)
-        self.combobox = QtWidgets.QComboBox()
+        self.combobox = wme_essentials.WMECombobox()
         self.combobox.addItems(item_list)
 
         super().__init__()

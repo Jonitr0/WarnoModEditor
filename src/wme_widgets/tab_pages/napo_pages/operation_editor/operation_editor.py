@@ -8,11 +8,12 @@ from PySide6 import QtWidgets
 
 from src.wme_widgets.tab_pages.napo_pages.operation_editor import unit_widgets
 from src.wme_widgets.tab_pages.napo_pages import base_napo_page
-from src.wme_widgets import main_widget
+from src.wme_widgets import main_widget, wme_essentials
 
 from src.dialogs import essential_dialogs
 
 from src.ndf_parser import ndf_scanner
+
 
 PLAYER_DIVS = {
     "Black Horse's Last Stand": "Descriptor_Deck_US_11ACR_multi_HB_OP_01_DEP_PLAYER",
@@ -26,7 +27,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
     def __init__(self):
         super().__init__()
 
-        self.op_combobox = QtWidgets.QComboBox()
+        self.op_combobox = wme_essentials.WMECombobox()
         self.op_combobox.addItems(PLAYER_DIVS.keys())
         self.op_combobox.currentIndexChanged.connect(self.on_new_op_selected)
 
@@ -41,15 +42,6 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         op_selector_layout.addWidget(QtWidgets.QLabel("Operation: "))
         op_selector_layout.addWidget(self.op_combobox)
-
-        units = ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")
-        units = [i.removeprefix("Descriptor_Unit_") for i in units]
-
-        test_combobox = QtWidgets.QComboBox()
-        test_combobox.setEditable(True)
-        test_combobox.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
-        test_combobox.addItems(units)
-        self.scroll_layout.addWidget(test_combobox)
 
         self.player_deck_napo = None
         # TODO: read Decks.ndf, get CombatGroups and DeckPackList
@@ -88,6 +80,9 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         player_div = PLAYER_DIVS[self.op_combobox.currentText()]
         self.player_deck_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div)
 
+        units = sorted([i.removeprefix("Descriptor_Unit_") for i in
+                        ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")])
+
         # get group list
         group_list = self.player_deck_napo.get_napo_value(player_div + "\\DeckCombatGroupList")
         for i in range(len(group_list)):
@@ -102,7 +97,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 platoon = platoon_list.value[j]
                 platoon_name = platoon.get_raw_value("Name")
                 platoon_packs = platoon.get_napo_value("PackIndexUnitNumberList")
-                group_widget.add_platoon(platoon_name, platoon_packs)
+                group_widget.add_platoon(platoon_name, platoon_packs, units)
 
         self.scroll_layout.addStretch(1)
 

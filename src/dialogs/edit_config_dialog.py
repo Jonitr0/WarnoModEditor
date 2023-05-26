@@ -3,7 +3,7 @@ from pathlib import Path
 from PySide6 import QtWidgets, QtCore
 from src.dialogs.base_dialog import BaseDialog
 from src.dialogs import essential_dialogs
-from src.wme_widgets import wme_lineedit, main_widget
+from src.wme_widgets import wme_essentials, main_widget
 
 
 class WarnoPathDialog(BaseDialog):
@@ -12,7 +12,7 @@ class WarnoPathDialog(BaseDialog):
                                               "the name of the directory (" +
                                               main_widget.MainWidget.instance.get_loaded_mod_name() + ")")
         self.description_text_edit = QtWidgets.QTextEdit()
-        self.icon_path_line_edit = wme_lineedit.WMELineEdit()
+        self.icon_path_line_edit = wme_essentials.WMELineEdit()
         self.config_values = config_values
         # copy for warning on cancel
         self.orig_config_values = config_values.copy()
@@ -24,7 +24,7 @@ class WarnoPathDialog(BaseDialog):
         form_layout = QtWidgets.QFormLayout(self)
         self.main_layout.addLayout(form_layout)
 
-        name_line_edit = wme_lineedit.WMELineEdit()
+        name_line_edit = wme_essentials.WMELineEdit()
         name_line_edit.setText(str(self.config_values["Properties/Name"]))
         name_line_edit.textChanged.connect(self.on_name_changed)
         name_label = QtWidgets.QLabel("Name")

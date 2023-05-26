@@ -2,7 +2,7 @@ from PySide6 import QtWidgets, QtGui, QtCore
 from PySide6.QtCore import Qt
 
 from src.utils.color_manager import *
-from src.wme_widgets import wme_lineedit, main_widget
+from src.wme_widgets import wme_essentials, main_widget
 from src.wme_widgets.project_explorer import file_system_treeview
 
 
@@ -16,7 +16,7 @@ class WMEProjectExplorer(QtWidgets.QWidget):
         self.setLayout(main_layout)
 
         # create minimalistic search bar
-        self.search_bar = wme_lineedit.WMELineEdit()
+        self.search_bar = wme_essentials.WMELineEdit()
         self.search_bar.setPlaceholderText("Find .ndf files in Directory...")
         main_layout.addWidget(self.search_bar)
 
