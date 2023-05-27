@@ -11,7 +11,7 @@ class NapoAssignment(NapoEntity):
         self.member = False
 
     def __str__(self):
-        return "{id: " + self.id + " type: assignment, export: " + str(self.export) + ", private:" + \
+        return "{id: " + self.id + " type: assignment, export: " + str(self.export) + ", private: " + \
                str(self.private) + ", member: " + str(self.member) + ", value: " + str(self.value) + "}"
 
     def __eq__(self, other):

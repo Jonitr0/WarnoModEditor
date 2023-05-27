@@ -37,19 +37,21 @@ class UnitGroupWidget(QtWidgets.QWidget):
 
         # TODO: make collapsible
 
-    def add_platoon(self, name_token: str, unit_list: NapoVector, all_units: [str]):
-        self.platoon_layout.addWidget(UnitPlatoonWidget(name_token, unit_list, all_units))
+    def add_platoon(self, name_token: str, unit_list: NapoVector, callback):
+        self.platoon_layout.addWidget(UnitPlatoonWidget(name_token, unit_list, callback))
 
 
 # represents one platoon/smart group in Operation Editor
 class UnitPlatoonWidget(QtWidgets.QWidget):
-    def __init__(self, name_token: str, unit_list: NapoVector, all_units: [str], parent=None):
-        super().__init__(parent)
+    # TODO: update this (only) on reload
+    deck_pack_list = None
 
-        UnitSelectionCombobox.units = all_units
+    def __init__(self, name_token: str, unit_list: NapoVector, callback, parent=None):
+        super().__init__(parent)
 
         self.main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(self.main_layout)
+        self.callback = callback
 
         platoon_name_selector = StringSelectionCombobox(name_token)
         self.main_layout.addWidget(platoon_name_selector)
@@ -67,8 +69,18 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
         self.main_layout.addWidget(UnitSelectorWidget(count, unit_name))
 
     def get_unit_name_for_index(self, index: int):
-        # TODO
-        return ""
+        if not self.deck_pack_list:
+            self.deck_pack_list = self.callback.player_deck_napo.value[0].value.get_napo_value("DeckPackList")
+
+        # TODO: add cache
+        deck_pack = self.deck_pack_list.value[index]
+        pack_name = deck_pack.get_raw_value("DeckPack").removeprefix("~/")
+        pack = self.callback.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf", pack_name)
+        unit_name = pack.get_raw_value(pack_name +
+                                       "\\TransporterAndUnitsList\\TDeckTransporterAndUnitsDescriptor\\UnitDescriptor")
+        # TODO: add unit exp
+
+        return unit_name.removeprefix("Descriptor_Unit_")
 
 
 class UnitSelectorWidget(QtWidgets.QWidget):
@@ -114,4 +126,4 @@ class UnitSelectionCombobox(wme_essentials.WMECombobox):
         self.addItems(self.units)
 
         if not unit_name == "":
-            self.findText(unit_name)
+            self.setCurrentIndex(self.findText(unit_name))

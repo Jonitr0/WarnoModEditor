@@ -82,6 +82,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         units = sorted([i.removeprefix("Descriptor_Unit_") for i in
                         ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")])
+        unit_widgets.UnitSelectionCombobox.units = units
 
         # get group list
         group_list = self.player_deck_napo.get_napo_value(player_div + "\\DeckCombatGroupList")
@@ -97,7 +98,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 platoon = platoon_list.value[j]
                 platoon_name = platoon.get_raw_value("Name")
                 platoon_packs = platoon.get_napo_value("PackIndexUnitNumberList")
-                group_widget.add_platoon(platoon_name, platoon_packs, units)
+                group_widget.add_platoon(platoon_name, platoon_packs, self)
 
         self.scroll_layout.addStretch(1)
 
