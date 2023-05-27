@@ -1,9 +1,9 @@
 from PySide6 import QtWidgets, QtCore, QtGui
-from src.dialogs import essential_dialogs, rich_text_dialog
-
 from PySide6.QtCore import Qt
 
-import json
+from src.dialogs import essential_dialogs, rich_text_dialog
+
+from src.wme_widgets.tab_pages import smart_cache
 
 # key: file_path, value: reference to page
 # stores references to all pages that have unsaved changes on a file
@@ -52,6 +52,7 @@ class BaseTabPage(QtWidgets.QWidget):
                 page_list = pages_for_file.get(self.file_path, [])
                 page_list.append(self)
                 pages_for_file[self.file_path] = page_list
+                smart_cache.clear_caches_for_file(self.file_path)
             # changed to false
             else:
                 page_list = pages_for_file.get(self.file_path, [])

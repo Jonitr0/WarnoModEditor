@@ -5,6 +5,7 @@ from src.utils.color_manager import *
 
 from src.ndf_parser.napo_entities.napo_collection import *
 
+from src.wme_widgets.tab_pages import smart_cache
 from src.wme_widgets import wme_essentials
 
 
@@ -41,6 +42,9 @@ class UnitGroupWidget(QtWidgets.QWidget):
         self.platoon_layout.addWidget(UnitPlatoonWidget(name_token, unit_list, callback))
 
 
+packs_to_units_sc = smart_cache.SmartCache("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
+
+
 # represents one platoon/smart group in Operation Editor
 class UnitPlatoonWidget(QtWidgets.QWidget):
     # TODO: update this (only) on reload
@@ -75,9 +79,16 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
         # TODO: add cache
         deck_pack = self.deck_pack_list.value[index]
         pack_name = deck_pack.get_raw_value("DeckPack").removeprefix("~/")
-        pack = self.callback.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf", pack_name)
-        unit_name = pack.get_raw_value(pack_name +
-                                       "\\TransporterAndUnitsList\\TDeckTransporterAndUnitsDescriptor\\UnitDescriptor")
+
+        global packs_to_units_sc
+        if packs_to_units_sc.contains(pack_name):
+            unit_name = packs_to_units_sc.get(pack_name)
+        else:
+            pack = self.callback.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf", pack_name)
+            unit_name = pack.get_raw_value(pack_name +
+                                           "\\TransporterAndUnitsList\\TDeckTransporterAndUnitsDescriptor"
+                                           "\\UnitDescriptor")
+            packs_to_units_sc.set(pack_name, unit_name)
         # TODO: add unit exp
 
         return unit_name.removeprefix("Descriptor_Unit_")
