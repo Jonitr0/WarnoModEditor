@@ -44,6 +44,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         op_selector_layout.addWidget(self.op_combobox)
 
         self.player_deck_napo = None
+        self.deck_pack_list = None
         # TODO: read Decks.ndf, get CombatGroups and DeckPackList
         # TODO: get actual units from Packs.ndf
         # TODO: create Widgets
@@ -79,6 +80,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         player_div = PLAYER_DIVS[self.op_combobox.currentText()]
         self.player_deck_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div)
+        self.deck_pack_list = self.player_deck_napo.value[0].value.get_napo_value("DeckPackList")
 
         units = sorted([i.removeprefix("Descriptor_Unit_") for i in
                         ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")])
@@ -90,7 +92,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             # get unit object
             group = group_list.value[i]
             group_name = group.get_raw_value("Name")
-            group_widget = unit_widgets.UnitGroupWidget(group_name)
+            group_widget = unit_widgets.UnitCompanyWidget(group_name)
             self.scroll_layout.addWidget(group_widget)
             platoon_list = group.get_napo_value("SmartGroupList")
             for j in range(len(platoon_list)):

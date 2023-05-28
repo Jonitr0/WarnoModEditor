@@ -10,7 +10,7 @@ from src.wme_widgets import wme_essentials
 
 
 # represents one group of smart groups in Operation Editor
-class UnitGroupWidget(QtWidgets.QWidget):
+class UnitCompanyWidget(QtWidgets.QWidget):
     def __init__(self, name_token: str, parent=None):
         super().__init__(parent)
 
@@ -47,9 +47,6 @@ packs_to_units_sc = smart_cache.SmartCache("GameData\\Generated\\Gameplay\\Decks
 
 # represents one platoon/smart group in Operation Editor
 class UnitPlatoonWidget(QtWidgets.QWidget):
-    # TODO: update this (only) on reload
-    deck_pack_list = None
-
     def __init__(self, name_token: str, unit_list: NapoVector, callback, parent=None):
         super().__init__(parent)
 
@@ -69,16 +66,16 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
             self.add_unit(index, count)
 
     def add_unit(self, index: int, count: int):
-        unit_name = self.get_unit_name_for_index(index)
-        self.main_layout.addWidget(UnitSelectorWidget(count, unit_name))
+        unit_name, transport = self.get_unit_name_for_index(index)
+        self.main_layout.addWidget(UnitSelectorWidget(count, unit_name, transport))
 
     def get_unit_name_for_index(self, index: int):
-        if not self.deck_pack_list:
-            self.deck_pack_list = self.callback.player_deck_napo.value[0].value.get_napo_value("DeckPackList")
-
-        # TODO: add cache
-        deck_pack = self.deck_pack_list.value[index]
+        deck_pack = self.callback.deck_pack_list.value[index]
         pack_name = deck_pack.get_raw_value("DeckPack").removeprefix("~/")
+        try:
+            transport_name = deck_pack.get_raw_value("Transport").removeprefix("~/Descriptor_Unit_")
+        except Exception:
+            transport_name = None
 
         global packs_to_units_sc
         if packs_to_units_sc.contains(pack_name):
@@ -89,13 +86,15 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
                                            "\\TransporterAndUnitsList\\TDeckTransporterAndUnitsDescriptor"
                                            "\\UnitDescriptor")
             packs_to_units_sc.set(pack_name, unit_name)
-        # TODO: add unit exp
 
-        return unit_name.removeprefix("Descriptor_Unit_")
+        # TODO: add unit exp
+        # TODO: add optional transport
+
+        return unit_name.removeprefix("Descriptor_Unit_"), transport_name
 
 
 class UnitSelectorWidget(QtWidgets.QWidget):
-    def __init__(self, count: int, unit_name: str = "", parent=None):
+    def __init__(self, count: int, unit_name: str = "", transport: str = None, parent=None):
         super().__init__(parent)
 
         layout = QtWidgets.QHBoxLayout()
@@ -109,7 +108,18 @@ class UnitSelectorWidget(QtWidgets.QWidget):
         unit_selector = UnitSelectionCombobox(unit_name)
         layout.addWidget(unit_selector)
 
-        # TODO: transport if applicable
+        transport_button = QtWidgets.QPushButton()
+        layout.addWidget(transport_button)
+
+        if transport:
+            transport_selector = UnitSelectionCombobox(transport)
+            layout.insertWidget(layout.count()-1, transport_selector)
+
+            transport_button.setText("Remove Transport")
+        else:
+            transport_button.setText("Add transport")
+
+        layout.addStretch(1)
 
 
 # Combobox for selecting strings. Displays them as ingame but maps them to tokens
@@ -138,3 +148,12 @@ class UnitSelectionCombobox(wme_essentials.WMECombobox):
 
         if not unit_name == "":
             self.setCurrentIndex(self.findText(unit_name))
+
+    # TODO: make this work
+    def focusInEvent(self, event) -> None:
+        self.showPopup()
+        super().focusInEvent(event)
+
+    def focusOutEvent(self, event) -> None:
+        self.hidePopup()
+        super().focusOutEvent(event)
