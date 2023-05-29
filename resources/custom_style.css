@@ -135,3 +135,7 @@ QListWidget::item {{
 StringSelectionCombobox {{
   background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
 }}
+
+QWidget#separator {{
+  background-color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
+}}

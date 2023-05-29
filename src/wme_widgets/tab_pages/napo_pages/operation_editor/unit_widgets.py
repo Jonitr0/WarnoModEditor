@@ -1,4 +1,4 @@
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtWidgets
 
 from src.utils import icon_manager, string_dict
 from src.utils.color_manager import *
@@ -43,6 +43,7 @@ class UnitCompanyWidget(QtWidgets.QWidget):
 
 
 packs_to_units_sc = smart_cache.SmartCache("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
+MAX_UNITS_PER_PLATOON = 3
 
 
 # represents one platoon/smart group in Operation Editor
@@ -54,8 +55,11 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
         self.setLayout(self.main_layout)
         self.callback = callback
 
-        platoon_name_selector = StringSelectionCombobox(name_token)
-        self.main_layout.addWidget(platoon_name_selector)
+        self.platoon_name_selector = StringSelectionCombobox(name_token)
+        self.main_layout.addWidget(self.platoon_name_selector)
+
+        self.add_unit_button = QtWidgets.QPushButton("Add Unit")
+        self.main_layout.addWidget(self.add_unit_button)
         # TODO: name, remove
         # TODO: list units
         # TODO: add/remove units
@@ -66,12 +70,17 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
             self.add_unit(index, count)
 
     def add_unit(self, index: int, count: int):
-        unit_name, transport = self.get_unit_name_for_index(index)
-        self.main_layout.addWidget(UnitSelectorWidget(count, unit_name, transport))
+        unit_name, transport, exp_level = self.get_unit_name_for_index(index)
+        self.main_layout.insertWidget(self.main_layout.count() - 1,
+                                      UnitSelectorWidget(count, exp_level, unit_name, transport))
+        # units widgets, name selector, button
+        if self.main_layout.count() >= MAX_UNITS_PER_PLATOON + 2:
+            self.add_unit_button.setHidden(True)
 
     def get_unit_name_for_index(self, index: int):
         deck_pack = self.callback.deck_pack_list.value[index]
         pack_name = deck_pack.get_raw_value("DeckPack").removeprefix("~/")
+        exp_level = deck_pack.get_raw_value("ExperienceLevel")
         try:
             transport_name = deck_pack.get_raw_value("Transport").removeprefix("~/Descriptor_Unit_")
         except Exception:
@@ -90,11 +99,11 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
         # TODO: add unit exp
         # TODO: add optional transport
 
-        return unit_name.removeprefix("Descriptor_Unit_"), transport_name
+        return unit_name.removeprefix("Descriptor_Unit_"), transport_name, exp_level
 
 
 class UnitSelectorWidget(QtWidgets.QWidget):
-    def __init__(self, count: int, unit_name: str = "", transport: str = None, parent=None):
+    def __init__(self, count: int, exp_level: int = 0, unit_name: str = "", transport: str = None, parent=None):
         super().__init__(parent)
 
         main_layout = QtWidgets.QVBoxLayout()
@@ -113,11 +122,12 @@ class UnitSelectorWidget(QtWidgets.QWidget):
         top_layout.addWidget(unit_selector)
 
         top_layout.addWidget(QtWidgets.QLabel("Experience: "))
-        exp_selector = QtWidgets.QComboBox()
+        exp_selector = wme_essentials.WMECombobox()
         exp_selector.addItem(icon_manager.load_icon("minus.png", COLORS.PRIMARY), "", 0)
         exp_selector.addItem(icon_manager.load_icon("1_exp.png", COLORS.PRIMARY), "", 1)
         exp_selector.addItem(icon_manager.load_icon("2_exp.png", COLORS.PRIMARY), "", 2)
         exp_selector.addItem(icon_manager.load_icon("3_exp.png", COLORS.PRIMARY), "", 3)
+        exp_selector.setCurrentIndex(exp_level)
         top_layout.addWidget(exp_selector)
 
         bottom_layout = QtWidgets.QHBoxLayout()
@@ -136,6 +146,11 @@ class UnitSelectorWidget(QtWidgets.QWidget):
 
         top_layout.addStretch(1)
         bottom_layout.addStretch(1)
+
+        separator = QtWidgets.QWidget()
+        separator.setObjectName("separator")
+        separator.setFixedHeight(1)
+        main_layout.addWidget(separator)
 
 
 # Combobox for selecting strings. Displays them as ingame but maps them to tokens
