@@ -135,7 +135,3 @@ QListWidget::item {{
 StringSelectionCombobox {{
   background-color: {QTMATERIAL_SECONDARYDARKCOLOR};
 }}
-
-StringSelectionCombobox::down-arrow {{
-  image: none;
-}}

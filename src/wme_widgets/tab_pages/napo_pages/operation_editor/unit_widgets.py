@@ -1,4 +1,4 @@
-from PySide6 import QtWidgets
+from PySide6 import QtCore, QtWidgets
 
 from src.utils import icon_manager, string_dict
 from src.utils.color_manager import *
@@ -97,35 +97,54 @@ class UnitSelectorWidget(QtWidgets.QWidget):
     def __init__(self, count: int, unit_name: str = "", transport: str = None, parent=None):
         super().__init__(parent)
 
-        layout = QtWidgets.QHBoxLayout()
-        self.setLayout(layout)
+        main_layout = QtWidgets.QVBoxLayout()
+        self.setLayout(main_layout)
+
+        top_layout = QtWidgets.QHBoxLayout()
+        main_layout.addLayout(top_layout)
 
         count_spinbox = QtWidgets.QSpinBox()
         count_spinbox.setRange(1, 100)
         count_spinbox.setValue(count)
-        layout.addWidget(count_spinbox)
+        top_layout.addWidget(count_spinbox)
+        top_layout.addWidget(QtWidgets.QLabel("x"))
 
         unit_selector = UnitSelectionCombobox(unit_name)
-        layout.addWidget(unit_selector)
+        top_layout.addWidget(unit_selector)
+
+        top_layout.addWidget(QtWidgets.QLabel("Experience: "))
+        exp_selector = QtWidgets.QComboBox()
+        exp_selector.addItem(icon_manager.load_icon("minus.png", COLORS.PRIMARY), "", 0)
+        exp_selector.addItem(icon_manager.load_icon("1_exp.png", COLORS.PRIMARY), "", 1)
+        exp_selector.addItem(icon_manager.load_icon("2_exp.png", COLORS.PRIMARY), "", 2)
+        exp_selector.addItem(icon_manager.load_icon("3_exp.png", COLORS.PRIMARY), "", 3)
+        top_layout.addWidget(exp_selector)
+
+        bottom_layout = QtWidgets.QHBoxLayout()
+        main_layout.addLayout(bottom_layout)
 
         transport_button = QtWidgets.QPushButton()
-        layout.addWidget(transport_button)
+        bottom_layout.addWidget(transport_button)
 
         if transport:
             transport_selector = UnitSelectionCombobox(transport)
-            layout.insertWidget(layout.count()-1, transport_selector)
+            bottom_layout.insertWidget(0, transport_selector)
 
             transport_button.setText("Remove Transport")
         else:
             transport_button.setText("Add transport")
 
-        layout.addStretch(1)
+        top_layout.addStretch(1)
+        bottom_layout.addStretch(1)
 
 
 # Combobox for selecting strings. Displays them as ingame but maps them to tokens
 class StringSelectionCombobox(wme_essentials.WMECombobox):
     def __init__(self, token: str = "", parent=None):
         super().__init__(parent)
+
+        self.setEditable(True)
+        self.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
 
         for key in string_dict.STRINGS.keys():
             self.addItem(string_dict.STRINGS[key], key)
@@ -144,16 +163,10 @@ class UnitSelectionCombobox(wme_essentials.WMECombobox):
     def __init__(self, unit_name: str = "", parent=None):
         super().__init__(parent)
 
+        self.setEditable(True)
+        self.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
+
         self.addItems(self.units)
 
         if not unit_name == "":
             self.setCurrentIndex(self.findText(unit_name))
-
-    # TODO: make this work
-    def focusInEvent(self, event) -> None:
-        self.showPopup()
-        super().focusInEvent(event)
-
-    def focusOutEvent(self, event) -> None:
-        self.hidePopup()
-        super().focusOutEvent(event)
