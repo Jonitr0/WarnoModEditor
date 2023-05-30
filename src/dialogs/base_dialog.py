@@ -3,7 +3,7 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
-from src.wme_widgets import wme_title_bar
+from src.wme_widgets import wme_title_bar, wme_essentials
 from src.utils import icon_manager
 
 SHADOW_WIDTH = 8
@@ -97,7 +97,7 @@ class BaseDialog(QtWidgets.QDialog):
         for layout_item in layout_contents:
             if type(layout_item) == QtWidgets.QWidgetItem:
                 if type(layout_item.widget()) == QtWidgets.QLineEdit \
-                        or type(layout_item.widget()) == QtWidgets.QSpinBox:
+                        or type(layout_item.widget()) == wme_essentials.WMESpinbox:
                     layout_item.widget().installEventFilter(self)
                     self.widgetList.append(layout_item.widget())
             elif layout_item.inherits("QLayout"):

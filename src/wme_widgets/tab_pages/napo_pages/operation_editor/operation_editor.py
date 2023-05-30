@@ -1,9 +1,3 @@
-# TODO (0.3):
-# TODO: Descriptor_Deck_US_11ACR_multi_HB_OP_01_DEP_PLAYER
-# TODO: add Units to DivisionRules.ndf
-# TODO: change Descriptor in Packs.ndf
-# TODO: change availability in DeckCombatGroupList in Decks.ndf
-
 from PySide6 import QtWidgets
 from PySide6.QtCore import Qt
 

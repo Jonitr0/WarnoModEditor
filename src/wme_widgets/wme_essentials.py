@@ -34,3 +34,27 @@ class WMECombobox(QtWidgets.QComboBox):
             super().wheelEvent(e)
         else:
             e.ignore()
+
+
+class WMESpinbox(QtWidgets.QSpinBox):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFocusPolicy(Qt.StrongFocus)
+
+    def wheelEvent(self, e) -> None:
+        if self.hasFocus():
+            super().wheelEvent(e)
+        else:
+            e.ignore()
+
+
+class WMEDoubleSpinbox(QtWidgets.QDoubleSpinBox):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFocusPolicy(Qt.StrongFocus)
+
+    def wheelEvent(self, e) -> None:
+        if self.hasFocus():
+            super().wheelEvent(e)
+        else:
+            e.ignore()

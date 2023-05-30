@@ -41,6 +41,7 @@ class UnitCompanyWidget(QtWidgets.QWidget):
 
         header_layout.addStretch(1)
         delete_button = QtWidgets.QPushButton("Remove Company")
+        delete_button.clicked.connect(self.on_delete)
         header_layout.addWidget(delete_button)
 
         self.platoon_layout = QtWidgets.QVBoxLayout()
@@ -58,6 +59,9 @@ class UnitCompanyWidget(QtWidgets.QWidget):
 
         for i in range(self.platoon_layout.count()):
             self.platoon_layout.itemAt(i).widget().setHidden(self.collapsed)
+
+    def on_delete(self):
+        print(self.parent())
 
 
 packs_to_units_sc = smart_cache.SmartCache("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
@@ -167,7 +171,7 @@ class UnitSelectorWidget(QtWidgets.QWidget):
         top_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(top_layout)
 
-        count_spinbox = QtWidgets.QSpinBox()
+        count_spinbox = wme_essentials.WMESpinbox()
         count_spinbox.setRange(1, 100)
         count_spinbox.setValue(count)
         top_layout.addWidget(count_spinbox)
@@ -214,9 +218,6 @@ class StringSelectionCombobox(wme_essentials.WMECombobox):
     def __init__(self, token: str = "", parent=None):
         super().__init__(parent)
 
-        self.setEditable(True)
-        self.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
-
         for key in string_dict.STRINGS.keys():
             self.addItem(string_dict.STRINGS[key], key)
 
@@ -233,9 +234,6 @@ class UnitSelectionCombobox(wme_essentials.WMECombobox):
 
     def __init__(self, unit_name: str = "", parent=None):
         super().__init__(parent)
-
-        self.setEditable(True)
-        self.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
 
         self.addItems(self.units)
 

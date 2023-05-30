@@ -1,9 +1,8 @@
 import logging
-import os
 
 from PySide6 import QtWidgets, QtCore
 
-from src.wme_widgets import main_widget
+from src.wme_widgets import main_widget, wme_essentials
 from src.wme_widgets.tab_pages.napo_pages import base_napo_page
 from src.wme_widgets.tab_pages.napo_pages import napo_list_widget
 
@@ -171,13 +170,13 @@ class BaseIncomeWidget(QtWidgets.QWidget):
         self.setLayout(main_layout)
 
         main_layout.addWidget(QtWidgets.QLabel(label_text))
-        self.points_spin_box = QtWidgets.QSpinBox()
+        self.points_spin_box = wme_essentials.WMESpinbox()
         self.points_spin_box.setRange(0, 10000)
         self.points_spin_box.valueChanged.connect(self.on_value_changed)
         main_layout.addWidget(self.points_spin_box)
 
         main_layout.addWidget(QtWidgets.QLabel(" points every "))
-        self.tick_spin_box = QtWidgets.QDoubleSpinBox()
+        self.tick_spin_box = wme_essentials.WMEDoubleSpinbox()
         self.tick_spin_box.setRange(0.01, 36000.)
         self.tick_spin_box.valueChanged.connect(self.on_value_changed)
         main_layout.addWidget(self.tick_spin_box)

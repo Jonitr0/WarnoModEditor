@@ -63,7 +63,7 @@ class WarnoPathDialog(BaseDialog):
         cosmetic_label.setToolTip("Check this box if the mod does not affect gameplay.")
         form_layout.addRow(cosmetic_label, cosmetic_checkbox)
 
-        mod_version_spinbox = QtWidgets.QSpinBox()
+        mod_version_spinbox = wme_essentials.WMESpinbox()
         mod_version_spinbox.setMinimum(0)
         mod_version_spinbox.setValue(int(self.config_values["Properties/Version"]))
         mod_version_spinbox.valueChanged.connect(self.on_mod_version_changed)
@@ -72,7 +72,7 @@ class WarnoPathDialog(BaseDialog):
                                      "no longer compatible with older versions.")
         form_layout.addRow(mod_version_label, mod_version_spinbox)
 
-        deck_format_version_spinbox = QtWidgets.QSpinBox()
+        deck_format_version_spinbox = wme_essentials.WMESpinbox()
         deck_format_version_spinbox.setMinimum(0)
         deck_format_version_spinbox.setValue(int(self.config_values["Properties/DeckFormatVersion"]))
         deck_format_version_spinbox.valueChanged.connect(self.on_deck_format_version_changed)
