@@ -19,17 +19,20 @@ class UnitCompanyWidget(QtWidgets.QWidget):
         self.expand_icon = icon_manager.load_icon("chevron_right.png", COLORS.PRIMARY)
         self.index = index
         self.platoon_count = 0
+        self.collapsed = False
 
         main_layout = QtWidgets.QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
 
         header_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(header_layout)
 
-        collapse_button = QtWidgets.QToolButton()
-        collapse_button.setFixedSize(32, 32)
-        collapse_button.setIcon(self.collapse_icon)
-        header_layout.addWidget(collapse_button)
+        self.collapse_button = QtWidgets.QToolButton()
+        self.collapse_button.setFixedSize(32, 32)
+        self.collapse_button.setIcon(self.collapse_icon)
+        self.collapse_button.clicked.connect(self.on_collapse)
+        header_layout.addWidget(self.collapse_button)
 
         header_layout.addWidget(QtWidgets.QLabel("Company " + str(index) + ":"))
 
@@ -41,13 +44,20 @@ class UnitCompanyWidget(QtWidgets.QWidget):
         header_layout.addWidget(delete_button)
 
         self.platoon_layout = QtWidgets.QVBoxLayout()
+        self.platoon_layout.setContentsMargins(50, 0, 0, 0)
         main_layout.addLayout(self.platoon_layout)
-
-        # TODO: make collapsible
 
     def add_platoon(self, name_token: str, unit_list: NapoVector, callback):
         self.platoon_count += 1
         self.platoon_layout.addWidget(UnitPlatoonWidget(name_token, unit_list, callback, self.platoon_count))
+
+    def on_collapse(self):
+        self.collapsed = not self.collapsed
+
+        self.collapse_button.setIcon(self.expand_icon if self.collapsed else self.collapse_icon)
+
+        for i in range(self.platoon_layout.count()):
+            self.platoon_layout.itemAt(i).widget().setHidden(self.collapsed)
 
 
 packs_to_units_sc = smart_cache.SmartCache("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
@@ -63,18 +73,20 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
         self.expand_icon = icon_manager.load_icon("chevron_right.png", COLORS.PRIMARY)
         self.callback = callback
         self.index = index
+        self.collapsed = False
 
-        self.main_layout = QtWidgets.QVBoxLayout()
-        self.main_layout.setContentsMargins(50, 0, 0, 0)
-        self.setLayout(self.main_layout)
+        main_layout = QtWidgets.QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(main_layout)
 
         header_layout = QtWidgets.QHBoxLayout()
-        self.main_layout.addLayout(header_layout)
+        main_layout.addLayout(header_layout)
 
-        collapse_button = QtWidgets.QToolButton()
-        collapse_button.setFixedSize(32, 32)
-        collapse_button.setIcon(self.collapse_icon)
-        header_layout.addWidget(collapse_button)
+        self.collapse_button = QtWidgets.QToolButton()
+        self.collapse_button.setFixedSize(32, 32)
+        self.collapse_button.setIcon(self.collapse_icon)
+        self.collapse_button.clicked.connect(self.on_collapse)
+        header_layout.addWidget(self.collapse_button)
 
         header_layout.addWidget(QtWidgets.QLabel("Platoon " + str(index) + ":"))
 
@@ -85,12 +97,15 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
         delete_button = QtWidgets.QPushButton("Remove Platoon")
         header_layout.addWidget(delete_button)
 
+        self.unit_layout = QtWidgets.QVBoxLayout()
+        self.unit_layout.setContentsMargins(50, 0, 0, 0)
+        main_layout.addLayout(self.unit_layout)
+
         self.add_unit_button = QtWidgets.QPushButton("Add Unit to Platoon " + str(index))
         self.add_unit_button.setFixedWidth(400)
-        self.main_layout.addWidget(self.add_unit_button)
-        self.main_layout.setAlignment(self.add_unit_button, Qt.AlignCenter)
-        # TODO: name, remove
-        # TODO: list units
+        self.unit_layout.addWidget(self.add_unit_button)
+        self.unit_layout.setAlignment(self.add_unit_button, Qt.AlignCenter)
+        # TODO: remove
         # TODO: add/remove units
 
         for pair in unit_list.value:
@@ -100,10 +115,10 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
 
     def add_unit(self, index: int, count: int):
         unit_name, transport, exp_level = self.get_unit_name_for_index(index)
-        self.main_layout.insertWidget(self.main_layout.count() - 1,
+        self.unit_layout.insertWidget(self.unit_layout.count() - 1,
                                       UnitSelectorWidget(count, exp_level, unit_name, transport))
-        # units widgets, name selector, button
-        if self.main_layout.count() >= MAX_UNITS_PER_PLATOON + 2:
+        # units widgets + button
+        if self.unit_layout.count() > MAX_UNITS_PER_PLATOON:
             self.add_unit_button.setHidden(True)
 
     def get_unit_name_for_index(self, index: int):
@@ -126,6 +141,14 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
             packs_to_units_sc.set(pack_name, unit_name)
 
         return unit_name.removeprefix("Descriptor_Unit_"), transport_name, exp_level
+
+    def on_collapse(self):
+        self.collapsed = not self.collapsed
+
+        self.collapse_button.setIcon(self.expand_icon if self.collapsed else self.collapse_icon)
+
+        for i in range(self.unit_layout.count()):
+            self.unit_layout.itemAt(i).widget().setHidden(self.collapsed)
 
 
 class UnitSelectorWidget(QtWidgets.QWidget):

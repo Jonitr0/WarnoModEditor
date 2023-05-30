@@ -5,6 +5,7 @@
 # TODO: change availability in DeckCombatGroupList in Decks.ndf
 
 from PySide6 import QtWidgets
+from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_pages.napo_pages.operation_editor import unit_widgets
 from src.wme_widgets.tab_pages.napo_pages import base_napo_page
@@ -101,6 +102,11 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 platoon_name = platoon.get_raw_value("Name")
                 platoon_packs = platoon.get_napo_value("PackIndexUnitNumberList")
                 group_widget.add_platoon(platoon_name, platoon_packs, self)
+
+        add_company_button = QtWidgets.QPushButton("Add Company")
+        add_company_button.setFixedWidth(400)
+        self.scroll_layout.addWidget(add_company_button)
+        self.scroll_layout.setAlignment(add_company_button, Qt.AlignCenter)
 
         self.scroll_layout.addStretch(1)
 
