@@ -1,4 +1,5 @@
 from PySide6 import QtWidgets
+from PySide6.QtCore import Qt
 
 from src.utils import icon_manager, string_dict
 from src.utils.color_manager import *
@@ -11,11 +12,13 @@ from src.wme_widgets import wme_essentials
 
 # represents one group of smart groups in Operation Editor
 class UnitCompanyWidget(QtWidgets.QWidget):
-    def __init__(self, name_token: str, parent=None):
+    def __init__(self, name_token: str, index: int, parent=None):
         super().__init__(parent)
 
         self.collapse_icon = icon_manager.load_icon("chevron_down.png", COLORS.PRIMARY)
         self.expand_icon = icon_manager.load_icon("chevron_right.png", COLORS.PRIMARY)
+        self.index = index
+        self.platoon_count = 0
 
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
@@ -27,10 +30,14 @@ class UnitCompanyWidget(QtWidgets.QWidget):
         collapse_button.setFixedSize(32, 32)
         collapse_button.setIcon(self.collapse_icon)
         header_layout.addWidget(collapse_button)
+
+        header_layout.addWidget(QtWidgets.QLabel("Company " + str(index) + ":"))
+
         group_name_selector = StringSelectionCombobox(name_token)
         header_layout.addWidget(group_name_selector)
+
         header_layout.addStretch(1)
-        delete_button = QtWidgets.QPushButton("Delete")
+        delete_button = QtWidgets.QPushButton("Remove Company")
         header_layout.addWidget(delete_button)
 
         self.platoon_layout = QtWidgets.QVBoxLayout()
@@ -39,7 +46,8 @@ class UnitCompanyWidget(QtWidgets.QWidget):
         # TODO: make collapsible
 
     def add_platoon(self, name_token: str, unit_list: NapoVector, callback):
-        self.platoon_layout.addWidget(UnitPlatoonWidget(name_token, unit_list, callback))
+        self.platoon_count += 1
+        self.platoon_layout.addWidget(UnitPlatoonWidget(name_token, unit_list, callback, self.platoon_count))
 
 
 packs_to_units_sc = smart_cache.SmartCache("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
@@ -48,18 +56,39 @@ MAX_UNITS_PER_PLATOON = 3
 
 # represents one platoon/smart group in Operation Editor
 class UnitPlatoonWidget(QtWidgets.QWidget):
-    def __init__(self, name_token: str, unit_list: NapoVector, callback, parent=None):
+    def __init__(self, name_token: str, unit_list: NapoVector, callback, index, parent=None):
         super().__init__(parent)
 
-        self.main_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self.main_layout)
+        self.collapse_icon = icon_manager.load_icon("chevron_down.png", COLORS.PRIMARY)
+        self.expand_icon = icon_manager.load_icon("chevron_right.png", COLORS.PRIMARY)
         self.callback = callback
+        self.index = index
+
+        self.main_layout = QtWidgets.QVBoxLayout()
+        self.main_layout.setContentsMargins(50, 0, 0, 0)
+        self.setLayout(self.main_layout)
+
+        header_layout = QtWidgets.QHBoxLayout()
+        self.main_layout.addLayout(header_layout)
+
+        collapse_button = QtWidgets.QToolButton()
+        collapse_button.setFixedSize(32, 32)
+        collapse_button.setIcon(self.collapse_icon)
+        header_layout.addWidget(collapse_button)
+
+        header_layout.addWidget(QtWidgets.QLabel("Platoon " + str(index) + ":"))
 
         self.platoon_name_selector = StringSelectionCombobox(name_token)
-        self.main_layout.addWidget(self.platoon_name_selector)
+        header_layout.addWidget(self.platoon_name_selector)
 
-        self.add_unit_button = QtWidgets.QPushButton("Add Unit")
+        header_layout.addStretch(1)
+        delete_button = QtWidgets.QPushButton("Remove Platoon")
+        header_layout.addWidget(delete_button)
+
+        self.add_unit_button = QtWidgets.QPushButton("Add Unit to Platoon " + str(index))
+        self.add_unit_button.setFixedWidth(400)
         self.main_layout.addWidget(self.add_unit_button)
+        self.main_layout.setAlignment(self.add_unit_button, Qt.AlignCenter)
         # TODO: name, remove
         # TODO: list units
         # TODO: add/remove units
@@ -96,9 +125,6 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
                                            "\\UnitDescriptor")
             packs_to_units_sc.set(pack_name, unit_name)
 
-        # TODO: add unit exp
-        # TODO: add optional transport
-
         return unit_name.removeprefix("Descriptor_Unit_"), transport_name, exp_level
 
 
@@ -107,7 +133,13 @@ class UnitSelectorWidget(QtWidgets.QWidget):
         super().__init__(parent)
 
         main_layout = QtWidgets.QVBoxLayout()
+        main_layout.setContentsMargins(50, 0, 0, 0)
         self.setLayout(main_layout)
+
+        separator = QtWidgets.QWidget()
+        separator.setObjectName("separator")
+        separator.setFixedHeight(1)
+        main_layout.addWidget(separator)
 
         top_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(top_layout)
@@ -130,27 +162,28 @@ class UnitSelectorWidget(QtWidgets.QWidget):
         exp_selector.setCurrentIndex(exp_level)
         top_layout.addWidget(exp_selector)
 
+        top_layout.addStretch(1)
+        delete_button = QtWidgets.QPushButton("Remove Unit")
+        top_layout.addWidget(delete_button)
+
         bottom_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(bottom_layout)
 
+        transport_label = QtWidgets.QLabel("Transport: ")
+        bottom_layout.addWidget(transport_label)
         transport_button = QtWidgets.QPushButton()
         bottom_layout.addWidget(transport_button)
 
         if transport:
             transport_selector = UnitSelectionCombobox(transport)
-            bottom_layout.insertWidget(0, transport_selector)
+            bottom_layout.insertWidget(1, transport_selector)
 
             transport_button.setText("Remove Transport")
         else:
+            transport_label.setHidden(True)
             transport_button.setText("Add transport")
 
-        top_layout.addStretch(1)
         bottom_layout.addStretch(1)
-
-        separator = QtWidgets.QWidget()
-        separator.setObjectName("separator")
-        separator.setFixedHeight(1)
-        main_layout.addWidget(separator)
 
 
 # Combobox for selecting strings. Displays them as ingame but maps them to tokens

@@ -92,7 +92,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             # get unit object
             group = group_list.value[i]
             group_name = group.get_raw_value("Name")
-            group_widget = unit_widgets.UnitCompanyWidget(group_name)
+            group_widget = unit_widgets.UnitCompanyWidget(group_name, i+1)
             self.scroll_layout.addWidget(group_widget)
             platoon_list = group.get_napo_value("SmartGroupList")
             for j in range(len(platoon_list)):

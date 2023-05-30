@@ -105,6 +105,11 @@ class MainWidget(QtWidgets.QWidget):
 
         self.explorer.tree_view.open_ndf_editor.connect(self.tab_widget.on_open_ndf_editor)
 
+        separator = QtWidgets.QWidget()
+        separator.setObjectName("separator")
+        separator.setFixedHeight(1)
+        main_layout.addWidget(separator)
+
         label_layout = QtWidgets.QHBoxLayout()
         label_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addLayout(label_layout)
