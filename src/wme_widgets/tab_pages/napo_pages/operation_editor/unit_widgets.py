@@ -268,21 +268,31 @@ class UnitSelectorWidget(QtWidgets.QWidget):
         bottom_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(bottom_layout)
 
-        transport_label = QtWidgets.QLabel("Transport: ")
-        bottom_layout.addWidget(transport_label)
-        transport_button = QtWidgets.QPushButton()
-        bottom_layout.addWidget(transport_button)
+        self.transport_label = QtWidgets.QLabel("Transport: ")
+        self.transport_label.setHidden(bool(transport))
+        bottom_layout.addWidget(self.transport_label)
+        self.transport_selector = UnitSelectionCombobox(transport)
+        bottom_layout.addWidget(self.transport_selector)
+        self.transport_button = QtWidgets.QPushButton()
+        self.transport_button.clicked.connect(self.on_transport)
+        bottom_layout.addWidget(self.transport_button)
 
-        if transport:
-            transport_selector = UnitSelectionCombobox(transport)
-            bottom_layout.insertWidget(1, transport_selector)
-
-            transport_button.setText("Remove Transport")
-        else:
-            transport_label.setHidden(True)
-            transport_button.setText("Add transport")
+        self.on_transport()
 
         bottom_layout.addStretch(1)
+        
+    def on_transport(self):
+        # add transport
+        if self.transport_label.isHidden():
+            self.transport_label.setHidden(False)
+            self.transport_selector.setHidden(False)
+            self.transport_button.setText("Remove Transport")
+        # remove transport
+        else:
+            self.transport_label.setHidden(True)
+            self.transport_selector.setHidden(True)
+            self.transport_button.setText("Add Transport")
+        
 
     def on_delete(self):
         self.delete_unit.emit(self.index)
@@ -299,7 +309,7 @@ class StringSelectionCombobox(wme_essentials.WMECombobox):
         for key in string_dict.STRINGS.keys():
             self.addItem(string_dict.STRINGS[key], key)
 
-        if not token == "":
+        if not (token == "" or token is None):
             self.set_index_for_token(token)
 
     def set_index_for_token(self, token: str):
@@ -315,5 +325,5 @@ class UnitSelectionCombobox(wme_essentials.WMECombobox):
 
         self.addItems(self.units)
 
-        if not unit_name == "":
+        if not (unit_name == "" or unit_name is None):
             self.setCurrentIndex(self.findText(unit_name))
