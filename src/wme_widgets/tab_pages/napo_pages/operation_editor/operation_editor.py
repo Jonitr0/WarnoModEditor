@@ -9,7 +9,6 @@ from src.dialogs import essential_dialogs
 
 from src.ndf_parser import ndf_scanner
 
-
 PLAYER_DIVS = {
     "Black Horse's Last Stand": "Descriptor_Deck_US_11ACR_multi_HB_OP_01_DEP_PLAYER",
     "Red Juggernaut": "Descriptor_Deck_SOV_79_Gds_Tank_challenge_OP_03_STR_Player",
@@ -81,30 +80,53 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                         ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")])
         unit_widgets.UnitSelectionCombobox.units = units
 
+        add_company_button = QtWidgets.QPushButton("Add Company")
+        add_company_button.clicked.connect(self.on_add_company)
+        add_company_button.setFixedWidth(400)
+        self.scroll_layout.addWidget(add_company_button)
+        self.scroll_layout.setAlignment(add_company_button, Qt.AlignCenter)
+        self.scroll_layout.addStretch(1)
+
         # get group list
-        group_list = self.player_deck_napo.get_napo_value(player_div + "\\DeckCombatGroupList")
-        for i in range(len(group_list)):
+        company_list = self.player_deck_napo.get_napo_value(player_div + "\\DeckCombatGroupList")
+        for i in range(len(company_list)):
             # get unit object
-            group = group_list.value[i]
-            group_name = group.get_raw_value("Name")
-            group_widget = unit_widgets.UnitCompanyWidget(group_name, i+1)
-            self.scroll_layout.addWidget(group_widget)
-            platoon_list = group.get_napo_value("SmartGroupList")
+            company = company_list.value[i]
+            company_name = company.get_raw_value("Name")
+            company_widget = self.add_company(company_name, i+1)
+            platoon_list = company.get_napo_value("SmartGroupList")
             for j in range(len(platoon_list)):
                 # get platoon (index/availability mapping)
                 platoon = platoon_list.value[j]
                 platoon_name = platoon.get_raw_value("Name")
                 platoon_packs = platoon.get_napo_value("PackIndexUnitNumberList")
-                group_widget.add_platoon(platoon_name, platoon_packs, self)
-
-        add_company_button = QtWidgets.QPushButton("Add Company")
-        add_company_button.setFixedWidth(400)
-        self.scroll_layout.addWidget(add_company_button)
-        self.scroll_layout.setAlignment(add_company_button, Qt.AlignCenter)
-
-        self.scroll_layout.addStretch(1)
+                company_widget.add_platoon(platoon_name, platoon_packs, self)
 
         main_widget.MainWidget.instance.hide_loading_screen()
+
+    def add_company(self, company_name: str, index: int):
+        company_widget = unit_widgets.UnitCompanyWidget(company_name, index)
+        company_widget.delete_company.connect(self.on_delete_company)
+        self.scroll_layout.insertWidget(self.scroll_layout.count() - 2, company_widget)
+        return company_widget
+
+    def on_add_company(self):
+        company_widget = self.add_company("", self.scroll_layout.count())
+        # TODO: add empty/default platoon
+
+    def on_delete_company(self, index):
+        dialog = essential_dialogs.ConfirmationDialog("Do you really want to remove Company " + str(index + 1) + "?",
+                                                      "Confirm Deletion")
+        if not dialog.exec():
+            return
+
+        company = self.scroll_layout.takeAt(index)
+        if company.widget():
+            company.widget().deleteLater()
+
+        for i in range(self.scroll_layout.count() - 2):
+            company = self.scroll_layout.itemAt(i).widget()
+            company.update_index(i + 1)
 
     def to_json(self) -> dict:
         page_json = {"currentOp": self.op_combobox.currentText()}

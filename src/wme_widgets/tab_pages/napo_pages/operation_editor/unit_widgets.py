@@ -1,4 +1,4 @@
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
 from src.utils import icon_manager, string_dict
@@ -12,6 +12,8 @@ from src.wme_widgets import wme_essentials
 
 # represents one group of smart groups in Operation Editor
 class UnitCompanyWidget(QtWidgets.QWidget):
+    delete_company = QtCore.Signal(int)
+
     def __init__(self, name_token: str, index: int, parent=None):
         super().__init__(parent)
 
@@ -22,7 +24,7 @@ class UnitCompanyWidget(QtWidgets.QWidget):
         self.collapsed = False
 
         main_layout = QtWidgets.QVBoxLayout()
-        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setContentsMargins(0, 0, 10, 0)
         self.setLayout(main_layout)
 
         header_layout = QtWidgets.QHBoxLayout()
@@ -34,7 +36,8 @@ class UnitCompanyWidget(QtWidgets.QWidget):
         self.collapse_button.clicked.connect(self.on_collapse)
         header_layout.addWidget(self.collapse_button)
 
-        header_layout.addWidget(QtWidgets.QLabel("Company " + str(index) + ":"))
+        self.index_label = QtWidgets.QLabel("Company " + str(index) + ":")
+        header_layout.addWidget(self.index_label)
 
         group_name_selector = StringSelectionCombobox(name_token)
         header_layout.addWidget(group_name_selector)
@@ -48,9 +51,15 @@ class UnitCompanyWidget(QtWidgets.QWidget):
         self.platoon_layout.setContentsMargins(50, 0, 0, 0)
         main_layout.addLayout(self.platoon_layout)
 
+        add_platoon_button = QtWidgets.QPushButton("Add Platoon to Company " + str(self.index))
+        add_platoon_button.setFixedWidth(400)
+        self.platoon_layout.addWidget(add_platoon_button)
+        self.platoon_layout.setAlignment(add_platoon_button, Qt.AlignCenter)
+
     def add_platoon(self, name_token: str, unit_list: NapoVector, callback):
         self.platoon_count += 1
-        self.platoon_layout.addWidget(UnitPlatoonWidget(name_token, unit_list, callback, self.platoon_count))
+        self.platoon_layout.insertWidget(self.platoon_layout.count() - 1,
+                                         UnitPlatoonWidget(name_token, unit_list, callback, self.platoon_count))
 
     def on_collapse(self):
         self.collapsed = not self.collapsed
@@ -61,7 +70,11 @@ class UnitCompanyWidget(QtWidgets.QWidget):
             self.platoon_layout.itemAt(i).widget().setHidden(self.collapsed)
 
     def on_delete(self):
-        print(self.parent())
+        self.delete_company.emit(self.index - 1)
+
+    def update_index(self, index):
+        self.index = index
+        self.index_label.setText("Company " + str(index) + ":")
 
 
 packs_to_units_sc = smart_cache.SmartCache("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
