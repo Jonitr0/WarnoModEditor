@@ -107,6 +107,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 company_widget.add_platoon(platoon_name, platoon_packs)
 
         self.saved_status = self.get_status()
+        self.unsaved_changes = False
 
         main_widget.MainWidget.instance.hide_loading_screen()
 
@@ -154,4 +155,4 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
     def on_value_changed(self):
         new_status = self.get_status()
-        self.unsaved_changes = new_status == self.saved_status
+        self.unsaved_changes = new_status != self.saved_status

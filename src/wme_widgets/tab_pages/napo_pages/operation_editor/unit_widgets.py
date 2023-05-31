@@ -185,13 +185,14 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
         unit_name, transport, exp_level = self.get_unit_name_for_index(index)
         unit_widget = UnitSelectorWidget(layout_index, count, exp_level, unit_name, transport)
         unit_widget.delete_unit.connect(self.delete_unit)
+        unit_widget.value_changed.connect(self.on_value_changed)
         self.unit_layout.insertWidget(self.unit_layout.count() - 1, unit_widget)
         # units widgets + button
         if self.unit_layout.count() > MAX_UNITS_PER_PLATOON:
             self.add_unit_button.setHidden(True)
 
     def on_add_unit(self):
-        self.add_unit(0, 1, self.unit_layout.count() - 2)
+        self.add_unit(0, 1, self.unit_layout.count() - 1)
         self.on_value_changed()
 
     def get_unit_name_for_index(self, index: int):
