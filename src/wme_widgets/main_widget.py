@@ -27,7 +27,6 @@ def restore_window(window_obj: dict, window: base_window.BaseWindow):
 class MainWidget(QtWidgets.QWidget):
     status_set_text = QtCore.Signal(str)
     mod_loaded = QtCore.Signal(str)
-    instance = None
 
     def __init__(self, parent, warno_path: str, title_bar):
         super().__init__(parent=parent)
@@ -52,7 +51,10 @@ class MainWidget(QtWidgets.QWidget):
         self.log_dialog.error_log.connect(self.on_error_log)
 
         self.setup_ui()
-        MainWidget.instance = self
+
+        global instance
+        instance = self
+
         last_open = settings_manager.get_settings_value(settings_manager.LAST_OPEN_KEY)
         if last_open is None:
             return
@@ -286,3 +288,6 @@ class MainWidget(QtWidgets.QWidget):
                 detached_window.tab_widget.add_tab_with_auto_icon(page, tab["title"])
 
             detached_window.show()
+
+
+instance: MainWidget = None

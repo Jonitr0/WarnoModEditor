@@ -108,7 +108,7 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
                 return
             elif dialog.save_changes:
                 self.save_changes()
-        mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
+        mod_path = main_widget.instance.get_loaded_mod_path()
         # get file path
         file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
         if file_path == "":
@@ -134,31 +134,31 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
     def on_open(self):
         file_path, _ = QtWidgets.QFileDialog().getOpenFileName(self,
                                                                "Select .ndf File",
-                                                               main_widget.MainWidget.instance.get_loaded_mod_path(),
+                                                               main_widget.instance.get_loaded_mod_path(),
                                                                "*.ndf")
         if not QtCore.QFile.exists(file_path):
             return
         self.open_file(file_path)
 
     def open_file(self, file_path):
-        main_widget.MainWidget.instance.show_loading_screen("opening file...")
+        main_widget.instance.show_loading_screen("opening file...")
         try:
             with open(file_path, encoding="UTF-8") as f:
                 self.code_editor.setPlainText(f.read())
             super().open_file(file_path)
         except Exception as e:
             logging.error("Could not open file " + file_path + ": " + str(e))
-            main_widget.MainWidget.instance.hide_loading_screen()
+            main_widget.instance.hide_loading_screen()
         # update tab name
         file_path = file_path.replace("/", "\\")
         self.tab_name = file_path[file_path.rindex('\\') + 1:]
         self.unsaved_status_change.emit(False, self)
 
-        main_widget.MainWidget.instance.hide_loading_screen()
+        main_widget.instance.hide_loading_screen()
 
     def _save_changes(self):
         if self.file_path == "":
-            mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
+            mod_path = main_widget.instance.get_loaded_mod_path()
             # get file path
             self.file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
             if self.file_path == "":
@@ -178,7 +178,7 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         return ret
 
     def on_save_as(self):
-        mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
+        mod_path = main_widget.instance.get_loaded_mod_path()
         # get file path
         file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
         if file_path == "":

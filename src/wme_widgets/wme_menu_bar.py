@@ -107,7 +107,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             mod_path = mod_path.removesuffix("/")
             mod_path = mod_path.replace("/", "\\")
             if path_validator.validate_mod_path(mod_path):
-                if mod_path == main_widget.MainWidget.instance.get_loaded_mod_path():
+                if mod_path == main_widget.instance.get_loaded_mod_path():
                     return
                 if not self.main_widget_ref.ask_all_tabs_to_save():
                     return
@@ -373,7 +373,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         return action
 
     def run_script(self, cwd: str, cmd: str, args: list):
-        main_widget.MainWidget.instance.show_loading_screen("running command " + cmd + "...")
+        main_widget.instance.show_loading_screen("running command " + cmd + "...")
         try:
             self.process = QtCore.QProcess()
             self.process.setProgram("cmd.exe")
@@ -388,11 +388,11 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             self.process.waitForFinished()
             ret = self.process.exitCode()
             self.process.close()
-            main_widget.MainWidget.instance.hide_loading_screen()
+            main_widget.instance.hide_loading_screen()
             return ret
         except Exception as ex:
             logging.error(ex)
-            main_widget.MainWidget.instance.hide_loading_screen()
+            main_widget.instance.hide_loading_screen()
             return -1
 
     def print_process_output(self):

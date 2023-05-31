@@ -10,7 +10,7 @@ class WarnoPathDialog(BaseDialog):
     def __init__(self, config_values: dict):
         self.warning_label = QtWidgets.QLabel("WARNING! Uploading this mod might fail if it's name does not match "
                                               "the name of the directory (" +
-                                              main_widget.MainWidget.instance.get_loaded_mod_name() + ")")
+                                              main_widget.instance.get_loaded_mod_name() + ")")
         self.description_text_edit = QtWidgets.QTextEdit()
         self.icon_path_line_edit = wme_essentials.WMELineEdit()
         self.config_values = config_values
@@ -34,7 +34,7 @@ class WarnoPathDialog(BaseDialog):
         if not bool(name_line_edit.text()):
             self.warning_label.setHidden(True)
         else:
-            self.warning_label.setHidden(name_line_edit.text() == main_widget.MainWidget.instance.get_loaded_mod_name())
+            self.warning_label.setHidden(name_line_edit.text() == main_widget.instance.get_loaded_mod_name())
         self.warning_label.setWordWrap(True)
         form_layout.addWidget(self.warning_label)
 
@@ -86,7 +86,7 @@ class WarnoPathDialog(BaseDialog):
         if not bool(name):
             self.warning_label.setHidden(True)
         else:
-            self.warning_label.setHidden(name == main_widget.MainWidget.instance.get_loaded_mod_name())
+            self.warning_label.setHidden(name == main_widget.instance.get_loaded_mod_name())
 
     def on_description_changed(self):
         self.config_values["Properties/Description"] = self.description_text_edit.toPlainText()

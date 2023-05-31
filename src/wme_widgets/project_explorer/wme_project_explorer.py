@@ -51,7 +51,7 @@ class WMEProjectExplorer(QtWidgets.QWidget):
         self.tree_view.update_model(mod_path)
         self.file_size_checkbox.stateChanged.emit(self.file_size_checkbox.checkState())
 
-        main_widget.MainWidget.instance.show_loading_screen("Loading file system...")
+        main_widget.instance.show_loading_screen("Loading file system...")
 
         # load file system
         for i in range(20):
@@ -61,7 +61,7 @@ class WMEProjectExplorer(QtWidgets.QWidget):
         self.tree_view.collapseAll()
 
         self.search_bar.setText("")
-        main_widget.MainWidget.instance.hide_loading_screen()
+        main_widget.instance.hide_loading_screen()
 
 
 

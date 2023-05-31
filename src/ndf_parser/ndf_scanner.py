@@ -6,7 +6,7 @@ from src.wme_widgets import main_widget
 
 
 def get_assignment_ids(file_name: str) -> [str]:
-    file_name = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(), file_name)
+    file_name = os.path.join(main_widget.instance.get_loaded_mod_path(), file_name)
     with open(file_name, mode="r", encoding="utf-8") as f:
         file_content = f.read()
 
@@ -27,7 +27,7 @@ def get_assignment_ids(file_name: str) -> [str]:
 
 # get start and end index of a given top level object in an NDF file
 def get_object_range(file_name: str, obj_name: str) -> (str, int, int):
-    file_name = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(), file_name)
+    file_name = os.path.join(main_widget.instance.get_loaded_mod_path(), file_name)
     with open(file_name, mode="r", encoding="utf-8") as f:
         file_content = f.read()
 

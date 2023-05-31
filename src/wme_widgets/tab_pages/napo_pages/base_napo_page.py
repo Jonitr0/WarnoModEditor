@@ -62,7 +62,7 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
     # parse a whole NDF file and return it as a Napo Entity List
     def get_napo_from_file(self, file_name: str) -> [NapoAssignment]:
-        file_path = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(), file_name)
+        file_path = os.path.join(main_widget.instance.get_loaded_mod_path(), file_name)
 
         self.open_file(file_path)
 
@@ -96,14 +96,27 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         return NapoFile(listener.assignments)
 
     def write_napo_file(self, file_name: str, napo_file: NapoFile):
-        file_path = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(), file_name)
+        file_path = os.path.join(main_widget.instance.get_loaded_mod_path(), file_name)
         converter = napo_to_ndf_converter.NapoToNdfConverter()
         ndf_text = converter.convert(napo_file)
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(ndf_text)
 
-    def write_napo_object(self, file_name: str, obj_name: str, entity: NapoEntity):
-        pass
+    def write_napo_object(self, file_name: str, obj_name: str, entity: NapoFile):
+        file_path = os.path.join(main_widget.instance.get_loaded_mod_path(), file_name)
+        converter = napo_to_ndf_converter.NapoToNdfConverter()
+        ndf_text = converter.convert(entity)
+
+        _, start, end = ndf_scanner.get_object_range(file_name, obj_name)
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            file_content = f.read()
+
+        file_content = ndf_text.join([file_content[:start],file_content[end:]])
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(file_content)
+
+
 
     def on_restore(self):
         if not essential_dialogs.ConfirmationDialog("Your changes will be discarded! Are you sure?", "Warning!").exec():

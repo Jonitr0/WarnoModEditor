@@ -62,11 +62,11 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
             self.results_label.setText("")
             return
 
-        main_widget.MainWidget.instance.show_loading_screen("Searching...")
+        main_widget.instance.show_loading_screen("Searching...")
 
         results = []
 
-        mod_path = main_widget.MainWidget.instance.get_loaded_mod_path()
+        mod_path = main_widget.instance.get_loaded_mod_path()
         # go through all files
         for root, dirs, files in os.walk(mod_path):
             for file in files:
@@ -91,7 +91,7 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
             # pass reference to self
             self.list_layout.addWidget(SearchResultWidget(file, search_text, self))
 
-        main_widget.MainWidget.instance.hide_loading_screen()
+        main_widget.instance.hide_loading_screen()
 
     def to_json(self) -> dict:
         page_json = {"currentSearch": self.search_line_edit.text()}
@@ -122,5 +122,5 @@ class SearchResultWidget(QtWidgets.QFrame):
 
     def on_button_pressed(self):
         current_tab_widget = self.page.parent().parent()
-        full_path = os.path.join(main_widget.MainWidget.instance.get_loaded_mod_path(), self.file_name)
+        full_path = os.path.join(main_widget.instance.get_loaded_mod_path(), self.file_name)
         current_tab_widget.on_open_and_find_ndf_editor(full_path, self.pattern)

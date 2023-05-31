@@ -48,7 +48,7 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.help_file_path = "Help_GameSettingsEditor.html"
 
     def update_page(self):
-        main_widget.MainWidget.instance.show_loading_screen("loading GDConstantes.ndf...")
+        main_widget.instance.show_loading_screen("loading GDConstantes.ndf...")
 
         self.constants_napo = self.get_napo_from_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
 
@@ -71,7 +71,7 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
             "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/Destruction")
         self.destruction_income_widget.set_values(self.destruction_income, self.destruction_tick)
 
-        main_widget.MainWidget.instance.hide_loading_screen()
+        main_widget.instance.hide_loading_screen()
 
     def on_starting_points_changed(self, starting_points: [str]):
         # convert to int list

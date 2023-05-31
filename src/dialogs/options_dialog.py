@@ -41,7 +41,7 @@ class OptionsDialog(BaseDialog):
             QtWidgets.QLabel("Changes to the theme will be applied when the application is restarted."))
 
         warno_path_layout = QtWidgets.QHBoxLayout()
-        self.path_line_edit.setText(main_widget.MainWidget.instance.get_warno_path())
+        self.path_line_edit.setText(main_widget.instance.get_warno_path())
         warno_path_layout.addWidget(self.path_line_edit)
         browse_button = QtWidgets.QPushButton("Browse..")
         browse_button.clicked.connect(self.on_browse_clicked)
@@ -63,7 +63,7 @@ class OptionsDialog(BaseDialog):
             return
 
         settings_manager.write_settings_value(settings_manager.WARNO_PATH_KEY, warno_path)
-        main_widget.MainWidget.instance.set_warno_path(warno_path)
+        main_widget.instance.set_warno_path(warno_path)
 
         theme = "light "
         if self.theme_checkbox.isChecked():

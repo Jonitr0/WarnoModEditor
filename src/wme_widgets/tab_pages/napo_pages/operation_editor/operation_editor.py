@@ -54,6 +54,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         op_selector_layout.addWidget(self.op_combobox)
 
         self.player_deck_napo = None
+        self.player_div_napo = None
         self.deck_pack_list = None
 
         # TODO: help file
@@ -78,7 +79,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.update_page()
 
     def update_page(self):
-        main_widget.MainWidget.instance.show_loading_screen("loading files...")
+        main_widget.instance.show_loading_screen("loading files...")
 
         # clear layout
         while self.scroll_layout.count():
@@ -88,6 +89,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         player_div = PLAYER_DIVS[self.op_combobox.currentText()]
         self.player_deck_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div)
+        self.player_div_napo = None
         self.deck_pack_list = self.player_deck_napo.value[0].value.get_napo_value("DeckPackList")
 
         units = sorted([i.removeprefix("Descriptor_Unit_") for i in
@@ -120,7 +122,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.saved_status = self.get_status()
         self.unsaved_changes = False
 
-        main_widget.MainWidget.instance.hide_loading_screen()
+        main_widget.instance.hide_loading_screen()
 
     def _save_changes(self) -> bool:
         status = self.get_status()
@@ -173,12 +175,23 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                     unit_pair.append(napo_from_value(index, [NapoDatatype.Integer]))
                     unit_pair.append(napo_from_value(unit["count"], [NapoDatatype.Integer]))
 
-                    # TODO: if Pack for corresponding Deck/Unit combo does not exist, create it, add to Packlist in Divisions.ndf
-                    # TODO: check if all UnitDescriptors are in DivisionRules, if not, add them
+                    # TODO: check if all UnitDescriptors are in DivisionRules, if not, add them (do we need this?)
 
                     unit_list_assign.value.append(unit_pair)
 
                 platoon_list_assign.value.append(platoon_napo)
+
+            company_list.append(company_napo)
+
+        self.player_deck_napo.value[0].value.set_napo_value("DeckPackList", company_list)
+
+        player_div = PLAYER_DIVS[self.op_combobox.currentText()]
+        self.write_napo_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div, self.player_deck_napo)
+
+        division_name = self.player_deck_napo.value[0].value.get_raw_value("DeckDivision").removeprefix("~/")
+        if not self.player_div_napo:
+            self.write_napo_object("GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf",
+                                   division_name, self.player_div_napo)
 
         self.saved_status = status
         return True
@@ -231,7 +244,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         cfg_assign.member = True
         cfg_assign.id = "CfgName"
         cfg_assign.value = napo_from_value(pack_name.removeprefix("Descriptor_Deck_Pack_"),
-                                           [NapoDatatype.String_double])
+                                           [NapoDatatype.String_single])
         pack_descriptor.append(cfg_assign)
 
         unit_list_assign = NapoAssignment()
@@ -252,6 +265,25 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         converter = napo_to_ndf_converter.NapoToNdfConverter()
         pack_text = converter.convert_entity(pack_assign)
+
+        packs_path = main_widget.instance.get_loaded_mod_path() + "\\GameData\\Generated\\Gameplay\\Decks\\Packs.ndf"
+        with open(packs_path, "a", encoding="utf-8") as f:
+            f.write(pack_text)
+
+        division_name = self.player_deck_napo.value[0].value.get_raw_value("DeckDivision").removeprefix("~/")
+        if not self.player_div_napo:
+            self.player_div_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf",
+                                                             division_name)
+
+        pack_list = self.player_div_napo.value[0].value.get_raw_value("PackList")
+        pack_list["~/" + pack_name] = 100
+
+        dtypes = []
+        for i in range(len(pack_list)):
+            dtypes.append(NapoDatatype.Integer)
+            dtypes.append(NapoDatatype.Reference)
+
+        self.player_div_napo.value[0].value.set_raw_value("PackList", pack_list, dtypes)
 
     def add_company(self, company_name: str, index: int):
         company_widget = unit_widgets.UnitCompanyWidget(company_name, index, self)

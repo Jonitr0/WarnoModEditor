@@ -62,8 +62,8 @@ class ExceptionHandlerDialog(BaseDialog):
         logging.error(exception_summary)
         self.error_description_label.setText(exception_summary)
 
-        if main_widget.MainWidget.instance:
-            main_widget.MainWidget.instance.hide_loading_screen()
+        if main_widget.instance:
+            main_widget.instance.hide_loading_screen()
 
         self.exec_()
 
