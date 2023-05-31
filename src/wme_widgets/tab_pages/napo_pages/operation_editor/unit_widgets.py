@@ -112,7 +112,7 @@ class UnitCompanyWidget(QtWidgets.QWidget):
 
         return {
             "name": self.company_name_selector.currentData(),
-            "units": platoons
+            "platoons": platoons
         }
 
     def on_value_changed(self):
@@ -172,8 +172,6 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
         self.add_unit_button.setFixedWidth(400)
         self.unit_layout.addWidget(self.add_unit_button)
         self.unit_layout.setAlignment(self.add_unit_button, Qt.AlignCenter)
-        # TODO: remove
-        # TODO: add/remove units
 
         for pair in unit_list.value:
             index = pair.value[0].value

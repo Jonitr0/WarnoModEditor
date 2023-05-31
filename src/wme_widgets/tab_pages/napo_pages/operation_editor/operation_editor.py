@@ -8,6 +8,8 @@ from src.wme_widgets import main_widget, wme_essentials
 from src.dialogs import essential_dialogs
 
 from src.ndf_parser import ndf_scanner
+from src.ndf_parser.napo_entities.napo_collection import *
+from src.ndf_parser.napo_entities.napo_assignment import *
 
 PLAYER_DIVS = {
     "Black Horse's Last Stand": "Descriptor_Deck_US_11ACR_multi_HB_OP_01_DEP_PLAYER",
@@ -42,11 +44,6 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         self.player_deck_napo = None
         self.deck_pack_list = None
-        # TODO: read Decks.ndf, get CombatGroups and DeckPackList
-        # TODO: get actual units from Packs.ndf
-        # TODO: create Widgets
-        # TODO: on save: update availability in CombatGroups, add any needed Packs to DeckPackList and Packs.ndf
-        # TODO: add new units to DivisionRules.ndf
 
         self.update_page()
 
@@ -110,6 +107,53 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.unsaved_changes = False
 
         main_widget.MainWidget.instance.hide_loading_screen()
+
+    def _save_changes(self) -> bool:
+        status = self.get_status()
+        unit_list = []
+        company_list = NapoVector()
+
+        for company in status:
+            company_napo = NapoObject()
+            company_napo.obj_type = "TDeckCombatGroupDescriptor"
+
+            company_name_asign = NapoAssignment()
+            company_name_asign.member = True
+            company_name_asign.id = "Name"
+            company_name_asign.value = napo_from_value(company["name"], [NapoDatatype.String_double])
+            company_napo.append(company_name_asign)
+
+            platoon_list_asign = NapoAssignment()
+            platoon_list_asign.member = True
+            platoon_list_asign.id = "SmartGroupList"
+            company_napo.append(platoon_list_asign)
+
+            for platoon in company["platoons"]:
+                platoon_napo = NapoObject()
+                platoon_napo.obj_type = "TDeckSmartGroupDescriptor"
+
+                platoon_name_asign = NapoAssignment()
+                platoon_name_asign.member = True
+                platoon_name_asign.id = "Name"
+                platoon_name_asign.value = napo_from_value(platoon["name"], [NapoDatatype.String_double])
+                platoon_napo.append(platoon_name_asign)
+
+                unit_list_asign = NapoAssignment()
+                unit_list_asign.member = True
+                unit_list_asign.id = "PackIndexUnitNumberList"
+                platoon_napo.append(platoon_list_asign)
+
+                for unit in platoon["units"]:
+                    unit_list.append(unit)
+                    # TODO: run through DeckPackList, get index if unit is in list
+                    # TODO: if it isn't, create new entry in DeckPackList (exp, transport, pack)
+                    # TODO: if Pack for corresponding Deck/Unit combo does not exist, create it, add to DeckSerializer
+                    # TODO: check if all UnitDescriptors are in DivisionRules, if not, add them
+
+        return True
+
+
+
 
     def add_company(self, company_name: str, index: int):
         company_widget = unit_widgets.UnitCompanyWidget(company_name, index, self)
