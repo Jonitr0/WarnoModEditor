@@ -1,3 +1,5 @@
+import uuid
+
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
@@ -8,6 +10,7 @@ from src.wme_widgets import main_widget, wme_essentials
 from src.dialogs import essential_dialogs
 
 from src.ndf_parser import ndf_scanner
+from src.ndf_parser.ndf_converter import napo_to_ndf_converter
 from src.ndf_parser.napo_entities.napo_collection import *
 from src.ndf_parser.napo_entities.napo_assignment import *
 
@@ -16,6 +19,14 @@ PLAYER_DIVS = {
     "Red Juggernaut": "Descriptor_Deck_SOV_79_Gds_Tank_challenge_OP_03_STR_Player",
     "Backhand Blow": "Descriptor_Deck_US_3rd_Arm_challenge_OP_09_STB_Player",
     "The Kitzingen Ruse": "Descriptor_Deck_SOV_35_AirAslt_Brig_challenge_OP_12_AA_Player"
+}
+
+PACK_PREFIX = {
+    "Black Horse's Last Stand": "~/Descriptor_Deck_Pack_TOE_US_11ACR_multi_HB_",
+    "Red Juggernaut": "~/Descriptor_Deck_Pack_TOE_SOV_79_Gds_Tank_challenge_",
+    "Backhand Blow": "~/Descriptor_Deck_Pack_TOE_US_3rd_Arm_challenge_",
+    "The Kitzingen Ruse": "~/Descriptor_Deck_Pack_TOE_SOV_35_AirAslt_Brig_challenge_"
+
 }
 
 
@@ -44,6 +55,9 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         self.player_deck_napo = None
         self.deck_pack_list = None
+
+        # TODO: help file
+        # TODO: add files which are edited (Decks, Packs, DivisionRules, Divisions)
 
         self.update_page()
 
@@ -93,7 +107,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             # get unit object
             company = company_list.value[i]
             company_name = company.get_raw_value("Name")
-            company_widget = self.add_company(company_name, i+1)
+            company_widget = self.add_company(company_name, i + 1)
             company_widget.value_changed.connect(self.on_value_changed)
             platoon_list = company.get_napo_value("SmartGroupList")
             for j in range(len(platoon_list)):
@@ -110,50 +124,134 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
     def _save_changes(self) -> bool:
         status = self.get_status()
-        unit_list = []
+        units_in_deck_list = []
         company_list = NapoVector()
+        all_packs = ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
 
         for company in status:
             company_napo = NapoObject()
             company_napo.obj_type = "TDeckCombatGroupDescriptor"
 
-            company_name_asign = NapoAssignment()
-            company_name_asign.member = True
-            company_name_asign.id = "Name"
-            company_name_asign.value = napo_from_value(company["name"], [NapoDatatype.String_double])
-            company_napo.append(company_name_asign)
+            company_name_assign = NapoAssignment()
+            company_name_assign.member = True
+            company_name_assign.id = "Name"
+            company_name_assign.value = napo_from_value(company["name"], [NapoDatatype.String_double])
+            company_napo.append(company_name_assign)
 
-            platoon_list_asign = NapoAssignment()
-            platoon_list_asign.member = True
-            platoon_list_asign.id = "SmartGroupList"
-            company_napo.append(platoon_list_asign)
+            platoon_list_assign = NapoAssignment()
+            platoon_list_assign.member = True
+            platoon_list_assign.id = "SmartGroupList"
+            platoon_list_assign.value = NapoVector()
+            company_napo.append(platoon_list_assign)
 
             for platoon in company["platoons"]:
                 platoon_napo = NapoObject()
                 platoon_napo.obj_type = "TDeckSmartGroupDescriptor"
 
-                platoon_name_asign = NapoAssignment()
-                platoon_name_asign.member = True
-                platoon_name_asign.id = "Name"
-                platoon_name_asign.value = napo_from_value(platoon["name"], [NapoDatatype.String_double])
-                platoon_napo.append(platoon_name_asign)
+                platoon_name_assign = NapoAssignment()
+                platoon_name_assign.member = True
+                platoon_name_assign.id = "Name"
+                platoon_name_assign.value = napo_from_value(platoon["name"], [NapoDatatype.String_double])
+                platoon_napo.append(platoon_name_assign)
 
-                unit_list_asign = NapoAssignment()
-                unit_list_asign.member = True
-                unit_list_asign.id = "PackIndexUnitNumberList"
-                platoon_napo.append(platoon_list_asign)
+                unit_list_assign = NapoAssignment()
+                unit_list_assign.member = True
+                unit_list_assign.id = "PackIndexUnitNumberList"
+                unit_list_assign.value = NapoVector()
+                platoon_napo.append(platoon_list_assign)
 
                 for unit in platoon["units"]:
-                    unit_list.append(unit)
-                    # TODO: run through DeckPackList, get index if unit is in list
-                    # TODO: if it isn't, create new entry in DeckPackList (exp, transport, pack)
-                    # TODO: if Pack for corresponding Deck/Unit combo does not exist, create it, add to DeckSerializer
+                    units_in_deck_list.append(unit)
+
+                    index = self.get_index_for_unit(unit)
+
+                    pack_name = PACK_PREFIX[self.op_combobox.currentText()].removeprefix("~/") + unit["unit_name"]
+                    if not all_packs.__contains__(pack_name):
+                        self.create_pack_for_unit(pack_name, "Descriptor_Unit_" + unit["unit_name"])
+
+                    unit_pair = NapoPair()
+                    unit_pair.append(napo_from_value(index, [NapoDatatype.Integer]))
+                    unit_pair.append(napo_from_value(unit["count"], [NapoDatatype.Integer]))
+
+                    # TODO: if Pack for corresponding Deck/Unit combo does not exist, create it, add to Packlist in Divisions.ndf
                     # TODO: check if all UnitDescriptors are in DivisionRules, if not, add them
 
+                    unit_list_assign.value.append(unit_pair)
+
+                platoon_list_assign.value.append(platoon_napo)
+
+        self.saved_status = status
         return True
 
+    def get_index_for_unit(self, unit) -> int:
+        deck_pack = NapoObject()
+        deck_pack.obj_type = "TDeckPackDescription"
 
+        exp_assign = NapoAssignment()
+        exp_assign.id = "ExperienceLevel"
+        exp_assign.member = True
+        exp_assign.value = napo_from_value(unit["exp"], [NapoDatatype.Integer])
+        deck_pack.append(exp_assign)
 
+        pack_assign = NapoAssignment()
+        pack_assign.id = "DeckPack"
+        pack_assign.member = True
+        pack_name = PACK_PREFIX[self.op_combobox.currentText()] + unit["unit_name"]
+        pack_assign.value = napo_from_value(pack_name, [NapoDatatype.Reference])
+        deck_pack.append(pack_assign)
+
+        if unit["transport"]:
+            transport_assign = NapoAssignment()
+            transport_assign.id = "Transport"
+            transport_assign.member = True
+            transport_name = "~/Descriptor_Unit_" + unit["transport"]
+            transport_assign.value = napo_from_value(transport_name, [NapoDatatype.Reference])
+            deck_pack.append(transport_assign)
+
+        if not self.deck_pack_list.contains(deck_pack):
+            self.deck_pack_list.value.append(deck_pack)
+            return len(self.deck_pack_list) - 1
+        else:
+            return self.deck_pack_list.value.index(deck_pack)
+
+    def create_pack_for_unit(self, pack_name: str, unit_name: str):
+        pack_assign = NapoAssignment()
+        pack_assign.id = pack_name
+        pack_descriptor = NapoObject()
+        pack_descriptor.obj_type = "TDeckPackDescriptor"
+        pack_assign.value = pack_descriptor
+
+        desc_id_assign = NapoAssignment()
+        desc_id_assign.member = True
+        desc_id_assign.id = "DescriptorId"
+        desc_id_assign.value = napo_from_value("GUID:{" + str(uuid.uuid4()) + "}", [NapoDatatype.GUID])
+        pack_descriptor.append(desc_id_assign)
+
+        cfg_assign = NapoAssignment()
+        cfg_assign.member = True
+        cfg_assign.id = "CfgName"
+        cfg_assign.value = napo_from_value(pack_name.removeprefix("Descriptor_Deck_Pack_"),
+                                           [NapoDatatype.String_double])
+        pack_descriptor.append(cfg_assign)
+
+        unit_list_assign = NapoAssignment()
+        unit_list_assign.member = True
+        unit_list_assign.id = "TransporterAndUnitsList"
+        unit_list_assign.value = NapoVector()
+        pack_descriptor.append(unit_list_assign)
+
+        unit_desc = NapoObject()
+        unit_desc.obj_type = "TDeckTransporterAndUnitsDescriptor"
+        unit_list_assign.value.append(unit_desc)
+
+        unit_desc_member = NapoAssignment()
+        unit_desc_member.member = True
+        unit_desc_member.id = "UnitDescriptor"
+        unit_desc_member.value = napo_from_value(unit_name, [NapoDatatype.Reference])
+        unit_desc.append(unit_desc_member)
+
+        converter = napo_to_ndf_converter.NapoToNdfConverter()
+        pack_text = converter.convert_entity(pack_assign)
 
     def add_company(self, company_name: str, index: int):
         company_widget = unit_widgets.UnitCompanyWidget(company_name, index, self)

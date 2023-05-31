@@ -69,6 +69,9 @@ class NapoCollection(NapoEntity):
     def __len__(self):
         return len(self.value)
 
+    def contains(self, item):
+        return self.value.__contains__(item)
+
 
 class NapoFile(NapoCollection):
     def __init__(self, assignments=[]):
