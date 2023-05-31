@@ -160,7 +160,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 unit_list_assign.member = True
                 unit_list_assign.id = "PackIndexUnitNumberList"
                 unit_list_assign.value = NapoVector()
-                platoon_napo.append(platoon_list_assign)
+                platoon_napo.append(unit_list_assign)
 
                 for unit in platoon["units"]:
                     units_in_deck_list.append(unit)
@@ -183,13 +183,15 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
             company_list.append(company_napo)
 
-        self.player_deck_napo.value[0].value.set_napo_value("DeckPackList", company_list)
+        division_name = self.player_deck_napo.value[0].value.get_raw_value("DeckDivision").removeprefix("~/")
+        self.check_division_rules(units_in_deck_list, division_name)
+
+        self.player_deck_napo.value[0].value.set_napo_value("DeckCombatGroupList", company_list)
 
         player_div = PLAYER_DIVS[self.op_combobox.currentText()]
         self.write_napo_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div, self.player_deck_napo)
 
-        division_name = self.player_deck_napo.value[0].value.get_raw_value("DeckDivision").removeprefix("~/")
-        if not self.player_div_napo:
+        if self.player_div_napo:
             self.write_napo_object("GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf",
                                    division_name, self.player_div_napo)
 
@@ -284,6 +286,10 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             dtypes.append(NapoDatatype.Reference)
 
         self.player_div_napo.value[0].value.set_raw_value("PackList", pack_list, dtypes)
+
+    def check_division_rules(self, units_in_deck_list: [dict], div_name: str):
+        div_rule_napo = self.get_napo_from_file("GameData\\Generated\\Gameplay\\Decks\\DivisionRules.ndf")
+        # TODO: add units to division rules
 
     def add_company(self, company_name: str, index: int):
         company_widget = unit_widgets.UnitCompanyWidget(company_name, index, self)
