@@ -100,18 +100,18 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 platoon = platoon_list.value[j]
                 platoon_name = platoon.get_raw_value("Name")
                 platoon_packs = platoon.get_napo_value("PackIndexUnitNumberList")
-                company_widget.add_platoon(platoon_name, platoon_packs, self)
+                company_widget.add_platoon(platoon_name, platoon_packs)
 
         main_widget.MainWidget.instance.hide_loading_screen()
 
     def add_company(self, company_name: str, index: int):
-        company_widget = unit_widgets.UnitCompanyWidget(company_name, index)
+        company_widget = unit_widgets.UnitCompanyWidget(company_name, index, self)
         company_widget.delete_company.connect(self.on_delete_company)
         self.scroll_layout.insertWidget(self.scroll_layout.count() - 2, company_widget)
         return company_widget
 
     def on_add_company(self):
-        company_widget = self.add_company("", self.scroll_layout.count())
+        company_widget = self.add_company("", self.scroll_layout.count() - 1)
         # TODO: add empty/default platoon
 
     def on_delete_company(self, index):
