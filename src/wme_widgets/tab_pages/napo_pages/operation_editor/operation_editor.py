@@ -1,4 +1,4 @@
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_pages.napo_pages.operation_editor import unit_widgets
@@ -18,6 +18,8 @@ PLAYER_DIVS = {
 
 
 class OperationEditor(base_napo_page.BaseNapoPage):
+    value_changed = QtCore.Signal()
+
     def __init__(self):
         super().__init__()
 
@@ -26,6 +28,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.op_combobox.currentIndexChanged.connect(self.on_new_op_selected)
 
         self.last_op_index = 0
+        self.saved_status = None
 
         self.tool_bar.addSeparator()
 
@@ -94,6 +97,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             company = company_list.value[i]
             company_name = company.get_raw_value("Name")
             company_widget = self.add_company(company_name, i+1)
+            company_widget.value_changed.connect(self.on_value_changed)
             platoon_list = company.get_napo_value("SmartGroupList")
             for j in range(len(platoon_list)):
                 # get platoon (index/availability mapping)
@@ -101,6 +105,8 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 platoon_name = platoon.get_raw_value("Name")
                 platoon_packs = platoon.get_napo_value("PackIndexUnitNumberList")
                 company_widget.add_platoon(platoon_name, platoon_packs)
+
+        self.saved_status = self.get_status()
 
         main_widget.MainWidget.instance.hide_loading_screen()
 
@@ -112,6 +118,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
     def on_add_company(self):
         company_widget = self.add_company("", self.scroll_layout.count() - 1)
+        self.on_value_changed()
         # TODO: add empty/default platoon
 
     def on_delete_company(self, index):
@@ -128,9 +135,23 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             company = self.scroll_layout.itemAt(i).widget()
             company.update_index(i + 1)
 
+        self.on_value_changed()
+
+    def get_status(self):
+        companies = []
+        for i in range(self.scroll_layout.count() - 2):
+            company = self.scroll_layout.itemAt(i).widget()
+            companies.append(company.get_status())
+
+        return companies
+
     def to_json(self) -> dict:
         page_json = {"currentOp": self.op_combobox.currentText()}
         return page_json
 
     def from_json(self, json_obj: dict):
         self.op_combobox.setCurrentIndex(self.op_combobox.findText(json_obj["currentOp"]))
+
+    def on_value_changed(self):
+        new_status = self.get_status()
+        self.unsaved_changes = new_status == self.saved_status

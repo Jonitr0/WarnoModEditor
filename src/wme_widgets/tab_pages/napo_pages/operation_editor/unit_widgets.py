@@ -14,6 +14,7 @@ from src.dialogs import essential_dialogs
 # represents one group of smart groups in Operation Editor
 class UnitCompanyWidget(QtWidgets.QWidget):
     delete_company = QtCore.Signal(int)
+    value_changed = QtCore.Signal()
 
     def __init__(self, name_token: str, index: int, callback, parent=None):
         super().__init__(parent)
@@ -41,8 +42,9 @@ class UnitCompanyWidget(QtWidgets.QWidget):
         self.index_label = QtWidgets.QLabel("Company " + str(index) + ":")
         header_layout.addWidget(self.index_label)
 
-        group_name_selector = StringSelectionCombobox(name_token)
-        header_layout.addWidget(group_name_selector)
+        self.company_name_selector = StringSelectionCombobox(name_token)
+        self.company_name_selector.currentIndexChanged.connect(self.on_value_changed)
+        header_layout.addWidget(self.company_name_selector)
 
         header_layout.addStretch(1)
         delete_button = QtWidgets.QPushButton("Remove Company")
@@ -63,10 +65,12 @@ class UnitCompanyWidget(QtWidgets.QWidget):
         self.platoon_count += 1
         platoon_widget = UnitPlatoonWidget(name_token, unit_list, self.callback, self.platoon_count)
         platoon_widget.delete_platoon.connect(self.delete_platoon)
+        platoon_widget.value_changed.connect(self.on_value_changed)
         self.platoon_layout.insertWidget(self.platoon_layout.count() - 1, platoon_widget)
 
     def on_add_platoon(self):
         self.add_platoon("", NapoVector())
+        self.on_value_changed()
 
     def on_collapse(self):
         self.collapsed = not self.collapsed
@@ -78,6 +82,7 @@ class UnitCompanyWidget(QtWidgets.QWidget):
 
     def on_delete(self):
         self.delete_company.emit(self.index - 1)
+        self.on_value_changed()
 
     def delete_platoon(self, index):
         dialog = essential_dialogs.ConfirmationDialog("Do you really want to remove Platoon " + str(index + 1) + "?",
@@ -98,6 +103,20 @@ class UnitCompanyWidget(QtWidgets.QWidget):
     def update_index(self, index):
         self.index = index
         self.index_label.setText("Company " + str(index) + ":")
+        
+    def get_status(self):
+        platoons = []
+        for i in range(self.platoon_layout.count() - 1):
+            platoon = self.platoon_layout.itemAt(i).widget()
+            platoons.append(platoon.get_status())
+
+        return {
+            "name": self.company_name_selector.currentData(),
+            "units": platoons
+        }
+
+    def on_value_changed(self):
+        self.value_changed.emit()
 
 
 packs_to_units_sc = smart_cache.SmartCache("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
@@ -107,6 +126,7 @@ MAX_UNITS_PER_PLATOON = 3
 # represents one platoon/smart group in Operation Editor
 class UnitPlatoonWidget(QtWidgets.QWidget):
     delete_platoon = QtCore.Signal(int)
+    value_changed = QtCore.Signal()
 
     def __init__(self, name_token: str, unit_list: NapoVector, callback, index, parent=None):
         super().__init__(parent)
@@ -135,6 +155,7 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
         header_layout.addWidget(self.index_label)
 
         self.platoon_name_selector = StringSelectionCombobox(name_token)
+        self.platoon_name_selector.currentIndexChanged.connect(self.on_value_changed)
         header_layout.addWidget(self.platoon_name_selector)
 
         header_layout.addStretch(1)
@@ -171,6 +192,7 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
 
     def on_add_unit(self):
         self.add_unit(0, 1, self.unit_layout.count() - 2)
+        self.on_value_changed()
 
     def get_unit_name_for_index(self, index: int):
         deck_pack = self.callback.deck_pack_list.value[index]
@@ -203,6 +225,7 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
 
     def on_delete(self):
         self.delete_platoon.emit(self.index - 1)
+        self.on_value_changed()
 
     def delete_unit(self, index):
         unit = self.unit_layout.takeAt(index)
@@ -220,9 +243,24 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
         self.index = index
         self.index_label.setText("Platoon " + str(index) + ":")
 
+    def get_status(self):
+        units = []
+        for i in range(self.unit_layout.count() - 1):
+            unit = self.unit_layout.itemAt(i).widget()
+            units.append(unit.get_status())
+
+        return {
+            "name": self.platoon_name_selector.currentData(),
+            "units": units
+        }
+
+    def on_value_changed(self):
+        self.value_changed.emit()
+
 
 class UnitSelectorWidget(QtWidgets.QWidget):
     delete_unit = QtCore.Signal(int)
+    value_changed = QtCore.Signal()
 
     def __init__(self, index: int, count: int, exp_level: int = 0, unit_name: str = "",
                  transport: str = None, parent=None):
@@ -242,23 +280,26 @@ class UnitSelectorWidget(QtWidgets.QWidget):
         top_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(top_layout)
 
-        count_spinbox = wme_essentials.WMESpinbox()
-        count_spinbox.setRange(1, 100)
-        count_spinbox.setValue(count)
-        top_layout.addWidget(count_spinbox)
+        self.count_spinbox = wme_essentials.WMESpinbox()
+        self.count_spinbox.setRange(1, 100)
+        self.count_spinbox.setValue(count)
+        self.count_spinbox.valueChanged.connect(self.on_value_changed)
+        top_layout.addWidget(self.count_spinbox)
         top_layout.addWidget(QtWidgets.QLabel("x"))
 
-        unit_selector = UnitSelectionCombobox(unit_name)
-        top_layout.addWidget(unit_selector)
+        self.unit_selector = UnitSelectionCombobox(unit_name)
+        self.unit_selector.currentIndexChanged.connect(self.on_value_changed)
+        top_layout.addWidget(self.unit_selector)
 
         top_layout.addWidget(QtWidgets.QLabel("Experience: "))
-        exp_selector = wme_essentials.WMECombobox()
-        exp_selector.addItem(icon_manager.load_icon("minus.png", COLORS.PRIMARY), "", 0)
-        exp_selector.addItem(icon_manager.load_icon("1_exp.png", COLORS.PRIMARY), "", 1)
-        exp_selector.addItem(icon_manager.load_icon("2_exp.png", COLORS.PRIMARY), "", 2)
-        exp_selector.addItem(icon_manager.load_icon("3_exp.png", COLORS.PRIMARY), "", 3)
-        exp_selector.setCurrentIndex(exp_level)
-        top_layout.addWidget(exp_selector)
+        self.exp_selector = wme_essentials.WMECombobox()
+        self.exp_selector.addItem(icon_manager.load_icon("minus.png", COLORS.PRIMARY), "", 0)
+        self.exp_selector.addItem(icon_manager.load_icon("1_exp.png", COLORS.PRIMARY), "", 1)
+        self.exp_selector.addItem(icon_manager.load_icon("2_exp.png", COLORS.PRIMARY), "", 2)
+        self.exp_selector.addItem(icon_manager.load_icon("3_exp.png", COLORS.PRIMARY), "", 3)
+        self.exp_selector.setCurrentIndex(exp_level)
+        self.exp_selector.currentIndexChanged.connect(self.on_value_changed)
+        top_layout.addWidget(self.exp_selector)
 
         top_layout.addStretch(1)
         delete_button = QtWidgets.QPushButton("Remove Unit")
@@ -272,16 +313,17 @@ class UnitSelectorWidget(QtWidgets.QWidget):
         self.transport_label.setHidden(bool(transport))
         bottom_layout.addWidget(self.transport_label)
         self.transport_selector = UnitSelectionCombobox(transport)
+        self.transport_selector.currentIndexChanged.connect(self.on_value_changed)
         bottom_layout.addWidget(self.transport_selector)
         self.transport_button = QtWidgets.QPushButton()
         self.transport_button.clicked.connect(self.on_transport)
         bottom_layout.addWidget(self.transport_button)
 
-        self.on_transport()
+        self.on_transport(False)
 
         bottom_layout.addStretch(1)
-        
-    def on_transport(self):
+
+    def on_transport(self, emit: bool = True):
         # add transport
         if self.transport_label.isHidden():
             self.transport_label.setHidden(False)
@@ -292,13 +334,26 @@ class UnitSelectorWidget(QtWidgets.QWidget):
             self.transport_label.setHidden(True)
             self.transport_selector.setHidden(True)
             self.transport_button.setText("Add Transport")
-        
+
+        if emit:
+            self.value_changed.emit()
 
     def on_delete(self):
         self.delete_unit.emit(self.index)
 
     def update_index(self, index):
         self.index = index
+
+    def get_status(self):
+        return {
+            "unit_name": self.unit_selector.currentText(),
+            "count": self.count_spinbox.value(),
+            "exp": self.exp_selector.currentIndex(),
+            "transport": self.transport_selector.currentText() if not self.transport_selector.isHidden() else None
+        }
+
+    def on_value_changed(self):
+        self.value_changed.emit()
 
 
 # Combobox for selecting strings. Displays them as ingame but maps them to tokens
