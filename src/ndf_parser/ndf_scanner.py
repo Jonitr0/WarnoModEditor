@@ -84,9 +84,9 @@ def traverse_object(file_content: str, current_index: int, limit_chars: [str] = 
     while level > 0:
         next_open = file_content.find(limit_chars[0], current_index)
         next_close = file_content.find(limit_chars[1], current_index)
-        if next_open < 0 or next_close < 0:
+        if next_close < 0:
             break
-        if next_open < next_close:
+        if next_close > next_open > 0:
             level += 1
             current_index = next_open + 1
         else:

@@ -145,7 +145,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             company_name_assign = NapoAssignment()
             company_name_assign.member = True
             company_name_assign.id = "Name"
-            company_name_assign.value = napo_from_value(company["name"], [NapoDatatype.String_double])
+            company_name_assign.value = napo_from_value(company["name"], [NapoDatatype.String_single])
             company_napo.append(company_name_assign)
 
             platoon_list_assign = NapoAssignment()
@@ -161,7 +161,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 platoon_name_assign = NapoAssignment()
                 platoon_name_assign.member = True
                 platoon_name_assign.id = "Name"
-                platoon_name_assign.value = napo_from_value(platoon["name"], [NapoDatatype.String_double])
+                platoon_name_assign.value = napo_from_value(platoon["name"], [NapoDatatype.String_single])
                 platoon_napo.append(platoon_name_assign)
 
                 unit_list_assign = NapoAssignment()
@@ -178,6 +178,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                     pack_name = PACK_PREFIX[self.op_combobox.currentText()].removeprefix("~/") + unit["unit_name"]
                     if not all_packs.__contains__(pack_name):
                         self.create_pack_for_unit(pack_name, "Descriptor_Unit_" + unit["unit_name"])
+                        all_packs.append(pack_name)
 
                     unit_pair = NapoPair()
                     unit_pair.append(napo_from_value(index, [NapoDatatype.Integer]))

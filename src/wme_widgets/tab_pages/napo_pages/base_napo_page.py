@@ -112,11 +112,9 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         with open(file_path, "r", encoding="utf-8") as f:
             file_content = f.read()
 
-        file_content = ndf_text.join([file_content[:start],file_content[end:]])
+        file_content = ndf_text.join([file_content[:start], file_content[end:]])
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(file_content)
-
-
 
     def on_restore(self):
         if not essential_dialogs.ConfirmationDialog("Your changes will be discarded! Are you sure?", "Warning!").exec():
