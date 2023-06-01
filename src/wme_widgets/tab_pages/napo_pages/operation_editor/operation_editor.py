@@ -184,8 +184,6 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                     unit_pair.append(napo_from_value(index, [NapoDatatype.Integer]))
                     unit_pair.append(napo_from_value(unit["count"], [NapoDatatype.Integer]))
 
-                    # TODO: check if all UnitDescriptors are in DivisionRules, if not, add them (do we need this?)
-
                     unit_list_assign.value.append(unit_pair)
 
                 platoon_list_assign.value.append(platoon_napo)
@@ -203,6 +201,8 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         if self.player_div_napo:
             self.write_napo_object("GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf",
                                    division_name.removeprefix("~/"), self.player_div_napo)
+
+        # TODO: add more slots to matrix
 
         self.saved_status = status
         return True
@@ -338,10 +338,6 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 else:
                     entry.set_raw_value("AvailableWithoutTransport", True, [NapoDatatype.Boolean])
 
-            # TODO: remove unit from units_in_deck_list if it's in here
-            # TODO: set availability to 9999
-            # TODO: add missing transports if needed
-
         for unit_info in units_in_deck_list.values():
             entry = NapoObject()
             entry.obj_type = "TDeckUniteRule"
@@ -394,9 +390,6 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         file_content = ndf_text.join([file_content[:start], file_content[end:]])
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(file_content)
-
-        # TODO: new loop, add all remaining units
-        # TODO: save back to DivisionRules
 
     def add_company(self, company_name: str, index: int):
         company_widget = unit_widgets.UnitCompanyWidget(company_name, index, self)
