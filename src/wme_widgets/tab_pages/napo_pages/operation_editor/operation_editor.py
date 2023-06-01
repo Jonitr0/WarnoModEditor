@@ -1,4 +1,7 @@
 import uuid
+import os
+
+from antlr4 import *
 
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
@@ -9,8 +12,13 @@ from src.wme_widgets import main_widget, wme_essentials
 
 from src.dialogs import essential_dialogs
 
+from src.ndf_parser.antlr_output.NdfGrammarLexer import NdfGrammarLexer
+from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
+
 from src.ndf_parser import ndf_scanner
+from src.ndf_parser.object_generator import napo_generator
 from src.ndf_parser.ndf_converter import napo_to_ndf_converter
+
 from src.ndf_parser.napo_entities.napo_collection import *
 from src.ndf_parser.napo_entities.napo_assignment import *
 
@@ -126,7 +134,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
     def _save_changes(self) -> bool:
         status = self.get_status()
-        units_in_deck_list = []
+        units_in_deck_list = {}
         company_list = NapoVector()
         all_packs = ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
 
@@ -163,7 +171,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 platoon_napo.append(unit_list_assign)
 
                 for unit in platoon["units"]:
-                    units_in_deck_list.append(unit)
+                    units_in_deck_list["~/Descriptor_Unit_" + unit["unit_name"]] = unit
 
                     index = self.get_index_for_unit(unit)
 
@@ -183,7 +191,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
             company_list.append(company_napo)
 
-        division_name = self.player_deck_napo.value[0].value.get_raw_value("DeckDivision").removeprefix("~/")
+        division_name = self.player_deck_napo.value[0].value.get_raw_value("DeckDivision")
         self.check_division_rules(units_in_deck_list, division_name)
 
         self.player_deck_napo.value[0].value.set_napo_value("DeckCombatGroupList", company_list)
@@ -193,7 +201,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         if self.player_div_napo:
             self.write_napo_object("GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf",
-                                   division_name, self.player_div_napo)
+                                   division_name.removeprefix("~/"), self.player_div_napo)
 
         self.saved_status = status
         return True
@@ -288,8 +296,106 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.player_div_napo.value[0].value.set_raw_value("PackList", pack_list, dtypes)
 
     def check_division_rules(self, units_in_deck_list: [dict], div_name: str):
-        div_rule_napo = self.get_napo_from_file("GameData\\Generated\\Gameplay\\Decks\\DivisionRules.ndf")
-        # TODO: add units to division rules
+        div_rule_text, start, end = ndf_scanner.get_map_value_range(
+            "GameData\\Generated\\Gameplay\\Decks\\DivisionRules.ndf", "DivisionRules", div_name)
+
+        # make this an assignment
+        div_rule_text = "test is " + div_rule_text
+
+        input_stream = InputStream(div_rule_text)
+        lexer = NdfGrammarLexer(input_stream)
+        stream = CommonTokenStream(lexer)
+        parser = NdfGrammarParser(stream)
+        tree = parser.ndf_file()
+
+        listener = napo_generator.NapoGenerator(parser)
+        walker = ParseTreeWalker()
+        walker.walk(listener, tree)
+
+        pair_napo = listener.assignments[0].value
+        list_napo = pair_napo.value[1].get_napo_value("UnitRuleList")
+
+        for entry in list_napo.value:
+            unit_name = entry.get_raw_value("UnitDescriptor")
+            entry.set_raw_value("NumberOfUnitInPack", 9999, [NapoDatatype.Integer])
+            try:
+                transport_list = entry.get_raw_value("AvailableTransportList")
+            except:
+                transport_list = None
+
+            if units_in_deck_list.__contains__(unit_name):
+                unit_info = units_in_deck_list.pop(unit_name)
+                # add transport to list
+                if unit_info["transport"]:
+                    if transport_list:
+                        transport_list.append("~/Descriptor_Unit_" + unit_info["transport"])
+                    else:
+                        transport_list = ["~/Descriptor_Unit_" + unit_info["transport"]]
+                    entry.set_raw_value("AvailableTransportList", transport_list,
+                                        len(transport_list) * [NapoDatatype.Reference])
+                    entry.set_raw_value("AvailableWithoutTransport", False, [NapoDatatype.Boolean])
+                else:
+                    entry.set_raw_value("AvailableWithoutTransport", True, [NapoDatatype.Boolean])
+
+            # TODO: remove unit from units_in_deck_list if it's in here
+            # TODO: set availability to 9999
+            # TODO: add missing transports if needed
+
+        for unit_info in units_in_deck_list.values():
+            entry = NapoObject()
+            entry.obj_type = "TDeckUniteRule"
+
+            unit_assign = NapoAssignment()
+            unit_assign.id = "UnitDescriptor"
+            unit_assign.member = True
+            unit_assign.value = napo_from_value("~/Descriptor_Unit_" + unit_info["unit_name"], [NapoDatatype.Reference])
+            entry.append(unit_assign)
+
+            avail_assign = NapoAssignment()
+            avail_assign.id = "AvailableWithoutTransport"
+            avail_assign.member = True
+            avail_assign.value = napo_from_value(False if unit_info["transport"] else True, [NapoDatatype.Boolean])
+            entry.append(avail_assign)
+
+            if unit_info["transport"]:
+                transport_assign = NapoAssignment()
+                transport_assign.id = "AvailableTransportList"
+                transport_assign.member = True
+                transport_assign.value = napo_from_value(["~/Descriptor_Unit_" + unit_info["transport"]],
+                                                         [NapoDatatype.Reference])
+                entry.append(transport_assign)
+
+            num_pack_assign = NapoAssignment()
+            num_pack_assign.id = "NumberOfUnitInPack"
+            num_pack_assign.member = True
+            num_pack_assign.value = napo_from_value(9999, [NapoDatatype.Integer])
+            entry.append(num_pack_assign)
+
+            exp_assign = NapoAssignment()
+            exp_assign.id = "NumberOfUnitInPackXPMultiplier"
+            exp_assign.member = True
+            exp_assign.value = napo_from_value(4 * [1.0], 4 * [NapoDatatype.Float])
+            entry.append(exp_assign)
+
+            list_napo.value.append(entry)
+
+        # rebuild napo
+        pair_napo.value[1].set_napo_value("UnitRuleList", list_napo)
+
+        file_path = os.path.join(main_widget.instance.get_loaded_mod_path(),
+                                 "GameData\\Generated\\Gameplay\\Decks\\DivisionRules.ndf")
+        converter = napo_to_ndf_converter.NapoToNdfConverter()
+        ndf_text = converter.convert_entity(pair_napo)
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            file_content = f.read()
+
+        file_content = ndf_text.join([file_content[:start], file_content[end:]])
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(file_content)
+
+        # TODO: new loop, add all remaining units
+        # TODO: save back to DivisionRules
 
     def add_company(self, company_name: str, index: int):
         company_widget = unit_widgets.UnitCompanyWidget(company_name, index, self)
