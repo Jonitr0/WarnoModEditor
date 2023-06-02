@@ -23,6 +23,7 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         self.setup_ui()
 
     def setup_ui(self):
+        # TODO: add zoom
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)

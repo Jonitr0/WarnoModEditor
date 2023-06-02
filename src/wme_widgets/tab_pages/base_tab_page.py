@@ -1,8 +1,11 @@
+import logging
+
 from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.dialogs import essential_dialogs, rich_text_dialog
 
+from src.wme_widgets import main_widget
 from src.wme_widgets.tab_pages import smart_cache
 
 # key: file_path, value: reference to page
@@ -79,8 +82,12 @@ class BaseTabPage(QtWidgets.QWidget):
             if res == QtWidgets.QDialog.Rejected:
                 return False
 
-        if not self._save_changes():
-            return False
+        try:
+            self._save_changes()
+        except Exception as e:
+            logging.error("Error while saving: " + str(e))
+            main_widget.instance.hide_loading_screen()
+            raise e
 
         self.unsaved_changes = False
         # restore changes for other pages after successful save
@@ -123,4 +130,3 @@ class BaseTabPage(QtWidgets.QWidget):
         c = self.__class__
         m = c.__module__
         return m + "." + c.__qualname__
-

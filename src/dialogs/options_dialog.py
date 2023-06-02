@@ -48,6 +48,8 @@ class OptionsDialog(BaseDialog):
         warno_path_layout.addWidget(browse_button)
         form_layout.addRow("WARNO path:", warno_path_layout)
 
+        # TODO: auto-backup
+
     def on_browse_clicked(self):
         warno_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter WARNO path", self.path_line_edit.text(),
                                                                   options=(QtWidgets.QFileDialog.ShowDirsOnly |

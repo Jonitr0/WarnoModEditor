@@ -101,62 +101,58 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
             self.unsaved_changes = True
 
     def _save_changes(self) -> bool:
-        try:
-            starting_points = self.starting_pts_list_widget.list_widget.all_item_labels()
-            conquest_scores = self.conquest_score_list_widget.list_widget.all_item_labels()
-            destruction_scores = self.destruction_score_list_widget.list_widget.all_item_labels()
-            destruction_scores.append("0")
+        starting_points = self.starting_pts_list_widget.list_widget.all_item_labels()
+        conquest_scores = self.conquest_score_list_widget.list_widget.all_item_labels()
+        destruction_scores = self.destruction_score_list_widget.list_widget.all_item_labels()
+        destruction_scores.append("0")
 
-            conquest_income, conquest_tick = self.conquest_income_widget.get_values()
-            dest_income, dest_tick = self.destruction_income_widget.get_values()
+        conquest_income, conquest_tick = self.conquest_income_widget.get_values()
+        dest_income, dest_tick = self.destruction_income_widget.get_values()
 
-            default_starting_points = starting_points[0]
-            if starting_points.__contains__("1500"):
-                default_starting_points = "1500"
-            elif len(starting_points) > 2:
-                default_starting_points = starting_points[2]
+        default_starting_points = starting_points[0]
+        if starting_points.__contains__("1500"):
+            default_starting_points = "1500"
+        elif len(starting_points) > 2:
+            default_starting_points = starting_points[2]
 
-            dest_table = {}
-            dest_types = [NapoDatatype.Integer] * (len(destruction_scores) + 1) * len(destruction_scores)
-            for val in starting_points:
-                dest_table[val] = destruction_scores
+        dest_table = {}
+        dest_types = [NapoDatatype.Integer] * (len(destruction_scores) + 1) * len(destruction_scores)
+        for val in starting_points:
+            dest_table[val] = destruction_scores
 
-            self.constants_napo.set_raw_value("WargameConstantes\\ArgentInitialSetting", starting_points,
-                                              len(starting_points) * [NapoDatatype.Integer])
-            self.constants_napo.set_raw_value("WargameConstantes\\DefaultArgentInitial", default_starting_points,
-                                              [NapoDatatype.Integer])
-            self.constants_napo.set_raw_value("WargameConstantes\\ConquestPossibleScores", conquest_scores,
-                                              len(conquest_scores) * [NapoDatatype.Integer])
-            self.constants_napo.set_raw_value("WargameConstantes\\DestructionScoreToReachSetting", destruction_scores,
-                                              len(destruction_scores) * [NapoDatatype.Integer])
-            self.constants_napo.set_raw_value("WargameConstantes\\VictoryTypeDestructionLevelsTable", dest_table, dest_types)
-            self.constants_napo.set_raw_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag", conquest_income,
-                                              [NapoDatatype.Integer])
-            self.constants_napo.set_raw_value(
-                "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/CaptureTheFlag",
-                conquest_tick, [NapoDatatype.Float])
-            self.constants_napo.set_raw_value("WargameConstantes\\BaseIncome\\CombatRule/Destruction", dest_income,
-                                              [NapoDatatype.Integer])
-            self.constants_napo.set_raw_value(
-                "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/Destruction",
-                dest_tick, [NapoDatatype.Float])
+        self.constants_napo.set_raw_value("WargameConstantes\\ArgentInitialSetting", starting_points,
+                                          len(starting_points) * [NapoDatatype.Integer])
+        self.constants_napo.set_raw_value("WargameConstantes\\DefaultArgentInitial", default_starting_points,
+                                          [NapoDatatype.Integer])
+        self.constants_napo.set_raw_value("WargameConstantes\\ConquestPossibleScores", conquest_scores,
+                                          len(conquest_scores) * [NapoDatatype.Integer])
+        self.constants_napo.set_raw_value("WargameConstantes\\DestructionScoreToReachSetting", destruction_scores,
+                                          len(destruction_scores) * [NapoDatatype.Integer])
+        self.constants_napo.set_raw_value("WargameConstantes\\VictoryTypeDestructionLevelsTable", dest_table, dest_types)
+        self.constants_napo.set_raw_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag", conquest_income,
+                                          [NapoDatatype.Integer])
+        self.constants_napo.set_raw_value(
+            "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/CaptureTheFlag",
+            conquest_tick, [NapoDatatype.Float])
+        self.constants_napo.set_raw_value("WargameConstantes\\BaseIncome\\CombatRule/Destruction", dest_income,
+                                          [NapoDatatype.Integer])
+        self.constants_napo.set_raw_value(
+            "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/Destruction",
+            dest_tick, [NapoDatatype.Float])
 
-            # write to file
-            self.write_napo_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf", self.constants_napo)
+        # write to file
+        self.write_napo_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf", self.constants_napo)
 
-            # set own variables
-            self.starting_points = [int(i) for i in starting_points]
-            self.conquest_scores = [int(i) for i in conquest_scores]
-            self.destruction_scores = [int(i) for i in destruction_scores]
+        # set own variables
+        self.starting_points = [int(i) for i in starting_points]
+        self.conquest_scores = [int(i) for i in conquest_scores]
+        self.destruction_scores = [int(i) for i in destruction_scores]
 
-            self.conquest_income = int(conquest_income)
-            self.conquest_tick = float(conquest_tick)
-            self.destruction_income = int(dest_income)
-            self.destruction_tick = float(dest_tick)
+        self.conquest_income = int(conquest_income)
+        self.conquest_tick = float(conquest_tick)
+        self.destruction_income = int(dest_income)
+        self.destruction_tick = float(dest_tick)
 
-        except Exception as e:
-            logging.error("Error while saving game settings: " + str(e))
-            return False
         return True
 
 

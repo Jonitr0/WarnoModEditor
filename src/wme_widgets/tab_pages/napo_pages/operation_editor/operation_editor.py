@@ -67,6 +67,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         # TODO: help file
         # TODO: add files which are edited (Decks, Packs, DivisionRules, Divisions)
+        # TODO: import/export status (maybe even on base page?)
 
         self.update_page()
 

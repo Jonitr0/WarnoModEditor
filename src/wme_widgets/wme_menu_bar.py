@@ -56,6 +56,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
         self.add_action_to_menu("Create Mod Backup", self.edit_menu, True, self.on_new_backup_action,
                                 "Create a backup from the current state of the mod.", "Alt+B")
+        # TODO: quick backup
         self.add_action_to_menu("Retrieve Mod Backup", self.edit_menu, True,
                                 self.on_retrieve_backup_action, "Restore an existing mod backup.", "Ctrl+Alt+R")
         self.add_action_to_menu("Delete Mod Backup", self.edit_menu, True, self.on_delete_backup_action,
