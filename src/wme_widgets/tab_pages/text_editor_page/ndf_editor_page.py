@@ -48,6 +48,12 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         save_as_action.setShortcut("Ctrl+Shift+S")
         save_as_action.triggered.connect(self.on_save_as)
 
+        self.restore_action = tool_bar.addAction(icon_manager.load_icon("restore.png", COLORS.PRIMARY),
+                                                 "Reload File (F5)")
+        self.restore_action.setShortcut("F5")
+        self.restore_action.setEnabled(False)
+        self.restore_action.triggered.connect(self.on_restore)
+
         tool_bar.addSeparator()
 
         undo_icon = QtGui.QIcon()
@@ -154,6 +160,7 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         file_path = file_path.replace("/", "\\")
         self.tab_name = file_path[file_path.rindex('\\') + 1:]
         self.unsaved_status_change.emit(False, self)
+        self.restore_action.setEnabled(True)
 
         main_widget.instance.hide_loading_screen()
 
@@ -197,16 +204,29 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         # reset page
         self.file_path = file_path
         self.unsaved_changes = False
+        self.restore_action.setEnabled(True)
         # update tab name
         self.tab_name = file_path[file_path.rindex('\\') + 1:]
         self.unsaved_status_change.emit(False, self)
+
+    def on_restore(self):
+        if self.unsaved_changes:
+            file_name = self.file_path[self.file_path.rindex('\\') + 1:]
+            dialog = essential_dialogs.ConfirmationDialog("Your changes on " + file_name + " will be lost! Continue?",
+                                                          "Warning!")
+            if not dialog.exec():
+                return
+
+        self.update_page()
 
     def update_page(self):
         # if not yet saved, just clear the editor
         if self.file_path == "":
             self.code_editor.setPlainText("")
         else:
+            last_pos = self.code_editor.get_cursor_pos()
             self.open_file(self.file_path)
+            self.code_editor.set_cursor_pos(last_pos)
 
     def on_find_bar_close(self, _):
         self.find_action.setChecked(False)
