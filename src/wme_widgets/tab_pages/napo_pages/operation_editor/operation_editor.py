@@ -37,6 +37,8 @@ PACK_PREFIX = {
 
 }
 
+# Smart Group Button Size: SkirmishProductionMenuCombatGroupButton in UISpecificSkirmishProductionMenuView.ndf
+# (width 120, font size 12)
 
 class OperationEditor(base_napo_page.BaseNapoPage):
     value_changed = QtCore.Signal()
@@ -330,7 +332,8 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 # add transport to list
                 if unit_info["transport"]:
                     if transport_list:
-                        transport_list.append("~/Descriptor_Unit_" + unit_info["transport"])
+                        if not transport_list.__contains__("~/Descriptor_Unit_" + unit_info["transport"]):
+                            transport_list.append("~/Descriptor_Unit_" + unit_info["transport"])
                     else:
                         transport_list = ["~/Descriptor_Unit_" + unit_info["transport"]]
                     entry.set_raw_value("AvailableTransportList", transport_list,
