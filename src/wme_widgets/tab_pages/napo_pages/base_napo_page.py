@@ -61,10 +61,11 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         self.setLayout(main_layout)
 
     # parse a whole NDF file and return it as a Napo Entity List
-    def get_napo_from_file(self, file_name: str) -> [NapoAssignment]:
+    def get_napo_from_file(self, file_name: str, editing: bool = True) -> [NapoAssignment]:
         file_path = os.path.join(main_widget.instance.get_loaded_mod_path(), file_name)
 
-        self.open_file(file_path)
+        if editing:
+            self.open_file(file_path)
 
         input_stream = FileStream(file_path, encoding="utf8")
 
@@ -80,8 +81,11 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         return NapoFile(listener.assignments)
 
     # parse a part (e.g. object) of a given NDF file and return it as Napo Entity
-    def get_napo_from_object(self, file_name: str, obj_name: str) -> NapoEntity:
+    def get_napo_from_object(self, file_name: str, obj_name: str, editing: bool = True) -> NapoEntity:
         content, _, _ = ndf_scanner.get_object_range(file_name, obj_name)
+
+        if editing:
+            self.open_file(os.path.join(main_widget.instance.get_loaded_mod_path(), file_name))
 
         input_stream = InputStream(content)
         lexer = NdfGrammarLexer(input_stream)

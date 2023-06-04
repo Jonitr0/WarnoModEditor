@@ -132,7 +132,8 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         self.code_editor.setPlainText("")
         self.code_editor.document().clearUndoRedoStacks()
         # reset page
-        self.file_path = file_path
+        self.file_paths.clear()
+        self.file_paths.add(file_path)
         self.unsaved_changes = False
         # update tab name
         self.tab_name = file_path[file_path.rindex('\\') + 1:]
@@ -165,24 +166,25 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         main_widget.instance.hide_loading_screen()
 
     def _save_changes(self):
-        if self.file_path == "":
+        file_path = self.file_paths[0]
+        if file_path == "":
             mod_path = main_widget.instance.get_loaded_mod_path()
             # get file path
-            self.file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
-            if self.file_path == "":
+            file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .ndf File", mod_path, "*.ndf")
+            if file_path == "":
                 return
             # set tab name
-            self.file_path = self.file_path.replace("/", "\\")
-            if not self.file_path.endswith(".ndf"):
-                self.file_path = self.file_path.append(".ndf")
-            self.tab_name = self.file_path[self.file_path.rindex('\\') + 1:]
+            file_path = file_path.replace("/", "\\")
+            if not file_path.endswith(".ndf"):
+                file_path = file_path.append(".ndf")
+            self.tab_name = file_path[file_path.rindex('\\') + 1:]
         ret = False
         try:
-            with open(self.file_path, "w", encoding="UTF-8") as f:
+            with open(file_path, "w", encoding="UTF-8") as f:
                 f.write(self.code_editor.toPlainText())
             ret = True
         except Exception as e:
-            logging.error("Could not save to file " + self.file_path + ": " + str(e))
+            logging.error("Could not save to file " + file_path + ": " + str(e))
         return ret
 
     def on_save_as(self):
@@ -202,7 +204,8 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         except Exception as e:
             logging.error("Error while writing to file " + file_path + ": " + str(e))
         # reset page
-        self.file_path = file_path
+        self.file_paths.clear()
+        self.file_paths.add(file_path)
         self.unsaved_changes = False
         self.restore_action.setEnabled(True)
         # update tab name
@@ -211,7 +214,8 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
 
     def on_restore(self):
         if self.unsaved_changes:
-            file_name = self.file_path[self.file_path.rindex('\\') + 1:]
+            file_path = self.file_paths[0]
+            file_name = file_path[file_path.rindex('\\') + 1:]
             dialog = essential_dialogs.ConfirmationDialog("Your changes on " + file_name + " will be lost! Continue?",
                                                           "Warning!")
             if not dialog.exec():
@@ -221,11 +225,11 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
 
     def update_page(self):
         # if not yet saved, just clear the editor
-        if self.file_path == "":
+        if len(self.file_paths) == 0:
             self.code_editor.setPlainText("")
         else:
             last_pos = self.code_editor.get_cursor_pos()
-            self.open_file(self.file_path)
+            self.open_file(self.file_paths[0])
             self.code_editor.set_cursor_pos(last_pos)
 
     def on_find_bar_close(self, _):
@@ -301,6 +305,6 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
 
     def to_json(self) -> dict:
         return {
-            "filePath": self.file_path,
+            "filePath": list(self.file_paths)[0],
             "cursorPos": self.code_editor.textCursor().position()
         }

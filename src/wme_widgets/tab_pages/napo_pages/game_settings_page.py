@@ -1,4 +1,5 @@
 import logging
+import os.path
 
 from PySide6 import QtWidgets, QtCore
 
@@ -61,12 +62,14 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         destruction_scores.remove(0)
         self.destruction_score_list_widget.update_list(destruction_scores)
 
-        self.conquest_income = self.constants_napo.get_raw_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag")
+        self.conquest_income = self.constants_napo.get_raw_value(
+            "WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag")
         self.conquest_tick = self.constants_napo.get_raw_value(
             "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/CaptureTheFlag")
         self.conquest_income_widget.set_values(self.conquest_income, self.conquest_tick)
 
-        self.destruction_income = self.constants_napo.get_raw_value("WargameConstantes\\BaseIncome\\CombatRule/Destruction")
+        self.destruction_income = self.constants_napo.get_raw_value(
+            "WargameConstantes\\BaseIncome\\CombatRule/Destruction")
         self.destruction_tick = self.constants_napo.get_raw_value(
             "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/Destruction")
         self.destruction_income_widget.set_values(self.destruction_income, self.destruction_tick)
@@ -128,7 +131,8 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
                                           len(conquest_scores) * [NapoDatatype.Integer])
         self.constants_napo.set_raw_value("WargameConstantes\\DestructionScoreToReachSetting", destruction_scores,
                                           len(destruction_scores) * [NapoDatatype.Integer])
-        self.constants_napo.set_raw_value("WargameConstantes\\VictoryTypeDestructionLevelsTable", dest_table, dest_types)
+        self.constants_napo.set_raw_value("WargameConstantes\\VictoryTypeDestructionLevelsTable", dest_table,
+                                          dest_types)
         self.constants_napo.set_raw_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag", conquest_income,
                                           [NapoDatatype.Integer])
         self.constants_napo.set_raw_value(

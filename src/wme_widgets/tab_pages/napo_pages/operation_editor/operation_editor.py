@@ -37,6 +37,7 @@ PACK_PREFIX = {
 
 }
 
+
 # Smart Group Button Size: SkirmishProductionMenuCombatGroupButton in UISpecificSkirmishProductionMenuView.ndf
 # (width 120, font size 12)
 
@@ -70,6 +71,11 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         # TODO: help file
         # TODO: add files which are edited (Decks, Packs, DivisionRules, Divisions)
         # TODO: import/export status (maybe even on base page?)
+
+        self.open_file(os.path.join(main_widget.instance.get_loaded_mod_path(),
+                                    "GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf"))
+        self.open_file(os.path.join(main_widget.instance.get_loaded_mod_path(),
+                                    "GameData\\Generated\\Gameplay\\Decks\\DivisionRules.ndf"))
 
         self.update_page()
 

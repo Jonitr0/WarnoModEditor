@@ -19,10 +19,21 @@ all_pages = set()
 def get_pages_for_file(file_path: str, unsaved_only: bool = True):
     page_list = []
     for page in all_pages:
-        if page.file_path == file_path and (not unsaved_only or page.unsaved_changes):
+        if page.file_paths.__contains__(file_path) and (not unsaved_only or page.unsaved_changes):
             page_list.append(page)
 
     return page_list
+
+
+def get_pages_for_files(file_paths: [str], unsaved_only: bool = True):
+    page_list = set()
+    for page in all_pages:
+        for file in file_paths:
+            if page.file_paths.__contains__(file) and (not unsaved_only or page.unsaved_changes):
+                page_list.add(page)
+                break
+
+    return list(page_list)
 
 
 class BaseTabPage(QtWidgets.QWidget):
@@ -34,7 +45,7 @@ class BaseTabPage(QtWidgets.QWidget):
         self._unsaved_changes = False
         self.tab_name = ""
         # TODO: make this a list
-        self.file_path = ""
+        self.file_paths = set()
         self.help_file_path = ""
         self.help_page = None
 
@@ -49,19 +60,10 @@ class BaseTabPage(QtWidgets.QWidget):
     def unsaved_changes(self, value: bool):
         if self._unsaved_changes != value:
             self.unsaved_status_change.emit(value, self)
-            global pages_for_file
             # changed to true
             if value:
-                page_list = pages_for_file.get(self.file_path, [])
-                page_list.append(self)
-                pages_for_file[self.file_path] = page_list
-                smart_cache.clear_caches_for_file(self.file_path)
-            # changed to false
-            else:
-                page_list = pages_for_file.get(self.file_path, [])
-                if page_list.__contains__(self):
-                    page_list.remove(self)
-                pages_for_file[self.file_path] = page_list
+                for file in self.file_paths:
+                    smart_cache.clear_caches_for_file(file)
 
         self._unsaved_changes = value
 
@@ -72,15 +74,17 @@ class BaseTabPage(QtWidgets.QWidget):
     # write changes to file. Return True on success
     def save_changes(self) -> bool:
         # if more than one page has unsaved changes
-        page_list = get_pages_for_file(self.file_path, unsaved_only=True)
-        if len(page_list) > 1:
-            file_name = self.file_path[self.file_path.rindex('\\') + 1:]
-            dialog = essential_dialogs.ConfirmationDialog("Multiple tabs have unsaved changes on " + file_name +
-                                                          ". If you save on this tab, changes on other tabs will "
-                                                          "be discarded. Continue?", "Warning!")
-            res = dialog.exec()
-            if res == QtWidgets.QDialog.Rejected:
-                return False
+        print(self.file_paths)
+        for file_path in self.file_paths:
+            page_list = get_pages_for_file(file_path, unsaved_only=True)
+            if len(page_list) > 1:
+                file_name = file_path[file_path.rindex('\\') + 1:]
+                dialog = essential_dialogs.ConfirmationDialog("Multiple tabs have unsaved changes on " + file_name +
+                                                              ". If you save on this tab, changes on other tabs will "
+                                                              "be discarded. Continue?", "Warning!")
+                res = dialog.exec()
+                if res == QtWidgets.QDialog.Rejected:
+                    return False
 
         try:
             self._save_changes()
@@ -91,7 +95,7 @@ class BaseTabPage(QtWidgets.QWidget):
 
         self.unsaved_changes = False
         # restore changes for other pages after successful save
-        page_list = get_pages_for_file(self.file_path, unsaved_only=False)
+        page_list = get_pages_for_files(self.file_paths, unsaved_only=False)
         for page in page_list:
             if page != self:
                 page.update_page()
@@ -108,7 +112,7 @@ class BaseTabPage(QtWidgets.QWidget):
 
     # make sure self.file_path is set and add page to a watch list
     def open_file(self, file_path):
-        self.file_path = file_path
+        self.file_paths.add(file_path)
         self.unsaved_changes = False
         pass
 
