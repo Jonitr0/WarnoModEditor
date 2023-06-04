@@ -58,6 +58,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         op_selector = QtWidgets.QWidget()
         op_selector_layout = QtWidgets.QHBoxLayout()
+        op_selector_layout.setContentsMargins(8, 0, 8, 0)
         op_selector.setLayout(op_selector_layout)
         self.tool_bar.addWidget(op_selector)
 
@@ -69,7 +70,6 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.deck_pack_list = None
 
         # TODO: help file
-        # TODO: add files which are edited (Decks, Packs, DivisionRules, Divisions)
         # TODO: import/export status (maybe even on base page?)
 
         self.open_file(os.path.join(main_widget.instance.get_loaded_mod_path(),
@@ -136,13 +136,13 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 platoon_packs = platoon.get_napo_value("PackIndexUnitNumberList")
                 company_widget.add_platoon(platoon_name, platoon_packs)
 
-        self.saved_status = self.get_status()
+        self.saved_status = self.get_state()
         self.unsaved_changes = False
 
         main_widget.instance.hide_loading_screen()
 
     def _save_changes(self) -> bool:
-        status = self.get_status()
+        status = self.get_state()
         units_in_deck_list = {}
         company_list = NapoVector()
         all_packs = ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
@@ -428,11 +428,11 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         self.on_value_changed()
 
-    def get_status(self):
+    def get_state(self):
         companies = []
         for i in range(self.scroll_layout.count() - 2):
             company = self.scroll_layout.itemAt(i).widget()
-            companies.append(company.get_status())
+            companies.append(company.get_state())
 
         return companies
 
@@ -444,5 +444,5 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.op_combobox.setCurrentIndex(self.op_combobox.findText(json_obj["currentOp"]))
 
     def on_value_changed(self):
-        new_status = self.get_status()
+        new_status = self.get_state()
         self.unsaved_changes = new_status != self.saved_status

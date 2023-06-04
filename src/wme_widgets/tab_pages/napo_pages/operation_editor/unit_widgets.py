@@ -104,11 +104,11 @@ class UnitCompanyWidget(QtWidgets.QWidget):
         self.index = index
         self.index_label.setText("Company " + str(index) + ":")
         
-    def get_status(self):
+    def get_state(self):
         platoons = []
         for i in range(self.platoon_layout.count() - 1):
             platoon = self.platoon_layout.itemAt(i).widget()
-            platoons.append(platoon.get_status())
+            platoons.append(platoon.get_state())
 
         return {
             "name": self.company_name_selector.currentData(),
@@ -242,11 +242,11 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
         self.index = index
         self.index_label.setText("Platoon " + str(index) + ":")
 
-    def get_status(self):
+    def get_state(self):
         units = []
         for i in range(self.unit_layout.count() - 1):
             unit = self.unit_layout.itemAt(i).widget()
-            units.append(unit.get_status())
+            units.append(unit.get_state())
 
         return {
             "name": self.platoon_name_selector.currentData(),
@@ -343,7 +343,7 @@ class UnitSelectorWidget(QtWidgets.QWidget):
     def update_index(self, index):
         self.index = index
 
-    def get_status(self):
+    def get_state(self):
         return {
             "unit_name": self.unit_selector.currentText(),
             "count": self.count_spinbox.value(),

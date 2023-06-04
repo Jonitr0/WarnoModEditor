@@ -46,6 +46,16 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         self.restore_action.triggered.connect(self.on_restore)
         self.restore_action.setEnabled(False)
 
+        self.tool_bar.addSeparator()
+
+        import_state_action = self.tool_bar.addAction(icon_manager.load_icon("import.png", COLORS.PRIMARY),
+                                                      "Import configuration from file (Ctrl + I)")
+        import_state_action.setShortcut("Ctrl+I")
+
+        export_state_action = self.tool_bar.addAction(icon_manager.load_icon("export.png", COLORS.PRIMARY),
+                                                      "Export configuration to file (Ctrl + E)")
+        export_state_action.setShortcut("Ctrl+E")
+
         self.unsaved_status_change.connect(self.on_unsaved_changed)
 
         scroll_area = QtWidgets.QScrollArea()
@@ -128,5 +138,8 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
     def on_unsaved_changed(self, unsaved: bool, widget):
         self.restore_action.setEnabled(unsaved)
 
-    def update_page(self):
+    def get_state(self):
+        pass
+
+    def set_state(self, state: dict):
         pass

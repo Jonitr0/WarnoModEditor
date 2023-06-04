@@ -39,10 +39,13 @@ These shortcuts are available inside the text editor.
 - **Ctrl + F:** find text in file
 - **Ctrl + R:** replace text in file
 - **Ctrl + D:** duplicate current line / selected text
+- **F5:** discard changes and restore page state from file 
 
 #### NAPO Tools
 
 These shortcuts are available in NAPO tools like the Game Settings Editor.
 
 - **Ctrl + S:** save changes
-- **F5:** discard changes and restore page state from file 
+- **F5:** discard changes and restore page state from file
+- **Ctrl + I:** import configuration from file
+- **Ctrl + E:** export configuration to file
