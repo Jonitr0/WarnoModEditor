@@ -1,6 +1,7 @@
 # provides common functionality for Napo Tool Pages
-
+import logging
 import os
+import json
 
 from antlr4 import *
 
@@ -51,10 +52,12 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         import_state_action = self.tool_bar.addAction(icon_manager.load_icon("import.png", COLORS.PRIMARY),
                                                       "Import configuration from file (Ctrl + I)")
         import_state_action.setShortcut("Ctrl+I")
+        import_state_action.triggered.connect(self.import_state)
 
         export_state_action = self.tool_bar.addAction(icon_manager.load_icon("export.png", COLORS.PRIMARY),
                                                       "Export configuration to file (Ctrl + E)")
         export_state_action.setShortcut("Ctrl+E")
+        export_state_action.triggered.connect(self.export_state)
 
         self.unsaved_status_change.connect(self.on_unsaved_changed)
 
@@ -69,6 +72,12 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         scroll_widget.setLayout(self.scroll_layout)
 
         self.setLayout(main_layout)
+
+    def clear_layout(self):
+        while self.scroll_layout.count():
+            child = self.scroll_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
 
     # parse a whole NDF file and return it as a Napo Entity List
     def get_napo_from_file(self, file_name: str, editing: bool = True) -> [NapoAssignment]:
@@ -143,3 +152,33 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
     def set_state(self, state: dict):
         pass
+
+    def import_state(self):
+        current_state = self.get_state()
+        main_widget.instance.show_loading_screen("importing state...")
+        try:
+            file_path, ret = QtWidgets.QFileDialog().getOpenFileName(self, "Select config file",
+                                                                    options=QtWidgets.QFileDialog.ReadOnly)
+            if not ret:
+                main_widget.instance.hide_loading_screen()
+                return
+
+            state = json.load(open(file_path, "r"))
+            self.set_state(state)
+        except Exception as e:
+            logging.error("Error while loading config for " + str(self.__class__) + ":" + str(e))
+            self.set_state(current_state)
+
+        main_widget.instance.hide_loading_screen()
+
+    def export_state(self):
+        try:
+            state = self.get_state()
+            file_path, ret  = QtWidgets.QFileDialog().getSaveFileName(self, "Select export file name",
+                                                                options=QtWidgets.QFileDialog.ReadOnly)
+            if not ret:
+                return
+
+            json.dump(state, open(file_path, "w"))
+        except Exception as e:
+            logging.error("Error while exporting config on " + str(self.__class__) + ":" + str(e))

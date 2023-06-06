@@ -52,7 +52,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.op_combobox.currentIndexChanged.connect(self.on_new_op_selected)
 
         self.last_op_index = 0
-        self.saved_status = None
+        self.saved_state = None
 
         self.tool_bar.addSeparator()
 
@@ -98,11 +98,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
     def update_page(self):
         main_widget.instance.show_loading_screen("loading files...")
 
-        # clear layout
-        while self.scroll_layout.count():
-            child = self.scroll_layout.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
+        self.clear_layout()
 
         player_div = PLAYER_DIVS[self.op_combobox.currentText()]
         self.player_deck_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div)
@@ -136,18 +132,18 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 platoon_packs = platoon.get_napo_value("PackIndexUnitNumberList")
                 company_widget.add_platoon(platoon_name, platoon_packs)
 
-        self.saved_status = self.get_state()
+        self.saved_state = self.get_state()
         self.unsaved_changes = False
 
         main_widget.instance.hide_loading_screen()
 
     def _save_changes(self) -> bool:
-        status = self.get_state()
+        state = self.get_state()
         units_in_deck_list = {}
         company_list = NapoVector()
         all_packs = ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
 
-        for company in status:
+        for company in state:
             company_napo = NapoObject()
             company_napo.obj_type = "TDeckCombatGroupDescriptor"
 
@@ -213,7 +209,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         # TODO: add more slots to matrix
 
-        self.saved_status = status
+        self.saved_state = state
         return True
 
     def get_index_for_unit(self, unit) -> int:
@@ -408,7 +404,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         return company_widget
 
     def on_add_company(self):
-        company_widget = self.add_company("", self.scroll_layout.count() - 1)
+        self.add_company("", self.scroll_layout.count() - 1)
         self.on_value_changed()
         # TODO: add empty/default platoon
 
@@ -434,7 +430,33 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             company = self.scroll_layout.itemAt(i).widget()
             companies.append(company.get_state())
 
-        return companies
+        return {
+            "current_op": self.op_combobox.currentText(),
+            "companies": companies
+        }
+
+    def set_state(self, state: dict):
+        # TODO: this does not work as intended yet
+        self.op_combobox.currentIndexChanged.disconnect(self.on_new_op_selected)
+        self.op_combobox.setCurrentIndex(self.op_combobox.findText(state["current_op"]))
+        self.op_combobox.currentIndexChanged.connect(self.on_new_op_selected)
+
+        self.clear_layout()
+
+        index = 1
+        for company in state["companies"]:
+            company_widget = self.add_company(company["name"], index)
+            index += 1
+            for platoon in company["platoons"]:
+                platoon_widget = company_widget.add_platoon(platoon["name"], NapoVector())
+                unit_index = 0
+                for unit in platoon["units"]:
+                    platoon_widget.add_unit_with_data(unit_index, unit["count"], unit["exp"], unit["unit_name"],
+                                                      unit["transport"])
+                    unit_index += 1
+
+        self.unsaved_changes = self.saved_state != state
+        self.saved_state = state
 
     def to_json(self) -> dict:
         page_json = {"currentOp": self.op_combobox.currentText()}
@@ -445,4 +467,4 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
     def on_value_changed(self):
         new_status = self.get_state()
-        self.unsaved_changes = new_status != self.saved_status
+        self.unsaved_changes = new_status != self.saved_state

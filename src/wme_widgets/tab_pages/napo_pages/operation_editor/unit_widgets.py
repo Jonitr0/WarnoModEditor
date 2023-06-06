@@ -67,6 +67,7 @@ class UnitCompanyWidget(QtWidgets.QWidget):
         platoon_widget.delete_platoon.connect(self.delete_platoon)
         platoon_widget.value_changed.connect(self.on_value_changed)
         self.platoon_layout.insertWidget(self.platoon_layout.count() - 1, platoon_widget)
+        return platoon_widget
 
     def on_add_platoon(self):
         self.add_platoon("", NapoVector())
@@ -136,7 +137,6 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
         self.callback = callback
         self.index = index
         self.collapsed = False
-        self.num_units = 0
 
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -176,11 +176,13 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
         for pair in unit_list.value:
             index = pair.value[0].value
             count = pair.value[1].value
-            self.add_unit(index, count, self.num_units)
-            self.num_units += 1
+            self.add_unit(index, count, self.unit_layout.count() - 1)
 
     def add_unit(self, index: int, count: int, layout_index: int):
         unit_name, transport, exp_level = self.get_unit_name_for_index(index)
+        self.add_unit_with_data(layout_index, count, exp_level, unit_name, transport)
+
+    def add_unit_with_data(self, layout_index: int, count: int, exp_level: int, unit_name: str, transport: str):
         unit_widget = UnitSelectorWidget(layout_index, count, exp_level, unit_name, transport)
         unit_widget.delete_unit.connect(self.delete_unit)
         unit_widget.value_changed.connect(self.on_value_changed)
