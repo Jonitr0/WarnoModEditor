@@ -179,6 +179,6 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
             if not ret:
                 return
 
-            json.dump(state, open(file_path, "w"))
+            json.dump(state, open(file_path, "w"), indent=4)
         except Exception as e:
             logging.error("Error while exporting config on " + str(self.__class__) + ":" + str(e))

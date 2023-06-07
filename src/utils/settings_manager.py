@@ -40,7 +40,7 @@ def _open_config() -> dict:
 
 def _save_config(json_obj: dict):
     file_path = resource_loader.get_persistant_path("wme_config.json")
-    json_str = json.dumps(json_obj)
+    json_str = json.dumps(json_obj, indent=4)
 
     try:
         with open(file_path, "w+") as f:
