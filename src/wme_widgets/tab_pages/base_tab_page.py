@@ -73,7 +73,6 @@ class BaseTabPage(QtWidgets.QWidget):
     # write changes to file. Return True on success
     def save_changes(self) -> bool:
         # if more than one page has unsaved changes
-        print(self.file_paths)
         for file_path in self.file_paths:
             page_list = get_pages_for_file(file_path, unsaved_only=True)
             if len(page_list) > 1:
@@ -86,7 +85,9 @@ class BaseTabPage(QtWidgets.QWidget):
                     return False
 
         try:
+            main_widget.instance.show_loading_screen("Saving changes...")
             self._save_changes()
+            main_widget.instance.hide_loading_screen()
         except Exception as e:
             logging.error("Error while saving: " + str(e))
             main_widget.instance.hide_loading_screen()

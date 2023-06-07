@@ -166,7 +166,7 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         main_widget.instance.hide_loading_screen()
 
     def _save_changes(self):
-        file_path = self.file_paths[0]
+        file_path = list(self.file_paths)[0]
         if file_path == "":
             mod_path = main_widget.instance.get_loaded_mod_path()
             # get file path
@@ -214,7 +214,7 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
 
     def on_restore(self):
         if self.unsaved_changes:
-            file_path = self.file_paths[0]
+            file_path = list(self.file_paths)[0]
             file_name = file_path[file_path.rindex('\\') + 1:]
             dialog = essential_dialogs.ConfirmationDialog("Your changes on " + file_name + " will be lost! Continue?",
                                                           "Warning!")
@@ -229,7 +229,7 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
             self.code_editor.setPlainText("")
         else:
             last_pos = self.code_editor.get_cursor_pos()
-            self.open_file(self.file_paths[0])
+            self.open_file(list(self.file_paths)[0])
             self.code_editor.set_cursor_pos(last_pos)
 
     def on_find_bar_close(self, _):

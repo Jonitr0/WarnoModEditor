@@ -84,7 +84,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             return
 
         if self.unsaved_changes:
-            dialog = essential_dialogs.AskToSaveDialog(self.op_combobox.currentText())
+            dialog = essential_dialogs.AskToSaveDialog(self.op_combobox.itemText(self.last_op_index))
             res = dialog.exec()
             if not res:
                 self.op_combobox.setCurrentIndex(self.last_op_index)
@@ -143,7 +143,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         company_list = NapoVector()
         all_packs = ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
 
-        for company in state:
+        for company in state["companies"]:
             company_napo = NapoObject()
             company_napo.obj_type = "TDeckCombatGroupDescriptor"
 
