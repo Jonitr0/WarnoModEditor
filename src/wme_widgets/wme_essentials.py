@@ -76,7 +76,6 @@ class WMECombobox(QtWidgets.QComboBox):
 
     def on_close_lineedit(self):
         if self.lineEdit().hasFocus():
-            print("focus")
             return
 
         if self.findText(self.currentText()) < 0:

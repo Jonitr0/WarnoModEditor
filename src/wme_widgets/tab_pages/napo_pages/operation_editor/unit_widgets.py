@@ -238,7 +238,6 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
             unit.update_index(i)
 
         self.add_unit_button.setHidden(False)
-        self.num_units -= 1
 
     def update_index(self, index):
         self.index = index

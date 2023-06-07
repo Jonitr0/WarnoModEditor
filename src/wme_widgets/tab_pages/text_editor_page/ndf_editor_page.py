@@ -149,7 +149,7 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         self.open_file(file_path)
 
     def open_file(self, file_path):
-        main_widget.instance.show_loading_screen("opening file...")
+        main_widget.instance.show_loading_screen("Opening file...")
         try:
             with open(file_path, encoding="UTF-8") as f:
                 self.code_editor.setPlainText(f.read())

@@ -96,7 +96,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.update_page()
 
     def update_page(self):
-        main_widget.instance.show_loading_screen("loading files...")
+        main_widget.instance.show_loading_screen("Loading operation files...")
 
         self.clear_layout()
 
@@ -442,6 +442,13 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.op_combobox.currentIndexChanged.connect(self.on_new_op_selected)
 
         self.clear_layout()
+
+        add_company_button = QtWidgets.QPushButton("Add Company")
+        add_company_button.clicked.connect(self.on_add_company)
+        add_company_button.setFixedWidth(400)
+        self.scroll_layout.addWidget(add_company_button)
+        self.scroll_layout.setAlignment(add_company_button, Qt.AlignCenter)
+        self.scroll_layout.addStretch(1)
 
         index = 1
         for company in state["companies"]:

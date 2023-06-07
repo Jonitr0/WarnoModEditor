@@ -155,7 +155,7 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
     def import_state(self):
         current_state = self.get_state()
-        main_widget.instance.show_loading_screen("importing state...")
+        main_widget.instance.show_loading_screen("Importing state...")
         try:
             file_path, ret = QtWidgets.QFileDialog().getOpenFileName(self, "Select config file",
                                                                     options=QtWidgets.QFileDialog.ReadOnly)

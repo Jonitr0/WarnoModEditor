@@ -374,7 +374,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         return action
 
     def run_script(self, cwd: str, cmd: str, args: list):
-        main_widget.instance.show_loading_screen("running command " + cmd + "...")
+        main_widget.instance.show_loading_screen("Running command " + cmd + "...")
         try:
             self.process = QtCore.QProcess()
             self.process.setProgram("cmd.exe")
