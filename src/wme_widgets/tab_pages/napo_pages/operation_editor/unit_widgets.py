@@ -100,6 +100,7 @@ class UnitCompanyWidget(QtWidgets.QWidget):
             platoon.update_index(i + 1)
 
         self.platoon_count -= 1
+        self.on_value_changed()
 
     def update_index(self, index):
         self.index = index
@@ -238,6 +239,7 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
             unit.update_index(i)
 
         self.add_unit_button.setHidden(False)
+        self.on_value_changed()
 
     def update_index(self, index):
         self.index = index

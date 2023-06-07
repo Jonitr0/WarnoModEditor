@@ -123,7 +123,6 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             company = company_list.value[i]
             company_name = company.get_raw_value("Name")
             company_widget = self.add_company(company_name, i + 1)
-            company_widget.value_changed.connect(self.on_value_changed)
             platoon_list = company.get_napo_value("SmartGroupList")
             for j in range(len(platoon_list)):
                 # get platoon (index/availability mapping)
@@ -400,6 +399,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
     def add_company(self, company_name: str, index: int):
         company_widget = unit_widgets.UnitCompanyWidget(company_name, index, self)
         company_widget.delete_company.connect(self.on_delete_company)
+        company_widget.value_changed.connect(self.on_value_changed)
         self.scroll_layout.insertWidget(self.scroll_layout.count() - 2, company_widget)
         return company_widget
 

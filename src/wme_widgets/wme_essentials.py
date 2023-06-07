@@ -49,15 +49,7 @@ class CustomQCompleter(QtWidgets.QCompleter):
         self.local_completion_prefix = path
         self.updateModel()
         return ""
-
-
-class WMEComboboxLineEdit(QtWidgets.QLineEdit):
-    focus_out = QtCore.Signal()
-
-    def focusOutEvent(self, event) -> None:
-        super().focusOutEvent(event)
-        self.focus_out.emit()
-
+    
 
 class WMECombobox(QtWidgets.QComboBox):
     def __init__(self, parent=None):
@@ -66,20 +58,21 @@ class WMECombobox(QtWidgets.QComboBox):
         self.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
         self.setFocusPolicy(Qt.StrongFocus)
 
-        self.setLineEdit(WMEComboboxLineEdit())
-        self.lineEdit().focus_out.connect(self.on_close_lineedit)
-
         completer = CustomQCompleter(self)
         completer.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)
         completer.setModel(self.model())
         self.setCompleter(completer)
 
-    def on_close_lineedit(self):
+    def focusOutEvent(self, event) -> None:
+        super(WMECombobox, self).focusOutEvent(event)
+
         if self.lineEdit().hasFocus():
             return
 
         if self.findText(self.currentText()) < 0:
             self.setCurrentIndex(0)
+
+
 
     def wheelEvent(self, e) -> None:
         if self.hasFocus():
