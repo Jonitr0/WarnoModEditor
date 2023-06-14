@@ -38,6 +38,7 @@ class WarnoPathDialog(BaseDialog):
         self.warning_label.setWordWrap(True)
         form_layout.addWidget(self.warning_label)
 
+        # TODO (0.3.0): make this a proper markdown textedit
         self.description_text_edit.setPlainText(str(self.config_values["Properties/Description"]))
         self.description_text_edit.textChanged.connect(self.on_description_changed)
         description_label = QtWidgets.QLabel("Description")

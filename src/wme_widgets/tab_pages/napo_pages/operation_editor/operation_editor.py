@@ -209,7 +209,6 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             self.player_div_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf",
                                                              division_name.removeprefix("~/"))
 
-        # TODO: test this
         # get cost matrix name
         cost_matrix_name = self.player_div_napo.value[0].value.get_raw_value("CostMatrix")
 

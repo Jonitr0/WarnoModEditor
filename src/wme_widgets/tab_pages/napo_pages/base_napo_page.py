@@ -154,6 +154,14 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         pass
 
     def import_state(self):
+        dialog = essential_dialogs.AskToSaveDialog("Operation Editor")
+        if not dialog.exec():
+            return
+
+        if dialog.save_changes:
+            if not self.save_changes():
+                return
+
         current_state = self.get_state()
         main_widget.instance.show_loading_screen("Importing state...")
         try:
