@@ -68,9 +68,9 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.player_deck_napo = None
         self.player_div_napo = None
         self.deck_pack_list = None
+        self.matrix_napo = self.get_napo_from_file("GameData\\Gameplay\\Decks\\DivisionCostMatrix.ndf")
 
         # TODO: help file
-        # TODO: import/export status (maybe even on base page?)
 
         self.open_file(os.path.join(main_widget.instance.get_loaded_mod_path(),
                                     "GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf"))
@@ -205,8 +205,38 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         if self.player_div_napo:
             self.write_napo_object("GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf",
                                    division_name.removeprefix("~/"), self.player_div_napo)
+        else:
+            self.player_div_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf",
+                                                             division_name.removeprefix("~/"))
 
-        # TODO: add more slots to matrix
+        # TODO: test this
+        # get cost matrix name
+        cost_matrix_name = self.player_div_napo.value[0].value.get_raw_value("CostMatrix")
+
+        # create new dummy matrix
+        matrix = {}
+        matrix_types = []
+        categories = ["Logistic", "reco", "infanterie", "tank", "support",
+                      "at", "dca", "art", "Helis", "air", "defense"]
+        slots = 20
+
+        for cat in categories:
+            matrix_types.append(NapoDatatype.Reference)
+            matrix["EDefaultFactories/" + cat] = [0] * slots
+            for i in range(slots):
+                matrix_types.append(NapoDatatype.Integer)
+
+        matrix_types.reverse()
+
+        for i in range(len(self.matrix_napo.value)):
+            assign = self.matrix_napo.value[i]
+            if assign.id == cost_matrix_name:
+                napo_map = napo_from_value(matrix, matrix_types)
+                assign.value = napo_map
+                self.matrix_napo.value[i] = assign
+                break
+
+        self.write_napo_file("GameData\\Gameplay\\Decks\\DivisionCostMatrix.ndf", self.matrix_napo)
 
         self.saved_state = state
         return True
@@ -406,7 +436,6 @@ class OperationEditor(base_napo_page.BaseNapoPage):
     def on_add_company(self):
         self.add_company("", self.scroll_layout.count() - 1)
         self.on_value_changed()
-        # TODO: add empty/default platoon
 
     def on_delete_company(self, index):
         dialog = essential_dialogs.ConfirmationDialog("Do you really want to remove Company " + str(index + 1) + "?",
@@ -436,12 +465,16 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         }
 
     def set_state(self, state: dict):
-        # TODO: this does not work as intended yet
         self.op_combobox.currentIndexChanged.disconnect(self.on_new_op_selected)
         self.op_combobox.setCurrentIndex(self.op_combobox.findText(state["current_op"]))
         self.op_combobox.currentIndexChanged.connect(self.on_new_op_selected)
 
         self.clear_layout()
+
+        player_div = PLAYER_DIVS[self.op_combobox.currentText()]
+        self.player_deck_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div)
+        self.player_div_napo = None
+        self.deck_pack_list = self.player_deck_napo.value[0].value.get_napo_value("DeckPackList")
 
         add_company_button = QtWidgets.QPushButton("Add Company")
         add_company_button.clicked.connect(self.on_add_company)
@@ -463,7 +496,12 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                     unit_index += 1
 
         self.unsaved_changes = self.saved_state != state
-        self.saved_state = state
+
+    def get_state_file_name(self) -> str:
+        operation_name = self.op_combobox.currentText()
+        operation_name = operation_name.replace(" ", "")
+        operation_name = operation_name.replace("'", "")
+        return operation_name
 
     def to_json(self) -> dict:
         page_json = {"currentOp": self.op_combobox.currentText()}

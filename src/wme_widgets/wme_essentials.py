@@ -49,7 +49,7 @@ class CustomQCompleter(QtWidgets.QCompleter):
         self.local_completion_prefix = path
         self.updateModel()
         return ""
-    
+
 
 class WMECombobox(QtWidgets.QComboBox):
     def __init__(self, parent=None):

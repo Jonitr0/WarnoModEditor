@@ -20,7 +20,7 @@ from src.ndf_parser.napo_entities.napo_assignment import *
 from src.wme_widgets.tab_pages import base_tab_page
 from src.wme_widgets import main_widget
 
-from src.utils import icon_manager
+from src.utils import icon_manager, resource_loader
 from src.utils.color_manager import *
 from src.dialogs import essential_dialogs
 
@@ -157,8 +157,10 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         current_state = self.get_state()
         main_widget.instance.show_loading_screen("Importing state...")
         try:
-            file_path, ret = QtWidgets.QFileDialog().getOpenFileName(self, "Select config file",
-                                                                    options=QtWidgets.QFileDialog.ReadOnly)
+            file_name = resource_loader.get_persistant_path("")
+            file_path, ret = QtWidgets.QFileDialog().getOpenFileName(self, "Select config file", file_name,
+                                                                     options=QtWidgets.QFileDialog.ReadOnly,
+                                                                     filter="*.txt")
             if not ret:
                 main_widget.instance.hide_loading_screen()
                 return
@@ -174,11 +176,16 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
     def export_state(self):
         try:
             state = self.get_state()
-            file_path, ret  = QtWidgets.QFileDialog().getSaveFileName(self, "Select export file name",
-                                                                options=QtWidgets.QFileDialog.ReadOnly)
+            file_name = resource_loader.get_persistant_path(self.get_state_file_name())
+            file_path, ret = QtWidgets.QFileDialog().getSaveFileName(self, "Select export file name", file_name,
+                                                                     options=QtWidgets.QFileDialog.ReadOnly,
+                                                                     filter="*.txt")
             if not ret:
                 return
 
             json.dump(state, open(file_path, "w"), indent=4)
         except Exception as e:
             logging.error("Error while exporting config on " + str(self.__class__) + ":" + str(e))
+
+    def get_state_file_name(self) -> str:
+        return ""
