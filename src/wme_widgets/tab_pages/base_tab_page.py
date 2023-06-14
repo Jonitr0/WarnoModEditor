@@ -125,6 +125,9 @@ class BaseTabPage(QtWidgets.QWidget):
         pass
 
     def on_help(self):
+        if self.help_file_path == "":
+            return
+
         if self.help_page:
             self.help_page.deleteLater()
         self.help_page = rich_text_dialog.RichTextDialog(self.help_file_path, "Help")
