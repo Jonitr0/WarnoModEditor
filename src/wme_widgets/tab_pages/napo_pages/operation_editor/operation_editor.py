@@ -26,15 +26,16 @@ PLAYER_DIVS = {
     "Black Horse's Last Stand": "Descriptor_Deck_US_11ACR_multi_HB_OP_01_DEP_PLAYER",
     "Red Juggernaut": "Descriptor_Deck_SOV_79_Gds_Tank_challenge_OP_03_STR_Player",
     "Backhand Blow": "Descriptor_Deck_US_3rd_Arm_challenge_OP_09_STB_Player",
-    "The Kitzingen Ruse": "Descriptor_Deck_SOV_35_AirAslt_Brig_challenge_OP_12_AA_Player"
+    "The Kitzingen Ruse": "Descriptor_Deck_SOV_35_AirAslt_Brig_challenge_OP_12_AA_Player",
+    "Götterdämmerung": "Descriptor_Deck_RDA_11MSD_challenge_OP_11_RGA_Player",
 }
 
 PACK_PREFIX = {
     "Black Horse's Last Stand": "~/Descriptor_Deck_Pack_TOE_US_11ACR_multi_HB_",
     "Red Juggernaut": "~/Descriptor_Deck_Pack_TOE_SOV_79_Gds_Tank_challenge_",
     "Backhand Blow": "~/Descriptor_Deck_Pack_TOE_US_3rd_Arm_challenge_",
-    "The Kitzingen Ruse": "~/Descriptor_Deck_Pack_TOE_SOV_35_AirAslt_Brig_challenge_"
-
+    "The Kitzingen Ruse": "~/Descriptor_Deck_Pack_TOE_SOV_35_AirAslt_Brig_challenge_",
+    "Götterdämmerung": "~/Descriptor_Deck_Pack_TOE_RDA_11MSD_challenge_",
 }
 
 
@@ -68,7 +69,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.player_deck_napo = None
         self.player_div_napo = None
         self.deck_pack_list = None
-        self.matrix_napo = self.get_napo_from_file("GameData\\Gameplay\\Decks\\DivisionCostMatrix.ndf")
+        self.matrix_napo = None
 
         # TODO: help file
 
@@ -104,6 +105,8 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.player_deck_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div)
         self.player_div_napo = None
         self.deck_pack_list = self.player_deck_napo.value[0].value.get_napo_value("DeckPackList")
+        if not self.matrix_napo:
+            self.matrix_napo = self.get_napo_from_file("GameData\\Gameplay\\Decks\\DivisionCostMatrix.ndf")
 
         units = sorted([i.removeprefix("Descriptor_Unit_") for i in
                         ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")])

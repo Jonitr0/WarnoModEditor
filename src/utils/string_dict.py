@@ -1,5 +1,6 @@
 import logging
 
+# TODO: add Götterdämmerung strings
 STRINGS = {
     "BETUFEMGDL": "A-1-11th ACR",
     "SLWSVLLPZP": "Troop HQ",
