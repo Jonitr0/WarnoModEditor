@@ -27,7 +27,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
     def update_model(self, mod_path: str):
         proxy_model = file_system_model.FileSystemModel()
         proxy_model.set_root_path(mod_path)
-        proxy_model.setNameFilters(["*.ndf"])
+        proxy_model.setNameFilters(["*.ndf", "*.csv"])
         proxy_model.data_model.setNameFilterDisables(False)
         proxy_model.data_model.setIconProvider(file_icon_provider.FileIconProvider())
 
@@ -106,11 +106,11 @@ class FileSystemTreeView(QtWidgets.QTreeView):
     def on_find_text_changed(self, text: str):
         if text == "":
             self.model().show_all_dirs = True
-            self.model().setNameFilters(["*.ndf"])
+            self.model().setNameFilters(["*.ndf", "*.csv"])
             self.collapseAll()
         else:
             self.model().show_all_dirs = False
-            self.model().setNameFilters(["*" + text + "*.ndf"])
+            self.model().setNameFilters(["*" + text + "*.ndf", "*" + text + "*.csv"])
             self.expandAll()
 
     def on_show_size_changed(self, state: int):

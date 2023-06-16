@@ -40,6 +40,15 @@ STRINGS = {
     "AIIMCNDONF": "Recon Platoon",
     "MMISGNOMQO": "AT Platoon",
     "OMMSABUJXJ": "Support Platoon",
+    "LSKTJWMLCY": "SK-1-MSR17",
+    "AAIWEZVTZN": "MG-Gruppe",
+    "FGPDEUABPI": "Aufkl.-Gruppe",
+    "FPKZLIBICB": "Fla.-Gruppe",
+    "IHCDFIICYD": "1-1-MSR17",
+    "XSQBUZHFTL": "3. Zug",
+    "VWPETUIMJA": "2-1-MSR17",
+    "VGGMGCGPJS": "1-PJA11",
+    "cha_4" : "Luftnahunterstützung",
 }
 
 

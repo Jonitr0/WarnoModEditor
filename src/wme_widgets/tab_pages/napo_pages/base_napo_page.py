@@ -154,24 +154,25 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         pass
 
     def import_state(self):
-        dialog = essential_dialogs.AskToSaveDialog("Operation Editor")
-        if not dialog.exec():
-            return
-
-        if dialog.save_changes:
-            if not self.save_changes():
+        if self.unsaved_changes:
+            dialog = essential_dialogs.AskToSaveDialog("Operation Editor")
+            if not dialog.exec():
                 return
 
+            if dialog.save_changes:
+                if not self.save_changes():
+                    return
+
         current_state = self.get_state()
-        main_widget.instance.show_loading_screen("Importing state...")
         try:
             file_name = resource_loader.get_persistant_path("")
             file_path, ret = QtWidgets.QFileDialog().getOpenFileName(self, "Select config file", file_name,
                                                                      options=QtWidgets.QFileDialog.ReadOnly,
                                                                      filter="*.txt")
             if not ret:
-                main_widget.instance.hide_loading_screen()
                 return
+
+            main_widget.instance.show_loading_screen("Importing state...")
 
             state = json.load(open(file_path, "r"))
             self.set_state(state)

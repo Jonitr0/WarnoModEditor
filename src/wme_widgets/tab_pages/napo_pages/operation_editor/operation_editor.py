@@ -498,6 +498,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                     unit_index += 1
 
         self.unsaved_changes = self.saved_state != state
+        # TODO: why is page updated here?
 
     def get_state_file_name(self) -> str:
         operation_name = self.op_combobox.currentText()

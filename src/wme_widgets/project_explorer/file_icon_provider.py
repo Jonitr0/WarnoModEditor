@@ -8,6 +8,8 @@ class FileIconProvider(QtWidgets.QFileIconProvider):
         if isinstance(file_info, QtCore.QFileInfo):
             if file_info.fileName().endswith(".ndf"):
                 return icon_manager.load_icon("text_file.png", COLORS.PRIMARY)
+            elif file_info.fileName().endswith(".csv"):
+                return icon_manager.load_icon("table_file.png", COLORS.PRIMARY_LIGHT)
             elif file_info.isDir():
                 return icon_manager.load_icon("dir.png", COLORS.SECONDARY_LIGHT)
 
