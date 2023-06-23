@@ -4,7 +4,8 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
-from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, global_search_page, guid_generator_page
+from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, global_search_page, guid_generator_page, \
+    csv_editor_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.wme_widgets.tab_pages.napo_pages import game_settings_page
 from src.wme_widgets.tab_pages.napo_pages.operation_editor import operation_editor
@@ -22,7 +23,8 @@ class WMETabWidget(QtWidgets.QTabWidget):
         guid_generator_page.GuidGeneratorPage: "cert.png",
         rich_text_viewer_page.RichTextViewerPage: "help.png",
         game_settings_page.GameSettingsPage: "game_settings.png",
-        operation_editor.OperationEditor: "chess_knight.png"
+        operation_editor.OperationEditor: "chess_knight.png",
+        csv_editor_page.CsvEditorPage: "edit_table.png"
     }
 
     def __init__(self, parent=None):
@@ -52,6 +54,11 @@ class WMETabWidget(QtWidgets.QTabWidget):
         text_editor_action.setShortcut("Ctrl+Alt+E")
         text_editor_action.setShortcutContext(Qt.WindowShortcut)
         text_editor_action.triggered.connect(self.on_text_editor)
+
+        csv_editor_icon = self.get_icon_for_page_type(csv_editor_page.CsvEditorPage)
+        csv_editor_action = self.tab_menu.addAction(csv_editor_icon, "CSV Editor")
+        csv_editor_action.setToolTip("Create or edit .csv files.")
+        csv_editor_action.triggered.connect(self.on_csv_editor)
 
         global_search_icon = self.get_icon_for_page_type(global_search_page.GlobalSearchPage)
         global_search_action = self.tab_menu.addAction(global_search_icon, "Global Search")
@@ -155,6 +162,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
         editor = ndf_editor_page.NdfEditorPage()
         self.add_tab_with_auto_icon(editor, "Text Editor")
         editor.code_editor.setFocus()
+
+    def on_csv_editor(self):
+        editor = csv_editor_page.CsvEditorPage()
+        self.add_tab_with_auto_icon(editor, "CSV Editor")
 
     def on_global_search(self):
         page = global_search_page.GlobalSearchPage()

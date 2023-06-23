@@ -149,6 +149,8 @@ class MainWidget(QtWidgets.QWidget):
         self.tab_widget.close_all(all_windows=True)
         self.hide_loading_screen()
 
+        # TODO: set main window title
+
         try:
             self.load_mod_state()
         except Exception as e:

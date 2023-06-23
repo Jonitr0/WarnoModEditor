@@ -159,6 +159,13 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
 
         return True
 
+    # TODO: implement this
+    def get_state(self):
+        pass
+
+    def set_state(self, state: dict):
+        pass
+
 
 class BaseIncomeWidget(QtWidgets.QWidget):
     value_changed = QtCore.Signal(int, float)
