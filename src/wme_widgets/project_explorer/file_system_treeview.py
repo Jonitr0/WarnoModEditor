@@ -50,6 +50,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         file_path = self.model().get_file_path_for_index(index)
         if file_path.endswith(".ndf"):
             self.open_ndf_editor.emit(file_path)
+        # TODO: csv editor
 
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -64,6 +65,8 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         # .ndf context menu
         if file_path.endswith(".ndf"):
             ndf_editor_action = context_menu.addAction("Open in text editor")
+
+        # TODO: csv and text editor for csv files
 
         context_menu.addSeparator()
         expand_all_action = context_menu.addAction("Expand All")
