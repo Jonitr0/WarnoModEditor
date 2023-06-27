@@ -163,6 +163,15 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.add_tab_with_auto_icon(editor, "Text Editor")
         editor.code_editor.setFocus()
 
+    def on_open_csv_editor(self, file_path: str):
+        file_path = file_path.replace("/", "\\")
+        file_name = file_path[file_path.rindex('\\') + 1:]
+        editor_icon = icon_manager.load_icon("edit_table.png", COLORS.PRIMARY)
+        editor = csv_editor_page.CsvEditorPage()
+        self.addTab(editor, editor_icon, file_name)
+        editor.open_file(file_path)
+        editor.unsaved_changes = False
+
     def on_csv_editor(self):
         editor = csv_editor_page.CsvEditorPage()
         self.add_tab_with_auto_icon(editor, "CSV Editor")

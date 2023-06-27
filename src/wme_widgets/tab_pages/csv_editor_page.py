@@ -15,6 +15,7 @@ class CsvEditorPage(base_tab_page.BaseTabPage):
         super().__init__()
 
         main_layout = QtWidgets.QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
 
         tool_bar = QtWidgets.QToolBar()
@@ -50,11 +51,10 @@ class CsvEditorPage(base_tab_page.BaseTabPage):
 
         self.table_widget.setColumnCount(2)
         self.table_widget.setRowCount(1)
-
         self.expand_header()
 
-        # TODO: to/from json
         # TODO: help page
+        # TODO: add/remove row
 
     def expand_header(self):
         for i in range(self.table_widget.columnCount()):
@@ -127,13 +127,65 @@ class CsvEditorPage(base_tab_page.BaseTabPage):
 
         main_widget.instance.hide_loading_screen()
 
+    def write_table_to_file(self, file_path):
+        columns = range(self.table_widget.columnCount())
+        header = [self.table_widget.horizontalHeaderItem(column).text()
+                  for column in columns]
+        with open(file_path, "w", encoding="utf-8") as f:
+            writer = csv.writer(f, delimiter=';', lineterminator="\n")
+            writer.writerow(header)
+            for row in range(self.table_widget.rowCount()):
+                row_texts = []
+                for column in columns:
+                    if not self.table_widget.item(row, column):
+                        row_texts.append("")
+                    else:
+                        row_texts.append(self.table_widget.item(row, column).text())
+                writer.writerow(row_texts)
+
     def _save_changes(self):
-        # TODO: implement
-        pass
+        file_path = list(self.file_paths)[0]
+        if file_path == "":
+            mod_path = main_widget.instance.get_loaded_mod_path()
+            # get file path
+            file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .csv File", mod_path, "*.csv")
+            if file_path == "":
+                return
+            # set tab name
+            file_path = file_path.replace("/", "\\")
+            if not file_path.endswith(".csv"):
+                file_path = file_path.append(".csv")
+            self.tab_name = file_path[file_path.rindex('\\') + 1:]
+        ret = False
+        try:
+            self.write_table_to_file(file_path)
+            ret = True
+        except Exception as e:
+            logging.error("Could not save to file " + file_path + ": " + str(e))
+        return ret
 
     def on_save_as(self):
-        # TODO: implement
-        pass
+        mod_path = main_widget.instance.get_loaded_mod_path()
+        # get file path
+        file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New .csv File", mod_path, "*.csv")
+        if file_path == "":
+            return
+        file_path = file_path.replace("/", "\\")
+        if not file_path.endswith(".csv"):
+            file_path = file_path.append(".csv")
+        # clear/create file
+        try:
+            self.write_table_to_file(file_path)
+        except Exception as e:
+            logging.error("Error while writing to file " + file_path + ": " + str(e))
+        # reset page
+        self.file_paths.clear()
+        self.file_paths.add(file_path)
+        self.unsaved_changes = False
+        self.restore_action.setEnabled(True)
+        # update tab name
+        self.tab_name = file_path[file_path.rindex('\\') + 1:]
+        self.unsaved_status_change.emit(False, self)
 
     def on_restore(self):
         if self.unsaved_changes:
@@ -145,6 +197,25 @@ class CsvEditorPage(base_tab_page.BaseTabPage):
                 return
 
         self.update_page()
+
+    def update_page(self):
+        # if not yet saved, just clear the editor
+        if len(self.file_paths) == 0:
+            self.table_widget.setColumnCount(2)
+            self.table_widget.setRowCount(1)
+            self.expand_header()
+        else:
+            self.open_file(list(self.file_paths)[0])
+
+    def from_json(self, json_obj: dict):
+        if not json_obj["filePath"] == "":
+            self.open_file(json_obj["filePath"])
+
+    def to_json(self) -> dict:
+        return {
+            "filePath": list(self.file_paths)[0],
+        }
+
 
 
 

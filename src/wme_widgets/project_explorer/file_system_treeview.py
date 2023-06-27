@@ -10,7 +10,8 @@ from src.wme_widgets.project_explorer import file_icon_provider, file_system_mod
 
 
 class FileSystemTreeView(QtWidgets.QTreeView):
-    open_ndf_editor = QtCore.Signal(str)
+    open_text_editor = QtCore.Signal(str)
+    open_csv_editor = QtCore.Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -49,8 +50,9 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         # map index to source
         file_path = self.model().get_file_path_for_index(index)
         if file_path.endswith(".ndf"):
-            self.open_ndf_editor.emit(file_path)
-        # TODO: csv editor
+            self.open_text_editor.emit(file_path)
+        elif file_path.endswith(".csv"):
+            self.open_csv_editor.emit(file_path)
 
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -62,11 +64,12 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         file_path = self.model().get_file_path_for_index(index)
         context_menu = QtWidgets.QMenu(self)
 
-        # .ndf context menu
+        # text file context menu
         if file_path.endswith(".ndf"):
-            ndf_editor_action = context_menu.addAction("Open in text editor")
+            text_editor_action = context_menu.addAction("Open in text editor")
 
-        # TODO: csv and text editor for csv files
+        if file_path.endswith(".csv"):
+            csv_editor_action = context_menu.addAction("Open in CSV editor")
 
         context_menu.addSeparator()
         expand_all_action = context_menu.addAction("Expand All")
@@ -78,8 +81,10 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         action = context_menu.exec_(self.mapToGlobal(point))
 
         # resolve
-        if file_path.endswith(".ndf") and action == ndf_editor_action:
-            self.open_ndf_editor.emit(file_path)
+        if file_path.endswith(".ndf") and action == text_editor_action:
+            self.open_text_editor.emit(file_path)
+        elif file_path.endswith(".csv") and action == csv_editor_action:
+            self.open_csv_editor.emit(file_path)
         elif action == expand_all_action:
             self.expandAll()
         elif action == collapse_all_action:

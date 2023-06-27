@@ -105,7 +105,8 @@ class MainWidget(QtWidgets.QWidget):
         self.load_screen.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(self.load_screen)
 
-        self.explorer.tree_view.open_ndf_editor.connect(self.tab_widget.on_open_ndf_editor)
+        self.explorer.tree_view.open_text_editor.connect(self.tab_widget.on_open_ndf_editor)
+        self.explorer.tree_view.open_csv_editor.connect(self.tab_widget.on_open_csv_editor)
 
         separator = QtWidgets.QWidget()
         separator.setObjectName("separator")
