@@ -46,15 +46,32 @@ class CsvEditorPage(base_tab_page.BaseTabPage):
 
         tool_bar.addSeparator()
 
+        add_row_before_action = tool_bar.addAction(icon_manager.load_icon("add_row_before.png", COLORS.PRIMARY),
+                                                   "Add row before selected (Ctrl + Arrow Up)")
+        add_row_before_action.setShortcut("Ctrl+Up")
+        add_row_before_action.triggered.connect(self.on_add_row_before)
+
+        add_row_after_action = tool_bar.addAction(icon_manager.load_icon("add_row_after.png", COLORS.PRIMARY),
+                                                  "Add row after selected (Ctrl + Arrow Down)")
+        add_row_after_action.setShortcut("Ctrl+Down")
+        add_row_after_action.triggered.connect(self.on_add_row_after)
+
+        delete_row_action = tool_bar.addAction(icon_manager.load_icon("remove_row.png", COLORS.PRIMARY),
+                                               "Remove selected rows (Shift + Del)")
+        delete_row_action.setShortcut("Shift+Del")
+        delete_row_action.triggered.connect(self.on_remove_row)
+
         self.table_widget = QtWidgets.QTableWidget()
         main_layout.addWidget(self.table_widget)
+
+        self.table_widget.cellChanged.connect(self.on_table_changed)
+        self.table_widget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
         self.table_widget.setColumnCount(2)
         self.table_widget.setRowCount(1)
         self.expand_header()
 
         # TODO: help page
-        # TODO: add/remove row
 
     def expand_header(self):
         for i in range(self.table_widget.columnCount()):
@@ -90,7 +107,7 @@ class CsvEditorPage(base_tab_page.BaseTabPage):
         # update tab name
         self.tab_name = file_path[file_path.rindex('\\') + 1:]
         self.unsaved_status_change.emit(False, self)
-        
+
     def on_open(self):
         file_path, _ = QtWidgets.QFileDialog().getOpenFileName(self,
                                                                "Select .csv File",
@@ -207,6 +224,70 @@ class CsvEditorPage(base_tab_page.BaseTabPage):
         else:
             self.open_file(list(self.file_paths)[0])
 
+    def on_add_row_before(self):
+        selection_list = self.table_widget.selectedRanges()
+        if not selection_list:
+            self.table_widget.insertRow(0)
+        else:
+            selection_min_val = self.table_widget.rowCount()
+            for selection in selection_list:
+                if selection.topRow() < selection_min_val:
+                    selection_min_val = selection.topRow()
+
+            self.table_widget.insertRow(selection_min_val)
+
+        self.unsaved_changes = True
+
+    def on_add_row_after(self):
+        selection_list = self.table_widget.selectedRanges()
+        if not selection_list:
+            self.table_widget.insertRow(self.table_widget.rowCount())
+        else:
+            selection_max_val = -1
+            for selection in selection_list:
+                if selection.bottomRow() > selection_max_val:
+                    selection_max_val = selection.bottomRow()
+
+            self.table_widget.insertRow(selection_max_val + 1)
+
+        self.unsaved_changes = True
+
+    def on_remove_row(self):
+        selection_list = self.table_widget.selectedRanges()
+        if not selection_list:
+            if self.table_widget.rowCount() == 0:
+                return
+
+            self.table_widget.removeRow(self.table_widget.rowCount() - 1)
+
+        # this is so stupid...
+        selection_list_tmp = []
+
+        while len(selection_list) > 0:
+            selection_max_val = -1
+            selection_max_index = -1
+
+            for i in range(len(selection_list)):
+                selection = selection_list[i]
+                if selection.topRow() > selection_max_val:
+                    selection_max_val = selection.topRow()
+                    selection_max_index = i
+
+            selection_list_tmp.append(selection_list[selection_max_index])
+            del selection_list[selection_max_index]
+
+        selection_list = selection_list_tmp
+
+        for selection in selection_list:
+            start = selection.topRow()
+            length = selection.bottomRow() + 1 - start
+
+            while length > 0:
+                self.table_widget.removeRow(start)
+                length -= 1
+
+        self.unsaved_changes = True
+
     def from_json(self, json_obj: dict):
         if not json_obj["filePath"] == "":
             self.open_file(json_obj["filePath"])
@@ -216,6 +297,5 @@ class CsvEditorPage(base_tab_page.BaseTabPage):
             "filePath": list(self.file_paths)[0],
         }
 
-
-
-
+    def on_table_changed(self):
+        self.unsaved_changes = True
