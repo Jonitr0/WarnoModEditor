@@ -148,9 +148,8 @@ class MainWidget(QtWidgets.QWidget):
         settings_manager.write_settings_value(settings_manager.LAST_OPEN_KEY, mod_path)
         self.mod_loaded.emit(mod_path)
         self.tab_widget.close_all(all_windows=True)
+        self.window().setWindowTitle(self.loaded_mod_name)
         self.hide_loading_screen()
-
-        # TODO: set main window title
 
         try:
             self.load_mod_state()
