@@ -45,7 +45,6 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         self.restore_action = self.tool_bar.addAction(restore_icon, "Discard changes and restore page (F5)")
         self.restore_action.setShortcut("F5")
         self.restore_action.triggered.connect(self.on_restore)
-        self.restore_action.setEnabled(False)
 
         self.tool_bar.addSeparator()
 
@@ -58,8 +57,6 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
                                                       "Export configuration to file (Ctrl + E)")
         export_state_action.setShortcut("Ctrl+E")
         export_state_action.triggered.connect(self.export_state)
-
-        self.unsaved_status_change.connect(self.on_unsaved_changed)
 
         scroll_area = QtWidgets.QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -140,12 +137,11 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
             f.write(file_content)
 
     def on_restore(self):
-        if not essential_dialogs.ConfirmationDialog("Your changes will be discarded! Are you sure?", "Warning!").exec():
-            return
+        if self.unsaved_changes:
+            dialog = essential_dialogs.ConfirmationDialog("Your changes will be discarded! Are you sure?", "Warning!")
+            if not dialog.exec():
+                return
         self.update_page()
-
-    def on_unsaved_changed(self, unsaved: bool, widget):
-        self.restore_action.setEnabled(unsaved)
 
     def get_state(self):
         pass
