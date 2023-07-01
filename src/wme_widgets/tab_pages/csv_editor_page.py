@@ -161,6 +161,10 @@ class CsvEditorPage(base_tab_page.BaseTabPage):
                 writer.writerow(row_texts)
 
     def _save_changes(self):
+        if len(self.file_paths) == 0:
+            self.on_save_as()
+            return
+
         file_path = list(self.file_paths)[0]
         if file_path == "":
             mod_path = main_widget.instance.get_loaded_mod_path()
@@ -293,8 +297,12 @@ class CsvEditorPage(base_tab_page.BaseTabPage):
             self.open_file(json_obj["filePath"])
 
     def to_json(self) -> dict:
+        if len(self.file_paths) == 0:
+            file_path = ""
+        else:
+            file_path = list(self.file_paths)[0]
         return {
-            "filePath": list(self.file_paths)[0],
+            "filePath": file_path
         }
 
     def on_table_changed(self):
