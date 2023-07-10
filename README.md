@@ -40,6 +40,14 @@ You can run scripts ("Generate Mod", "Upload Mod", "Create Backup",...) from the
 
 Double-click a .ndf file in the project explorer to open it in the text editor. It supports NDF syntax highlighting and has find and replace functions.
 
+##### CSV Editor
+
+A table editor to edit .csv files. Open it by double-clicking a .csv file in the project explorer.
+
+##### Operation Editor
+
+GUI-based editing of player battle groups in operations.
+
 ##### Game Settings Editor
 
 A page to edit starting points, income and victory conditions for skirmish and multiplayer.
