@@ -1,0 +1,11 @@
+You can edit the units available to the player in Warno's operations with this page. Select the operation you want to edit from the dropdown to start. The player's units consist of **companies**, which are made up of **platoons**. 
+
+To change the names of companies or platoons, select an available string from the dropdown after the company/platoon label. Companies or platoons can be removed from the battlegroup by clicking the respective buttons (*Remove Company X* or *Remove Platoon X from Company Y*). Company and platoon widgets can be collapsed or expanded by clicking the button left of their name label. You can add new companies to the battlegroup by clicking the *Add Company* button at the bottom of the page. In the same manner, you can add platoons to an existing company.
+
+Each platoon consists of up to 3 different unit types. You can add a new unit to platoon if it currently has less than 3 units with the *Add Unit to Platoon X* button. You can then choose experience level, number of available units and an optional transport. Please note that the operation editor does not run additional checks. It will not stop you from putting units in transports that are not transportable or from assigning units as transports that are not capable of transporting.
+
+This page edits *Decks.ndf*, *Packs.ndf*, *DeckRules.ndf* and *DivisionCostMatrix.ndf*. Saving changes here will overwrite any unsaved changes you might have on these files, for example in a text editor.
+
+Click *save* (**Ctrl+S**) to save your changes. If you want to reload the page status from the files, click *restore* (**F5**).
+
+To import a configuration file, click *Import configuration form file* (**Ctrl+I**). To export a configuration to a text file, click *Export configuration to file* (**Ctrl+E**). A configuration in the operation editor represents a single operation. On export, the current operation will be exported. On import, the operation from the config file will be loaded. Configuration files can be used to transfer modified operations between different versions or different mods.

@@ -222,7 +222,7 @@ class MainWidget(QtWidgets.QWidget):
         if next_theme:
             settings_manager.write_settings_value(settings_manager.THEME_KEY, next_theme)
 
-        # TODO (0.3): auto-backup
+        # TODO: auto-backup
 
         try:
             json_obj = settings_manager.get_settings_value(settings_manager.APP_STATE, default={})

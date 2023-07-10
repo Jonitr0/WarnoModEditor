@@ -96,7 +96,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         ndf_reference_action = documentation_menu.addAction("NDF Reference")
         ndf_reference_action.setToolTip("The NDF Reference contains rules and conventions of the NDF language.")
         ndf_reference_action.triggered.connect(self.on_open_ndf_reference)
-        # TODO (0.3): finish manual
+        # TODO: finish manual
         manual_action = documentation_menu.addAction("Shortcut Reference")
         manual_action.setToolTip("A list of available shortcuts.")
         manual_action.triggered.connect(self.on_open_manual)

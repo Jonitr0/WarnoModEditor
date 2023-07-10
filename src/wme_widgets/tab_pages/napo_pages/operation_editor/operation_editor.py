@@ -28,6 +28,7 @@ PLAYER_DIVS = {
     "Backhand Blow": "Descriptor_Deck_US_3rd_Arm_challenge_OP_09_STB_Player",
     "The Kitzingen Ruse": "Descriptor_Deck_SOV_35_AirAslt_Brig_challenge_OP_12_AA_Player",
     "Götterdämmerung": "Descriptor_Deck_RDA_11MSD_challenge_OP_11_RGA_Player",
+    "The Dieburg Salient": "Descriptor_Deck_FR_7e_Blindee_challenge_OP_15_LMS_Player",
 }
 
 PACK_PREFIX = {
@@ -36,6 +37,7 @@ PACK_PREFIX = {
     "Backhand Blow": "~/Descriptor_Deck_Pack_TOE_US_3rd_Arm_challenge_",
     "The Kitzingen Ruse": "~/Descriptor_Deck_Pack_TOE_SOV_35_AirAslt_Brig_challenge_",
     "Götterdämmerung": "~/Descriptor_Deck_Pack_TOE_RDA_11MSD_challenge_",
+    "The Dieburg Salient": "~/Descriptor_Deck_Pack_TOE_FR_7e_Blindee_challenge_",
 }
 
 
@@ -71,7 +73,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.deck_pack_list = None
         self.matrix_napo = None
 
-        # TODO: help file
+        self.help_file_path = "Help_OperationEditor.html"
 
         self.open_file(os.path.join(main_widget.instance.get_loaded_mod_path(),
                                     "GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf"))

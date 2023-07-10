@@ -371,6 +371,8 @@ class StringSelectionCombobox(wme_essentials.WMECombobox):
 
     def set_index_for_token(self, token: str):
         index = self.findData(token)
+        if index < 0:
+            logging.info("string not found for token: " + token)
         self.setCurrentIndex(index)
 
 

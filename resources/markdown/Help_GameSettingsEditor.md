@@ -3,3 +3,5 @@ This page allows you to edit starting points, default income rates and victory s
 All values edited by this page are located in *GDConstantes.ndf*. Saving changes here will overwrite any unsaved changes you might have on the file, for example in a text editor.
 
 Click *save* (**Ctrl+S**) to save your changes. If you want to reload the page status from *GDConstantes.ndf*, click *restore* (**F5**).
+
+To import a configuration file, click *Import configuration form file* (**Ctrl+I**). To export a configuration to a text file, click *Export configuration to file* (**Ctrl+E**). A configuration in the game settings editor represents the state of the entire page. Configuration files can be used to transfer game settings between different versions or different mods.

@@ -47,7 +47,12 @@ STRINGS = {
     "XSQBUZHFTL": "3. Zug",
     "VWPETUIMJA": "2-1-MSR17",
     "VGGMGCGPJS": "1-PJA11",
-    "cha_4" : "Luftnahunterstützung",
+    "cha_4": "Luftunterstützung",
+    "IJOVDIJCWA": "Company HQ",
+    "cha_5": "Inf. Company",
+    "cha_7": "Recon. Company",
+    "cha_6": "Arm. Company",
+    "cha_3": "3rd Squadron",
 }
 
 
