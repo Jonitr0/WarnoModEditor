@@ -171,6 +171,7 @@ class MainWidget(QtWidgets.QWidget):
         return self.tab_widget.ask_all_tabs_to_save(all_windows=True)
 
     def show_loading_screen(self, text: str = "loading..."):
+        # TODO: add hints
         self.load_screen.setText(text)
         self.load_screen.setHidden(False)
         self.splitter.setHidden(True)

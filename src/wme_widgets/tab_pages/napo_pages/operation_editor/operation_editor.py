@@ -80,6 +80,9 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.open_file(os.path.join(main_widget.instance.get_loaded_mod_path(),
                                     "GameData\\Generated\\Gameplay\\Decks\\DivisionRules.ndf"))
 
+        # TODO: add OPFOR edit
+        # TODO: add income edit if possible
+
         self.update_page()
 
     def on_new_op_selected(self, index: int):

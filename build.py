@@ -21,3 +21,4 @@ if __name__ == '__main__':
                               ])
 
     # TODO: sign exe
+    # signtool sign /n "Open Source Developer, Jonas Trappe" / t https://time.certum.pl /fd sha256 /v WarnoModEditor.exe 
