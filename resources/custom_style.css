@@ -87,9 +87,12 @@ QFrame#list_entry {{
   border-color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
 }}
 
+QTabBar::tab:top {{
+  border-bottom: 2px solid {QTMATERIAL_SECONDARYLIGHTCOLOR};
+}}
+
 QTabBar::tab:top:hover {{
   color: {QTMATERIAL_PRIMARYCOLOR};
-  border-bottom: 2px solid {QTMATERIAL_SECONDARYDARKCOLOR};
 }}
 
 QTabBar::tab:top:selected:hover {{

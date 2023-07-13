@@ -29,10 +29,13 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
     def __init__(self):
         super().__init__()
 
-        main_layout = QtWidgets.QVBoxLayout()
+        # TODO: fix margins
+        self.main_layout = QtWidgets.QVBoxLayout()
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self.main_layout)
 
         self.tool_bar = QtWidgets.QToolBar()
-        main_layout.addWidget(self.tool_bar)
+        self.main_layout.addWidget(self.tool_bar)
 
         save_action = self.tool_bar.addAction(icon_manager.load_icon("save.png", COLORS.PRIMARY), "Save (Ctrl + S)")
         save_action.setShortcut("Ctrl+S")
@@ -57,24 +60,6 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
                                                       "Export configuration to file (Ctrl + E)")
         export_state_action.setShortcut("Ctrl+E")
         export_state_action.triggered.connect(self.export_state)
-
-        scroll_area = QtWidgets.QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        main_layout.addWidget(scroll_area)
-
-        scroll_widget = QtWidgets.QWidget()
-        scroll_area.setWidget(scroll_widget)
-        self.scroll_layout = QtWidgets.QVBoxLayout()
-        self.scroll_layout.setContentsMargins(0, 0, 0, 0)
-        scroll_widget.setLayout(self.scroll_layout)
-
-        self.setLayout(main_layout)
-
-    def clear_layout(self):
-        while self.scroll_layout.count():
-            child = self.scroll_layout.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
 
     # parse a whole NDF file and return it as a Napo Entity List
     def get_napo_from_file(self, file_name: str, editing: bool = True) -> [NapoAssignment]:

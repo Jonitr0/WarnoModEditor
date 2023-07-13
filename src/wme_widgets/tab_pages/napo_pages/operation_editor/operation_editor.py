@@ -83,7 +83,34 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         # TODO: add OPFOR edit
         # TODO: add income edit if possible
 
+        self.tab_widget = QtWidgets.QTabWidget()
+        self.tab_widget.tabBar().setExpanding(True)
+        self.tab_widget.tabBar().setDocumentMode(True)
+        self.main_layout.addWidget(self.tab_widget)
+
+        scroll_area = QtWidgets.QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        self.tab_widget.addTab(scroll_area, "Player Battle Group")
+
+        scroll_widget = QtWidgets.QWidget()
+        scroll_area.setWidget(scroll_widget)
+        self.scroll_layout = QtWidgets.QVBoxLayout()
+        self.scroll_layout.setContentsMargins(0, 0, 0, 0)
+        scroll_widget.setLayout(self.scroll_layout)
+
+        opfor_edit = QtWidgets.QWidget()
+        self.tab_widget.addTab(opfor_edit, "Enemy Forces")
+
+        settings_edit = QtWidgets.QWidget()
+        self.tab_widget.addTab(settings_edit, "Settings")
+
         self.update_page()
+
+    def clear_layout(self):
+        while self.scroll_layout.count():
+            child = self.scroll_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
 
     def on_new_op_selected(self, index: int):
         if index == self.last_op_index:

@@ -23,6 +23,16 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.constants_napo = None
         self.saved_state = None
 
+        scroll_area = QtWidgets.QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        self.main_layout.addWidget(scroll_area)
+
+        scroll_widget = QtWidgets.QWidget()
+        scroll_area.setWidget(scroll_widget)
+        self.scroll_layout = QtWidgets.QVBoxLayout()
+        self.scroll_layout.setContentsMargins(0, 0, 0, 0)
+        scroll_widget.setLayout(self.scroll_layout)
+
         self.scroll_layout.addWidget(self.starting_pts_list_widget)
         self.scroll_layout.addWidget(self.conquest_score_list_widget)
         self.scroll_layout.addWidget(self.conquest_income_widget)
