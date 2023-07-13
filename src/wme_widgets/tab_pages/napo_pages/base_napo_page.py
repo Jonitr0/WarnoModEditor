@@ -151,7 +151,7 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
     def import_state(self):
         if self.unsaved_changes:
-            dialog = essential_dialogs.AskToSaveDialog("Operation Editor")
+            dialog = essential_dialogs.AskToSaveDialog(self.tab_name)
             if not dialog.exec():
                 return
 
@@ -171,7 +171,12 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
             main_widget.instance.show_loading_screen("Importing state...")
 
             state = json.load(open(file_path, "r"))
-            self.set_state(state)
+            try:
+                self.set_state(state)
+            except Exception:
+                essential_dialogs.MessageDialog("Error", "Could not import state. The file might be incompatible with "
+                                                + self.tab_name).exec()
+                self.set_state(current_state)
         except Exception as e:
             logging.error("Error while loading config for " + str(self.__class__) + ":" + str(e))
             self.set_state(current_state)

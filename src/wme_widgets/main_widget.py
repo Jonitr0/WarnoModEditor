@@ -182,13 +182,13 @@ class MainWidget(QtWidgets.QWidget):
         QtWidgets.QApplication.processEvents()
 
     def hide_loading_screen(self):
+        QtWidgets.QApplication.processEvents()
+
         self.load_screen.setHidden(True)
         self.splitter.setHidden(False)
 
         for detached in wme_detached_tab.detached_list:
             detached.hide_loading_screen()
-
-        QtWidgets.QApplication.processEvents()
 
     def eventFilter(self, source, event) -> bool:
         if event.type() == QtCore.QEvent.MouseButtonDblClick:

@@ -472,8 +472,10 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         }
 
     def set_state(self, state: dict):
+        current_op = state["current_op"]
+
         self.op_combobox.currentIndexChanged.disconnect(self.on_new_op_selected)
-        self.op_combobox.setCurrentIndex(self.op_combobox.findText(state["current_op"]))
+        self.op_combobox.setCurrentIndex(self.op_combobox.findText(current_op))
         self.op_combobox.currentIndexChanged.connect(self.on_new_op_selected)
 
         self.clear_layout()
