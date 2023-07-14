@@ -94,9 +94,9 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         scroll_widget = QtWidgets.QWidget()
         scroll_area.setWidget(scroll_widget)
-        self.scroll_layout = QtWidgets.QVBoxLayout()
-        self.scroll_layout.setContentsMargins(0, 0, 0, 0)
-        scroll_widget.setLayout(self.scroll_layout)
+        self.player_bg_scroll_layout = QtWidgets.QVBoxLayout()
+        self.player_bg_scroll_layout.setContentsMargins(0, 10, 0, 0)
+        scroll_widget.setLayout(self.player_bg_scroll_layout)
 
         opfor_edit = QtWidgets.QWidget()
         self.tab_widget.addTab(opfor_edit, "Enemy Forces")
@@ -107,8 +107,8 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.update_page()
 
     def clear_layout(self):
-        while self.scroll_layout.count():
-            child = self.scroll_layout.takeAt(0)
+        while self.player_bg_scroll_layout.count():
+            child = self.player_bg_scroll_layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
 
@@ -147,9 +147,9 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         add_company_button = QtWidgets.QPushButton("Add Company")
         add_company_button.clicked.connect(self.on_add_company)
         add_company_button.setFixedWidth(400)
-        self.scroll_layout.addWidget(add_company_button)
-        self.scroll_layout.setAlignment(add_company_button, Qt.AlignCenter)
-        self.scroll_layout.addStretch(1)
+        self.player_bg_scroll_layout.addWidget(add_company_button)
+        self.player_bg_scroll_layout.setAlignment(add_company_button, Qt.AlignCenter)
+        self.player_bg_scroll_layout.addStretch(1)
 
         # get group list
         company_list = self.player_deck_napo.get_napo_value(player_div + "\\DeckCombatGroupList")
@@ -464,11 +464,11 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         company_widget = unit_widgets.UnitCompanyWidget(company_name, index, self)
         company_widget.delete_company.connect(self.on_delete_company)
         company_widget.value_changed.connect(self.on_value_changed)
-        self.scroll_layout.insertWidget(self.scroll_layout.count() - 2, company_widget)
+        self.player_bg_scroll_layout.insertWidget(self.player_bg_scroll_layout.count() - 2, company_widget)
         return company_widget
 
     def on_add_company(self):
-        self.add_company("", self.scroll_layout.count() - 1)
+        self.add_company("", self.player_bg_scroll_layout.count() - 1)
         self.on_value_changed()
 
     def on_delete_company(self, index):
@@ -477,20 +477,20 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         if not dialog.exec():
             return
 
-        company = self.scroll_layout.takeAt(index)
+        company = self.player_bg_scroll_layout.takeAt(index)
         if company.widget():
             company.widget().deleteLater()
 
-        for i in range(self.scroll_layout.count() - 2):
-            company = self.scroll_layout.itemAt(i).widget()
+        for i in range(self.player_bg_scroll_layout.count() - 2):
+            company = self.player_bg_scroll_layout.itemAt(i).widget()
             company.update_index(i + 1)
 
         self.on_value_changed()
 
     def get_state(self):
         companies = []
-        for i in range(self.scroll_layout.count() - 2):
-            company = self.scroll_layout.itemAt(i).widget()
+        for i in range(self.player_bg_scroll_layout.count() - 2):
+            company = self.player_bg_scroll_layout.itemAt(i).widget()
             companies.append(company.get_state())
 
         return {
@@ -515,9 +515,9 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         add_company_button = QtWidgets.QPushButton("Add Company")
         add_company_button.clicked.connect(self.on_add_company)
         add_company_button.setFixedWidth(400)
-        self.scroll_layout.addWidget(add_company_button)
-        self.scroll_layout.setAlignment(add_company_button, Qt.AlignCenter)
-        self.scroll_layout.addStretch(1)
+        self.player_bg_scroll_layout.addWidget(add_company_button)
+        self.player_bg_scroll_layout.setAlignment(add_company_button, Qt.AlignCenter)
+        self.player_bg_scroll_layout.addStretch(1)
 
         index = 1
         for company in state["companies"]:

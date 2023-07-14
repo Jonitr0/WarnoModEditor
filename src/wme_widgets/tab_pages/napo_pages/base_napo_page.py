@@ -29,9 +29,8 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
     def __init__(self):
         super().__init__()
 
-        # TODO: fix margins
         self.main_layout = QtWidgets.QVBoxLayout()
-        self.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.main_layout)
 
         self.tool_bar = QtWidgets.QToolBar()

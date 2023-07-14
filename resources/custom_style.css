@@ -93,11 +93,20 @@ QTabBar::tab:top {{
 
 QTabBar::tab:top:hover {{
   color: {QTMATERIAL_PRIMARYCOLOR};
+  border-bottom: 2px solid {QTMATERIAL_SECONDARYLIGHTCOLOR};
 }}
 
 QTabBar::tab:top:selected:hover {{
   color: {QTMATERIAL_PRIMARYCOLOR};
   border-bottom: 2px solid {QTMATERIAL_PRIMARYCOLOR};
+}}
+
+WMETabBar::tab:top {{
+  border-bottom: 2px solid {QTMATERIAL_SECONDARYDARKCOLOR};
+}}
+
+WMETabBar::tab:top:hover {{
+  border-bottom: 2px solid {QTMATERIAL_SECONDARYDARKCOLOR};
 }}
 
 QToolTip {{
