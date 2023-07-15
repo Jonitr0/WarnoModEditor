@@ -31,6 +31,20 @@ PLAYER_DIVS = {
     "The Dieburg Salient": "Descriptor_Deck_FR_7e_Blindee_challenge_OP_15_LMS_Player",
 }
 
+ENEMY_DIVS = {
+    "Black Horse's Last Stand": ["Descriptor_Deck_SOV_39_Gds_Rifle_challenge_IA_OP_01_DEP_IA"],
+    "Red Juggernaut": ["Descriptor_Deck_US_3rd_Arm_challenge_IA_OP_03_STR_IA1"],
+    "Backhand Blow": ["Descriptor_Deck_SOV_79_Gds_Tank_challenge_IA_OP_09_STB_IA"],
+    "The Kitzingen Ruse": ["Descriptor_Deck_RFA_TerrKdo_Sud_challenge_IA_OP_12_AA_IA1",
+                           "Descriptor_Deck_US_8th_Inf_challenge_IA_OP_12_AA_IA2"],
+    "Götterdämmerung": ["Descriptor_Deck_US_3rd_Arm_challenge_IA_OP_11_RGA_IA1",
+                        "Descriptor_Deck_US_3rd_Arm_challenge_IA_OP_11_RGA_IA2",
+                        "Descriptor_Deck_RFA_12_Panzer_challenge_IA_OP_11_RGA_IA3"],
+    "The Dieburg Salient": ["Descriptor_Deck_SOV_79_Gds_Tank_challenge_IA_OP_15_LMS_IA1",
+                            "Descriptor_Deck_SOV_79_Gds_Tank_challenge_IA_OP_15_LMS_IA2",
+                            "Descriptor_Deck_SOV_79_Gds_Tank_challenge_IA_OP_15_LMS_IA3"],
+}
+
 PACK_PREFIX = {
     "Black Horse's Last Stand": "~/Descriptor_Deck_Pack_TOE_US_11ACR_multi_HB_",
     "Red Juggernaut": "~/Descriptor_Deck_Pack_TOE_SOV_79_Gds_Tank_challenge_",
@@ -80,8 +94,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.open_file(os.path.join(main_widget.instance.get_loaded_mod_path(),
                                     "GameData\\Generated\\Gameplay\\Decks\\DivisionRules.ndf"))
 
-        # TODO: add OPFOR edit
-        # TODO: add income edit if possible
+        # TODO: add OPFOR edit: units and exp in Decks.ndf, NumberOfUnitInPack in DeckRules.ndf
 
         self.tab_widget = QtWidgets.QTabWidget()
         self.tab_widget.tabBar().setExpanding(True)
@@ -100,9 +113,6 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         opfor_edit = QtWidgets.QWidget()
         self.tab_widget.addTab(opfor_edit, "Enemy Forces")
-
-        settings_edit = QtWidgets.QWidget()
-        self.tab_widget.addTab(settings_edit, "Settings")
 
         self.update_page()
 
