@@ -101,24 +101,36 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.tab_widget.tabBar().setDocumentMode(True)
         self.main_layout.addWidget(self.tab_widget)
 
-        scroll_area = QtWidgets.QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        self.tab_widget.addTab(scroll_area, "Player Battle Group")
+        player_bg_scroll_area = QtWidgets.QScrollArea()
+        player_bg_scroll_area.setWidgetResizable(True)
+        self.tab_widget.addTab(player_bg_scroll_area, "Player Battle Group")
 
-        scroll_widget = QtWidgets.QWidget()
-        scroll_area.setWidget(scroll_widget)
+        player_bg_scroll_widget = QtWidgets.QWidget()
+        player_bg_scroll_area.setWidget(player_bg_scroll_widget)
         self.player_bg_scroll_layout = QtWidgets.QVBoxLayout()
         self.player_bg_scroll_layout.setContentsMargins(0, 10, 0, 0)
-        scroll_widget.setLayout(self.player_bg_scroll_layout)
+        player_bg_scroll_widget.setLayout(self.player_bg_scroll_layout)
 
-        opfor_edit = QtWidgets.QWidget()
-        self.tab_widget.addTab(opfor_edit, "Enemy Forces")
+        opfor_scroll_area = QtWidgets.QScrollArea()
+        opfor_scroll_area.setWidgetResizable(True)
+        self.tab_widget.addTab(opfor_scroll_area, "Enemy Forces")
+
+        opfor_scroll_widget = QtWidgets.QWidget()
+        opfor_scroll_area.setWidget(opfor_scroll_widget)
+        self.opfor_scroll_layout = QtWidgets.QVBoxLayout()
+        self.opfor_scroll_layout.setContentsMargins(0, 10, 0, 0)
+        opfor_scroll_widget.setLayout(self.opfor_scroll_layout)
 
         self.update_page()
 
     def clear_layout(self):
         while self.player_bg_scroll_layout.count():
             child = self.player_bg_scroll_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+        while self.opfor_scroll_layout.count():
+            child = self.opfor_scroll_layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
 

@@ -11,75 +11,83 @@ from src.wme_widgets import wme_essentials
 from src.dialogs import essential_dialogs
 
 
-# represents one group of smart groups in Operation Editor
-class UnitCompanyWidget(QtWidgets.QWidget):
-    delete_company = QtCore.Signal(int)
-    value_changed = QtCore.Signal()
-
-    def __init__(self, name_token: str, index: int, callback, parent=None):
+class Collapsible(QtWidgets.QWidget):
+    def __init__(self, parent=None):
         super().__init__(parent)
 
         self.collapse_icon = icon_manager.load_icon("chevron_down.png", COLORS.PRIMARY)
         self.expand_icon = icon_manager.load_icon("chevron_right.png", COLORS.PRIMARY)
-        self.index = index
-        self.platoon_count = 0
         self.collapsed = False
-        self.callback = callback
 
-        main_layout = QtWidgets.QVBoxLayout()
-        main_layout.setContentsMargins(0, 0, 10, 0)
-        self.setLayout(main_layout)
+        self.main_layout = QtWidgets.QVBoxLayout()
+        self.main_layout.setContentsMargins(0, 0, 10, 0)
+        self.setLayout(self.main_layout)
 
-        header_layout = QtWidgets.QHBoxLayout()
-        main_layout.addLayout(header_layout)
+        self.header_layout = QtWidgets.QHBoxLayout()
+        self.main_layout.addLayout(self.header_layout)
 
         self.collapse_button = QtWidgets.QToolButton()
         self.collapse_button.setFixedSize(32, 32)
         self.collapse_button.setIcon(self.collapse_icon)
         self.collapse_button.clicked.connect(self.on_collapse)
-        header_layout.addWidget(self.collapse_button)
+        self.header_layout.addWidget(self.collapse_button)
 
-        self.index_label = QtWidgets.QLabel("Company " + str(index) + ":")
-        header_layout.addWidget(self.index_label)
-
-        self.company_name_selector = StringSelectionCombobox(name_token)
-        self.company_name_selector.currentIndexChanged.connect(self.on_value_changed)
-        header_layout.addWidget(self.company_name_selector)
-
-        header_layout.addStretch(1)
-        delete_button = QtWidgets.QPushButton("Remove Company")
-        delete_button.clicked.connect(self.on_delete)
-        header_layout.addWidget(delete_button)
-
-        self.platoon_layout = QtWidgets.QVBoxLayout()
-        self.platoon_layout.setContentsMargins(50, 0, 0, 0)
-        main_layout.addLayout(self.platoon_layout)
-
-        add_platoon_button = QtWidgets.QPushButton("Add Platoon to Company " + str(self.index))
-        add_platoon_button.clicked.connect(self.on_add_platoon)
-        add_platoon_button.setFixedWidth(400)
-        self.platoon_layout.addWidget(add_platoon_button)
-        self.platoon_layout.setAlignment(add_platoon_button, Qt.AlignCenter)
-
-    def add_platoon(self, name_token: str, unit_list: NapoVector):
-        self.platoon_count += 1
-        platoon_widget = UnitPlatoonWidget(name_token, unit_list, self.callback, self.platoon_count)
-        platoon_widget.delete_platoon.connect(self.delete_platoon)
-        platoon_widget.value_changed.connect(self.on_value_changed)
-        self.platoon_layout.insertWidget(self.platoon_layout.count() - 1, platoon_widget)
-        return platoon_widget
-
-    def on_add_platoon(self):
-        self.add_platoon("", NapoVector())
-        self.on_value_changed()
+        self.item_layout = QtWidgets.QVBoxLayout()
+        self.item_layout.setContentsMargins(50, 0, 0, 0)
+        self.main_layout.addLayout(self.item_layout)
 
     def on_collapse(self):
         self.collapsed = not self.collapsed
 
         self.collapse_button.setIcon(self.expand_icon if self.collapsed else self.collapse_icon)
 
-        for i in range(self.platoon_layout.count()):
-            self.platoon_layout.itemAt(i).widget().setHidden(self.collapsed)
+        for i in range(self.item_layout.count()):
+            self.item_layout.itemAt(i).widget().setHidden(self.collapsed)
+
+# TODO: add battle group widget (collapsible list of unit widgets) for OPFOR edit
+
+
+# represents one group of smart groups in Operation Editor
+class UnitCompanyWidget(Collapsible):
+    delete_company = QtCore.Signal(int)
+    value_changed = QtCore.Signal()
+
+    def __init__(self, name_token: str, index: int, callback, parent=None):
+        super().__init__(parent)
+
+        self.index = index
+        self.platoon_count = 0
+        self.callback = callback
+
+        self.index_label = QtWidgets.QLabel("Company " + str(index) + ":")
+        self.header_layout.addWidget(self.index_label)
+
+        self.company_name_selector = StringSelectionCombobox(name_token)
+        self.company_name_selector.currentIndexChanged.connect(self.on_value_changed)
+        self.header_layout.addWidget(self.company_name_selector)
+
+        self.header_layout.addStretch(1)
+        delete_button = QtWidgets.QPushButton("Remove Company")
+        delete_button.clicked.connect(self.on_delete)
+        self.header_layout.addWidget(delete_button)
+
+        add_platoon_button = QtWidgets.QPushButton("Add Platoon to Company " + str(self.index))
+        add_platoon_button.clicked.connect(self.on_add_platoon)
+        add_platoon_button.setFixedWidth(400)
+        self.item_layout.addWidget(add_platoon_button)
+        self.item_layout.setAlignment(add_platoon_button, Qt.AlignCenter)
+
+    def add_platoon(self, name_token: str, unit_list: NapoVector):
+        self.platoon_count += 1
+        platoon_widget = UnitPlatoonWidget(name_token, unit_list, self.callback, self.platoon_count)
+        platoon_widget.delete_platoon.connect(self.delete_platoon)
+        platoon_widget.value_changed.connect(self.on_value_changed)
+        self.item_layout.insertWidget(self.item_layout.count() - 1, platoon_widget)
+        return platoon_widget
+
+    def on_add_platoon(self):
+        self.add_platoon("", NapoVector())
+        self.on_value_changed()
 
     def on_delete(self):
         self.delete_company.emit(self.index - 1)
@@ -91,12 +99,12 @@ class UnitCompanyWidget(QtWidgets.QWidget):
         if not dialog.exec():
             return
 
-        platoon = self.platoon_layout.takeAt(index)
+        platoon = self.item_layout.takeAt(index)
         if platoon.widget():
             platoon.widget().deleteLater()
 
-        for i in range(self.platoon_layout.count() - 1):
-            platoon = self.platoon_layout.itemAt(i).widget()
+        for i in range(self.item_layout.count() - 1):
+            platoon = self.item_layout.itemAt(i).widget()
             platoon.update_index(i + 1)
 
         self.platoon_count -= 1
@@ -108,8 +116,8 @@ class UnitCompanyWidget(QtWidgets.QWidget):
         
     def get_state(self):
         platoons = []
-        for i in range(self.platoon_layout.count() - 1):
-            platoon = self.platoon_layout.itemAt(i).widget()
+        for i in range(self.item_layout.count() - 1):
+            platoon = self.item_layout.itemAt(i).widget()
             platoons.append(platoon.get_state())
 
         return {
@@ -126,58 +134,38 @@ MAX_UNITS_PER_PLATOON = 3
 
 
 # represents one platoon/smart group in Operation Editor
-class UnitPlatoonWidget(QtWidgets.QWidget):
+class UnitPlatoonWidget(Collapsible):
     delete_platoon = QtCore.Signal(int)
     value_changed = QtCore.Signal()
 
     def __init__(self, name_token: str, unit_list: NapoVector, callback, index, parent=None):
         super().__init__(parent)
 
-        self.collapse_icon = icon_manager.load_icon("chevron_down.png", COLORS.PRIMARY)
-        self.expand_icon = icon_manager.load_icon("chevron_right.png", COLORS.PRIMARY)
         self.callback = callback
         self.index = index
-        self.collapsed = False
-
-        main_layout = QtWidgets.QVBoxLayout()
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(main_layout)
-
-        header_layout = QtWidgets.QHBoxLayout()
-        main_layout.addLayout(header_layout)
-
-        self.collapse_button = QtWidgets.QToolButton()
-        self.collapse_button.setFixedSize(32, 32)
-        self.collapse_button.setIcon(self.collapse_icon)
-        self.collapse_button.clicked.connect(self.on_collapse)
-        header_layout.addWidget(self.collapse_button)
 
         self.index_label = QtWidgets.QLabel("Platoon " + str(index) + ":")
-        header_layout.addWidget(self.index_label)
+        self.header_layout.addWidget(self.index_label)
 
         self.platoon_name_selector = StringSelectionCombobox(name_token)
         self.platoon_name_selector.currentIndexChanged.connect(self.on_value_changed)
-        header_layout.addWidget(self.platoon_name_selector)
+        self.header_layout.addWidget(self.platoon_name_selector)
 
-        header_layout.addStretch(1)
+        self.header_layout.addStretch(1)
         delete_button = QtWidgets.QPushButton("Remove Platoon")
         delete_button.clicked.connect(self.on_delete)
-        header_layout.addWidget(delete_button)
-
-        self.unit_layout = QtWidgets.QVBoxLayout()
-        self.unit_layout.setContentsMargins(50, 0, 0, 0)
-        main_layout.addLayout(self.unit_layout)
+        self.header_layout.addWidget(delete_button)
 
         self.add_unit_button = QtWidgets.QPushButton("Add Unit to Platoon " + str(index))
         self.add_unit_button.clicked.connect(self.on_add_unit)
         self.add_unit_button.setFixedWidth(400)
-        self.unit_layout.addWidget(self.add_unit_button)
-        self.unit_layout.setAlignment(self.add_unit_button, Qt.AlignCenter)
+        self.item_layout.addWidget(self.add_unit_button)
+        self.item_layout.setAlignment(self.add_unit_button, Qt.AlignCenter)
 
         for pair in unit_list.value:
             index = pair.value[0].value
             count = pair.value[1].value
-            self.add_unit(index, count, self.unit_layout.count() - 1)
+            self.add_unit(index, count, self.item_layout.count() - 1)
 
     def add_unit(self, index: int, count: int, layout_index: int):
         unit_name, transport, exp_level = self.get_unit_name_for_index(index)
@@ -187,13 +175,13 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
         unit_widget = UnitSelectorWidget(layout_index, count, exp_level, unit_name, transport)
         unit_widget.delete_unit.connect(self.delete_unit)
         unit_widget.value_changed.connect(self.on_value_changed)
-        self.unit_layout.insertWidget(self.unit_layout.count() - 1, unit_widget)
+        self.item_layout.insertWidget(self.item_layout.count() - 1, unit_widget)
         # units widgets + button
-        if self.unit_layout.count() > MAX_UNITS_PER_PLATOON:
+        if self.item_layout.count() > MAX_UNITS_PER_PLATOON:
             self.add_unit_button.setHidden(True)
 
     def on_add_unit(self):
-        self.add_unit(0, 1, self.unit_layout.count() - 1)
+        self.add_unit(0, 1, self.item_layout.count() - 1)
         self.on_value_changed()
 
     def get_unit_name_for_index(self, index: int):
@@ -217,25 +205,17 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
 
         return unit_name.removeprefix("Descriptor_Unit_"), transport_name, exp_level
 
-    def on_collapse(self):
-        self.collapsed = not self.collapsed
-
-        self.collapse_button.setIcon(self.expand_icon if self.collapsed else self.collapse_icon)
-
-        for i in range(self.unit_layout.count()):
-            self.unit_layout.itemAt(i).widget().setHidden(self.collapsed)
-
     def on_delete(self):
         self.delete_platoon.emit(self.index - 1)
         self.on_value_changed()
 
     def delete_unit(self, index):
-        unit = self.unit_layout.takeAt(index)
+        unit = self.item_layout.takeAt(index)
         if unit.widget():
             unit.widget().deleteLater()
 
-        for i in range(self.unit_layout.count() - 1):
-            unit = self.unit_layout.itemAt(i).widget()
+        for i in range(self.item_layout.count() - 1):
+            unit = self.item_layout.itemAt(i).widget()
             unit.update_index(i)
 
         self.add_unit_button.setHidden(False)
@@ -247,8 +227,8 @@ class UnitPlatoonWidget(QtWidgets.QWidget):
 
     def get_state(self):
         units = []
-        for i in range(self.unit_layout.count() - 1):
-            unit = self.unit_layout.itemAt(i).widget()
+        for i in range(self.item_layout.count() - 1):
+            unit = self.item_layout.itemAt(i).widget()
             units.append(unit.get_state())
 
         return {
