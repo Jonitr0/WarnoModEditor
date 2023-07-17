@@ -65,6 +65,15 @@ class BattleGroupWidget(Collapsible):
         self.item_layout.addWidget(add_unit_button)
         self.item_layout.setAlignment(add_unit_button, Qt.AlignCenter)
 
+        for pack in pack_list.value:
+            pack_name = pack.get_raw_value("DeckPack").removeprefix("~/")
+            exp_level = pack.get_raw_value("ExperienceLevel")
+            try:
+                transport = pack.get_raw_value("Transport").removeprefix("~/Descriptor_Unit_")
+            except:
+                transport = ""
+            self.add_unit(pack_name, exp_level, transport, self.item_layout.count() - 1)
+
     def add_unit(self, pack_name: str, exp_level: int, transport: str, layout_index: int):
         unit_name = self.get_unit_name_for_pack(pack_name)
         count = self.get_unit_count_for_pack(pack_name)
@@ -82,13 +91,23 @@ class BattleGroupWidget(Collapsible):
 
     def get_unit_name_for_pack(self, pack_name: str):
         if pack_name == "":
-            return "Descriptor_Unit_2K12_KUB_DDR"
-        pass
+            return "2K12_KUB_DDR"
+
+        global packs_to_units_sc
+        if packs_to_units_sc.contains(pack_name):
+            unit_name = packs_to_units_sc.get(pack_name)
+        else:
+            pack = self.callback.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf", pack_name)
+            unit_name = pack.get_raw_value(pack_name +
+                                           "\\TransporterAndUnitsList\\TDeckTransporterAndUnitsDescriptor"
+                                           "\\UnitDescriptor")
+            packs_to_units_sc.set(pack_name, unit_name)
+        return unit_name.removeprefix("Descriptor_Unit_")
 
     def get_unit_count_for_pack(self, pack_name: str):
         if pack_name == "":
             return 1
-        pass
+        return 1
 
     def on_value_changed(self):
         self.value_changed.emit()
@@ -321,7 +340,7 @@ class UnitSelectorWidget(QtWidgets.QWidget):
         main_layout.addLayout(top_layout)
 
         self.count_spinbox = wme_essentials.WMESpinbox()
-        self.count_spinbox.setRange(1, 100)
+        self.count_spinbox.setRange(1, 999)
         self.count_spinbox.setValue(count)
         self.count_spinbox.valueChanged.connect(self.on_value_changed)
         top_layout.addWidget(self.count_spinbox)
