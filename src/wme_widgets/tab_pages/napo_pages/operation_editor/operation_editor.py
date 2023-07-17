@@ -86,6 +86,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.player_div_napo = None
         self.deck_pack_list = None
         self.matrix_napo = None
+        self.enemy_bg_napos = []
 
         self.help_file_path = "Help_OperationEditor.html"
 
@@ -123,7 +124,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         self.update_page()
 
-    def clear_layout(self):
+    def clear_layouts(self):
         while self.player_bg_scroll_layout.count():
             child = self.player_bg_scroll_layout.takeAt(0)
             if child.widget():
@@ -153,8 +154,9 @@ class OperationEditor(base_napo_page.BaseNapoPage):
     def update_page(self):
         main_widget.instance.show_loading_screen("Loading operation files...")
 
-        self.clear_layout()
+        self.clear_layouts()
 
+        # player bg NAPOs
         player_div = PLAYER_DIVS[self.op_combobox.currentText()]
         self.player_deck_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div)
         self.player_div_napo = None
@@ -187,6 +189,21 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 platoon_name = platoon.get_raw_value("Name")
                 platoon_packs = platoon.get_napo_value("PackIndexUnitNumberList")
                 company_widget.add_platoon(platoon_name, platoon_packs)
+
+        # enemy BGs
+        enemy_bg_list = ENEMY_DIVS[self.op_combobox.currentText()]
+        self.enemy_bg_napos = []
+        for bg_name in enemy_bg_list:
+            bg_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", bg_name)
+            self.enemy_bg_napos.append(bg_napo)
+            pack_list = bg_napo.value[0].value.get_napo_value("DeckPackList")
+
+            bg_name.removeprefix("Descriptor_Deck_")
+            bg_widget = unit_widgets.BattleGroupWidget(bg_name, pack_list, self)
+
+            self.opfor_scroll_layout.addWidget(bg_widget)
+
+        self.opfor_scroll_layout.addStretch(1)
 
         self.saved_state = self.get_state()
         self.unsaved_changes = False
@@ -527,7 +544,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.op_combobox.setCurrentIndex(self.op_combobox.findText(current_op))
         self.op_combobox.currentIndexChanged.connect(self.on_new_op_selected)
 
-        self.clear_layout()
+        self.clear_layouts()
 
         player_div = PLAYER_DIVS[self.op_combobox.currentText()]
         self.player_deck_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div)

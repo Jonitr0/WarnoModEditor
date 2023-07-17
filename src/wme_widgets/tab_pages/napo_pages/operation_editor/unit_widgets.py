@@ -44,7 +44,65 @@ class Collapsible(QtWidgets.QWidget):
         for i in range(self.item_layout.count()):
             self.item_layout.itemAt(i).widget().setHidden(self.collapsed)
 
+
 # TODO: add battle group widget (collapsible list of unit widgets) for OPFOR edit
+# represents one AI battle group
+class BattleGroupWidget(Collapsible):
+    value_changed = QtCore.Signal()
+
+    def __init__(self, name: str, pack_list: NapoVector, callback, parent=None):
+        super(BattleGroupWidget, self).__init__(parent=parent)
+
+        self.callback = callback
+
+        name_label = QtWidgets.QLabel(name)
+        self.header_layout.addWidget(name_label)
+        self.header_layout.addStretch(1)
+
+        add_unit_button = QtWidgets.QPushButton("Add Unit to Battle Group")
+        add_unit_button.clicked.connect(self.on_add_unit)
+        add_unit_button.setFixedWidth(400)
+        self.item_layout.addWidget(add_unit_button)
+        self.item_layout.setAlignment(add_unit_button, Qt.AlignCenter)
+
+    def add_unit(self, pack_name: str, exp_level: int, transport: str, layout_index: int):
+        unit_name = self.get_unit_name_for_pack(pack_name)
+        count = self.get_unit_count_for_pack(pack_name)
+        self.add_unit_with_data(layout_index, count, exp_level, unit_name, transport)
+
+    def add_unit_with_data(self, layout_index: int, count: int, exp_level: int, unit_name: str, transport: str):
+        unit_widget = UnitSelectorWidget(layout_index, count, exp_level, unit_name, transport)
+        unit_widget.delete_unit.connect(self.delete_unit)
+        unit_widget.value_changed.connect(self.on_value_changed)
+        self.item_layout.insertWidget(self.item_layout.count() - 1, unit_widget)
+
+    def on_add_unit(self):
+        self.add_unit("", 1, "", self.item_layout.count() - 1)
+        self.on_value_changed()
+
+    def get_unit_name_for_pack(self, pack_name: str):
+        if pack_name == "":
+            return "Descriptor_Unit_2K12_KUB_DDR"
+        pass
+
+    def get_unit_count_for_pack(self, pack_name: str):
+        if pack_name == "":
+            return 1
+        pass
+
+    def on_value_changed(self):
+        self.value_changed.emit()
+
+    def delete_unit(self, index):
+        unit = self.item_layout.takeAt(index)
+        if unit.widget():
+            unit.widget().deleteLater()
+
+        for i in range(self.item_layout.count() - 1):
+            unit = self.item_layout.itemAt(i).widget()
+            unit.update_index(i)
+
+        self.on_value_changed()
 
 
 # represents one group of smart groups in Operation Editor
