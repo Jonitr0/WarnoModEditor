@@ -87,6 +87,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.deck_pack_list = None
         self.matrix_napo = None
         self.enemy_bg_napos = []
+        self.enemy_bg_div_rules = []
 
         self.help_file_path = "Help_OperationEditor.html"
 
@@ -193,13 +194,18 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         # enemy BGs
         enemy_bg_list = ENEMY_DIVS[self.op_combobox.currentText()]
         self.enemy_bg_napos = []
-        for bg_name in enemy_bg_list:
+        self.enemy_bg_div_rules = []
+
+        for index, bg_name in enumerate(enemy_bg_list):
             bg_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", bg_name)
             self.enemy_bg_napos.append(bg_napo)
             pack_list = bg_napo.value[0].value.get_napo_value("DeckPackList")
 
+            bg_div_name = bg_napo.value[0].value.get_raw_value("DeckDivision")
+            self.enemy_bg_div_rules.append(self.get_division_rules_list(bg_div_name))
+
             bg_name.removeprefix("Descriptor_Deck_")
-            bg_widget = unit_widgets.BattleGroupWidget(bg_name, pack_list, self)
+            bg_widget = unit_widgets.BattleGroupWidget(bg_name, pack_list, index, self)
 
             self.opfor_scroll_layout.addWidget(bg_widget)
 
@@ -249,6 +255,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                 platoon_napo.append(unit_list_assign)
 
                 for unit in platoon["units"]:
+                    unit["count"] = 9999
                     units_in_deck_list["~/Descriptor_Unit_" + unit["unit_name"]] = unit
 
                     index = self.get_index_for_unit(unit)
@@ -403,7 +410,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         self.player_div_napo.value[0].value.set_raw_value("PackList", pack_list, dtypes)
 
-    def check_division_rules(self, units_in_deck_list: [dict], div_name: str):
+    def get_division_rules_list(self, div_name: str):
         div_rule_text, start, end = ndf_scanner.get_map_value_range(
             "GameData\\Generated\\Gameplay\\Decks\\DivisionRules.ndf", "DivisionRules", div_name)
 
@@ -420,11 +427,30 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         walker = ParseTreeWalker()
         walker.walk(listener, tree)
 
-        pair_napo = listener.assignments[0].value
+        return listener.assignments[0].value
+
+    def write_division_rules_list(self, div_name: str, pair_napo: NapoPair):
+        file_path = os.path.join(main_widget.instance.get_loaded_mod_path(),
+                                 "GameData\\Generated\\Gameplay\\Decks\\DivisionRules.ndf")
+        converter = napo_to_ndf_converter.NapoToNdfConverter()
+        ndf_text = converter.convert_entity(pair_napo)
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            file_content = f.read()
+
+        _, start, end = ndf_scanner.get_map_value_range(
+            "GameData\\Generated\\Gameplay\\Decks\\DivisionRules.ndf", "DivisionRules", div_name)
+        file_content = ndf_text.join([file_content[:start], file_content[end:]])
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(file_content)
+
+    def check_division_rules(self, units_in_deck_list: [dict], div_name: str):
+        pair_napo = self.get_division_rules_list(div_name)
         list_napo = pair_napo.value[1].get_napo_value("UnitRuleList")
 
         for entry in list_napo.value:
             unit_name = entry.get_raw_value("UnitDescriptor")
+            # set high count by default
             entry.set_raw_value("NumberOfUnitInPack", 9999, [NapoDatatype.Integer])
             try:
                 transport_list = entry.get_raw_value("AvailableTransportList")
@@ -433,6 +459,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
             if units_in_deck_list.__contains__(unit_name):
                 unit_info = units_in_deck_list.pop(unit_name)
+                entry.set_raw_value("NumberOfUnitInPack", unit_info["count"], [NapoDatatype.Integer])
                 # add transport to list
                 if unit_info["transport"]:
                     if transport_list:
@@ -473,7 +500,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             num_pack_assign = NapoAssignment()
             num_pack_assign.id = "NumberOfUnitInPack"
             num_pack_assign.member = True
-            num_pack_assign.value = napo_from_value(9999, [NapoDatatype.Integer])
+            num_pack_assign.value = napo_from_value(unit_info["count"], [NapoDatatype.Integer])
             entry.append(num_pack_assign)
 
             exp_assign = NapoAssignment()
@@ -486,18 +513,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         # rebuild napo
         pair_napo.value[1].set_napo_value("UnitRuleList", list_napo)
-
-        file_path = os.path.join(main_widget.instance.get_loaded_mod_path(),
-                                 "GameData\\Generated\\Gameplay\\Decks\\DivisionRules.ndf")
-        converter = napo_to_ndf_converter.NapoToNdfConverter()
-        ndf_text = converter.convert_entity(pair_napo)
-
-        with open(file_path, "r", encoding="utf-8") as f:
-            file_content = f.read()
-
-        file_content = ndf_text.join([file_content[:start], file_content[end:]])
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(file_content)
+        self.write_division_rules_list(div_name, pair_napo)
 
     def add_company(self, company_name: str, index: int):
         company_widget = unit_widgets.UnitCompanyWidget(company_name, index, self)
@@ -525,6 +541,16 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             company.update_index(i + 1)
 
         self.on_value_changed()
+
+    def get_enemy_bg_unit_count(self, bg_index: int, unit_name: str):
+        bg_rules = self.enemy_bg_div_rules[bg_index]
+        list_napo = bg_rules.value[1].get_napo_value("UnitRuleList")
+
+        for entry in list_napo.value:
+            if "~/Descriptor_Unit_" + unit_name == entry.get_raw_value("UnitDescriptor"):
+                return entry.get_raw_value("NumberOfUnitInPack")
+
+        return 1
 
     def get_state(self):
         companies = []

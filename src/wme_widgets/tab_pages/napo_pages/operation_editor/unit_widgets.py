@@ -45,15 +45,15 @@ class Collapsible(QtWidgets.QWidget):
             self.item_layout.itemAt(i).widget().setHidden(self.collapsed)
 
 
-# TODO: add battle group widget (collapsible list of unit widgets) for OPFOR edit
 # represents one AI battle group
 class BattleGroupWidget(Collapsible):
     value_changed = QtCore.Signal()
 
-    def __init__(self, name: str, pack_list: NapoVector, callback, parent=None):
+    def __init__(self, name: str, pack_list: NapoVector, index: int, callback, parent=None):
         super(BattleGroupWidget, self).__init__(parent=parent)
 
         self.callback = callback
+        self.index = index
 
         name_label = QtWidgets.QLabel(name)
         self.header_layout.addWidget(name_label)
@@ -74,9 +74,12 @@ class BattleGroupWidget(Collapsible):
                 transport = ""
             self.add_unit(pack_name, exp_level, transport, self.item_layout.count() - 1)
 
+        # TODO: make sure units of the same type always have the same count (pack logic)
+        # TODO: get state
+
     def add_unit(self, pack_name: str, exp_level: int, transport: str, layout_index: int):
         unit_name = self.get_unit_name_for_pack(pack_name)
-        count = self.get_unit_count_for_pack(pack_name)
+        count = self.get_unit_count_for_pack(unit_name)
         self.add_unit_with_data(layout_index, count, exp_level, unit_name, transport)
 
     def add_unit_with_data(self, layout_index: int, count: int, exp_level: int, unit_name: str, transport: str):
@@ -104,10 +107,8 @@ class BattleGroupWidget(Collapsible):
             packs_to_units_sc.set(pack_name, unit_name)
         return unit_name.removeprefix("Descriptor_Unit_")
 
-    def get_unit_count_for_pack(self, pack_name: str):
-        if pack_name == "":
-            return 1
-        return 1
+    def get_unit_count_for_pack(self, unit_name: str):
+        return self.callback.get_enemy_bg_unit_count(self.index, unit_name)
 
     def on_value_changed(self):
         self.value_changed.emit()
