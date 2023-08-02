@@ -2,7 +2,7 @@ import ndf_parse as ndf
 import uuid
 
 
-def create_ap_ammo_entry(orig, ap_value=4):
+def create_ap_ammo_entry(orig, ap_value):
     # copy original
     orig_text = ndf.printer.string(orig)
     weapon_obj = ndf.convert(orig_text)[0]
@@ -52,8 +52,7 @@ def create_ap_ammo_entry(orig, ap_value=4):
     weapon.by_member("FireDescriptor").value = "nil"
     weapon.by_member("IsHarmlessForAllies").value = True
     weapon.by_member("PiercingWeapon").value = True
-    weapon.by_member("DamageTypeEvolutionOverRangeDescriptor").value = \
-        "~/DamageTypeEvolutionOverRangeDescriptor_AP1_AC_Helo"
+    weapon.by_member("DamageTypeEvolutionOverRangeDescriptor").value = "~/DamageTypeEvolutionOverRangeDescriptor_DCA"
 
     weapon_obj.value = weapon
     return weapon_obj
@@ -73,61 +72,51 @@ def create_ap_mount(orig):
     return turret_obj
 
 
-def add_ap_to_hmgs(mod: ndf.Mod):
+def add_ap_to_hmgs(ammo_desc, weapon_descs):
     cal_127_tokens = ["'XBOZOTODIF'", "'XROPZVJKKE'", "'VXYLWCZLCA'"]
     cal_145_tokens = ["'PBJYEGALCO'"]
 
     weapons = {}
 
     # get all 12.7/14.5mm weapons and add AP descriptors for them
-    with mod.edit(r"GameData\Generated\Gameplay\Gfx\Ammunition.ndf") as ammo_desc:
-        for obj_row in ammo_desc:
-            obj = obj_row.value
+    for obj_row in ammo_desc:
+        obj = obj_row.value
 
-            # skip anything that is not of this type
-            if obj.type != "TAmmunitionDescriptor":
-                continue
+        # skip anything that is not of this type
+        if obj.type != "TAmmunitionDescriptor":
+            continue
 
-            # get all weapons with relevant caliber
-            caliber = obj.by_member("Caliber").value
-            if cal_145_tokens.__contains__(caliber) or cal_127_tokens.__contains__(caliber):
-                weapons[obj_row.namespace] = obj_row
+        # get all weapons with relevant caliber
+        caliber = obj.by_member("Caliber").value
+        if cal_145_tokens.__contains__(caliber) or cal_127_tokens.__contains__(caliber):
+            weapons[obj_row.namespace] = obj_row
 
-        # add new AP ammo entries
-        for weapon_obj in weapons.values():
-            ap_val = 4
-            caliber = weapon_obj.value.by_member("Caliber").value
-            if cal_145_tokens.__contains__(caliber):
-                ap_val = 5
-            ap_ammo = create_ap_ammo_entry(weapon_obj, ap_val)
-            ammo_desc.add(value=ap_ammo)
+    # add new AP ammo entries
+    for weapon_obj in weapons.values():
+        ap_val = 2
+        caliber = weapon_obj.value.by_member("Caliber").value
+        if cal_145_tokens.__contains__(caliber):
+            ap_val = 3
+        ap_ammo = create_ap_ammo_entry(weapon_obj, ap_val)
+        ammo_desc.append(ap_ammo)
 
     # add new TMountedWeaponDescriptor to each TWeaponManagerModuleDescriptor with a 12.7/14.5mm weapon
-    with mod.edit(r"GameData\Generated\Gameplay\Gfx\WeaponDescriptor.ndf") as weapon_descs:
-        for obj_row in weapon_descs:
-            obj = obj_row.value
+    # TODO: some sound effects not working
+    for obj_row in weapon_descs:
+        obj = obj_row.value
 
-            # skip anything that is not of this type
-            if obj.type != "TWeaponManagerModuleDescriptor":
-                continue
+        # skip anything that is not of this type
+        if obj.type != "TWeaponManagerModuleDescriptor":
+            continue
 
-            # get all relevant mounts
-            turret_list = obj.by_member("TurretDescriptorList").value
-            for turret in turret_list:
-                mount_list = turret.value.by_member("MountedWeaponDescriptorList").value
-                for index, mount in enumerate(mount_list):
-                    ammo_name = mount.value.by_member("Ammunition").value.removeprefix("~/")
-                    if weapons.__contains__(ammo_name):
-                        ap_mount = create_ap_mount(mount)
-                        mount_list.insert(index, value=ap_mount)
-                        break
-
-
-if __name__ == "__main__":
-    src_mod = r"D:\SteamLibrary\steamapps\common\WARNO\Mods\SrcMod"
-    tgt_mod = r"D:\SteamLibrary\steamapps\common\WARNO\Mods\HmgApDmg"
-
-    mod = ndf.Mod(src_mod, tgt_mod)
-    mod.check_if_src_is_newer()
-
-    add_ap_to_hmgs(mod)
+        # get all relevant mounts
+        turret_list = obj.by_member("TurretDescriptorList").value
+        for turret in turret_list:
+            mount_list = turret.value.by_member("MountedWeaponDescriptorList").value
+            for index, mount in enumerate(mount_list):
+                ammo_name = mount.value.by_member("Ammunition").value.removeprefix("~/")
+                if weapons.__contains__(ammo_name):
+                    ap_mount = create_ap_mount(mount).value
+                    ap_mount.parent = None
+                    mount_list.insert(index, value=ap_mount)
+                    break
