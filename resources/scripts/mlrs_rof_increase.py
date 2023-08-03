@@ -1,6 +1,6 @@
 
 
-def increase_mlrs_rof(ammo_desc, weapon_descs):
+def increase_mlrs_rof(ammo_desc, weapon_desc):
     # list of all MLRS which need salvo size adjustment
     double_salvo_length_list = ["Ammo_RocketArt_M21OF_122mm", "Ammo_RocketArt_M21OF_122mm_cluster",
                                 "Ammo_RocketArt_M21OF_122mm_napalm"]
@@ -35,7 +35,7 @@ def increase_mlrs_rof(ammo_desc, weapon_descs):
                 supply_cost = int(obj.by_member("SupplyCost").value)
                 obj.by_member("SupplyCost").value = supply_cost * 2
 
-    for obj_row in weapon_descs:
+    for obj_row in weapon_desc:
         obj = obj_row.value
 
         # skip anything that is not of this type
@@ -52,3 +52,9 @@ def increase_mlrs_rof(ammo_desc, weapon_descs):
                     index = int(mount.value.by_member("SalvoStockIndex").value)
                     salvos = int(obj.by_member("Salves").value[index].value)
                     obj.by_member("Salves").value[index].value = salvos / 2
+
+
+def create_dpicm_mlrs(ammo_desc, dmg_resist):
+    pass
+    # TODO: add new entry to DamageTypeList
+    # TODO: add array to Values: each entry corresponds to one ResistanceTypeList

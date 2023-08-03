@@ -9,6 +9,6 @@ if __name__ == "__main__":
     mod.check_if_src_is_newer()
 
     with mod.edit(r"GameData\Generated\Gameplay\Gfx\Ammunition.ndf") as ammo_desc, \
-            mod.edit(r"GameData\Generated\Gameplay\Gfx\WeaponDescriptor.ndf") as weapon_descs:
-        add_ap_to_hmgs(ammo_desc, weapon_descs)
-        increase_mlrs_rof(ammo_desc, weapon_descs)
+            mod.edit(r"GameData\Generated\Gameplay\Gfx\WeaponDescriptor.ndf") as weapon_desc:
+        add_ap_to_hmgs(ammo_desc, weapon_desc)
+        increase_mlrs_rof(ammo_desc, weapon_desc)

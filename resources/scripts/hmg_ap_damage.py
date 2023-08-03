@@ -72,7 +72,7 @@ def create_ap_mount(orig):
     return turret_obj
 
 
-def add_ap_to_hmgs(ammo_desc, weapon_descs):
+def add_ap_to_hmgs(ammo_desc, weapon_desc):
     cal_127_tokens = ["'XBOZOTODIF'", "'XROPZVJKKE'", "'VXYLWCZLCA'"]
     cal_145_tokens = ["'PBJYEGALCO'"]
 
@@ -102,7 +102,7 @@ def add_ap_to_hmgs(ammo_desc, weapon_descs):
 
     # add new TMountedWeaponDescriptor to each TWeaponManagerModuleDescriptor with a 12.7/14.5mm weapon
     # TODO: some sound effects not working
-    for obj_row in weapon_descs:
+    for obj_row in weapon_desc:
         obj = obj_row.value
 
         # skip anything that is not of this type
