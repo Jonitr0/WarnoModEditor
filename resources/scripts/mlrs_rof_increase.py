@@ -25,8 +25,10 @@ def increase_mlrs_rof(ammo_desc, weapon_desc):
                 continue
             if light_mlrs_list.__contains__(name):
                 obj.by_member("TempsEntreDeuxTirs").value = 0.7
+                obj.by_member("TempsEntreDeuxFx").value = 0.7
             else:
                 obj.by_member("TempsEntreDeuxTirs").value = 1.4
+                obj.by_member("TempsEntreDeuxFx").value = 1.4
 
             if double_salvo_length_list.__contains__(name):
                 ammo_count = int(obj.by_member("NbTirParSalves").value)
@@ -58,3 +60,4 @@ def create_dpicm_mlrs(ammo_desc, dmg_resist):
     pass
     # TODO: add new entry to DamageTypeList
     # TODO: add array to Values: each entry corresponds to one ResistanceTypeList
+    # TODO: for some reason, DamageResistance.ndf should be edited/saved last
