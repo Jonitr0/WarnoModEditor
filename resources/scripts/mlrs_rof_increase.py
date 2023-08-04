@@ -1,3 +1,5 @@
+import ndf_parse as ndf
+import math
 
 
 def increase_mlrs_rof(ammo_desc, weapon_desc):
@@ -56,7 +58,7 @@ def increase_mlrs_rof(ammo_desc, weapon_desc):
                     obj.by_member("Salves").value[index].value = salvos / 2
 
 
-def create_dpicm_mlrs(ammo_desc, dmg_resist):
+def create_dpicm_mlrs(ammo_desc, dmg_resist, ui_mouse, ui_weapon):
     # create "ATACMS" for testing
     for obj_row in ammo_desc:
         obj = obj_row.value
@@ -67,8 +69,8 @@ def create_dpicm_mlrs(ammo_desc, dmg_resist):
         name = obj_row.namespace
         if name == "Ammo_RocketArt_M26_227mm_Cluster":
             # set Arme to cluster
-            obj.by_member("Arme").value.by_member("Family").value = "\"cluster\""
-            obj.by_member("Arme").value.by_member("Index").value = 1
+            obj.by_member("Arme").value.by_member("Family").value = "\"dpicm\""
+            obj.by_member("Arme").value.by_member("Index").value = 6
 
             obj.by_member("TempsEntreDeuxTirs").value = 60.0
             obj.by_member("TempsEntreDeuxFx").value = 60.0
@@ -81,13 +83,61 @@ def create_dpicm_mlrs(ammo_desc, dmg_resist):
 
             obj.by_member("PhysicalDamages").value = 3
 
+    dmg_type_expr = "TDamageTypeRTTI(Family=\"dpicm\" Index={index})"
+
     resist_types = dmg_resist[0].value[0]
+    dmg_types = dmg_resist[0].value[1]
+    dmg_values = dmg_resist[0].value[2]
+
+    dpicm_dmg_values = []
+    # create DPICM damage values
+    for resist in resist_types.value:
+        family = resist.value[0].value.removeprefix("\"").removesuffix("\"")
+        index = int(resist.value[1].value)
+        match family:
+            case "batiment":
+                dpicm_dmg_values.append(0.1)
+            case "blindage":
+                if index == 1:
+                    dpicm_dmg_values.append(5)
+                elif index < 7:
+                    dpicm_dmg_values.append(3.5 - 0.5 * index)
+                else:
+                    dpicm_dmg_values.append(0.1)
+            case "canon":
+                dpicm_dmg_values.append(3)
+            case "helico":
+                dpicm_dmg_values.append(12 - 2 * index)
+            case "infanterie":
+                dpicm_dmg_values.append(3)
+            case "vehicule":
+                dpicm_dmg_values.append(10 / math.pow(2.0, index - 1))
+            case "toit":
+                dpicm_dmg_values.append(18 - 6 * index)
+            case "vehicule_leger":
+                dpicm_dmg_values.append(3)
+            case _:
+                dpicm_dmg_values.append(0)
+
+    dpicm_dmg_str = "["
+    for val in dpicm_dmg_values:
+        dpicm_dmg_str += str(val) + ", "
+    dpicm_dmg_str += "]"
+
+    dpicm_dmg_dict = ndf.expression(dpicm_dmg_str)
+
+    cluster_index = -1
+    for index, dmg in enumerate(dmg_types.value):
+        family = dmg.value[0].value.removeprefix("\"").removesuffix("\"")
+        if family == "cluster":
+            cluster_index = index
+
     # max AP which DPICM rounds should have
     dpicm_index_count = 6
     for i in range(dpicm_index_count):
-        # TODO: create TDamageTypeRTTI for DamageTypeList and array for Values
-        pass
+        dmg_type_dict = ndf.expression(dmg_type_expr.format(index=i + 1))
+        dmg_types.value.insert(cluster_index + i, **dmg_type_dict)
+        dmg_values.value.insert(cluster_index + i, **dpicm_dmg_dict)
 
-    # TODO: add new entry to DamageTypeList
-    # TODO: add array to Values: each entry corresponds to one ResistanceTypeList
-    # TODO: for some reason, DamageResistance.ndf should be edited/saved last
+    # add necessary UI modifications
+    
