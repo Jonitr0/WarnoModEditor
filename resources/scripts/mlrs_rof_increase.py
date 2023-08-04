@@ -57,7 +57,37 @@ def increase_mlrs_rof(ammo_desc, weapon_desc):
 
 
 def create_dpicm_mlrs(ammo_desc, dmg_resist):
-    pass
+    # create "ATACMS" for testing
+    for obj_row in ammo_desc:
+        obj = obj_row.value
+
+        # skip anything that is not of this type
+        if obj.type != "TAmmunitionDescriptor":
+            continue
+        name = obj_row.namespace
+        if name == "Ammo_RocketArt_M26_227mm_Cluster":
+            # set Arme to cluster
+            obj.by_member("Arme").value.by_member("Family").value = "\"cluster\""
+            obj.by_member("Arme").value.by_member("Index").value = 1
+
+            obj.by_member("TempsEntreDeuxTirs").value = 60.0
+            obj.by_member("TempsEntreDeuxFx").value = 60.0
+
+            obj.by_member("DispersionAtMaxRange").value = "((100) * Metre)"
+            obj.by_member("DispersionAtMinRange").value = "((100) * Metre)"
+
+            obj.by_member("NbTirParSalves").value = 2
+            obj.by_member("AffichageMunitionParSalve").value = 2
+
+            obj.by_member("PhysicalDamages").value = 3
+
+    resist_types = dmg_resist[0].value[0]
+    # max AP which DPICM rounds should have
+    dpicm_index_count = 6
+    for i in range(dpicm_index_count):
+        # TODO: create TDamageTypeRTTI for DamageTypeList and array for Values
+        pass
+
     # TODO: add new entry to DamageTypeList
     # TODO: add array to Values: each entry corresponds to one ResistanceTypeList
     # TODO: for some reason, DamageResistance.ndf should be edited/saved last
