@@ -1,11 +1,23 @@
+import shutil
+
 from hmg_ap_damage import *
 from mlrs_rof_increase import *
+from dpicm_dmg import *
+
+# TODO: proper ERA implementation (separate HEAT damage type)
+# TODO: tank armor rework
+# TODO: vehicle mobility rework?
 
 if __name__ == "__main__":
-    #src_mod = r"D:\SteamLibrary\steamapps\common\WARNO\Mods\SrcMod"
-    src_mod = r"C:\Program Files (x86)\Steam\steamapps\common\WARNO\Mods\SrcMod"
-    #tgt_mod = r"D:\SteamLibrary\steamapps\common\WARNO\Mods\HmgApDmg"
-    tgt_mod = r"C:\Program Files (x86)\Steam\steamapps\common\WARNO\Mods\HmgApDmg"
+    src_mod = r"D:\SteamLibrary\steamapps\common\WARNO\Mods\SrcMod"
+    #src_mod = r"C:\Program Files (x86)\Steam\steamapps\common\WARNO\Mods\SrcMod"
+    tgt_mod = r"D:\SteamLibrary\steamapps\common\WARNO\Mods\HmgApDmg"
+    #tgt_mod = r"C:\Program Files (x86)\Steam\steamapps\common\WARNO\Mods\HmgApDmg"
+
+    try:
+        shutil.rmtree(tgt_mod)
+    except Exception:
+        pass
 
     mod = ndf.Mod(src_mod, tgt_mod)
     mod.check_if_src_is_newer()
@@ -14,7 +26,8 @@ if __name__ == "__main__":
             mod.edit(r"GameData\Generated\Gameplay\Gfx\Ammunition.ndf") as ammo_desc, \
             mod.edit(r"GameData\Generated\Gameplay\Gfx\WeaponDescriptor.ndf") as weapon_desc, \
             mod.edit(r"GameData\UserInterface\Use\InGame\UIMousePolicyResources.ndf") as ui_mouse, \
-            mod.edit(r"GameData\UserInterface\Use\InGame\UISpecificUnitInfoSingleWeaponPanelView.ndf") as ui_weapon:
-        create_dpicm_mlrs(ammo_desc, dmg_resist, ui_mouse, ui_weapon)
+            mod.edit(r"GameData\UserInterface\Use\InGame\UISpecificUnitInfoSingleWeaponPanelView.ndf") as ui_weapon, \
+            mod.edit(r"GameData\Gameplay\Terrains\Terrains.ndf") as terrain:
+        create_dpicm_mlrs(ammo_desc, dmg_resist, ui_mouse, ui_weapon, terrain)
         add_ap_to_hmgs(ammo_desc, weapon_desc)
         increase_mlrs_rof(ammo_desc, weapon_desc)
