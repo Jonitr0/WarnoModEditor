@@ -1,9 +1,9 @@
 import ndf_parse as ndf
 
-ERA_DAMAGE_REDUCTION = 4.0
+ERA_DAMAGE_REDUCTION = 3.0
 
 
-def create_era_resist_type(dmg_resist, armor_desc):
+def create_era_resist_type(dmg_resist, armor_desc, weapon_const):
     resist_type_expr = "TResistanceTypeRTTI(Family=\"era\" Index={index})"
 
     resist_types = dmg_resist[0].value[0]
@@ -23,7 +23,7 @@ def create_era_resist_type(dmg_resist, armor_desc):
             last_armor_index = i
 
     # add ERA resistance types to list
-    for i in range(last_armor_index - first_armor_index):
+    for i in range(last_armor_index - first_armor_index + 1):
         resist_type_dict = ndf.expression(resist_type_expr.format(index=i + 1))
         resist_types.value.add(**resist_type_dict)
 
@@ -56,6 +56,13 @@ def create_era_resist_type(dmg_resist, armor_desc):
         ad_text = armor_desc_expr.format(index=i+1, name=name_for_index[i+1])
         ad_dict = ndf.expression(ad_text)
         armor_desc.add(**ad_dict)
+
+    weapon_const_obj = weapon_const[0].value
+
+    weapon_const_obj.by_member("ResistanceWithBlindageFamilies").value.add(**ndf.expression("\"era\""))
+
+    for entry in weapon_const_obj.by_member("BlindagesToIgnoreForDamageFamilies").value:
+        entry.value.add(**ndf.expression("\"era\""))
 
 
 
