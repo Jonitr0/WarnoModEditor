@@ -73,8 +73,7 @@ def create_ap_mount(orig):
 
 
 def add_ap_to_hmgs(ammo_desc, weapon_desc):
-    # TODO: add GUV pods
-    cal_127_tokens = ["'XBOZOTODIF'", "'XROPZVJKKE'", "'VXYLWCZLCA'"]
+    cal_127_tokens = ["'XBOZOTODIF'", "'XROPZVJKKE'", "'VXYLWCZLCA'", "'LZSKMVVCOD'"]
     cal_145_tokens = ["'PBJYEGALCO'"]
 
     weapons = {}

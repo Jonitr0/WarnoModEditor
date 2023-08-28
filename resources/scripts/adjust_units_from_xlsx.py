@@ -64,7 +64,7 @@ class SheetMultiManager:
         return len(self.object_name_to_index[obj_name])
 
 
-def edit_units_from_xlsx(unit_desc, xlsx_path: str = "Units.xlsx"):
+def edit_units_from_xlsx(unit_desc, xlsx_path: str = "Mod.xlsx"):
     sheet_manager = SheetManager(xlsx_path, sheet_name="Units", prefix="Descriptor_Unit_")
 
     for unit in unit_desc:
@@ -75,38 +75,87 @@ def edit_units_from_xlsx(unit_desc, xlsx_path: str = "Units.xlsx"):
             continue
 
         for module in unit_obj.by_member("ModulesDescriptors").value:
-            # TODO: use type attribute here
-            # set HP
             try:
-                hp_module = module.value.by_member("Default").value.by_member("MaxPhysicalDamages")
-                hp = int(sheet_manager.get_attribute_for_object(name, "hp"))
-                hp_module.value = hp
-            except Exception as e:
-                pass
-            # set armor
-            try:
-                armor_module = module.value.by_member("Default").value.by_member("BlindageProperties").value
-                for aspect in ["Front", "Sides", "Rear", "Top"]:
-                    armor_value = sheet_manager.get_attribute_for_object(name, aspect + "_armor_value")
-                    if not armor_value:
-                        continue
-                    armor_type = sheet_manager.get_attribute_for_object(name, aspect + "_armor_type")
-                    if not armor_type:
-                        armor_type = armor_module.by_member("ArmorDescriptor" + aspect).value.rstrip(digits)
-                    armor_module.by_member("ArmorDescriptor" + aspect).value = armor_type + str(armor_value)
-            except Exception as e:
-                pass
-            # set price
-            try:
-                price_module = module.value.by_member("Default").value.by_member("ProductionRessourcesNeeded").value
-                price = int(sheet_manager.get_attribute_for_object(name, "price"))
-                price_module.by_key("~/Resource_CommandPoints").value = price
-            except Exception as e:
-                pass
+                module_type = module.value.type
+            except Exception:
+                continue
+            if module_type == "TModuleSelector":
+                try:
+                    default = module.value.by_member("Default").value.type
+                except Exception:
+                    continue
+                match default:
+                    # set HP
+                    case "TBaseDamageModuleDescriptor":
+                        hp = sheet_manager.get_attribute_for_object(name, "hp")
+                        if not hp:
+                            continue
+                        hp_module = module.value.by_member("Default").value.by_member("MaxPhysicalDamages")
+                        hp_module.value = int(hp)
+                    # set armor
+                    case "TDamageModuleDescriptor":
+                        armor_module = module.value.by_member("Default").value.by_member("BlindageProperties").value
+                        for aspect in ["Front", "Sides", "Rear", "Top"]:
+                            armor_value = sheet_manager.get_attribute_for_object(name, aspect + "_armor_value")
+                            if not armor_value:
+                                continue
+                            armor_type = sheet_manager.get_attribute_for_object(name, aspect + "_armor_type")
+                            if not armor_type:
+                                armor_type = armor_module.by_member("ArmorDescriptor" + aspect).value.rstrip(digits)
+                            armor_module.by_member("ArmorDescriptor" + aspect).value = armor_type + str(armor_value)
+                    # set price
+                    case "TProductionModuleDescriptor":
+                        price = sheet_manager.get_attribute_for_object(name, "price")
+                        if not price:
+                            continue
+                        price_module = module.value.by_member("Default").value.by_member("ProductionRessourcesNeeded").value
+                        price_module.by_key("~/Resource_CommandPoints").value = int(price)
+                    # optics
+                    case "TScannerConfigurationDescriptor":
+                        optics = sheet_manager.get_attribute_for_object(name, "optics")
+                        if not optics:
+                            continue
+                        scanner = module.value.by_member("Default").value.by_member("OpticalStrength")
+                        scanner_alt = module.value.by_member("Default").value.by_member("OpticalStrengthAltitude")
+                        match optics:
+                            case "bad":
+                                scanner.value = 42.45
+                                scanner_alt.value = 10
+                            case "mediocre":
+                                scanner.value = 63.675
+                                scanner_alt.value = 20
+                            case "normal":
+                                scanner.value = 84.9
+                                scanner_alt.value = 20
+                            case _:
+                                pass
+                    case _:
+                        pass
+            elif module_type == "TReverseScannerWithIdentificationDescriptor":
+                optics = sheet_manager.get_attribute_for_object(name, "optics")
+                if not optics:
+                    continue
+
+                vis_module = module.value.by_member("VisibilityRollRule").value
+                id_chance = vis_module.by_member("IdentifyBaseProbability")
+                id_rate = vis_module.by_member("TimeBetweenEachIdentifyRoll")
+
+                match optics:
+                    case "bad":
+                        id_chance.value = 0.13
+                        id_rate.value = 15.0
+                    case "mediocre":
+                        id_chance.value = 0.2
+                        id_rate.value = 10.0
+                    case "normal":
+                        id_chance.value = 0.26
+                        id_rate.value = 8.0
+                    case _:
+                        pass
 
 
-# TODO: function to set ammo for given unit on given turret
-def edit_turrets_from_xlsx(weapon_desc, xlsx_path: str = "Units.xlsx"):
+# set ammo for given unit on given turret
+def edit_turrets_from_xlsx(weapon_desc, xlsx_path: str = "Mod.xlsx"):
     sheet_manager = SheetMultiManager(xlsx_path, sheet_name="Turrets", prefix="WeaponDescriptor_")
 
     for weapon in weapon_desc:
@@ -128,5 +177,5 @@ def edit_turrets_from_xlsx(weapon_desc, xlsx_path: str = "Units.xlsx"):
             mount.value.by_member("Ammunition").value = "~/Ammo_" + ammo
 
 
-def edit_ammo_from_xlsx(ammo_desc, xlsx_path: str = "Units.xlsx"):
+def edit_ammo_from_xlsx(ammo_desc, xlsx_path: str = "Mod.xlsx"):
     sheet_manager = SheetManager(xlsx_path, sheet_name="Ammo", prefix="Ammo_")
