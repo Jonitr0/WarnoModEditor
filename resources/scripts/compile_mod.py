@@ -8,6 +8,8 @@ from adjust_units_from_xlsx import *
 
 # TODO: tank armor rework
 # TODO: vehicle mobility rework?
+# TODO: model fixes (MGs on Leo 1s)
+# TODO: optics rework for tanks
 
 if __name__ == "__main__":
     src_mod = r"D:\SteamLibrary\steamapps\common\WARNO\Mods\SrcMod"
@@ -37,3 +39,5 @@ if __name__ == "__main__":
         increase_mlrs_rof(ammo_desc, weapon_desc)
         create_era_resist_type(dmg_resist, armor_desc, weapon_const)
         edit_units_from_xlsx(unit_desc)
+        edit_ammo_from_xlsx(ammo_desc)
+        edit_turrets_from_xlsx(weapon_desc)
