@@ -108,7 +108,8 @@ def edit_units_from_xlsx(unit_desc, xlsx_path: str = "Mod.xlsx"):
                         price = sheet_manager.get_attribute_for_object(name, "price")
                         if not price:
                             continue
-                        price_module = module.value.by_member("Default").value.by_member("ProductionRessourcesNeeded").value
+                        price_module = module.value.by_member("Default").value.by_member(
+                            "ProductionRessourcesNeeded").value
                         price_module.by_key("~/Resource_CommandPoints").value = int(price)
                     # optics
                     case "TScannerConfigurationDescriptor":
@@ -177,5 +178,41 @@ def edit_turrets_from_xlsx(weapon_desc, xlsx_path: str = "Mod.xlsx"):
             mount.value.by_member("Ammunition").value = "~/Ammo_" + ammo
 
 
+# TODO: read this from BaseGDConstantes
+RANGE_FACTOR = 2.83
+
+
 def edit_ammo_from_xlsx(ammo_desc, xlsx_path: str = "Mod.xlsx"):
     sheet_manager = SheetManager(xlsx_path, sheet_name="Ammo", prefix="Ammo_")
+
+    for ammo in ammo_desc:
+        name = ammo.namespace
+
+        if not sheet_manager.contains_object(name):
+            continue
+
+        ammo_obj = ammo.value
+
+        arme_value = sheet_manager.get_attribute_for_object(name, "arme_value")
+        if arme_value:
+            ammo_obj.by_member("Arme").value.by_member("Index").value = arme_value
+        arme_family = sheet_manager.get_attribute_for_object(name, "arme_family")
+        if arme_family:
+            ammo_obj.by_member("Arme").value.by_member("Family").value = arme_family
+
+        range_ground = sheet_manager.get_attribute_for_object(name, "range_ground")
+        if range_ground:
+            range_adjusted = round(float(range_ground) * RANGE_FACTOR)
+            ammo_obj.by_member("PorteeMaximale").value = "(({range}) * Metre)".format(range=range_adjusted)
+
+        acc_stat = sheet_manager.get_attribute_for_object(name, "acc_stationary")
+        acc_mov = sheet_manager.get_attribute_for_object(name, "acc_moving")
+
+        hit_chance = ammo_obj.by_member("HitRollRuleDescriptor").value.by_member("BaseHitValueModifiers").value
+        for entry in hit_chance:
+            if acc_stat and entry.value[0] == "EBaseHitValueModifier/Idling":
+                entry.value = ("EBaseHitValueModifier/Idling", acc_stat)
+            elif acc_mov and entry.value[0] == "EBaseHitValueModifier/Moving":
+                entry.value = ("EBaseHitValueModifier/Moving", acc_mov)
+
+
