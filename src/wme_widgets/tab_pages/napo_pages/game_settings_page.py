@@ -55,22 +55,24 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
     def update_page(self):
         main_widget.instance.show_loading_screen("loading GDConstantes.ndf...")
 
-        self.constants_napo = self.get_napo_from_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
-        self.saved_state = {
-            "starting_points": self.constants_napo.get_raw_value("WargameConstantes\\ArgentInitialSetting"),
-            "conquest_tick": self.constants_napo.get_raw_value(
-                "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/CaptureTheFlag"),
-            "conquest_income": self.constants_napo.get_raw_value(
-                "WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag"),
-            "conquest_scores": self.constants_napo.get_raw_value("WargameConstantes\\ConquestPossibleScores"),
-            "destruction_tick": self.constants_napo.get_raw_value(
-                "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/Destruction"),
-            "destruction_income": self.constants_napo.get_raw_value(
-                "WargameConstantes\\BaseIncome\\CombatRule/Destruction"),
-            "destruction_scores": self.constants_napo.get_raw_value(
-                "WargameConstantes\\DestructionScoreToReachSetting"),
-            "default_starting_points": self.constants_napo.get_raw_value("WargameConstantes\\DefaultArgentInitial"),
-        }
+        gdc_file_obj = self.get_parsed_ndf_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
+        for obj_row in gdc_file_obj:
+            obj = obj_row.value
+
+            if obj_row.namespace == "WargameConstantes":
+                self.saved_state = {
+                    "starting_points": self.parsed_list_to_py_list(obj.by_member("ArgentInitialSetting"), int),
+                    "conquest_tick": float(obj.by_member("TimeBeforeEarningCommandPoints").value.by_key(
+                        "CombatRule/CaptureTheFlag").value),
+                    "conquest_income": int(obj.by_member("BaseIncome").value.by_key("CombatRule/CaptureTheFlag").value),
+                    "conquest_scores": self.parsed_list_to_py_list(obj.by_member("ConquestPossibleScores"), int),
+                    "destruction_tick": float(obj.by_member("TimeBeforeEarningCommandPoints").value.by_key(
+                        "CombatRule/Destruction").value),
+                    "destruction_income": int(obj.by_member("BaseIncome").value.by_key("CombatRule/Destruction").value),
+                    "destruction_scores": self.parsed_list_to_py_list(obj.by_member("DestructionScoreToReachSetting"),
+                                                                      int),
+                    "default_starting_points": int(obj.by_member("DefaultArgentInitial").value),
+                }
 
         self.set_state(self.saved_state)
 
@@ -80,19 +82,24 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         state = self.get_state()
 
         dest_table = {}
-        dest_types = [NapoDatatype.Integer] * (len(state["destruction_scores"]) + 1) * len(state["destruction_scores"])
         for val in state["starting_points"]:
             dest_table[val] = state["destruction_scores"]
 
-        self.constants_napo.set_raw_value("WargameConstantes\\ArgentInitialSetting", state["starting_points"],
-                                          len(state["starting_points"]) * [NapoDatatype.Integer])
-        self.constants_napo.set_raw_value("WargameConstantes\\DefaultArgentInitial", state["default_starting_points"],
-                                          [NapoDatatype.Integer])
-        self.constants_napo.set_raw_value("WargameConstantes\\ConquestPossibleScores", state["conquest_scores"],
-                                          len(state["conquest_scores"]) * [NapoDatatype.Integer])
-        self.constants_napo.set_raw_value("WargameConstantes\\DestructionScoreToReachSetting",
-                                          state["destruction_scores"], len(state["destruction_scores"]) *
-                                          [NapoDatatype.Integer])
+        gdc_file_obj = self.get_parsed_ndf_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
+        for obj_row in gdc_file_obj:
+            obj = obj_row.value
+
+            if obj_row.namespace == "WargameConstantes":
+                obj.by_member("ArgentInitialSetting").value = self.py_list_to_parsed_list(state["starting_points"])
+                obj.by_member("DefaultArgentInitial").value = state["default_starting_points"]
+                obj.by_member("ConquestPossibleScores").value = self.py_list_to_parsed_list(state["conquest_scores"])
+                obj.by_member("DestructionScoreToReachSetting").value = \
+                    self.py_list_to_parsed_list(state["destruction_scores"])
+
+
+
+
+
         self.constants_napo.set_raw_value("WargameConstantes\\VictoryTypeDestructionLevelsTable", dest_table,
                                           dest_types)
         self.constants_napo.set_raw_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag",

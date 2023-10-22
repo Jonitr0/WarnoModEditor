@@ -83,6 +83,7 @@ class FindBar(QtWidgets.QWidget):
         self.close_button.setFixedSize(32, 32)
         self.main_layout.addWidget(self.close_button)
 
+    # TODO: add case-insensitive search
     def on_search(self):
         self.last_search = self.line_edit.text()
 

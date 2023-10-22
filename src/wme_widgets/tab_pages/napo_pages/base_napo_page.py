@@ -5,6 +5,8 @@ import json
 
 from antlr4 import *
 
+import ndf_parse as ndf
+
 from PySide6 import QtWidgets, QtGui
 
 from src.ndf_parser.antlr_output.NdfGrammarLexer import NdfGrammarLexer
@@ -120,6 +122,32 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(file_content)
 
+    def parsed_list_to_py_list(self, parsed_list, d_type=str):
+        py_list = []
+        for entry in parsed_list.value:
+            py_list.append(d_type(entry.value))
+        return py_list
+
+    def py_list_to_parsed_list(self, py_list):
+        parsed_list = ndf.model.List()
+        for val in py_list:
+            expr = ndf.expression(str(val))
+            parsed_list.add(**expr)
+        return parsed_list
+
+    # TODO: conversion functions for maps
+
+    def get_parsed_ndf_file(self, file_name: str, editing: bool = True):
+        mod_path = main_widget.instance.get_loaded_mod_path()
+        file_path = os.path.join(mod_path, file_name)
+
+        if editing:
+            self.open_file(file_path)
+
+        mod = ndf.Mod(mod_path, mod_path + "tmp")
+        with mod.edit(file_path) as file_obj:
+            return file_obj
+
     def on_restore(self):
         if self.unsaved_changes:
             dialog = essential_dialogs.ConfirmationDialog("Your changes will be discarded! Are you sure?", "Warning!")
@@ -133,6 +161,7 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
     def set_state(self, state: dict):
         pass
 
+    # TODO: add version checking
     def import_state(self):
         if self.unsaved_changes:
             dialog = essential_dialogs.AskToSaveDialog(self.tab_name)
@@ -167,6 +196,7 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
         main_widget.instance.hide_loading_screen()
 
+    # TODO: add header/payload with metadata (version)
     def export_state(self):
         try:
             state = self.get_state()
