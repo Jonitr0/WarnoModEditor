@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
 from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, global_search_page, guid_generator_page, \
-    csv_editor_page
+    csv_editor_page, ndf_parse_test_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.wme_widgets.tab_pages.napo_pages import game_settings_page
 from src.wme_widgets.tab_pages.napo_pages.operation_editor import operation_editor
@@ -59,6 +59,11 @@ class WMETabWidget(QtWidgets.QTabWidget):
         csv_editor_action = self.tab_menu.addAction(csv_editor_icon, "CSV Editor")
         csv_editor_action.setToolTip("Create or edit .csv files.")
         csv_editor_action.triggered.connect(self.on_csv_editor)
+
+        ndf_test_icon = self.get_icon_for_page_type(ndf_parse_test_page.NdfParseTestPage)
+        ndf_test_action = self.tab_menu.addAction(ndf_test_icon, "ndf_parse Test")
+        ndf_test_action.setToolTip("ndf_parse test.")
+        ndf_test_action.triggered.connect(self.on_ndf_test)
 
         global_search_icon = self.get_icon_for_page_type(global_search_page.GlobalSearchPage)
         global_search_action = self.tab_menu.addAction(global_search_icon, "Global Search")
@@ -136,6 +141,8 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.tab_removed_by_button.emit()
 
     def get_icon_for_page_type(self, page_type):
+        if not self.icon_paths_for_pages.__contains__(page_type):
+            return icon_manager.load_icon("help.png", COLORS.PRIMARY)
         return icon_manager.load_icon(self.icon_paths_for_pages[page_type], COLORS.PRIMARY)
 
     def add_tab_with_auto_icon(self, page: base_tab_page.BaseTabPage, title: str):
@@ -204,6 +211,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_open_manual(self):
         viewer = rich_text_viewer_page.RichTextViewerPage("UserManual.html")
         self.add_tab_with_auto_icon(viewer, "Shortcut Reference")
+
+    def on_ndf_test(self):
+        page = ndf_parse_test_page.NdfParseTestPage()
+        self.add_tab_with_auto_icon(page, "ndf_parse Test")
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
         ret = super().addTab(widget, icon, title)

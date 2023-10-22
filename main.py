@@ -2,12 +2,14 @@ import sys
 import os
 import logging
 
+from src.utils.resource_loader import get_resource_path
+os.environ["NDF_LIB_PATH"] = get_resource_path("resources/dependencies/ndf.dll")
+
 from PySide6 import QtWidgets
 from qt_material import apply_stylesheet
 
 from src import main_window
 from src.utils import settings_manager, theme_manager
-from src.utils.resource_loader import get_resource_path
 from src.dialogs import exception_handler_dialog
 from src.wme_widgets import wme_splash_screen
 
@@ -50,6 +52,7 @@ if __name__ == '__main__':
     settings_manager.write_settings_value(settings_manager.VERSION_KEY, version)
     logging.info("\n\n")
     logging.info("Starting WME " + version)
+    logging.info("Working Directory: " + get_resource_path(''))
 
     # setup splash screen
     splash_screen = wme_splash_screen.WMESplashScreen("Warno Mod Editor v" + version)
