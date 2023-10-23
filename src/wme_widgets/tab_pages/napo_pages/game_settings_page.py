@@ -105,7 +105,7 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
                     state["destruction_tick"]
 
         # write to file
-        self.save_files_to_mod(["GameData\\Gameplay\\Constantes\\GDConstantes.ndf"])
+        self.save_files_to_mod({"GameData\\Gameplay\\Constantes\\GDConstantes.ndf" : gdc_file_obj})
 
         self.saved_state = state
 
