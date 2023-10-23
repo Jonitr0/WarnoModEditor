@@ -8,6 +8,7 @@ from src.wme_widgets.tab_pages.napo_pages import base_napo_page
 from src.wme_widgets.tab_pages.napo_pages import napo_list_widget
 
 from src.ndf_parser.napo_entities.napo_entity import *
+from src.utils.parser_utils import *
 
 
 class GameSettingsPage(base_napo_page.BaseNapoPage):
@@ -61,16 +62,16 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
 
             if obj_row.namespace == "WargameConstantes":
                 self.saved_state = {
-                    "starting_points": self.parsed_list_to_py_list(obj.by_member("ArgentInitialSetting"), int),
+                    "starting_points": parsed_list_to_py_list(obj.by_member("ArgentInitialSetting"), int),
                     "conquest_tick": float(obj.by_member("TimeBeforeEarningCommandPoints").value.by_key(
                         "CombatRule/CaptureTheFlag").value),
                     "conquest_income": int(obj.by_member("BaseIncome").value.by_key("CombatRule/CaptureTheFlag").value),
-                    "conquest_scores": self.parsed_list_to_py_list(obj.by_member("ConquestPossibleScores"), int),
+                    "conquest_scores": parsed_list_to_py_list(obj.by_member("ConquestPossibleScores"), int),
                     "destruction_tick": float(obj.by_member("TimeBeforeEarningCommandPoints").value.by_key(
                         "CombatRule/Destruction").value),
                     "destruction_income": int(obj.by_member("BaseIncome").value.by_key("CombatRule/Destruction").value),
-                    "destruction_scores": self.parsed_list_to_py_list(obj.by_member("DestructionScoreToReachSetting"),
-                                                                      int),
+                    "destruction_scores": parsed_list_to_py_list(obj.by_member("DestructionScoreToReachSetting"),
+                                                                 int),
                     "default_starting_points": int(obj.by_member("DefaultArgentInitial").value),
                 }
 
@@ -90,31 +91,21 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
             obj = obj_row.value
 
             if obj_row.namespace == "WargameConstantes":
-                obj.by_member("ArgentInitialSetting").value = self.py_list_to_parsed_list(state["starting_points"])
+                obj.by_member("ArgentInitialSetting").value = py_list_to_parsed_list(state["starting_points"])
                 obj.by_member("DefaultArgentInitial").value = state["default_starting_points"]
-                obj.by_member("ConquestPossibleScores").value = self.py_list_to_parsed_list(state["conquest_scores"])
+                obj.by_member("ConquestPossibleScores").value = py_list_to_parsed_list(state["conquest_scores"])
                 obj.by_member("DestructionScoreToReachSetting").value = \
-                    self.py_list_to_parsed_list(state["destruction_scores"])
-
-
-
-
-
-        self.constants_napo.set_raw_value("WargameConstantes\\VictoryTypeDestructionLevelsTable", dest_table,
-                                          dest_types)
-        self.constants_napo.set_raw_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag",
-                                          state["conquest_income"], [NapoDatatype.Integer])
-        self.constants_napo.set_raw_value(
-            "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/CaptureTheFlag",
-            state["conquest_tick"], [NapoDatatype.Float])
-        self.constants_napo.set_raw_value("WargameConstantes\\BaseIncome\\CombatRule/Destruction",
-                                          state["destruction_income"], [NapoDatatype.Integer])
-        self.constants_napo.set_raw_value(
-            "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/Destruction",
-            state["destruction_tick"], [NapoDatatype.Float])
+                    py_list_to_parsed_list(state["destruction_scores"])
+                obj.by_member("VictoryTypeDestructionLevelsTable").value = py_map_to_parsed_map(dest_table)
+                obj.by_member("BaseIncome").value.by_key("CombatRule/CaptureTheFlag").value = state["conquest_income"]
+                obj.by_member("BaseIncome").value.by_key("CombatRule/Destruction").value = state["destruction_income"]
+                obj.by_member("TimeBeforeEarningCommandPoints").value.by_key("CombatRule/CaptureTheFlag").value = \
+                    state["conquest_tick"]
+                obj.by_member("TimeBeforeEarningCommandPoints").value.by_key("CombatRule/Destruction").value = \
+                    state["destruction_tick"]
 
         # write to file
-        self.write_napo_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf", self.constants_napo)
+        self.save_files_to_mod(["GameData\\Gameplay\\Constantes\\GDConstantes.ndf"])
 
         self.saved_state = state
 

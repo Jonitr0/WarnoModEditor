@@ -2,6 +2,7 @@
 import logging
 import os
 import json
+import shutil
 
 from antlr4 import *
 
@@ -30,6 +31,8 @@ from src.dialogs import essential_dialogs
 class BaseNapoPage(base_tab_page.BaseTabPage):
     def __init__(self):
         super().__init__()
+
+        self.mod = None
 
         self.main_layout = QtWidgets.QVBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 0, 0)
@@ -122,21 +125,6 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(file_content)
 
-    def parsed_list_to_py_list(self, parsed_list, d_type=str):
-        py_list = []
-        for entry in parsed_list.value:
-            py_list.append(d_type(entry.value))
-        return py_list
-
-    def py_list_to_parsed_list(self, py_list):
-        parsed_list = ndf.model.List()
-        for val in py_list:
-            expr = ndf.expression(str(val))
-            parsed_list.add(**expr)
-        return parsed_list
-
-    # TODO: conversion functions for maps
-
     def get_parsed_ndf_file(self, file_name: str, editing: bool = True):
         mod_path = main_widget.instance.get_loaded_mod_path()
         file_path = os.path.join(mod_path, file_name)
@@ -144,9 +132,28 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         if editing:
             self.open_file(file_path)
 
-        mod = ndf.Mod(mod_path, mod_path + "tmp")
-        with mod.edit(file_path) as file_obj:
+        if not self.mod:
+            self.mod = ndf.Mod(mod_path, mod_path + "_wme_tmp")
+            self.mod.check_if_src_is_newer()
+        with self.mod.edit(file_path) as file_obj:
             return file_obj
+
+    def save_files_to_mod(self, files: [str]):
+        # copy files from tmp dir to mod dir
+        orig_path = main_widget.instance.get_loaded_mod_path()
+        tmp_path = orig_path + "_wme_tmp"
+
+        for file in files:
+            orig_file_path = os.path.join(orig_path, file)
+            tmp_file_path = os.path.join(tmp_path, file)
+
+            with open(orig_file_path, "w", encoding="utf-8") as f_orig, \
+                    open(tmp_file_path, "r", encoding="utf-8") as f_tmp:
+                for line in f_tmp:
+                    f_orig.write(line)
+
+        self.mod = None
+        shutil.rmtree(tmp_path)
 
     def on_restore(self):
         if self.unsaved_changes:
