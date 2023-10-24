@@ -57,6 +57,7 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         main_widget.instance.show_loading_screen("loading GDConstantes.ndf...")
 
         gdc_file_obj = self.get_parsed_ndf_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
+        self.delete_tmp_mod()
         for obj_row in gdc_file_obj:
             obj = obj_row.value
 

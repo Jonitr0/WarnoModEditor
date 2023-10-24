@@ -138,12 +138,22 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
         return self.mod.parse_src(file_path)
 
+    def delete_tmp_mod(self):
+        orig_path = main_widget.instance.get_loaded_mod_path()
+        tmp_path = orig_path + "_wme_tmp"
+        self.mod = None
+        shutil.rmtree(tmp_path)
+
+
     def save_files_to_mod(self, files_to_objs: dict):
         # copy files from tmp dir to mod dir
         orig_path = main_widget.instance.get_loaded_mod_path()
         tmp_path = orig_path + "_wme_tmp"
 
         files = files_to_objs.keys()
+
+        self.mod = ndf.Mod(orig_path, tmp_path)
+        self.mod.check_if_src_is_newer()
 
         for file in files:
             orig_file_path = os.path.join(orig_path, file)
@@ -158,7 +168,6 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
                 for line in f_tmp:
                     f_orig.write(line)
 
-        # TODO: this also needs to be done on close, for all NAPO tabs
         self.mod = None
         shutil.rmtree(tmp_path)
 
