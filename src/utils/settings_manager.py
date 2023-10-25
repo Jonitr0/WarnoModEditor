@@ -6,6 +6,7 @@ import logging
 LAST_OPEN_KEY = "wme_last_open"
 WARNO_PATH_KEY = "wme_warno_path"
 VERSION_KEY = "wme_version"
+LAST_REPORTED_VERSION_KEY = "wme_last_reported_version"
 THEME_KEY = "wme_theme"
 NEXT_THEME_KEY = "wme_next_theme"
 SHOW_EXPLORER_FILESIZE_KEY = "wme_show_explorer_filesize"
