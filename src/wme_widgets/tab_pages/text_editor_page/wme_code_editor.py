@@ -40,6 +40,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
         # variables needed for search management
         self.pattern = ""
+        self.case_sensitive_search = True
         self.find_results = []
         self.drawn_results = []
 
@@ -138,6 +139,10 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
         start = 0
         text = self.toPlainText()
+
+        if not self.case_sensitive_search:
+            text = text.lower()
+            pattern = pattern.lower()
 
         while True:
             start = text.find(pattern, start)
@@ -324,4 +329,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         cursor.setPosition(pos, QtGui.QTextCursor.MoveAnchor)
         self.setTextCursor(cursor)
         self.setFocus()
+
+    def set_case_sensitive_search(self, case_sensitive: bool):
+        self.case_sensitive_search = case_sensitive
 
