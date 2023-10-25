@@ -29,6 +29,7 @@ PLAYER_DIVS = {
     "The Kitzingen Ruse": "Descriptor_Deck_SOV_35_AirAslt_Brig_challenge_OP_12_AA_Player",
     "Götterdämmerung": "Descriptor_Deck_RDA_11MSD_challenge_OP_11_RGA_Player",
     "The Dieburg Salient": "Descriptor_Deck_FR_7e_Blindee_challenge_OP_15_LMS_Player",
+    "Hold Until Relieved": "Descriptor_Deck_UK_Blues_Royals_challenge_OP_14_HLM_Player",
 }
 
 PACK_PREFIX = {
@@ -38,6 +39,7 @@ PACK_PREFIX = {
     "The Kitzingen Ruse": "~/Descriptor_Deck_Pack_TOE_SOV_35_AirAslt_Brig_challenge_",
     "Götterdämmerung": "~/Descriptor_Deck_Pack_TOE_RDA_11MSD_challenge_",
     "The Dieburg Salient": "~/Descriptor_Deck_Pack_TOE_FR_7e_Blindee_challenge_",
+    "Hold Until Relieved": "~/Descriptor_Deck_Pack_TOE_UK_Blues_Royals_challenge_",
 }
 
 

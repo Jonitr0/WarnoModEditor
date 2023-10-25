@@ -53,6 +53,13 @@ STRINGS = {
     "cha_7": "Recon. Company",
     "cha_6": "Arm. Company",
     "cha_3": "3rd Squadron",
+    "MOQJAJQKCU": "HQ-Blues and Royals",
+    "WBESWFYVOK": "Recon Troop",
+    "TABDGYHUPF": "ATGW Troop",
+    "RCWSMVEAWA": "A-Blues and Royals",
+    "GITRTZAZLS": "1st Troop",
+    "MATKYCBLCT": "2nd Troop",
+    "NQZWSPPSTW": "3rd Troop",
 }
 
 
