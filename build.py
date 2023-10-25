@@ -1,5 +1,8 @@
+import os
+
 import PyInstaller.__main__
 import shutil
+import subprocess
 
 if __name__ == '__main__':
     try:
@@ -20,5 +23,14 @@ if __name__ == '__main__':
                               "-n", "WarnoModEditor"
                               ])
 
-    # TODO: sign exe
-    # signtool sign /n "Open Source Developer, Jonas Trappe" / t https://time.certum.pl /fd sha256 /v WarnoModEditor.exe 
+    try:
+        cwd = os.getcwd()
+        os.chdir(r'C:\Program Files (x86)\Windows Kits\10\bin\x86')
+        cmd = "signtool.exe sign /n \"Open Source Developer, Jonas Trappe\" /t http://time.certum.pl /fd sha256 /v \""\
+              + os.path.join(cwd,"dist\\WarnoModEditor.exe\"")
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        out, err = proc.communicate()
+    except Exception as e:
+        print(e)
+
+

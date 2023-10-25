@@ -56,7 +56,9 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
         self.add_action_to_menu("Create Mod Backup", self.edit_menu, True, self.on_new_backup_action,
                                 "Create a backup from the current state of the mod.", "Alt+B")
-        # TODO: quick backup
+        self.add_action_to_menu("Create Quick Mod Backup", self.edit_menu, True, self.on_quick_backup_action,
+                                "Create a backup from the current state of the mod using the default name.",
+                                "Ctrl+Alt+B")
         self.add_action_to_menu("Retrieve Mod Backup", self.edit_menu, True,
                                 self.on_retrieve_backup_action, "Restore an existing mod backup.", "Ctrl+Alt+R")
         self.add_action_to_menu("Delete Mod Backup", self.edit_menu, True, self.on_delete_backup_action,
@@ -302,6 +304,11 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "CreateModBackup.bat", args)
         logging.info("CreateModBackup.bat executed with return code " + str(ret))
 
+    def on_quick_backup_action(self):
+        self.remove_pause_line_from_script("CreateModBackup.bat")
+        ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "CreateModBackup.bat", [])
+        logging.info("CreateModBackup.bat executed with return code " + str(ret))
+
     def find_backups(self):
         backup_dir = QtCore.QDir(self.main_widget_ref.get_loaded_mod_path() + "\\Backup")
         if not backup_dir.exists():
@@ -330,6 +337,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.remove_pause_line_from_script("RetrieveModBackup.bat")
         ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "RetrieveModBackup.bat", selection)
         logging.info("RetrieveModBackup.bat executed with return code " + str(ret))
+
+        self.request_load_mod.emit(self.main_widget_ref.get_loaded_mod_path())
 
     def on_delete_backup_action(self):
         all_backups = self.find_backups()
