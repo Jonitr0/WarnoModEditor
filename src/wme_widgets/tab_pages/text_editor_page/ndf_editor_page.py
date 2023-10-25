@@ -89,6 +89,7 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         self.find_bar.setHidden(True)
         self.find_bar.request_find_pattern.connect(self.code_editor.find_pattern)
         self.find_bar.request_find_reset.connect(self.code_editor.reset_find)
+        self.find_bar.case_sensitivity_changed.connect(self.code_editor.set_case_sensitive_search)
         self.find_bar.request_uncheck.connect(self.on_find_bar_close)
         self.find_bar.request_next.connect(self.code_editor.goto_next_find)
         self.find_bar.request_prev.connect(self.code_editor.goto_prev_find)

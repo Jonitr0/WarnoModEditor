@@ -9,6 +9,7 @@ class FindBar(QtWidgets.QWidget):
     request_find_pattern = QtCore.Signal(str)
     request_find_reset = QtCore.Signal()
     request_uncheck = QtCore.Signal(bool)
+    case_sensitivity_changed = QtCore.Signal(bool)
 
     request_prev = QtCore.Signal()
     request_next = QtCore.Signal()
@@ -29,12 +30,14 @@ class FindBar(QtWidgets.QWidget):
 
         self.enter_button = QtWidgets.QToolButton()
         self.close_button = QtWidgets.QToolButton()
+        self.case_button = QtWidgets.QToolButton()
         self.next_button = QtWidgets.QToolButton()
         self.prev_button = QtWidgets.QToolButton()
         self.results_label = QtWidgets.QLabel()
         self.line_edit = wme_essentials.WMELineEdit()
         self.main_layout = QtWidgets.QHBoxLayout()
         self.last_search = None
+        self.last_case_sensitive = True
         self.setup_ui()
         self.line_edit.installEventFilter(self)
 
@@ -47,6 +50,16 @@ class FindBar(QtWidgets.QWidget):
         self.line_edit.returnPressed.connect(self.on_next)
         self.line_edit.setPlaceholderText("Find...")
         self.line_edit.setMaximumWidth(800)
+
+        # TODO: shortcut
+        self.case_button.setIcon(icon_manager.load_pixmap("case_sensitivity.png", COLORS.PRIMARY))
+        self.case_button.clicked.connect(self.on_case)
+        self.case_button.setCheckable(True)
+        self.case_button.setChecked(True)
+        self.case_button.setToolTip("Toggle case-sensitive search. If the button is enabled, search is case-sensitive.")
+        self.case_button.setFixedSize(36, 36)
+        self.case_button.setIconSize(QtCore.QSize(36, 36))
+        self.main_layout.addWidget(self.case_button)
 
         next_icon = QtGui.QIcon()
         next_icon.addPixmap(icon_manager.load_pixmap("arrow_down.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
@@ -85,6 +98,7 @@ class FindBar(QtWidgets.QWidget):
 
     def on_search(self):
         self.last_search = self.line_edit.text()
+        self.last_case_sensitive = self.case_button.isChecked()
 
         if self.line_edit.text() == "":
             self.request_find_reset.emit()
@@ -101,8 +115,12 @@ class FindBar(QtWidgets.QWidget):
         self.reset()
         self.request_uncheck.emit(False)
 
+    def on_case(self):
+        self.case_sensitivity_changed.emit(self.case_button.isChecked())
+
     def on_next(self):
-        if (self.last_search != self.line_edit.text()) or not self.last_search:
+        if (self.last_search != self.line_edit.text()) or (self.last_case_sensitive != self.case_button.isChecked()) \
+                or not self.last_search:
             self.on_search()
         else:
             self.request_next.emit()
