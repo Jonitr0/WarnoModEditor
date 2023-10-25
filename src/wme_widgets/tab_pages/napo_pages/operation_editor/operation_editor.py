@@ -15,7 +15,7 @@ from src.dialogs import essential_dialogs
 from src.ndf_parser.antlr_output.NdfGrammarLexer import NdfGrammarLexer
 from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
 
-from src.ndf_parser import ndf_scanner
+from src.utils import ndf_scanner
 from src.ndf_parser.object_generator import napo_generator
 from src.ndf_parser.ndf_converter import napo_to_ndf_converter
 
@@ -159,11 +159,12 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         # player bg NAPOs
         player_div = PLAYER_DIVS[self.op_combobox.currentText()]
-        self.player_deck_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div)
+        self.player_deck_napo = self.get_parsed_object_from_ndf_file("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf",
+                                                                     player_div)
         self.player_div_napo = None
-        self.deck_pack_list = self.player_deck_napo.value[0].value.get_napo_value("DeckPackList")
+        self.deck_pack_list = self.player_deck_napo.by_member("DeckPackList").value
         if not self.matrix_napo:
-            self.matrix_napo = self.get_napo_from_file("GameData\\Gameplay\\Decks\\DivisionCostMatrix.ndf")
+            self.matrix_napo = self.get_parsed_ndf_file("GameData\\Gameplay\\Decks\\DivisionCostMatrix.ndf")
 
         units = sorted([i.removeprefix("Descriptor_Unit_") for i in
                         ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")])
@@ -177,19 +178,20 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.player_bg_scroll_layout.addStretch(1)
 
         # get group list
-        company_list = self.player_deck_napo.get_napo_value(player_div + "\\DeckCombatGroupList")
+        company_list = self.player_deck_napo.by_member("DeckCombatGroupList").value
         for i in range(len(company_list)):
             # get unit object
-            company = company_list.value[i]
-            company_name = company.get_raw_value("Name")
+            company = company_list[i].value
+            company_name = company.by_member("Name").value
             company_widget = self.add_company(company_name, i + 1)
-            platoon_list = company.get_napo_value("SmartGroupList")
+            platoon_list = company.by_member("SmartGroupList").value
             for j in range(len(platoon_list)):
                 # get platoon (index/availability mapping)
-                platoon = platoon_list.value[j]
-                platoon_name = platoon.get_raw_value("Name")
-                platoon_packs = platoon.get_napo_value("PackIndexUnitNumberList")
+                platoon = platoon_list[j].value
+                platoon_name = platoon.by_member("Name").value
+                platoon_packs = platoon.by_member("PackIndexUnitNumberList").value
                 company_widget.add_platoon(platoon_name, platoon_packs)
+                # TODO: dont create widgets here, handle this via set_state
 
         # enemy BGs
         enemy_bg_list = ENEMY_DIVS[self.op_combobox.currentText()]
@@ -597,7 +599,6 @@ class OperationEditor(base_napo_page.BaseNapoPage):
                     unit_index += 1
 
         self.unsaved_changes = self.saved_state != state
-        # TODO: why is page updated here?
 
     def get_state_file_name(self) -> str:
         operation_name = self.op_combobox.currentText()

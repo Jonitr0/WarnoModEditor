@@ -1,5 +1,4 @@
 # provides common functionality for Napo Tool Pages
-import logging
 import os
 import json
 import shutil
@@ -13,7 +12,6 @@ from PySide6 import QtWidgets, QtGui
 from src.ndf_parser.antlr_output.NdfGrammarLexer import NdfGrammarLexer
 from src.ndf_parser.antlr_output.NdfGrammarParser import NdfGrammarParser
 
-from src.ndf_parser import ndf_scanner
 from src.ndf_parser.object_generator import napo_generator
 from src.ndf_parser.ndf_converter import napo_to_ndf_converter
 
@@ -23,7 +21,7 @@ from src.ndf_parser.napo_entities.napo_assignment import *
 from src.wme_widgets.tab_pages import base_tab_page
 from src.wme_widgets import main_widget
 
-from src.utils import icon_manager, resource_loader
+from src.utils import icon_manager, resource_loader, ndf_scanner
 from src.utils.color_manager import *
 from src.dialogs import essential_dialogs
 
@@ -137,6 +135,15 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
             self.mod.check_if_src_is_newer()
 
         return self.mod.parse_src(file_path)
+
+    def get_parsed_object_from_ndf_file(self, file_name: str, obj_name: str, editing: bool = True):
+        file_obj = self.get_parsed_ndf_file(file_name, editing)
+        for row in file_obj:
+            if row.namespace == obj_name:
+                return row.value
+
+        logging.warning("Object " + obj_name + " not found in " + file_name)
+        return None
 
     def delete_tmp_mod(self):
         orig_path = main_widget.instance.get_loaded_mod_path()
