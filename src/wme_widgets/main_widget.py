@@ -1,5 +1,4 @@
-import logging
-import os.path
+import requests
 
 from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
@@ -7,11 +6,10 @@ from PySide6.QtCore import Qt
 from src.wme_widgets import wme_menu_bar, base_window
 from src.wme_widgets.project_explorer import wme_project_explorer
 from src.wme_widgets.tab_widget import wme_tab_widget, wme_detached_tab
-from src.dialogs import log_dialog
+from src.dialogs import log_dialog, essential_dialogs
 from src.utils import path_validator, icon_manager, resource_loader
 from src.utils.color_manager import *
 
-import json
 from pydoc import locate
 
 
@@ -65,6 +63,24 @@ class MainWidget(QtWidgets.QWidget):
             self.load_main_window_state()
         except Exception as e:
             logging.warning("Error while loading WME config: " + str(e))
+
+        response = requests.get("https://api.github.com/repos/Jonitr0/WarnoModEditor/releases/latest")
+
+        version = settings_manager.get_settings_value(settings_manager.VERSION_KEY)
+        last_reported_version = settings_manager.get_settings_value(settings_manager.LAST_REPORTED_VERSION_KEY)
+        new_version = response.json()["tag_name"]
+
+        if version == new_version or new_version == last_reported_version:
+            return
+
+        hyperlink_color = get_color_for_key(COLORS.PRIMARY.value)
+        download_url = response.json()["html_url"]
+        text = "A new version of WME is available! You can download it <a style=\"color: " + \
+               hyperlink_color + "\" href=\"" + download_url + "\">here</a>."
+
+        essential_dialogs.MessageDialog("Update Available", text, rich_text=True).exec()
+
+        settings_manager.write_settings_value(settings_manager.LAST_REPORTED_VERSION_KEY, new_version)
 
     def get_warno_path(self):
         return self.warno_path

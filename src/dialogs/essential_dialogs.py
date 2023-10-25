@@ -1,6 +1,7 @@
 # basic dialogs that are often used
 
 from PySide6 import QtWidgets
+from PySide6.QtCore import Qt
 
 from src.dialogs import base_dialog
 from src.wme_widgets import wme_essentials
@@ -38,8 +39,12 @@ class ConfirmationDialog(base_dialog.BaseDialog):
 
 # dialog that informs the user of something
 class MessageDialog(base_dialog.BaseDialog):
-    def __init__(self, title: str, text: str):
+    def __init__(self, title: str, text: str, rich_text: bool = False):
         self.label = QtWidgets.QLabel(text)
+        if rich_text:
+            self.label.setTextFormat(Qt.RichText)
+            self.label.setTextInteractionFlags(Qt.TextBrowserInteraction)
+            self.label.setOpenExternalLinks(True)
 
         super().__init__(ok_only=True, urgent=True)
         self.setWindowTitle(title)
