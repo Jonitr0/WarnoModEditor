@@ -15,7 +15,7 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
     def __init__(self):
         super().__init__()
 
-        self.last_search_case_sensitive = True
+        self.last_search_case_sensitive = False
 
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setAlignment(Qt.AlignTop)
@@ -33,11 +33,13 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
 
         self.case_button = QtWidgets.QToolButton()
         self.case_button.setIcon(icon_manager.load_icon("case_sensitivity.png", COLORS.PRIMARY))
-        self.case_button.setToolTip("Toggle case-sensitive search. If the button is enabled, search is case-sensitive.")
+        self.case_button.setToolTip("Toggle case-sensitive search. If the button is enabled, search is case-sensitive."
+                                    "(Ctrl + E)")
+        self.case_button.setShortcut("Ctrl+E")
         self.case_button.setFixedSize(36, 36)
         self.case_button.setIconSize(QtCore.QSize(36, 36))
         self.case_button.setCheckable(True)
-        self.case_button.setChecked(True)
+        self.case_button.setChecked(False)
         search_bar.addWidget(self.case_button)
 
         search_button = QtWidgets.QToolButton()

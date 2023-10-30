@@ -45,6 +45,7 @@ These shortcuts are available inside the text editor.
 - **Ctrl + F:** find text in file
 - **Ctrl + R:** replace text in file
 - **Ctrl + D:** duplicate current line / selected text
+- **Ctrl + E:** toggle case-sensitive search
 
 #### CSV Editor
 

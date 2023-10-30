@@ -55,8 +55,10 @@ class FindBar(QtWidgets.QWidget):
         self.case_button.setIcon(icon_manager.load_pixmap("case_sensitivity.png", COLORS.PRIMARY))
         self.case_button.clicked.connect(self.on_case)
         self.case_button.setCheckable(True)
-        self.case_button.setChecked(True)
-        self.case_button.setToolTip("Toggle case-sensitive search. If the button is enabled, search is case-sensitive.")
+        self.case_button.setChecked(False)
+        self.case_button.setToolTip("Toggle case-sensitive search. If the button is enabled, search is case-sensitive. "
+                                    "(Ctrl + E)")
+        self.case_button.setShortcut(QtCore.Qt.Key_Control + QtCore.Qt.Key_E)
         self.case_button.setFixedSize(36, 36)
         self.case_button.setIconSize(QtCore.QSize(36, 36))
         self.main_layout.addWidget(self.case_button)
