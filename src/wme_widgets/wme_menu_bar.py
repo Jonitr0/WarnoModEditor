@@ -54,22 +54,23 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
         self.edit_menu.addSeparator()
 
-        self.add_action_to_menu("Create Mod Backup", self.edit_menu, True, self.on_new_backup_action,
-                                "Create a backup from the current state of the mod.", "Alt+B")
-        self.add_action_to_menu("Create Quick Mod Backup", self.edit_menu, True, self.on_quick_backup_action,
-                                "Create a backup from the current state of the mod using the default name.",
-                                "Ctrl+Alt+B")
-        self.add_action_to_menu("Retrieve Mod Backup", self.edit_menu, True,
-                                self.on_retrieve_backup_action, "Restore an existing mod backup.", "Ctrl+Alt+R")
-        self.add_action_to_menu("Delete Mod Backup", self.edit_menu, True, self.on_delete_backup_action,
-                                "Delete an existing mod backup.")
-
-        self.edit_menu.addSeparator()
-
         self.add_action_to_menu("Edit Mod Configuration", self.edit_menu, True, self.on_edit_config_action,
                                 "Edit the mods Config.ini file.", "Ctrl+Alt+C")
         self.add_action_to_menu("Delete Mod Configuration", self.edit_menu, True, self.on_delete_config_action,
                                 "Delete the mods Config.ini file.")
+
+        self.backup_menu = self.addMenu("&Backup")
+        self.backup_menu.setToolTipsVisible(True)
+
+        self.add_action_to_menu("Create Mod Backup", self.backup_menu, True, self.on_new_backup_action,
+                                "Create a backup from the current state of the mod.")
+        self.add_action_to_menu("Create Quick Mod Backup", self.backup_menu, True, self.on_quick_backup_action,
+                                "Create a backup from the current state of the mod using the default name.",
+                                "Ctrl+Alt+B")
+        self.add_action_to_menu("Retrieve Mod Backup", self.backup_menu, True,
+                                self.on_retrieve_backup_action, "Restore an existing mod backup.", "Ctrl+Alt+R")
+        self.add_action_to_menu("Delete Mod Backup", self.backup_menu, True, self.on_delete_backup_action,
+                                "Delete an existing mod backup.")
 
     def on_new_action(self):
         dialog = new_mod_dialog.NewModDialog(self.main_widget_ref.get_warno_path())
@@ -140,8 +141,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         # ask to really delete
         mod_name = mod_path[mod_path.rindex("\\") + 1:]
         ret = essential_dialogs.ConfirmationDialog(mod_name + " including all backups in its directory"
-                                                   " will be deleted. You might be unable to recover it.\n"
-                                                   "Do you really want to continue?", "Warning!").exec()
+                                                              " will be deleted. You might be unable to recover it.\n"
+                                                              "Do you really want to continue?", "Warning!").exec()
         if ret != QtWidgets.QDialog.Accepted:
             return
 
@@ -167,10 +168,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                     logging.error(e)
 
         if mod_path == self.main_widget_ref.get_loaded_mod_path():
-            # disable all edit actions
-            for action in self.edit_menu.actions():
-                if not (action.isSeparator() or action.menu()):
-                    action.setDisabled(True)
             self.main_widget_ref.unload_mod()
 
         # delete mod from config
@@ -378,6 +375,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         if start_disabled:
             action.setDisabled(True)
             self.main_widget_ref.mod_loaded.connect(lambda: action.setDisabled(False))
+            self.main_widget_ref.mod_unloaded.connect(lambda: action.setDisabled(True))
 
         self.actions.append(action)
         return action

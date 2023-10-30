@@ -51,7 +51,6 @@ class FindBar(QtWidgets.QWidget):
         self.line_edit.setPlaceholderText("Find...")
         self.line_edit.setMaximumWidth(800)
 
-        # TODO: shortcut
         self.case_button.setIcon(icon_manager.load_pixmap("case_sensitivity.png", COLORS.PRIMARY))
         self.case_button.clicked.connect(self.on_case)
         self.case_button.setCheckable(True)
