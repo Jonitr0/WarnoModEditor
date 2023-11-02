@@ -2,7 +2,7 @@
 import json
 import os
 
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
 from src.wme_widgets import wme_essentials, main_widget
@@ -15,11 +15,14 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
     def __init__(self):
         super().__init__()
 
+        self.last_search_case_sensitive = False
+
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setAlignment(Qt.AlignTop)
         self.setLayout(main_layout)
 
         search_bar = QtWidgets.QHBoxLayout()
+        search_bar.setSpacing(0)
         main_layout.setContentsMargins(0, 8, 0, 8)
         main_layout.addLayout(search_bar)
 
@@ -28,10 +31,22 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
         self.search_line_edit.returnPressed.connect(self.on_search)
         search_bar.addWidget(self.search_line_edit)
 
+        self.case_button = QtWidgets.QToolButton()
+        self.case_button.setIcon(icon_manager.load_icon("case_sensitivity.png", COLORS.PRIMARY))
+        self.case_button.setToolTip("Toggle case-sensitive search. If the button is enabled, search is case-sensitive."
+                                    "(Ctrl + E)")
+        self.case_button.setShortcut("Ctrl+E")
+        self.case_button.setFixedSize(36, 36)
+        self.case_button.setIconSize(QtCore.QSize(36, 36))
+        self.case_button.setCheckable(True)
+        self.case_button.setChecked(False)
+        search_bar.addWidget(self.case_button)
+
         search_button = QtWidgets.QToolButton()
         search_button.setIcon(icon_manager.load_icon("magnify.png", COLORS.PRIMARY))
         search_button.setToolTip("Find search text")
         search_button.setFixedSize(36, 36)
+        search_button.setIconSize(QtCore.QSize(36, 36))
         search_button.clicked.connect(self.on_search)
         search_bar.addWidget(search_button)
 
@@ -64,6 +79,8 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
 
         main_widget.instance.show_loading_screen("Searching...")
 
+        self.last_search_case_sensitive = self.case_button.isChecked()
+
         results = []
 
         mod_path = main_widget.instance.get_loaded_mod_path()
@@ -75,7 +92,13 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
                     filepath = os.path.join(root, file)
                     with open(filepath) as f:
                         # check if they contain search text
-                        if f.read().__contains__(search_text):
+                        file_text = f.read()
+                        if self.last_search_case_sensitive:
+                            res = file_text.__contains__(search_text)
+                        else:
+                            file_text = file_text.lower()
+                            res = file_text.__contains__(search_text.lower())
+                        if res:
                             filepath = filepath.removeprefix(mod_path + "\\")
                             results.append(filepath)
 
@@ -123,4 +146,4 @@ class SearchResultWidget(QtWidgets.QFrame):
     def on_button_pressed(self):
         current_tab_widget = self.page.parent().parent()
         full_path = os.path.join(main_widget.instance.get_loaded_mod_path(), self.file_name)
-        current_tab_widget.on_open_and_find_ndf_editor(full_path, self.pattern)
+        current_tab_widget.on_open_and_find_ndf_editor(full_path, self.pattern, self.page.last_search_case_sensitive)

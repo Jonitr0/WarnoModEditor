@@ -19,7 +19,8 @@ These shortcuts are available when a mod is loaded.
 - **Alt + H:** open “help” popup for current tool
 - **Alt + E:** open “Edit” menu
 - **Alt + G:** generate mod
-- **Alt + B:** create mod backup
+- **Alt + B:** open "Backup" menu
+- **Ctrl + Alt + B:** create quick mod backup
 - **Ctrl + Alt + R:** retrieve mod backup
 - **Ctrl + Alt + C:** edit mod configuration
 - **Ctrl + Alt + E:** open the text editor
@@ -45,6 +46,7 @@ These shortcuts are available inside the text editor.
 - **Ctrl + F:** find text in file
 - **Ctrl + R:** replace text in file
 - **Ctrl + D:** duplicate current line / selected text
+- **Ctrl + E:** toggle case-sensitive search
 
 #### CSV Editor
 

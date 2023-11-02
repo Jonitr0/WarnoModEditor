@@ -25,6 +25,7 @@ def restore_window(window_obj: dict, window: base_window.BaseWindow):
 class MainWidget(QtWidgets.QWidget):
     status_set_text = QtCore.Signal(str)
     mod_loaded = QtCore.Signal(str)
+    mod_unloaded = QtCore.Signal()
 
     def __init__(self, parent, warno_path: str, title_bar):
         super().__init__(parent=parent)
@@ -181,6 +182,7 @@ class MainWidget(QtWidgets.QWidget):
         self.loaded_mod_name = ""
         self.title_label.setText("")
         self.show_loading_screen(self.no_mod_loaded_msg)
+        self.mod_unloaded.emit()
 
     def ask_all_tabs_to_save(self):
         # ask all tabs on all windows to save/discard, return False on cancel
