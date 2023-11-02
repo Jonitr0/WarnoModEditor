@@ -7,6 +7,10 @@ import subprocess
 if __name__ == '__main__':
     try:
         shutil.rmtree("build")
+    except Exception as e:
+        print(e)
+
+    try:
         shutil.rmtree("dist")
     except Exception as e:
         print(e)
@@ -18,6 +22,7 @@ if __name__ == '__main__':
                               "--add-data=resources/markdown;resources/markdown",
                               "--add-data=resources/themes;resources/themes",
                               "--add-data=resources;resources",
+                              "--hidden-import=chardet"
                               "--icon=resources/img/app_icon_colored.ico",
                               "--noconsole",
                               "-n", "WarnoModEditor"
@@ -26,11 +31,9 @@ if __name__ == '__main__':
     try:
         cwd = os.getcwd()
         os.chdir(r'C:\Program Files (x86)\Windows Kits\10\bin\x86')
-        cmd = "signtool.exe sign /n \"Open Source Developer, Jonas Trappe\" /t http://time.certum.pl /fd sha256 /v \""\
-              + os.path.join(cwd,"dist\\WarnoModEditor.exe\"")
+        cmd = "signtool.exe sign /n \"Open Source Developer, Jonas Trappe\" /t http://time.certum.pl /fd sha256 /v \"" \
+              + os.path.join(cwd, "dist\\WarnoModEditor.exe\"")
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         out, err = proc.communicate()
     except Exception as e:
         print(e)
-
-
