@@ -110,7 +110,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.player_div_napo = None
         self.deck_pack_list = self.player_deck_napo.value[0].value.get_napo_value("DeckPackList")
         if not self.matrix_napo:
-            self.matrix_napo = self.get_napo_from_file("GameData\\Gameplay\\Decks\\DivisionCostMatrix.ndf")
+            self.matrix_napo = self.get_napo_from_file("GameData\\Generated\\Gameplay\\Decks\\DivisionCostMatrix.ndf")
 
         units = sorted([i.removeprefix("Descriptor_Unit_") for i in
                         ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")])
