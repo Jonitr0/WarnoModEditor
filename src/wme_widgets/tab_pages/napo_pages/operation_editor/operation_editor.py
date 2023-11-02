@@ -29,6 +29,7 @@ PLAYER_DIVS = {
     "The Kitzingen Ruse": "Descriptor_Deck_SOV_35_AirAslt_Brig_challenge_OP_12_AA_Player",
     "Götterdämmerung": "Descriptor_Deck_RDA_11MSD_challenge_OP_11_RGA_Player",
     "The Dieburg Salient": "Descriptor_Deck_FR_7e_Blindee_challenge_OP_15_LMS_Player",
+    "Hold Until Relieved": "Descriptor_Deck_UK_Blues_Royals_challenge_OP_14_HLM_Player",
 }
 
 ENEMY_DIVS = {
@@ -52,6 +53,7 @@ PACK_PREFIX = {
     "The Kitzingen Ruse": "~/Descriptor_Deck_Pack_TOE_SOV_35_AirAslt_Brig_challenge_",
     "Götterdämmerung": "~/Descriptor_Deck_Pack_TOE_RDA_11MSD_challenge_",
     "The Dieburg Salient": "~/Descriptor_Deck_Pack_TOE_FR_7e_Blindee_challenge_",
+    "Hold Until Relieved": "~/Descriptor_Deck_Pack_TOE_UK_Blues_Royals_challenge_",
 }
 
 
@@ -164,7 +166,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.player_div_napo = None
         self.deck_pack_list = self.player_deck_napo.by_member("DeckPackList").value
         if not self.matrix_napo:
-            self.matrix_napo = self.get_parsed_ndf_file("GameData\\Gameplay\\Decks\\DivisionCostMatrix.ndf")
+            self.matrix_napo = self.get_parsed_ndf_file("GameData\\Generated\\Gameplay\\Decks\\DivisionCostMatrix.ndf")
 
         units = sorted([i.removeprefix("Descriptor_Unit_") for i in
                         ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")])

@@ -6,7 +6,7 @@ from src.dialogs import essential_dialogs
 from src.wme_widgets import wme_essentials, main_widget
 
 
-class WarnoPathDialog(BaseDialog):
+class EditModConfigDialog(BaseDialog):
     def __init__(self, config_values: dict):
         self.warning_label = QtWidgets.QLabel("WARNING! Uploading this mod might fail if it's name does not match "
                                               "the name of the directory (" +

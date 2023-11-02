@@ -154,10 +154,12 @@ class WMETabWidget(QtWidgets.QTabWidget):
         editor.unsaved_changes = False
         return editor
 
-    def on_open_and_find_ndf_editor(self, file_path: str, search_pattern: str):
+    def on_open_and_find_ndf_editor(self, file_path: str, search_pattern: str, case_sensitive: bool):
         editor = self.on_open_ndf_editor(file_path)
         editor.find_action.setChecked(True)
         editor.find_bar.line_edit.setText(search_pattern)
+        editor.find_bar.case_button.setChecked(case_sensitive)
+        editor.code_editor.case_sensitive_search = case_sensitive
         editor.code_editor.find_pattern(search_pattern)
 
     def on_text_editor(self):

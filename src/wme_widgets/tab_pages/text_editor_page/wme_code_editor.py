@@ -40,7 +40,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
         # variables needed for search management
         self.pattern = ""
-        self.case_sensitive_search = True
+        self.case_sensitive_search = False
         self.find_results = []
         self.drawn_results = []
 
