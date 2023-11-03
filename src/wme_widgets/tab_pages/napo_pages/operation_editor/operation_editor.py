@@ -84,10 +84,10 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         op_selector_layout.addWidget(QtWidgets.QLabel("Operation: "))
         op_selector_layout.addWidget(self.op_combobox)
 
-        self.player_deck_napo = None
-        self.player_div_napo = None
+        self.player_deck_obj = None
+        self.player_div_obj = None
         self.deck_pack_list = None
-        self.matrix_napo = None
+        self.matrix_obj = None
         self.enemy_bg_napos = []
         self.enemy_bg_div_rules = []
 
@@ -161,16 +161,41 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         # player bg NAPOs
         player_div = PLAYER_DIVS[self.op_combobox.currentText()]
-        self.player_deck_napo = self.get_parsed_object_from_ndf_file("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf",
-                                                                     player_div)
-        self.player_div_napo = None
-        self.deck_pack_list = self.player_deck_napo.by_member("DeckPackList").value
-        if not self.matrix_napo:
-            self.matrix_napo = self.get_parsed_ndf_file("GameData\\Generated\\Gameplay\\Decks\\DivisionCostMatrix.ndf")
+        self.player_deck_obj = self.get_parsed_object_from_ndf_file("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf",
+                                                                    player_div)
+        self.player_div_obj = None
+        self.deck_pack_list = self.player_deck_obj.by_member("DeckPackList").value
+        if not self.matrix_obj:
+            self.matrix_obj = self.get_parsed_ndf_file("GameData\\Generated\\Gameplay\\Decks\\DivisionCostMatrix.ndf")
 
         units = sorted([i.removeprefix("Descriptor_Unit_") for i in
                         ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")])
         unit_widgets.UnitSelectionCombobox.units = units
+
+        # TODO: create state from files
+        state = {}
+        state["current_op"] = self.op_combobox.currentText()
+        state["companies"] = []
+
+        # get group list
+        company_list = self.player_deck_obj.by_member("DeckCombatGroupList").value
+        for i in range(len(company_list)):
+            # get unit object
+            company = company_list[i].value
+            company_name = company.by_member("Name").value
+            company_dict = {"name": company_name, "platoons": []}
+            platoon_list = company.by_member("SmartGroupList").value
+            for j in range(len(platoon_list)):
+                # get platoon (index/availability mapping)
+                platoon = platoon_list[j].value
+                platoon_name = platoon.by_member("Name").value
+                platoon_dict = {"name": platoon_name, "units": []}
+                platoon_packs = platoon.by_member("PackIndexUnitNumberList").value
+                for pack in platoon_packs:
+                    # TODO: get pack data from parsed obj
+                    pass
+                company_dict["platoons"].append(platoon_dict)
+            state["companies"].append(company_dict)
 
         add_company_button = QtWidgets.QPushButton("Add Company")
         add_company_button.clicked.connect(self.on_add_company)
@@ -180,7 +205,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.player_bg_scroll_layout.addStretch(1)
 
         # get group list
-        company_list = self.player_deck_napo.by_member("DeckCombatGroupList").value
+        company_list = self.player_deck_obj.by_member("DeckCombatGroupList").value
         for i in range(len(company_list)):
             # get unit object
             company = company_list[i].value
@@ -279,23 +304,23 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
             company_list.append(company_napo)
 
-        division_name = self.player_deck_napo.value[0].value.get_raw_value("DeckDivision")
+        division_name = self.player_deck_obj.value[0].value.get_raw_value("DeckDivision")
         self.check_division_rules(units_in_deck_list, division_name)
 
-        self.player_deck_napo.value[0].value.set_napo_value("DeckCombatGroupList", company_list)
+        self.player_deck_obj.value[0].value.set_napo_value("DeckCombatGroupList", company_list)
 
         player_div = PLAYER_DIVS[self.op_combobox.currentText()]
-        self.write_napo_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div, self.player_deck_napo)
+        self.write_napo_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div, self.player_deck_obj)
 
-        if self.player_div_napo:
+        if self.player_div_obj:
             self.write_napo_object("GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf",
-                                   division_name.removeprefix("~/"), self.player_div_napo)
+                                   division_name.removeprefix("~/"), self.player_div_obj)
         else:
-            self.player_div_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf",
-                                                             division_name.removeprefix("~/"))
+            self.player_div_obj = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf",
+                                                            division_name.removeprefix("~/"))
 
         # get cost matrix name
-        cost_matrix_name = self.player_div_napo.value[0].value.get_raw_value("CostMatrix")
+        cost_matrix_name = self.player_div_obj.value[0].value.get_raw_value("CostMatrix")
 
         # create new dummy matrix
         matrix = {}
@@ -312,15 +337,15 @@ class OperationEditor(base_napo_page.BaseNapoPage):
 
         matrix_types.reverse()
 
-        for i in range(len(self.matrix_napo.value)):
-            assign = self.matrix_napo.value[i]
+        for i in range(len(self.matrix_obj.value)):
+            assign = self.matrix_obj.value[i]
             if assign.id == cost_matrix_name:
                 napo_map = napo_from_value(matrix, matrix_types)
                 assign.value = napo_map
-                self.matrix_napo.value[i] = assign
+                self.matrix_obj.value[i] = assign
                 break
 
-        self.write_napo_file("GameData\\Gameplay\\Decks\\DivisionCostMatrix.ndf", self.matrix_napo)
+        self.write_napo_file("GameData\\Gameplay\\Decks\\DivisionCostMatrix.ndf", self.matrix_obj)
 
         self.saved_state = state
         return True
@@ -399,12 +424,12 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         with open(packs_path, "a", encoding="utf-8") as f:
             f.write(pack_text)
 
-        division_name = self.player_deck_napo.value[0].value.get_raw_value("DeckDivision").removeprefix("~/")
-        if not self.player_div_napo:
-            self.player_div_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf",
-                                                             division_name)
+        division_name = self.player_deck_obj.value[0].value.get_raw_value("DeckDivision").removeprefix("~/")
+        if not self.player_div_obj:
+            self.player_div_obj = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Divisions.ndf",
+                                                            division_name)
 
-        pack_list = self.player_div_napo.value[0].value.get_raw_value("PackList")
+        pack_list = self.player_div_obj.value[0].value.get_raw_value("PackList")
         pack_list["~/" + pack_name] = 100
 
         dtypes = []
@@ -412,7 +437,7 @@ class OperationEditor(base_napo_page.BaseNapoPage):
             dtypes.append(NapoDatatype.Integer)
             dtypes.append(NapoDatatype.Reference)
 
-        self.player_div_napo.value[0].value.set_raw_value("PackList", pack_list, dtypes)
+        self.player_div_obj.value[0].value.set_raw_value("PackList", pack_list, dtypes)
 
     def get_division_rules_list(self, div_name: str):
         div_rule_text, start, end = ndf_scanner.get_map_value_range(
@@ -577,9 +602,9 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         self.clear_layouts()
 
         player_div = PLAYER_DIVS[self.op_combobox.currentText()]
-        self.player_deck_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div)
-        self.player_div_napo = None
-        self.deck_pack_list = self.player_deck_napo.value[0].value.get_napo_value("DeckPackList")
+        self.player_deck_obj = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div)
+        self.player_div_obj = None
+        self.deck_pack_list = self.player_deck_obj.value[0].value.get_napo_value("DeckPackList")
 
         add_company_button = QtWidgets.QPushButton("Add Company")
         add_company_button.clicked.connect(self.on_add_company)
