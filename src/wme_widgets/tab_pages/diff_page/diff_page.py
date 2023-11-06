@@ -115,7 +115,7 @@ class DiffPage(base_tab_page.BaseTabPage):
             self.results_layout.addWidget(QtWidgets.QLabel(diff_file))
 
         if len(res_d) > 0:
-            self.results_layout.addWidget(QtWidgets.QLabel("changed:"))
+            self.results_layout.addWidget(QtWidgets.QLabel("Different files:"))
         for diff_file in res_d:
             self.results_layout.addWidget(QtWidgets.QLabel(diff_file))
 
