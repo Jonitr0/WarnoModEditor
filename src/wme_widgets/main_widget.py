@@ -76,8 +76,10 @@ class MainWidget(QtWidgets.QWidget):
 
         hyperlink_color = get_color_for_key(COLORS.PRIMARY.value)
         download_url = response.json()["html_url"]
-        text = "A new version of WME is available! You can download it <a style=\"color: " + \
-               hyperlink_color + "\" href=\"" + download_url + "\">here</a>."
+        text = "WME version " + new_version + " is available! You can download it <a style=\"color: " + \
+               hyperlink_color + "\" href=\"" + download_url + "\">here</a>. It includes the following changes:<br>"
+        for change in response.json()["body"].split("\r\n"):
+            text += "<br>" + change
 
         essential_dialogs.MessageDialog("Update Available", text, rich_text=True).exec()
 

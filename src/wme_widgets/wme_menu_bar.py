@@ -219,7 +219,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         config_values = {}
         for key in config.allKeys():
             config_values[key] = config.value(key)
-        dialog = edit_config_dialog.EditModConfigDialog(config_values)
+        dialog = edit_mod_config_dialog.EditModConfigDialog(config_values)
         result = dialog.exec_()
 
         if result == QtWidgets.QDialog.Accepted:
