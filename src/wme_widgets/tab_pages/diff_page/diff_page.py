@@ -1,6 +1,7 @@
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
+from src.wme_widgets.tab_pages.diff_page import diff_widget, file_comparison_page
 from src.wme_widgets.tab_pages import base_tab_page
 from src.wme_widgets import main_widget
 from src.dialogs import essential_dialogs
@@ -107,17 +108,17 @@ class DiffPage(base_tab_page.BaseTabPage):
         if len(res_l) > 0:
             self.results_layout.addWidget(QtWidgets.QLabel(left_name + " only:"))
         for diff_file in res_l:
-            self.results_layout.addWidget(QtWidgets.QLabel(diff_file))
+            self.add_diff_widget(diff_file, left_name, None)
 
         if len(res_r) > 0:
             self.results_layout.addWidget(QtWidgets.QLabel(right_name + " only:"))
         for diff_file in res_r:
-            self.results_layout.addWidget(QtWidgets.QLabel(diff_file))
+            self.add_diff_widget(diff_file, None, right_name)
 
         if len(res_d) > 0:
             self.results_layout.addWidget(QtWidgets.QLabel("Different files:"))
         for diff_file in res_d:
-            self.results_layout.addWidget(QtWidgets.QLabel(diff_file))
+            self.add_diff_widget(diff_file, left_name, right_name)
 
         if delete:
             try:
@@ -129,6 +130,33 @@ class DiffPage(base_tab_page.BaseTabPage):
             self.results_layout.insertWidget(self.results_layout.count() - 1, QtWidgets.QLabel("No differences found."))
 
         main_widget.instance.hide_loading_screen()
+
+    def add_diff_widget(self, file_name: str, left_mod: str = None, right_mod: str = None):
+        left_text = None
+        right_text = None
+        is_text = False
+
+        if left_mod is not None:
+            left_text = ""
+            full_path = os.path.join(left_mod, file_name)
+            # if left is text file, read it
+            if os.path.isfile(full_path) and full_path.endswith(".ndf"):
+                is_text = True
+                with open(full_path, "r") as f:
+                    left_text = f.read()
+
+        if right_mod is not None:
+            right_text = ""
+            full_path = os.path.join(right_mod, file_name)
+            # if right is text file, read it
+            if os.path.isfile(full_path) and full_path.endswith(".ndf"):
+                is_text = True
+                with open(full_path, "r") as f:
+                    right_text = f.read()
+
+        widget = diff_widget.DiffWidget(file_name, left_text, right_text, is_text)
+        # TODO: connect signals
+        self.results_layout.addWidget(widget)
 
     # copy and unzip mod data to randomly named dir, delete it afterwards
     def create_tmp_mod(self):
