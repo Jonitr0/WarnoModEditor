@@ -40,7 +40,7 @@ class DiffWidget(QtWidgets.QFrame):
     open_in_text_editor = QtCore.Signal(str)
     open_comparison_page = QtCore.Signal(str, str)
 
-    def __init__(self, file_name: str, left_text: str, right_text: str, is_text: bool = True,
+    def __init__(self, file_name: str, left_text: str, right_text: str,
                  file_type: FILE_TYPE = FILE_TYPE.OTHER, parent: QtWidgets.QWidget = None):
         super().__init__(parent)
 
@@ -50,7 +50,6 @@ class DiffWidget(QtWidgets.QFrame):
         self.file_name = file_name
         self.left_text = left_text
         self.right_text = right_text
-        self.is_text = is_text
         self.file_type = file_type
 
         self.setup_ui()
@@ -68,17 +67,24 @@ class DiffWidget(QtWidgets.QFrame):
         self.main_layout.addWidget(file_name_label)
         self.main_layout.addStretch(1)
 
-        # TODO: replace with tool buttons
-        if self.get_role() is not DIFF_ROLE.RIGHT and self.is_text:
+        if self.get_role() is not DIFF_ROLE.RIGHT and self.file_type == FILE_TYPE.TEXT:
             # add button to open file in text editor
-            open_left_button = QtWidgets.QPushButton("Open in Text Editor")
+            open_left_button = QtWidgets.QToolButton()
+            open_left_button.setFixedSize(32, 32)
+            open_left_button.setIconSize(QtCore.QSize(32, 32))
+            open_left_button.setToolTip("Open in Text Editor")
+            open_left_button.setIcon(icon_manager.load_icon("text_editor.png", COLORS.PRIMARY))
             open_left_button.clicked.connect(lambda: self.open_in_text_editor.emit(os.path.join(
                 main_widget.instance.get_loaded_mod_path(), self.file_name)))
             self.main_layout.addWidget(open_left_button)
 
-        if self.get_role() is DIFF_ROLE.CHANGED and self.is_text:
+        if self.get_role() is DIFF_ROLE.CHANGED and self.file_type == FILE_TYPE.TEXT:
             # add button to open file comparison page
-            open_diff_button = QtWidgets.QPushButton("Show Differences")
+            open_diff_button = QtWidgets.QToolButton()
+            open_diff_button.setFixedSize(32, 32)
+            open_diff_button.setIconSize(QtCore.QSize(32, 32))
+            open_diff_button.setToolTip("Show Differences")
+            open_diff_button.setIcon(icon_manager.load_icon("file_compare.png", COLORS.PRIMARY))
             open_diff_button.clicked.connect(lambda: self.open_comparison_page.emit(
                 self.left_text, self.right_text))
             self.main_layout.addWidget(open_diff_button)

@@ -106,6 +106,7 @@ class DiffPage(base_tab_page.BaseTabPage):
         else:
             right_name = target[target.rindex('/') + 1:]
 
+        # TODO: separate, collapsible layouts
         if len(res_l) > 0:
             self.results_layout.addWidget(QtWidgets.QLabel(left_name + " only:"))
         for diff_file in res_l:
@@ -135,7 +136,6 @@ class DiffPage(base_tab_page.BaseTabPage):
     def add_diff_widget(self, file_name: str, left_mod: str = None, right_mod: str = None):
         left_text = None
         right_text = None
-        is_text = False
         file_type = diff_widget.FILE_TYPE.OTHER
 
         if left_mod is not None:
@@ -143,7 +143,6 @@ class DiffPage(base_tab_page.BaseTabPage):
             full_path = os.path.join(left_mod, file_name)
             # if left is text file, read it
             if os.path.isfile(full_path) and full_path.endswith(".ndf"):
-                is_text = True
                 file_type = diff_widget.FILE_TYPE.TEXT
                 with open(full_path, "r") as f:
                     left_text = f.read()
@@ -155,14 +154,13 @@ class DiffPage(base_tab_page.BaseTabPage):
             full_path = os.path.join(right_mod, file_name)
             # if right is text file, read it
             if os.path.isfile(full_path) and full_path.endswith(".ndf"):
-                is_text = True
                 file_type = diff_widget.FILE_TYPE.TEXT
                 with open(full_path, "r") as f:
                     right_text = f.read()
             elif os.path.isdir(full_path):
                 file_type = diff_widget.FILE_TYPE.DIR
 
-        widget = diff_widget.DiffWidget(file_name, left_text, right_text, is_text, file_type, self)
+        widget = diff_widget.DiffWidget(file_name, left_text, right_text, file_type, self)
         # TODO: connect signals
         self.results_layout.addWidget(widget)
 
