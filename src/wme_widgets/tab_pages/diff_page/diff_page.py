@@ -162,6 +162,8 @@ class DiffPage(base_tab_page.BaseTabPage):
 
         widget = diff_widget.DiffWidget(file_name, left_text, right_text, file_type, self)
         # TODO: connect signals
+        widget.open_in_text_editor.connect(self.get_current_tab_widget().on_open_ndf_editor)
+        widget.open_comparison_page.connect(self.get_current_tab_widget().on_open_comparison)
         self.results_layout.addWidget(widget)
 
     # copy and unzip mod data to randomly named dir, delete it afterwards

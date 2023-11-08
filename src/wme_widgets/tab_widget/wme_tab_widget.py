@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
 from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, global_search_page, guid_generator_page, \
     csv_editor_page
-from src.wme_widgets.tab_pages.diff_page import diff_page
+from src.wme_widgets.tab_pages.diff_page import diff_page, file_comparison_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.wme_widgets.tab_pages.napo_pages import game_settings_page
 from src.wme_widgets.tab_pages.napo_pages.operation_editor import operation_editor
@@ -27,6 +27,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         operation_editor.OperationEditor: "chess_knight.png",
         csv_editor_page.CsvEditorPage: "edit_table.png",
         diff_page.DiffPage: "diff.png",
+        file_comparison_page.FileComparisonPage: "file_compare.png",
     }
 
     def __init__(self, parent=None):
@@ -217,6 +218,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_open_manual(self):
         viewer = rich_text_viewer_page.RichTextViewerPage("UserManual.html")
         self.add_tab_with_auto_icon(viewer, "Shortcut Reference")
+
+    def on_open_comparison(self, file_name, left_text, right_text):
+        comp_page = file_comparison_page.FileComparisonPage(left_text, right_text)
+        self.add_tab_with_auto_icon(comp_page, file_name)
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
         ret = super().addTab(widget, icon, title)

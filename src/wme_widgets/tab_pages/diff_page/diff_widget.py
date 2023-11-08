@@ -38,7 +38,7 @@ icon_type_for_file_type = {
 # widget representing a single entry on the diff page
 class DiffWidget(QtWidgets.QFrame):
     open_in_text_editor = QtCore.Signal(str)
-    open_comparison_page = QtCore.Signal(str, str)
+    open_comparison_page = QtCore.Signal(str, str, str)
 
     def __init__(self, file_name: str, left_text: str, right_text: str,
                  file_type: FILE_TYPE = FILE_TYPE.OTHER, parent: QtWidgets.QWidget = None):
@@ -86,7 +86,7 @@ class DiffWidget(QtWidgets.QFrame):
             open_diff_button.setToolTip("Show Differences")
             open_diff_button.setIcon(icon_manager.load_icon("file_compare.png", COLORS.PRIMARY))
             open_diff_button.clicked.connect(lambda: self.open_comparison_page.emit(
-                self.left_text, self.right_text))
+                self.file_name[self.file_name.rindex('/') + 1:], self.left_text, self.right_text))
             self.main_layout.addWidget(open_diff_button)
 
     def get_role(self) -> DIFF_ROLE:
