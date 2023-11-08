@@ -55,17 +55,23 @@ class FileComparisonPage(BaseTabPage):
         diff = difflib.ndiff(left_text.splitlines(), right_text.splitlines())
 
         # highlight the differences
-        for line in diff:
+        # TODO: review this
+        last_sign = ""
+        for index, line in enumerate(diff):
             if line.startswith("+"):
-                self.left_text_edit.appendPlainText(line)
-                # TODO: only add this if the next line is not a - line
-                self.right_text_edit.appendPlainText("\n")
+                self.left_text_edit.appendPlainText(line[2:])
+                if next(diff, "").startswith("-"):
+                    self.right_text_edit.appendPlainText("\n")
+                last_sign = "+"
             elif line.startswith("-"):
-                self.right_text_edit.appendPlainText(line)
-                self.left_text_edit.appendPlainText("\n")
+                self.right_text_edit.appendPlainText(line[2:])
+                if last_sign == "+":
+                    self.left_text_edit.appendPlainText("\n")
+                last_sign = "-"
             else:
-                self.left_text_edit.appendPlainText(line)
-                self.right_text_edit.appendPlainText(line)
+                last_sign = " "
+                self.left_text_edit.appendPlainText(line[2:])
+                self.right_text_edit.appendPlainText(line[2:])
 
     def on_left_slider_moved(self, value: int):
         self.right_text_edit.verticalScrollBar().setValue(value)
