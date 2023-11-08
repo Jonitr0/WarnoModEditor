@@ -138,3 +138,6 @@ class BaseTabPage(QtWidgets.QWidget):
         c = self.__class__
         m = c.__module__
         return m + "." + c.__qualname__
+
+    def get_current_tab_widget(self):
+        return self.parent().parent()

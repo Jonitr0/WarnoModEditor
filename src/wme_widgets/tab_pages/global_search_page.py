@@ -144,6 +144,6 @@ class SearchResultWidget(QtWidgets.QFrame):
         main_layout.addWidget(button)
 
     def on_button_pressed(self):
-        current_tab_widget = self.page.parent().parent()
+        current_tab_widget = self.page.get_current_tab_widget()
         full_path = os.path.join(main_widget.instance.get_loaded_mod_path(), self.file_name)
         current_tab_widget.on_open_and_find_ndf_editor(full_path, self.pattern, self.page.last_search_case_sensitive)
