@@ -45,15 +45,16 @@ class DiffPage(base_tab_page.BaseTabPage):
         target_selection_layout.addWidget(self.compare_button)
         target_selection_layout.addStretch(0)
 
-        results_area = QtWidgets.QScrollArea(self)
-        results_area.setWidgetResizable(True)
-        main_layout.addWidget(results_area)
-        results_list_widget = QtWidgets.QWidget(self)
-        results_area.setWidget(results_list_widget)
-        results_list_widget.setLayout(self.results_layout)
-
         self.results_layout.setAlignment(Qt.AlignTop)
         self.results_layout.setSpacing(0)
+
+        results_list_widget = QtWidgets.QWidget(self)
+        results_list_widget.setLayout(self.results_layout)
+
+        results_area = QtWidgets.QScrollArea(self)
+        results_area.setWidgetResizable(True)
+        results_area.setWidget(results_list_widget)
+        main_layout.addWidget(results_area)
 
         # TODO: create and fill this file
         self.help_file_path = "Help_DiffPage.html"
@@ -108,17 +109,17 @@ class DiffPage(base_tab_page.BaseTabPage):
         if len(res_l) > 0:
             self.results_layout.addWidget(QtWidgets.QLabel(left_name + " only:"))
         for diff_file in res_l:
-            self.add_diff_widget(diff_file, left_name, None)
+            self.add_diff_widget(diff_file, mod_dir, None)
 
         if len(res_r) > 0:
             self.results_layout.addWidget(QtWidgets.QLabel(right_name + " only:"))
         for diff_file in res_r:
-            self.add_diff_widget(diff_file, None, right_name)
+            self.add_diff_widget(diff_file, None, target)
 
         if len(res_d) > 0:
             self.results_layout.addWidget(QtWidgets.QLabel("Different files:"))
         for diff_file in res_d:
-            self.add_diff_widget(diff_file, left_name, right_name)
+            self.add_diff_widget(diff_file, mod_dir, target)
 
         if delete:
             try:
@@ -135,6 +136,7 @@ class DiffPage(base_tab_page.BaseTabPage):
         left_text = None
         right_text = None
         is_text = False
+        file_type = diff_widget.FILE_TYPE.OTHER
 
         if left_mod is not None:
             left_text = ""
@@ -142,8 +144,11 @@ class DiffPage(base_tab_page.BaseTabPage):
             # if left is text file, read it
             if os.path.isfile(full_path) and full_path.endswith(".ndf"):
                 is_text = True
+                file_type = diff_widget.FILE_TYPE.TEXT
                 with open(full_path, "r") as f:
                     left_text = f.read()
+            elif os.path.isdir(full_path):
+                file_type = diff_widget.FILE_TYPE.DIR
 
         if right_mod is not None:
             right_text = ""
@@ -151,26 +156,33 @@ class DiffPage(base_tab_page.BaseTabPage):
             # if right is text file, read it
             if os.path.isfile(full_path) and full_path.endswith(".ndf"):
                 is_text = True
+                file_type = diff_widget.FILE_TYPE.TEXT
                 with open(full_path, "r") as f:
                     right_text = f.read()
+            elif os.path.isdir(full_path):
+                file_type = diff_widget.FILE_TYPE.DIR
 
-        widget = diff_widget.DiffWidget(file_name, left_text, right_text, is_text)
+        widget = diff_widget.DiffWidget(file_name, left_text, right_text, is_text, file_type, self)
         # TODO: connect signals
         self.results_layout.addWidget(widget)
 
     # copy and unzip mod data to randomly named dir, delete it afterwards
     def create_tmp_mod(self):
+        main_widget.instance.show_loading_screen("Creating temporary mod...")
         mod_dir = main_widget.instance.get_loaded_mod_path()
         mods_base_dir = mod_dir[:mod_dir.rindex('\\')]
         target = mods_base_dir + "\\" + ''.join(random.choice(string.ascii_letters) for i in range(8))
         shutil.copytree(mods_base_dir + "\\ModData", target)
         new_base = os.path.join(mods_base_dir + "\\ModData", "base.zip")
+
         with zipfile.ZipFile(new_base, 'r') as archive:
             archive.extractall(target)
         try:
             shutil.rmtree(os.path.join(target, ".base"))
         except Exception as e:
             logging.error(e)
+
+        main_widget.instance.show_loading_screen("Running comparison...")
         return target
 
     def compare_subdirs(self, dcmp: dircmp, diffs: list[str], left: list[str], right: list[str], path=""):
