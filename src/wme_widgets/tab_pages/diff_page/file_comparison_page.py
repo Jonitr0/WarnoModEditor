@@ -8,6 +8,7 @@ from src.wme_widgets.tab_pages.base_tab_page import BaseTabPage
 
 
 class FileComparisonPage(BaseTabPage):
+    # TODO: mod name labels
     # TODO: code editor based text edits
     # TODO: hide/show buttons
     # TODO: search bar
