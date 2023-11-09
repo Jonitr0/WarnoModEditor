@@ -2,6 +2,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.utils.color_manager import *
+from src.wme_widgets import wme_essentials
 from src.wme_widgets.tab_pages.text_editor_page import ndf_syntax_highlighter
 
 
@@ -64,6 +65,9 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
         self.find_format = QtGui.QTextCharFormat()
         self.find_format.setBackground(QtGui.QColor(get_color_for_key(COLORS.FIND_HIGHLIGHT.value)))
+
+        self.setVerticalScrollBar(wme_essentials.WMEScrollBar(self))
+        self.setHorizontalScrollBar(wme_essentials.WMEScrollBar(self))
 
         self.verticalScrollBar().valueChanged.connect(self.mark_finds_in_viewport)
         self.verticalScrollBar().valueChanged.connect(self.syntax_highlight_in_viewport)
