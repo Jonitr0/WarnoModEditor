@@ -84,6 +84,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
         # marking colors
         self.cursor_marking_color = COLORS.SECONDARY_LIGHT
+        self.find_marking_color = COLORS.FIND_HIGHLIGHT
 
     def lineNumberAreaWidth(self):
         digits = 1
@@ -95,7 +96,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         return max(32, space)
 
     def updateLineNumberAreaWidth(self, _):
-        self.setViewportMargins(self.lineNumberAreaWidth(), 0, self.marking_area.w, 0)
+        self.setViewportMargins(self.lineNumberAreaWidth(), 0, self.marking_area.sizeHint().width(), 0)
 
     def updateLineNumberArea(self, rect, dy):
 
@@ -148,8 +149,6 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             bottom = top + self.blockBoundingRect(block).height()
             block_number += 1
 
-        # TODO: markings need to be added here too
-
     def markingAreaPaintEvent(self, event):
         painter = QtGui.QPainter(self.marking_area)
 
@@ -173,7 +172,6 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             y = area_top + line_height
             # draw the marking
             painter.fillRect(0, y, self.marking_area.w, 2, color)
-
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self.viewport())
@@ -223,6 +221,9 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
             self.find_results.append((start, start + len(pattern)))
 
+            line_number = self.document().findBlock(start).blockNumber()
+            self.add_marking(line_number, self.find_marking_color)
+
             start += len(pattern)
 
         self.mark_finds_in_viewport()
@@ -235,6 +236,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             return
 
         self.setExtraSelections([])
+        self.clear_markings_for_color(self.find_marking_color)
 
         self.find_results = []
         self.drawn_results = []
