@@ -28,7 +28,10 @@ class MarkingArea(QtWidgets.QWidget):
         self.lines_to_marking_colors = {}
 
     def sizeHint(self):
-        return QtCore.QSize(self.w, 0)
+        width = self.w
+        if self.editor.verticalScrollBar().isVisible():
+            width += self.editor.verticalScrollBar().width()
+        return QtCore.QSize(width, 0)
 
     def paintEvent(self, event):
         self.editor.markingAreaPaintEvent(event)
@@ -109,8 +112,8 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
                                                      self.lineNumberAreaWidth(), cr.height()))
 
         # set geometry of marking area right of text editor
-        self.marking_area.setGeometry(QtCore.QRect(cr.right() - self.marking_area.w + 1, cr.top(),
-                                                   self.marking_area.w, cr.height()))
+        self.marking_area.setGeometry(QtCore.QRect(cr.right() - self.marking_area.sizeHint().width() + 1, cr.top(),
+                                                   self.marking_area.sizeHint().width(), cr.height()))
 
         self.mark_finds_in_viewport()
         self.syntax_highlight_in_viewport()
@@ -154,6 +157,8 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         line_height = self.fontMetrics().height()
         document_height *= line_height
         area_bottom = min(document_height, event.rect().bottom()) - 2
+        if self.horizontalScrollBar().isVisible():
+            area_bottom -= self.horizontalScrollBar().height()
 
         area_height = area_bottom - area_top
         total_lines = self.blockCount()
