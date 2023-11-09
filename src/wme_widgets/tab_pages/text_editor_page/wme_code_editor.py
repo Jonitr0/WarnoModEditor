@@ -66,9 +66,6 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.verticalScrollBar().valueChanged.connect(self.syntax_highlight_in_viewport)
         self.document().contentsChange.connect(self.update_search)
 
-        # make vertical scrollbar always visible
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-
         self.highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
 
         # set tab size
@@ -152,11 +149,11 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         marking_area_color = get_color_for_key(COLORS.SECONDARY_DARK.value)
         painter.fillRect(event.rect(), marking_area_color)
 
-        area_top = event.rect().top()
+        area_top = event.rect().top() + 2
         document_height = self.document().size().height()
         line_height = self.fontMetrics().height()
         document_height *= line_height
-        area_bottom = min(document_height, event.rect().bottom())
+        area_bottom = min(document_height, event.rect().bottom()) - 2
 
         area_height = area_bottom - area_top
         total_lines = self.blockCount()
