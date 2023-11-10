@@ -38,9 +38,9 @@ icon_type_for_file_type = {
 # widget representing a single entry on the diff page
 class DiffWidget(QtWidgets.QFrame):
     open_in_text_editor = QtCore.Signal(str)
-    open_comparison_page = QtCore.Signal(str, str, str)
+    open_comparison_page = QtCore.Signal(str, str, str, str, str)
 
-    def __init__(self, file_name: str, left_text: str, right_text: str,
+    def __init__(self, file_name: str, left_text: str, right_text: str, left_mod: str, right_mod: str,
                  file_type: FILE_TYPE = FILE_TYPE.OTHER, parent: QtWidgets.QWidget = None):
         super().__init__(parent)
 
@@ -50,6 +50,8 @@ class DiffWidget(QtWidgets.QFrame):
         self.file_name = file_name
         self.left_text = left_text
         self.right_text = right_text
+        self.left_mod = left_mod
+        self.right_mod = right_mod
         self.file_type = file_type
 
         self.setup_ui()
@@ -86,7 +88,8 @@ class DiffWidget(QtWidgets.QFrame):
             open_diff_button.setToolTip("Show Differences")
             open_diff_button.setIcon(icon_manager.load_icon("file_compare.png", COLORS.PRIMARY))
             open_diff_button.clicked.connect(lambda: self.open_comparison_page.emit(
-                self.file_name[self.file_name.rindex('/') + 1:], self.left_text, self.right_text))
+                self.file_name[self.file_name.rindex('/') + 1:], self.left_text, self.right_text,
+                self.left_mod, self.right_mod))
             self.main_layout.addWidget(open_diff_button)
 
     def get_role(self) -> DIFF_ROLE:

@@ -37,20 +37,21 @@ class FileComparisonPage(BaseTabPage):
         named_tool_bar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         tool_bar_layout.addWidget(named_tool_bar)
 
-        # TODO: show left/right file actions with mod names
         self.display_left_action = named_tool_bar.addAction(icon_manager.load_icon("text_file.png", COLORS.PRIMARY),
                                                             "Toggle left file")
         self.display_left_action.setText("left mod")
         self.display_left_action.setCheckable(True)
         self.display_left_action.setChecked(True)
-        self.display_left_action.setToolTip("Toggle Left")
+        self.display_left_action.setToolTip("Toggle Left File")
+        self.display_left_action.triggered.connect(self.toggle_left)
 
         self.display_right_action = named_tool_bar.addAction(icon_manager.load_icon("text_file.png", COLORS.PRIMARY),
                                                              "Toggle right file")
         self.display_right_action.setText("right mod")
         self.display_right_action.setCheckable(True)
         self.display_right_action.setChecked(True)
-        self.display_right_action.setToolTip("Toggle Right")
+        self.display_right_action.setToolTip("Toggle Right File")
+        self.display_right_action.triggered.connect(self.toggle_right)
 
         named_tool_bar.addSeparator()
 
@@ -84,11 +85,14 @@ class FileComparisonPage(BaseTabPage):
         self.left_text_edit.verticalScrollBar().valueChanged.connect(self.on_left_slider_moved)
         self.right_text_edit.verticalScrollBar().valueChanged.connect(self.on_right_slider_moved)
 
-    def highlight_differences(self, left_text: str, right_text: str):
+    def highlight_differences(self, left_text: str, right_text: str, left_mod: str, right_mod: str):
         main_widget.instance.show_loading_screen("Computing differences...")
 
         self.left_text_edit.setPlainText(left_text)
         self.right_text_edit.setPlainText(right_text)
+
+        self.display_left_action.setText(left_mod)
+        self.display_right_action.setText(right_mod)
 
         # calculate diffs with dmp
         dmp = diff_match_patch()
@@ -143,3 +147,17 @@ class FileComparisonPage(BaseTabPage):
     def on_right_slider_moved(self, value: int):
         if self.left_text_edit.verticalScrollBar().value() != value:
             self.left_text_edit.verticalScrollBar().setValue(value)
+
+    def toggle_left(self):
+        self.left_text_edit.setVisible(self.display_left_action.isChecked())
+
+        if (not self.left_text_edit.isVisible()) and (not self.right_text_edit.isVisible()):
+            self.display_right_action.setChecked(True)
+            self.toggle_right()
+
+    def toggle_right(self):
+        self.right_text_edit.setVisible(self.display_right_action.isChecked())
+
+        if (not self.left_text_edit.isVisible()) and (not self.right_text_edit.isVisible()):
+            self.display_left_action.setChecked(True)
+            self.toggle_left()

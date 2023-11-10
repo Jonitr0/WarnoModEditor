@@ -110,17 +110,17 @@ class DiffPage(base_tab_page.BaseTabPage):
         if len(res_l) > 0:
             self.results_layout.addWidget(QtWidgets.QLabel(left_name + " only:"))
         for diff_file in res_l:
-            self.add_diff_widget(diff_file, mod_dir, None)
+            self.add_diff_widget(diff_file, mod_dir, None, left_name, right_name)
 
         if len(res_r) > 0:
             self.results_layout.addWidget(QtWidgets.QLabel(right_name + " only:"))
         for diff_file in res_r:
-            self.add_diff_widget(diff_file, None, target)
+            self.add_diff_widget(diff_file, None, target, left_name, right_name)
 
         if len(res_d) > 0:
             self.results_layout.addWidget(QtWidgets.QLabel("Different files:"))
         for diff_file in res_d:
-            self.add_diff_widget(diff_file, mod_dir, target)
+            self.add_diff_widget(diff_file, mod_dir, target, left_name, right_name)
 
         if delete:
             try:
@@ -133,14 +133,15 @@ class DiffPage(base_tab_page.BaseTabPage):
 
         main_widget.instance.hide_loading_screen()
 
-    def add_diff_widget(self, file_name: str, left_mod: str = None, right_mod: str = None):
+    def add_diff_widget(self, file_name: str, left_mod_path: str = None, right_mod_path: str = None,
+                        left_mod_name: str = None, right_mod_name: str = None):
         left_text = None
         right_text = None
         file_type = diff_widget.FILE_TYPE.OTHER
 
-        if left_mod is not None:
+        if left_mod_path is not None:
             left_text = ""
-            full_path = os.path.join(left_mod, file_name)
+            full_path = os.path.join(left_mod_path, file_name)
             # if left is text file, read it
             if os.path.isfile(full_path) and full_path.endswith(".ndf"):
                 file_type = diff_widget.FILE_TYPE.TEXT
@@ -149,9 +150,9 @@ class DiffPage(base_tab_page.BaseTabPage):
             elif os.path.isdir(full_path):
                 file_type = diff_widget.FILE_TYPE.DIR
 
-        if right_mod is not None:
+        if right_mod_path is not None:
             right_text = ""
-            full_path = os.path.join(right_mod, file_name)
+            full_path = os.path.join(right_mod_path, file_name)
             # if right is text file, read it
             if os.path.isfile(full_path) and full_path.endswith(".ndf"):
                 file_type = diff_widget.FILE_TYPE.TEXT
@@ -160,8 +161,8 @@ class DiffPage(base_tab_page.BaseTabPage):
             elif os.path.isdir(full_path):
                 file_type = diff_widget.FILE_TYPE.DIR
 
-        widget = diff_widget.DiffWidget(file_name, left_text, right_text, file_type, self)
-        # TODO: connect signals
+        widget = diff_widget.DiffWidget(file_name, left_text, right_text,
+                                        left_mod_name, right_mod_name, file_type, self)
         widget.open_in_text_editor.connect(self.get_current_tab_widget().on_open_ndf_editor)
         widget.open_comparison_page.connect(self.get_current_tab_widget().on_open_comparison)
         self.results_layout.addWidget(widget)
