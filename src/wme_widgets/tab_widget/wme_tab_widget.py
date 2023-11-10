@@ -220,7 +220,8 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.add_tab_with_auto_icon(viewer, "Shortcut Reference")
 
     def on_open_comparison(self, file_name, left_text, right_text):
-        comp_page = file_comparison_page.FileComparisonPage(left_text, right_text)
+        comp_page = file_comparison_page.FileComparisonPage()
+        comp_page.highlight_differences(left_text, right_text)
         self.add_tab_with_auto_icon(comp_page, file_name)
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:

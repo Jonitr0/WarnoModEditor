@@ -3,54 +3,64 @@ from PySide6.QtCore import Qt
 
 from diff_match_patch import diff_match_patch
 
-from src.wme_widgets import main_widget
+from src.utils import icon_manager
 from src.utils.color_manager import *
+
+from src.wme_widgets import main_widget
 from src.wme_widgets.tab_pages.base_tab_page import BaseTabPage
 from src.wme_widgets.tab_pages.diff_page import diff_code_editor
 
 
 class FileComparisonPage(BaseTabPage):
-    # TODO: mod name labels
-    # TODO: hide/show buttons
-    # TODO: search bar
-    # TODO: jump through diffs
-    def __init__(self, left_text: str, right_text: str):
+    def __init__(self):
         super().__init__()
         self.prev_line_numbers_unequal = False
-        self.main_layout = QtWidgets.QHBoxLayout()
-        self.setLayout(self.main_layout)
 
         self.left_text_edit = diff_code_editor.DiffCodeEditor()
         self.right_text_edit = diff_code_editor.DiffCodeEditor()
-
-        self.left_text = left_text
-        self.right_text = right_text
 
         self.setup_ui()
 
         self.help_file_path = "Help_FileComparisonPage.html"
 
     def setup_ui(self):
+        main_layout = QtWidgets.QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(main_layout)
+
+        tool_bar = QtWidgets.QToolBar()
+        main_layout.addWidget(tool_bar)
+
+        self.find_action = tool_bar.addAction(icon_manager.load_icon("magnify.png", COLORS.PRIMARY), "Find (Ctrl + F)")
+        self.find_action.setShortcut("Ctrl+F")
+        self.find_action.setCheckable(True)
+        # TODO: implement find
+        #self.find_action.toggled.connect(self.on_find)
+
+        # TODO: show left/right file actions with mod names
+
+        # TODO: jump to previous/next diff actions
+
+        text_edit_layout = QtWidgets.QHBoxLayout()
+        main_layout.addLayout(text_edit_layout)
+
         # add two text edits
-        self.main_layout.addWidget(self.left_text_edit)
-        self.main_layout.addWidget(self.right_text_edit)
+        text_edit_layout.addWidget(self.left_text_edit)
+        text_edit_layout.addWidget(self.right_text_edit)
 
         # connect slider slots
         self.left_text_edit.verticalScrollBar().valueChanged.connect(self.on_left_slider_moved)
         self.right_text_edit.verticalScrollBar().valueChanged.connect(self.on_right_slider_moved)
 
-        # get the differences between the two texts and highlight them
-        self.highlight_differences()
-
-    def highlight_differences(self):
+    def highlight_differences(self, left_text: str, right_text: str):
         main_widget.instance.show_loading_screen("Computing differences...")
 
-        self.left_text_edit.setPlainText(self.left_text)
-        self.right_text_edit.setPlainText(self.right_text)
+        self.left_text_edit.setPlainText(left_text)
+        self.right_text_edit.setPlainText(right_text)
 
         # calculate diffs with dmp
         dmp = diff_match_patch()
-        a = dmp.diff_linesToChars(self.left_text, self.right_text)
+        a = dmp.diff_linesToChars(left_text, right_text)
         line_text_left = a[0]
         line_text_right = a[1]
         diffs = dmp.diff_main(line_text_left, line_text_right, False)
