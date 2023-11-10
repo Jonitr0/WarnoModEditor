@@ -71,6 +71,8 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
         self.verticalScrollBar().valueChanged.connect(self.mark_finds_in_viewport)
         self.verticalScrollBar().valueChanged.connect(self.syntax_highlight_in_viewport)
+        self.verticalScrollBar().sliderMoved.connect(self.mark_finds_in_viewport)
+        self.verticalScrollBar().sliderMoved.connect(self.syntax_highlight_in_viewport)
         self.document().contentsChange.connect(self.update_search)
 
         self.highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
@@ -235,7 +237,11 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         if len(self.find_results) == 0:
             return
 
-        self.setExtraSelections([])
+        extra_selections = self.extraSelections()
+        for selection in extra_selections:
+            if selection.format == self.find_format:
+                extra_selections.remove(selection)
+        self.setExtraSelections(extra_selections)
         self.clear_markings_for_color(self.find_marking_color)
 
         self.find_results = []
