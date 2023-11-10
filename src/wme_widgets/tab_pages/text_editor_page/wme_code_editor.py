@@ -125,6 +125,11 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.mark_finds_in_viewport()
         self.syntax_highlight_in_viewport()
 
+    def showEvent(self, event) -> None:
+        super().showEvent(event)
+
+        self.updateLineNumberAreaWidth(None)
+
     def lineNumberAreaPaintEvent(self, event):
         painter = QtGui.QPainter(self.lineNumberArea)
 

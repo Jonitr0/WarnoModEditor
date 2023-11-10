@@ -67,12 +67,11 @@ class FileComparisonPage(BaseTabPage):
                 right_line_number += length
             # left
             elif status == -1:
-                self.left_text_edit.highlight_lines(left_line_number, length, self.left_text_edit.left_marking_color)
+                self.left_text_edit.highlight_lines(left_line_number, length, True)
                 left_line_number += length
             # right
             elif status == 1:
-                self.right_text_edit.highlight_lines(right_line_number, length,
-                                                     self.right_text_edit.right_marking_color)
+                self.right_text_edit.highlight_lines(right_line_number, length, False)
                 right_line_number += length
 
             if self.prev_line_numbers_unequal and left_line_number != right_line_number:
