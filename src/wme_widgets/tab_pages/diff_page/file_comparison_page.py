@@ -28,18 +28,50 @@ class FileComparisonPage(BaseTabPage):
         main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
 
-        tool_bar = QtWidgets.QToolBar()
-        main_layout.addWidget(tool_bar)
+        tool_bar_layout = QtWidgets.QHBoxLayout()
+        tool_bar_layout.setContentsMargins(0, 0, 0, 0)
+        tool_bar_layout.setSpacing(0)
+        main_layout.addLayout(tool_bar_layout)
 
-        self.find_action = tool_bar.addAction(icon_manager.load_icon("magnify.png", COLORS.PRIMARY), "Find (Ctrl + F)")
+        named_tool_bar = QtWidgets.QToolBar()
+        named_tool_bar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        tool_bar_layout.addWidget(named_tool_bar)
+
+        # TODO: show left/right file actions with mod names
+        self.display_left_action = named_tool_bar.addAction(icon_manager.load_icon("text_file.png", COLORS.PRIMARY),
+                                                            "Toggle left file")
+        self.display_left_action.setText("left mod")
+        self.display_left_action.setCheckable(True)
+        self.display_left_action.setChecked(True)
+        self.display_left_action.setToolTip("Toggle Left")
+
+        self.display_right_action = named_tool_bar.addAction(icon_manager.load_icon("text_file.png", COLORS.PRIMARY),
+                                                             "Toggle right file")
+        self.display_right_action.setText("right mod")
+        self.display_right_action.setCheckable(True)
+        self.display_right_action.setChecked(True)
+        self.display_right_action.setToolTip("Toggle Right")
+
+        named_tool_bar.addSeparator()
+
+        icon_tool_bar = QtWidgets.QToolBar()
+        tool_bar_layout.addWidget(icon_tool_bar)
+
+        # TODO: jump to previous/next diff actions
+
+        self.find_action = icon_tool_bar.addAction(icon_manager.load_icon("magnify.png", COLORS.PRIMARY),
+                                                   "Find (Ctrl + F)")
         self.find_action.setShortcut("Ctrl+F")
         self.find_action.setCheckable(True)
         # TODO: implement find
-        #self.find_action.toggled.connect(self.on_find)
+        # self.find_action.toggled.connect(self.on_find)
 
-        # TODO: show left/right file actions with mod names
+        stretch = QtWidgets.QWidget()
+        stretch.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        icon_tool_bar.addWidget(stretch)
 
-        # TODO: jump to previous/next diff actions
+        help_action = icon_tool_bar.addAction(icon_manager.load_icon("help.png", COLORS.PRIMARY),
+                                              "Open Page Help Popup (Alt + H)")
 
         text_edit_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(text_edit_layout)
@@ -111,5 +143,3 @@ class FileComparisonPage(BaseTabPage):
     def on_right_slider_moved(self, value: int):
         if self.left_text_edit.verticalScrollBar().value() != value:
             self.left_text_edit.verticalScrollBar().setValue(value)
-
-
