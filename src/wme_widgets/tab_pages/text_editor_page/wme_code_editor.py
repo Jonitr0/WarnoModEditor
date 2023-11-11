@@ -26,6 +26,7 @@ class MarkingArea(QtWidgets.QWidget):
         super().__init__(editor)
         self.editor = editor
         self.w = 16
+        # TODO: needs to save list of colors and only use last
         self.lines_to_marking_colors = {}
 
     def sizeHint(self):

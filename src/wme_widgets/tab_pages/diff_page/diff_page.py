@@ -145,7 +145,7 @@ class DiffPage(base_tab_page.BaseTabPage):
             # if left is text file, read it
             if os.path.isfile(full_path) and full_path.endswith(".ndf"):
                 file_type = diff_widget.FILE_TYPE.TEXT
-                with open(full_path, "r") as f:
+                with open(full_path, "r", encoding="utf-8") as f:
                     left_text = f.read()
             elif os.path.isdir(full_path):
                 file_type = diff_widget.FILE_TYPE.DIR
@@ -156,7 +156,7 @@ class DiffPage(base_tab_page.BaseTabPage):
             # if right is text file, read it
             if os.path.isfile(full_path) and full_path.endswith(".ndf"):
                 file_type = diff_widget.FILE_TYPE.TEXT
-                with open(full_path, "r") as f:
+                with open(full_path, "r", encoding="utf-8") as f:
                     right_text = f.read()
             elif os.path.isdir(full_path):
                 file_type = diff_widget.FILE_TYPE.DIR

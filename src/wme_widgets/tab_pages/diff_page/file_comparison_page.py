@@ -9,12 +9,15 @@ from src.utils.color_manager import *
 from src.wme_widgets import main_widget
 from src.wme_widgets.tab_pages.base_tab_page import BaseTabPage
 from src.wme_widgets.tab_pages.diff_page import diff_code_editor
+from src.wme_widgets.tab_pages.text_editor_page import wme_find_replace_bar
 
 
 class FileComparisonPage(BaseTabPage):
     def __init__(self):
         super().__init__()
+        self.find_bar = wme_find_replace_bar.FindBar(self)
         self.prev_line_numbers_unequal = False
+        self.first_find_finished = False
 
         self.left_text_edit = diff_code_editor.DiffCodeEditor()
         self.right_text_edit = diff_code_editor.DiffCodeEditor()
@@ -64,8 +67,7 @@ class FileComparisonPage(BaseTabPage):
                                                    "Find (Ctrl + F)")
         self.find_action.setShortcut("Ctrl+F")
         self.find_action.setCheckable(True)
-        # TODO: implement find
-        # self.find_action.toggled.connect(self.on_find)
+        self.find_action.toggled.connect(self.on_find)
 
         stretch = QtWidgets.QWidget()
         stretch.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
@@ -74,6 +76,15 @@ class FileComparisonPage(BaseTabPage):
         help_action = icon_tool_bar.addAction(icon_manager.load_icon("help.png", COLORS.PRIMARY),
                                               "Open Page Help Popup (Alt + H)")
 
+        main_layout.addWidget(self.find_bar)
+        self.find_bar.setVisible(False)
+        self.find_bar.request_find_pattern.connect(self.find_pattern)
+        self.find_bar.request_find_reset.connect(self.reset_find)
+        self.find_bar.case_sensitivity_changed.connect(self.set_case_sensitive_search)
+        self.find_bar.request_uncheck.connect(self.on_find_bar_close)
+        self.find_bar.request_next.connect(self.on_find_bar_next)
+        self.find_bar.request_prev.connect(self.on_find_bar_prev)
+
         text_edit_layout = QtWidgets.QHBoxLayout()
         main_layout.addLayout(text_edit_layout)
 
@@ -81,9 +92,14 @@ class FileComparisonPage(BaseTabPage):
         text_edit_layout.addWidget(self.left_text_edit)
         text_edit_layout.addWidget(self.right_text_edit)
 
+        self.left_text_edit.search_complete.connect(self.on_search_complete)
+        self.right_text_edit.search_complete.connect(self.on_search_complete)
+
         # connect slider slots
         self.left_text_edit.verticalScrollBar().valueChanged.connect(self.on_left_slider_moved)
         self.right_text_edit.verticalScrollBar().valueChanged.connect(self.on_right_slider_moved)
+        self.left_text_edit.verticalScrollBar().sliderMoved.connect(self.on_left_slider_moved)
+        self.right_text_edit.verticalScrollBar().sliderMoved.connect(self.on_right_slider_moved)
 
     def highlight_differences(self, left_text: str, right_text: str, left_mod: str, right_mod: str):
         main_widget.instance.show_loading_screen("Computing differences...")
@@ -161,6 +177,77 @@ class FileComparisonPage(BaseTabPage):
         if (not self.left_text_edit.isVisible()) and (not self.right_text_edit.isVisible()):
             self.display_left_action.setChecked(True)
             self.toggle_left()
+
+    def on_find(self, checked: bool):
+        selection = ""
+        if self.left_text_edit.isVisible() and self.left_text_edit.get_selected_text() != "":
+            selection = self.left_text_edit.get_selected_text()
+        elif self.right_text_edit.isVisible() and self.right_text_edit.get_selected_text() != "":
+            selection = self.right_text_edit.get_selected_text()
+
+        if checked:
+            self.find_bar.setHidden(False)
+            self.find_bar.line_edit.setFocus()
+            # if editor has selection, search for it
+            self.find_bar.line_edit.setText(selection)
+            self.left_text_edit.find_pattern(selection)
+            self.right_text_edit.find_pattern(selection)
+            if len(self.left_text_edit.find_results) > 0:
+                self.left_text_edit.goto_prev_find()
+            if len(self.right_text_edit.find_results) > 0:
+                self.right_text_edit.goto_prev_find()
+        elif len(selection) > 0:
+            self.find_action.setChecked(True)
+        else:
+            self.find_bar.reset()
+
+    def find_pattern(self, pattern: str):
+        self.first_find_finished = False
+        self.left_text_edit.find_pattern(pattern, True)
+        self.right_text_edit.find_pattern(pattern, True)
+
+    def reset_find(self):
+        self.left_text_edit.reset_find()
+        self.right_text_edit.reset_find()
+
+    def set_case_sensitive_search(self, case_sensitive: bool):
+        self.left_text_edit.set_case_sensitive_search(case_sensitive)
+        self.right_text_edit.set_case_sensitive_search(case_sensitive)
+
+    def on_find_bar_close(self):
+        self.find_action.setChecked(False)
+        self.find_bar.setHidden(True)
+        self.reset_find()
+
+    def on_find_bar_next(self):
+        if self.left_text_edit.isVisible() and self.left_text_edit.next_find_after_cursor() > 0:
+            self.left_text_edit.goto_next_find()
+            self.right_text_edit.set_cursor_pos(self.left_text_edit.get_cursor_pos())
+        elif self.right_text_edit.isVisible() and self.right_text_edit.next_find_after_cursor() > 0:
+            self.right_text_edit.goto_next_find()
+            self.left_text_edit.set_cursor_pos(self.right_text_edit.get_cursor_pos())
+
+    def on_find_bar_prev(self):
+        if self.left_text_edit.isVisible() and self.left_text_edit.prev_find_before_cursor() > 0:
+            self.left_text_edit.goto_prev_find()
+            self.right_text_edit.set_cursor_pos(self.left_text_edit.get_cursor_pos())
+        elif self.right_text_edit.isVisible() and self.right_text_edit.prev_find_before_cursor() > 0:
+            self.right_text_edit.goto_prev_find()
+            self.left_text_edit.set_cursor_pos(self.right_text_edit.get_cursor_pos())
+
+    def on_search_complete(self):
+        if not self.first_find_finished:
+            self.first_find_finished = True
+            return
+
+        results = len(self.left_text_edit.get_find_results() + self.right_text_edit.get_find_results())
+        if results == 0:
+            self.find_bar.set_label_text("0 results for \"" + self.find_bar.line_edit.text() + "\" in both files")
+            self.find_bar.enable_find_buttons(False)
+        else:
+            self.find_bar.set_label_text(str(results) + " results for \"" + self.find_bar.line_edit.text() +
+                                         "\" in both files")
+            self.find_bar.enable_find_buttons(True)
 
     def to_json(self) -> dict:
         return {"do_not_restore": True}

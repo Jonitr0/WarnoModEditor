@@ -55,3 +55,20 @@ class DiffCodeEditor(wme_code_editor.WMECodeEditor):
         extra_selections.append(extra_selection)
 
         self.setExtraSelections(extra_selections)
+
+    def next_find_after_cursor(self) -> int:
+        # get current cursor position
+        pos = self.textCursor().position()
+        for find, _ in self.find_results:
+            if find > pos:
+                return find
+        return -1
+
+    def prev_find_before_cursor(self) -> int:
+        # get current cursor position
+        pos = self.textCursor().position()
+        for find, _ in reversed(self.find_results):
+            if find < pos:
+                return find
+        return -1
+
