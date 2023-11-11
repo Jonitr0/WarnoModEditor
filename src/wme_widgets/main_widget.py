@@ -295,6 +295,8 @@ class MainWidget(QtWidgets.QWidget):
 
         main_window_tabs = json_obj[self.loaded_mod_name]["mainWindowTabs"]
         for tab in main_window_tabs:
+            if "do_not_restore" in tab:
+                continue
             t = locate(tab["type"])
             page = t()
             page.from_json(tab)
@@ -305,6 +307,8 @@ class MainWidget(QtWidgets.QWidget):
             detached_window = wme_detached_tab.WMEDetachedTab()
             restore_window(detached_obj["detachedState"], detached_window)
             for tab in detached_obj["detachedTabs"]:
+                if "do_not_restore" in tab:
+                    continue
                 t = locate(tab["type"])
                 page = t()
                 page.from_json(tab)

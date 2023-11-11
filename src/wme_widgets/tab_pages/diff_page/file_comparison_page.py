@@ -161,3 +161,6 @@ class FileComparisonPage(BaseTabPage):
         if (not self.left_text_edit.isVisible()) and (not self.right_text_edit.isVisible()):
             self.display_left_action.setChecked(True)
             self.toggle_left()
+
+    def to_json(self) -> dict:
+        return {"do_not_restore": True}
