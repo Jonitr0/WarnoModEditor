@@ -207,3 +207,7 @@ class DiffPage(base_tab_page.BaseTabPage):
             right += sub_right
 
         return diffs, left, right
+
+    # TODO: fill this
+    def to_json(self) -> dict:
+        return {}

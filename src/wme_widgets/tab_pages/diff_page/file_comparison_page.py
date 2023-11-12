@@ -24,6 +24,7 @@ class FileComparisonPage(BaseTabPage):
 
         self.setup_ui()
 
+        # TODO: write this
         self.help_file_path = "Help_FileComparisonPage.html"
 
     def setup_ui(self):
