@@ -226,12 +226,24 @@ class FileComparisonPage(BaseTabPage):
         elif self.right_text_edit.isVisible() and self.right_text_edit.next_find_after_cursor() > 0:
             self.right_text_edit.goto_next_find()
             self.left_text_edit.set_cursor_pos(self.right_text_edit.get_cursor_pos())
+        elif self.left_text_edit.isVisible() and len(self.left_text_edit.find_results) > 0:
+            self.left_text_edit.goto_next_find()
+            self.right_text_edit.set_cursor_pos(self.left_text_edit.get_cursor_pos())
+        elif self.right_text_edit.isVisible() and len(self.right_text_edit.find_results) > 0:
+            self.right_text_edit.goto_next_find()
+            self.left_text_edit.set_cursor_pos(self.right_text_edit.get_cursor_pos())
 
     def on_find_bar_prev(self):
         if self.left_text_edit.isVisible() and self.left_text_edit.prev_find_before_cursor() > 0:
             self.left_text_edit.goto_prev_find()
             self.right_text_edit.set_cursor_pos(self.left_text_edit.get_cursor_pos())
         elif self.right_text_edit.isVisible() and self.right_text_edit.prev_find_before_cursor() > 0:
+            self.right_text_edit.goto_prev_find()
+            self.left_text_edit.set_cursor_pos(self.right_text_edit.get_cursor_pos())
+        elif self.left_text_edit.isVisible() and len(self.left_text_edit.find_results) > 0:
+            self.left_text_edit.goto_prev_find()
+            self.right_text_edit.set_cursor_pos(self.left_text_edit.get_cursor_pos())
+        elif self.right_text_edit.isVisible() and len(self.right_text_edit.find_results) > 0:
             self.right_text_edit.goto_prev_find()
             self.left_text_edit.set_cursor_pos(self.right_text_edit.get_cursor_pos())
 

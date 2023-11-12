@@ -174,12 +174,12 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         area_height = area_bottom - area_top
         total_lines = self.blockCount()
 
-        for line_number, color in self.marking_area.lines_to_marking_colors.items():
+        for line_number, colors in self.marking_area.lines_to_marking_colors.items():
             # calculate at which y position to draw the marking
             line_height = area_height * line_number / total_lines
             y = area_top + line_height
             # draw the marking
-            painter.fillRect(0, y, self.marking_area.w, 2, color)
+            painter.fillRect(0, y, self.marking_area.w, 2, colors[len(colors) - 1])
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self.viewport())
@@ -199,13 +199,16 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         super().paintEvent(event)
 
     def add_marking(self, line: int, color: COLORS):
-        self.marking_area.lines_to_marking_colors[line] = get_color_for_key(color.value)
+        if line not in self.marking_area.lines_to_marking_colors:
+            self.marking_area.lines_to_marking_colors[line] = []
+        self.marking_area.lines_to_marking_colors[line].append(get_color_for_key(color.value))
 
     def clear_markings_for_color(self, color: COLORS):
         new_markings = {}
-        for line, line_color in self.marking_area.lines_to_marking_colors.items():
-            if line_color != get_color_for_key(color.value):
-                new_markings[line] = line_color
+        for line, line_colors in self.marking_area.lines_to_marking_colors.items():
+            new_colors = [c for c in line_colors if c != get_color_for_key(color.value)]
+            if len(new_colors) > 0:
+                new_markings[line] = new_colors
         self.marking_area.lines_to_marking_colors = new_markings
 
     def find_pattern(self, pattern, updating=False):
