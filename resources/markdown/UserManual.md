@@ -44,6 +44,8 @@ These shortcuts are available inside the text editor.
 - **Ctrl + Z:** undo last change
 - **Ctrl + X:** redo last change
 - **Ctrl + F:** find text in file
+- **Ctrl + Arrow Left:** previous find result
+- **Ctrl + Arrow Right:** next find result
 - **Ctrl + R:** replace text in file
 - **Ctrl + D:** duplicate current line / selected text
 - **Ctrl + E:** toggle case-sensitive search
@@ -52,9 +54,16 @@ These shortcuts are available inside the text editor.
 
 These shortcuts are available inside the CSV editor.
 
-- **Ctrl + Arrow Up:** insert row before current selection
-- **Ctrl + Arrow Down:** insert row after current selection
+- **Ctrl + Alt + Arrow Up:** insert row before current selection
+- **Ctrl + Alt + Arrow Down:** insert row after current selection
 - **Shift + Delete:** remove selected rows
+
+#### Comparison Page
+
+These shortcuts are available inside the file comparison page, which is opened by the diff page.
+
+- **Ctrl + Arrow Up:** jump to previous diff
+- **Ctrl + Arrow Down:** jump to next diff
 
 #### NAPO Tools
 

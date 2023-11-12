@@ -26,7 +26,6 @@ class MarkingArea(QtWidgets.QWidget):
         super().__init__(editor)
         self.editor = editor
         self.w = 16
-        # TODO: needs to save list of colors and only use last
         self.lines_to_marking_colors = {}
 
     def sizeHint(self):
@@ -64,6 +63,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.find_results = []
         self.drawn_results = []
 
+        # TODO: new find color
         self.find_format = QtGui.QTextCharFormat()
         self.find_format.setBackground(QtGui.QColor(get_color_for_key(COLORS.FIND_HIGHLIGHT.value)))
 
@@ -174,12 +174,13 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         area_height = area_bottom - area_top
         total_lines = self.blockCount()
 
-        for line_number, colors in self.marking_area.lines_to_marking_colors.items():
+        for line_number, line_colors in self.marking_area.lines_to_marking_colors.items():
             # calculate at which y position to draw the marking
             line_height = area_height * line_number / total_lines
             y = area_top + line_height
             # draw the marking
-            painter.fillRect(0, y, self.marking_area.w, 2, colors[len(colors) - 1])
+            color = get_color_for_key(line_colors[len(line_colors) - 1].value)
+            painter.fillRect(0, y, self.marking_area.w, 2, color)
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self.viewport())
@@ -201,12 +202,12 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
     def add_marking(self, line: int, color: COLORS):
         if line not in self.marking_area.lines_to_marking_colors:
             self.marking_area.lines_to_marking_colors[line] = []
-        self.marking_area.lines_to_marking_colors[line].append(get_color_for_key(color.value))
+        self.marking_area.lines_to_marking_colors[line].append(color)
 
     def clear_markings_for_color(self, color: COLORS):
         new_markings = {}
         for line, line_colors in self.marking_area.lines_to_marking_colors.items():
-            new_colors = [c for c in line_colors if c != get_color_for_key(color.value)]
+            new_colors = [c for c in line_colors if c != color]
             if len(new_colors) > 0:
                 new_markings[line] = new_colors
         self.marking_area.lines_to_marking_colors = new_markings
@@ -247,10 +248,11 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             return
 
         extra_selections = self.extraSelections()
+        new_selections = []
         for selection in extra_selections:
-            if selection.format == self.find_format:
-                extra_selections.remove(selection)
-        self.setExtraSelections(extra_selections)
+            if selection.format.background() != self.find_format.background():
+                new_selections.append(selection)
+        self.setExtraSelections(new_selections)
         self.clear_markings_for_color(self.find_marking_color)
 
         self.find_results = []
@@ -421,3 +423,13 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
     def set_case_sensitive_search(self, case_sensitive: bool):
         self.case_sensitive_search = case_sensitive
+
+    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
+        if event.modifiers() == Qt.ControlModifier:
+            if event.key() == Qt.Key_Left:
+                self.goto_prev_find()
+            elif event.key() == Qt.Key_Right:
+                self.goto_next_find()
+            return
+
+        super().keyPressEvent(event)

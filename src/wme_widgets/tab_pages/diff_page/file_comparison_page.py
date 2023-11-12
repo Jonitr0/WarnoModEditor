@@ -69,6 +69,18 @@ class FileComparisonPage(BaseTabPage):
         self.find_action.setCheckable(True)
         self.find_action.toggled.connect(self.on_find)
 
+        icon_tool_bar.addSeparator()
+
+        next_diff_action = icon_tool_bar.addAction(icon_manager.load_icon("arrow_down.png", COLORS.PRIMARY),
+                                                   "Next diff (Ctrl + Arrow Down)")
+        next_diff_action.setShortcut("Ctrl+Down")
+        next_diff_action.triggered.connect(self.on_next_diff)
+
+        prev_diff_action = icon_tool_bar.addAction(icon_manager.load_icon("arrow_up.png", COLORS.PRIMARY),
+                                                   "Previous diff (Ctrl + Arrow Up)")
+        prev_diff_action.setShortcut("Ctrl+Up")
+        prev_diff_action.triggered.connect(self.on_prev_diff)
+
         stretch = QtWidgets.QWidget()
         stretch.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         icon_tool_bar.addWidget(stretch)
@@ -260,6 +272,77 @@ class FileComparisonPage(BaseTabPage):
             self.find_bar.set_label_text(str(results) + " results for \"" + self.find_bar.line_edit.text() +
                                          "\" in both files")
             self.find_bar.enable_find_buttons(True)
+            if self.left_text_edit.isVisible():
+                self.left_text_edit.setFocus()
+            elif self.right_text_edit.isVisible():
+                self.right_text_edit.setFocus()
+
+    def on_next_diff(self):
+        # take left cursor line as starting point
+        if self.left_text_edit.isVisible():
+            start = self.left_text_edit.textCursor().blockNumber()
+        else:
+            start = self.right_text_edit.textCursor().blockNumber()
+
+        # get next diff for both editors
+        left_diff = -1
+        right_diff = -1
+        if self.left_text_edit.isVisible():
+            left_diff = self.left_text_edit.get_next_diff_line(start)
+        if self.right_text_edit.isVisible():
+            right_diff = self.right_text_edit.get_next_diff_line(start)
+
+        while True:
+            if left_diff > -1 or right_diff > -1:
+                target = max(left_diff, right_diff)
+                break
+            else:
+                if self.left_text_edit.isVisible():
+                    left_diff = self.left_text_edit.get_next_diff_line(0)
+                if self.right_text_edit.isVisible():
+                    right_diff = self.right_text_edit.get_next_diff_line(0)
+                if left_diff == -1 and right_diff == -1:
+                    return
+
+        if self.left_text_edit.isVisible():
+            self.left_text_edit.set_cursor_to_line(target)
+        if self.right_text_edit.isVisible():
+            self.right_text_edit.set_cursor_to_line(target)
+
+    def on_prev_diff(self):
+        # take left cursor line as starting point
+        if self.left_text_edit.isVisible():
+            start = self.left_text_edit.textCursor().blockNumber()
+        else:
+            start = self.right_text_edit.textCursor().blockNumber()
+
+        # get prev diff for both editors
+        left_diff = -1
+        right_diff = -1
+        if self.left_text_edit.isVisible():
+            left_diff = self.left_text_edit.get_prev_diff_line(start)
+        if self.right_text_edit.isVisible():
+            right_diff = self.right_text_edit.get_prev_diff_line(start)
+
+        while True:
+            if left_diff > -1 ^ right_diff > -1:
+                target = max(left_diff, right_diff)
+                break
+            elif left_diff > -1 and right_diff > -1:
+                target = min(left_diff, right_diff)
+                break
+            else:
+                if self.left_text_edit.isVisible():
+                    left_diff = self.left_text_edit.get_prev_diff_line(self.left_text_edit.document().blockCount())
+                if self.right_text_edit.isVisible():
+                    right_diff = self.right_text_edit.get_prev_diff_line(self.left_text_edit.document().blockCount())
+                if left_diff == -1 and right_diff == -1:
+                    return
+
+        if self.left_text_edit.isVisible():
+            self.left_text_edit.set_cursor_to_line(target)
+        if self.right_text_edit.isVisible():
+            self.right_text_edit.set_cursor_to_line(target)
 
     def to_json(self) -> dict:
         return {"do_not_restore": True}
