@@ -73,20 +73,27 @@ class DiffCodeEditor(wme_code_editor.WMECodeEditor):
         return -1
 
     def get_next_diff_line(self, start_pos: int = 0):
+        target = -1
         for line, color_list in self.marking_area.lines_to_marking_colors.items():
-            if line > start_pos and (self.left_marking_color in color_list or self.right_marking_color in color_list):
-                return line
-        return -1
+            if line > start_pos and (self.left_marking_color in color_list or self.right_marking_color in color_list) \
+                    and (line < target or target == -1):
+                target = line
+        return target
 
     def get_prev_diff_line(self, start_pos: int = 0):
+        target = -1
         for line, color_list in reversed(self.marking_area.lines_to_marking_colors.items()):
-            if line < start_pos and (self.left_marking_color in color_list or self.right_marking_color in color_list):
-                return line
-        return -1
+            if line < start_pos and (self.left_marking_color in color_list or self.right_marking_color in color_list) \
+                    and (line > target or target == -1):
+                target = line
+        return target
 
-    def set_cursor_to_line(self, line: int):
+    def set_cursor_line(self, line: int):
         cursor = self.textCursor()
         line_pos = self.document().findBlockByLineNumber(line).position()
         cursor.setPosition(line_pos, QtGui.QTextCursor.MoveAnchor)
         self.setTextCursor(cursor)
+
+    def get_cursor_line(self):
+        return self.textCursor().blockNumber()
 

@@ -61,8 +61,6 @@ class FileComparisonPage(BaseTabPage):
         icon_tool_bar = QtWidgets.QToolBar()
         tool_bar_layout.addWidget(icon_tool_bar)
 
-        # TODO: jump to previous/next diff actions
-
         self.find_action = icon_tool_bar.addAction(icon_manager.load_icon("magnify.png", COLORS.PRIMARY),
                                                    "Find (Ctrl + F)")
         self.find_action.setShortcut("Ctrl+F")
@@ -80,6 +78,12 @@ class FileComparisonPage(BaseTabPage):
                                                    "Previous diff (Ctrl + Arrow Up)")
         prev_diff_action.setShortcut("Ctrl+Up")
         prev_diff_action.triggered.connect(self.on_prev_diff)
+
+        self.link_cursor_action = icon_tool_bar.addAction(icon_manager.load_icon("link_cursor.png", COLORS.PRIMARY),
+                                                          "Link text cursors")
+        self.link_cursor_action.setCheckable(True)
+        self.link_cursor_action.setChecked(True)
+        self.link_cursor_action.triggered.connect(lambda checked: self.synchronize_cursors() if checked else None)
 
         stretch = QtWidgets.QWidget()
         stretch.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
@@ -106,6 +110,11 @@ class FileComparisonPage(BaseTabPage):
 
         self.left_text_edit.search_complete.connect(self.on_search_complete)
         self.right_text_edit.search_complete.connect(self.on_search_complete)
+
+        self.left_text_edit.cursorPositionChanged.connect(lambda: self.synchronize_cursors()
+            if self.link_cursor_action.isChecked() else None)
+        self.right_text_edit.cursorPositionChanged.connect(lambda: self.synchronize_cursors(False)
+            if self.link_cursor_action.isChecked() else None)
 
         # connect slider slots
         self.left_text_edit.verticalScrollBar().valueChanged.connect(self.on_left_slider_moved)
@@ -234,30 +243,30 @@ class FileComparisonPage(BaseTabPage):
     def on_find_bar_next(self):
         if self.left_text_edit.isVisible() and self.left_text_edit.next_find_after_cursor() > 0:
             self.left_text_edit.goto_next_find()
-            self.right_text_edit.set_cursor_pos(self.left_text_edit.get_cursor_pos())
+            self.on_left_slider_moved(self.left_text_edit.verticalScrollBar().value())
         elif self.right_text_edit.isVisible() and self.right_text_edit.next_find_after_cursor() > 0:
             self.right_text_edit.goto_next_find()
-            self.left_text_edit.set_cursor_pos(self.right_text_edit.get_cursor_pos())
+            self.on_right_slider_moved(self.right_text_edit.verticalScrollBar().value())
         elif self.left_text_edit.isVisible() and len(self.left_text_edit.find_results) > 0:
             self.left_text_edit.goto_next_find()
-            self.right_text_edit.set_cursor_pos(self.left_text_edit.get_cursor_pos())
+            self.on_left_slider_moved(self.left_text_edit.verticalScrollBar().value())
         elif self.right_text_edit.isVisible() and len(self.right_text_edit.find_results) > 0:
             self.right_text_edit.goto_next_find()
-            self.left_text_edit.set_cursor_pos(self.right_text_edit.get_cursor_pos())
+            self.on_right_slider_moved(self.right_text_edit.verticalScrollBar().value())
 
     def on_find_bar_prev(self):
         if self.left_text_edit.isVisible() and self.left_text_edit.prev_find_before_cursor() > 0:
             self.left_text_edit.goto_prev_find()
-            self.right_text_edit.set_cursor_pos(self.left_text_edit.get_cursor_pos())
+            self.on_left_slider_moved(self.left_text_edit.verticalScrollBar().value())
         elif self.right_text_edit.isVisible() and self.right_text_edit.prev_find_before_cursor() > 0:
             self.right_text_edit.goto_prev_find()
-            self.left_text_edit.set_cursor_pos(self.right_text_edit.get_cursor_pos())
+            self.on_right_slider_moved(self.right_text_edit.verticalScrollBar().value())
         elif self.left_text_edit.isVisible() and len(self.left_text_edit.find_results) > 0:
             self.left_text_edit.goto_prev_find()
-            self.right_text_edit.set_cursor_pos(self.left_text_edit.get_cursor_pos())
+            self.on_left_slider_moved(self.left_text_edit.verticalScrollBar().value())
         elif self.right_text_edit.isVisible() and len(self.right_text_edit.find_results) > 0:
             self.right_text_edit.goto_prev_find()
-            self.left_text_edit.set_cursor_pos(self.right_text_edit.get_cursor_pos())
+            self.on_right_slider_moved(self.right_text_edit.verticalScrollBar().value())
 
     def on_search_complete(self):
         if not self.first_find_finished:
@@ -293,8 +302,11 @@ class FileComparisonPage(BaseTabPage):
             right_diff = self.right_text_edit.get_next_diff_line(start)
 
         while True:
-            if left_diff > -1 or right_diff > -1:
+            if left_diff > -1 ^ right_diff > -1:
                 target = max(left_diff, right_diff)
+                break
+            elif left_diff > -1 and right_diff > -1:
+                target = min(left_diff, right_diff)
                 break
             else:
                 if self.left_text_edit.isVisible():
@@ -305,9 +317,9 @@ class FileComparisonPage(BaseTabPage):
                     return
 
         if self.left_text_edit.isVisible():
-            self.left_text_edit.set_cursor_to_line(target)
+            self.left_text_edit.set_cursor_line(target)
         if self.right_text_edit.isVisible():
-            self.right_text_edit.set_cursor_to_line(target)
+            self.right_text_edit.set_cursor_line(target)
 
     def on_prev_diff(self):
         # take left cursor line as starting point
@@ -325,11 +337,8 @@ class FileComparisonPage(BaseTabPage):
             right_diff = self.right_text_edit.get_prev_diff_line(start)
 
         while True:
-            if left_diff > -1 ^ right_diff > -1:
+            if left_diff > -1 or right_diff > -1:
                 target = max(left_diff, right_diff)
-                break
-            elif left_diff > -1 and right_diff > -1:
-                target = min(left_diff, right_diff)
                 break
             else:
                 if self.left_text_edit.isVisible():
@@ -340,9 +349,35 @@ class FileComparisonPage(BaseTabPage):
                     return
 
         if self.left_text_edit.isVisible():
-            self.left_text_edit.set_cursor_to_line(target)
+            self.left_text_edit.set_cursor_line(target)
         if self.right_text_edit.isVisible():
-            self.right_text_edit.set_cursor_to_line(target)
+            self.right_text_edit.set_cursor_line(target)
+
+    def synchronize_cursors(self, ref_left: bool = True):
+        if self.left_text_edit.get_cursor_pos() == self.right_text_edit.get_cursor_pos():
+            return
+
+        if ref_left:
+            target_pos = self.left_text_edit.get_cursor_pos()
+        else:
+            target_pos = self.right_text_edit.get_cursor_pos()
+
+        # check if lines for target position are equal
+        left_target_line = self.left_text_edit.document().findBlock(target_pos).blockNumber()
+        right_target_line = self.right_text_edit.document().findBlock(target_pos).blockNumber()
+
+        if left_target_line == right_target_line:
+            self.left_text_edit.set_cursor_pos(target_pos)
+            self.right_text_edit.set_cursor_pos(target_pos)
+        else:
+            if self.left_text_edit.get_cursor_line() == self.right_text_edit.get_cursor_line():
+                return
+            if ref_left:
+                self.left_text_edit.set_cursor_pos(target_pos)
+                self.right_text_edit.set_cursor_line(left_target_line)
+            else:
+                self.left_text_edit.set_cursor_line(right_target_line)
+                self.right_text_edit.set_cursor_pos(target_pos)
 
     def to_json(self) -> dict:
         return {"do_not_restore": True}
