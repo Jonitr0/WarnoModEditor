@@ -3,6 +3,8 @@ from PySide6 import QtWidgets, QtGui
 from src.utils import icon_manager
 from src.utils.color_manager import *
 
+import re
+
 
 class SteamTextEdit(QtWidgets.QWidget):
     def __init__(self, parent: QtWidgets.QWidget = None):
@@ -73,7 +75,77 @@ class SteamTextEdit(QtWidgets.QWidget):
         main_layout.addWidget(self.text_edit)
 
     def get_text(self):
-        return self.text_edit.toPlainText()
+        plain_text = self.text_edit.toPlainText()
+        block_count = self.text_edit.document().blockCount()
+        format_tag_positions = {}
+        # get all format tag positions
+        for i in range(block_count):
+            block = self.text_edit.document().findBlockByNumber(block_count - i - 1)
+            # TODO: apply block format
+            for format_range in reversed(block.textFormats()):
+                start = format_range.start
+                end = start + format_range.length
+                text_format = format_range.format
+                format_tag_positions = self.mark_format_tags(start, end, text_format, format_tag_positions)
+
+        # apply format tags
+        for pos in reversed(sorted(format_tag_positions.keys())):
+            plain_text = plain_text[:pos] + format_tag_positions[pos] + plain_text[pos:]
+
+        return plain_text
+
+    def mark_format_tags(self, start: int, end: int, text_format: QtGui.QTextCharFormat, format_tag_positions: dict):
+        if text_format.fontWeight() == QtGui.QFont.Bold:
+            format_tag_positions[end] = "[/b]"
+            format_tag_positions[start] = "[b]"
+        return format_tag_positions
 
     def set_text(self, text: str):
-        self.text_edit.setPlainText(text)
+        tags = {"[b]": "[/b]"}
+        plain_text = text
+
+        # create plain text
+        for key, val in tags.items():
+            plain_text = plain_text.replace(key, "")
+            plain_text = plain_text.replace(val, "")
+
+        # create regex
+        escaped_keys = map(re.escape, tags.keys())
+        escaped_values = map(re.escape, tags.values())
+        escaped_keys = '|'.join(sorted(escaped_keys, key=len, reverse=True))
+        escaped_values = '|'.join(sorted(escaped_values, key=len, reverse=True))
+        regex = escaped_keys + '|' + escaped_values
+
+        # create index mapping for original text to plain text
+        index_in_plain = [i for i in range(len(text))]
+        for match in re.finditer(regex, text):
+            start = match.start()
+            end = match.end()
+            length = end - start
+
+            for i in range(length):
+                index_in_plain[start + i] = index_in_plain[start]
+
+            for i in range(len(index_in_plain[start + length:])):
+                index_in_plain[start + length + i] -= length
+
+        # apply formatting
+        self.text_edit.setPlainText(plain_text)
+        for match in re.finditer(escaped_keys, text):
+            start = index_in_plain[match.start()]
+            key = match.group()
+            end_index = text.find(tags[match.group()], match.end())
+            if end_index == -1:
+                continue
+            end = index_in_plain[end_index]
+
+            cursor = QtGui.QTextCursor(self.text_edit.document())
+            cursor.setPosition(start)
+            cursor.setPosition(end, QtGui.QTextCursor.KeepAnchor)
+
+            text_format = QtGui.QTextCharFormat()
+
+            match key:
+                case "[b]":
+                    text_format.setFontWeight(QtGui.QFont.Bold)
+                    cursor.mergeCharFormat(text_format)
