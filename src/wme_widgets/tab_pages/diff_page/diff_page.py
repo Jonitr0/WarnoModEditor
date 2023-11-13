@@ -181,7 +181,7 @@ class DiffPage(base_tab_page.BaseTabPage):
         try:
             shutil.rmtree(os.path.join(target, ".base"))
         except Exception as e:
-            logging.error(e)
+            pass
 
         main_widget.instance.show_loading_screen("Running comparison...")
         return target

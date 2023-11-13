@@ -29,21 +29,22 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         tool_bar.addSeparator()
 
-        bold_action = tool_bar.addAction(icon_manager.load_icon("bold.png", COLORS.PRIMARY), "Bold (Ctrl + B)")
-        bold_action.setCheckable(True)
-        bold_action.setShortcut("Ctrl+B")
-        bold_action.triggered.connect(lambda checked: self.text_edit.setFontWeight(QtGui.QFont.Bold if checked else
+        self.bold_action = tool_bar.addAction(icon_manager.load_icon("bold.png", COLORS.PRIMARY), "Bold (Ctrl + B)")
+        self.bold_action.setCheckable(True)
+        self.bold_action.setShortcut("Ctrl+B")
+        self.bold_action.triggered.connect(lambda checked: self.text_edit.setFontWeight(QtGui.QFont.Bold if checked else
                                                                                    QtGui.QFont.Normal))
 
-        italic_action = tool_bar.addAction(icon_manager.load_icon("italic.png", COLORS.PRIMARY), "Italic (Ctrl + I)")
-        italic_action.setCheckable(True)
-        italic_action.setShortcut("Ctrl+I")
-        italic_action.triggered.connect(lambda checked: self.text_edit.setFontItalic(checked))
+        self.italic_action = tool_bar.addAction(icon_manager.load_icon("italic.png", COLORS.PRIMARY), 
+                                                "Italic (Ctrl + I)")
+        self.italic_action.setCheckable(True)
+        self.italic_action.setShortcut("Ctrl+I")
+        self.italic_action.triggered.connect(lambda checked: self.text_edit.setFontItalic(checked))
 
-        underline_action = tool_bar.addAction(icon_manager.load_icon("underline.png", COLORS.PRIMARY),
+        self.underline_action = tool_bar.addAction(icon_manager.load_icon("underline.png", COLORS.PRIMARY),
                                               "Underline (Ctrl + U)")
-        underline_action.setCheckable(True)
-        underline_action.setShortcut("Ctrl+U")
+        self.underline_action.setCheckable(True)
+        self.underline_action.setShortcut("Ctrl+U")
 
         strikethrough_action = tool_bar.addAction(icon_manager.load_icon("strikethrough.png", COLORS.PRIMARY),
                                                   "Strikethrough (Ctrl + Shift + T)")
@@ -76,6 +77,9 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         redo_action.setShortcut("Ctrl+Y")
 
         main_layout.addWidget(self.text_edit)
+
+        self.text_edit.selectionChanged.connect(self.on_new_selection)
+        self.text_edit.cursorPositionChanged.connect(self.on_new_selection)
 
     def get_text(self):
         plain_text = self.text_edit.toPlainText()
@@ -166,3 +170,41 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 case "[i]":
                     text_format.setFontItalic(True)
                     cursor.mergeCharFormat(text_format)
+                    
+    def on_new_selection(self):
+        # get selection text format
+        cursor = self.text_edit.textCursor()
+        start = cursor.selectionStart()
+        end = cursor.selectionEnd()
+
+        if start == end:
+            # take cursor format
+            text_format = cursor.charFormat()
+            self.bold_action.setChecked(text_format.fontWeight() == QtGui.QFont.Bold)
+            self.italic_action.setChecked(text_format.fontItalic())
+            return
+
+        # get all blocks in selection
+        block_count = self.text_edit.document().blockCount()
+        blocks = []
+        for i in range(block_count):
+            block = self.text_edit.document().findBlockByNumber(i)
+            if block.position() + block.length() > start and block.position() < end:
+                blocks.append(block)
+
+        bold = True
+        italic = True
+
+        for block in blocks:
+            for format_range in block.textFormats():
+                if format_range.start + format_range.length > start and format_range.start < end:
+                    text_format = format_range.format
+                    if text_format.fontWeight() != QtGui.QFont.Bold:
+                        bold = False
+                    if not text_format.fontItalic():
+                        italic = False
+
+        self.bold_action.setChecked(bold)
+        self.italic_action.setChecked(italic)
+
+
