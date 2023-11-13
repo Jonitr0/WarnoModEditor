@@ -94,9 +94,9 @@ class EditModConfigDialog(BaseDialog):
         self.config_values["Properties/Name"] = self.name_line_edit.text()
         self.config_values["Properties/Description"] = self.description_text_edit.get_text()
         self.config_values["Properties/PreviewImagePath"] = self.icon_path_line_edit.text()
-        self.config_values["Properties/CosmeticOnly"] = 1 if self.cosmetic_checkbox.isChecked() else 0
-        self.config_values["Properties/Version"] = self.mod_version_spinbox.value()
-        self.config_values["Properties/DeckFormatVersion"] = self.deck_format_version_spinbox.value()
+        self.config_values["Properties/CosmeticOnly"] = "1" if self.cosmetic_checkbox.isChecked() else "0"
+        self.config_values["Properties/Version"] = str(self.mod_version_spinbox.value())
+        self.config_values["Properties/DeckFormatVersion"] = str(self.deck_format_version_spinbox.value())
         return self.config_values
 
     def reject(self) -> None:
