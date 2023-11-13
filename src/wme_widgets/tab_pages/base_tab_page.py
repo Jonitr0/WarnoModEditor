@@ -51,6 +51,8 @@ class BaseTabPage(QtWidgets.QWidget):
         help_shortcut = QtGui.QShortcut("Alt+H", self, self.on_help)
         help_shortcut.setContext(Qt.ApplicationShortcut)
 
+        logging.info("Created tab page of type " + self.get_full_class_name())
+
     @property
     def unsaved_changes(self) -> bool:
         return self._unsaved_changes

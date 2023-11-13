@@ -23,6 +23,8 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.constants_napo = None
         self.saved_state = None
 
+        self.add_help_button()
+
         scroll_area = QtWidgets.QScrollArea()
         scroll_area.setWidgetResizable(True)
         self.main_layout.addWidget(scroll_area)

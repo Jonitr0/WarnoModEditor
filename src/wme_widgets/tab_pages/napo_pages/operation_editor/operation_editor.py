@@ -84,6 +84,8 @@ class OperationEditor(base_napo_page.BaseNapoPage):
         op_selector_layout.addWidget(QtWidgets.QLabel("Operation: "))
         op_selector_layout.addWidget(self.op_combobox)
 
+        self.add_help_button()
+
         self.player_deck_napo = None
         self.player_div_napo = None
         self.deck_pack_list = None

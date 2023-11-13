@@ -92,6 +92,7 @@ class FileComparisonPage(BaseTabPage):
 
         help_action = icon_tool_bar.addAction(icon_manager.load_icon("help.png", COLORS.PRIMARY),
                                               "Open Page Help Popup (Alt + H)")
+        help_action.triggered.connect(self.on_help)
 
         main_layout.addWidget(self.find_bar)
         self.find_bar.setVisible(False)

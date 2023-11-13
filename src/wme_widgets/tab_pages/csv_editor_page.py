@@ -61,6 +61,14 @@ class CsvEditorPage(base_tab_page.BaseTabPage):
         delete_row_action.setShortcut("Shift+Del")
         delete_row_action.triggered.connect(self.on_remove_row)
 
+        stretch = QtWidgets.QWidget()
+        stretch.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        tool_bar.addWidget(stretch)
+
+        help_action = tool_bar.addAction(icon_manager.load_icon("help.png", COLORS.PRIMARY),
+                                         "Open Page Help Popup (Alt + H)")
+        help_action.triggered.connect(self.on_help)
+
         self.table_widget = QtWidgets.QTableWidget()
         main_layout.addWidget(self.table_widget)
 

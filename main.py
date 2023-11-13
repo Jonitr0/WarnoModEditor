@@ -13,7 +13,6 @@ from src.wme_widgets import wme_splash_screen
 
 if __name__ == '__main__':
     # setup logging
-    # TODO: add logging on every page
     # TODO: put all intense tasks in threads
     logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s',
                         filename='wme.log',

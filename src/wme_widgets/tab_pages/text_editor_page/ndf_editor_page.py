@@ -86,6 +86,14 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         self.replace_action.setCheckable(True)
         self.replace_action.toggled.connect(self.on_replace)
 
+        stretch = QtWidgets.QWidget()
+        stretch.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        tool_bar.addWidget(stretch)
+
+        help_action = tool_bar.addAction(icon_manager.load_icon("help.png", COLORS.PRIMARY),
+                                         "Open Page Help Popup (Alt + H)")
+        help_action.triggered.connect(self.on_help)
+
         main_layout.addWidget(self.find_bar)
         self.find_bar.setHidden(True)
         self.find_bar.request_find_pattern.connect(self.code_editor.find_pattern)
