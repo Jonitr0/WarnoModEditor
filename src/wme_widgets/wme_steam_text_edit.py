@@ -45,11 +45,13 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                                               "Underline (Ctrl + U)")
         self.underline_action.setCheckable(True)
         self.underline_action.setShortcut("Ctrl+U")
+        self.underline_action.triggered.connect(lambda checked: self.text_edit.setFontUnderline(checked))
 
-        strikethrough_action = tool_bar.addAction(icon_manager.load_icon("strikethrough.png", COLORS.PRIMARY),
+        self.strikethrough_action = tool_bar.addAction(icon_manager.load_icon("strikethrough.png", COLORS.PRIMARY),
                                                   "Strikethrough (Ctrl + Shift + T)")
-        strikethrough_action.setCheckable(True)
-        strikethrough_action.setShortcut("Ctrl+Shift+T")
+        self.strikethrough_action.setCheckable(True)
+        self.strikethrough_action.setShortcut("Ctrl+Shift+T")
+        self.strikethrough_action.triggered.connect(self.on_strikethrough)
 
         tool_bar.addSeparator()
 
@@ -65,21 +67,29 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         undo_icon = QtGui.QIcon()
         undo_icon.addPixmap(icon_manager.load_pixmap("undo.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
         undo_icon.addPixmap(icon_manager.load_pixmap("undo.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
-        undo_action = tool_bar.addAction(undo_icon, "Undo (Ctrl + Z)")
-        undo_action.setDisabled(True)
-        undo_action.setShortcut("Ctrl+Z")
+        self.undo_action = tool_bar.addAction(undo_icon, "Undo (Ctrl + Z)")
+        self.undo_action.setDisabled(True)
+        self.undo_action.setShortcut("Ctrl+Z")
 
         redo_icon = QtGui.QIcon()
         redo_icon.addPixmap(icon_manager.load_pixmap("redo.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
         redo_icon.addPixmap(icon_manager.load_pixmap("redo.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
-        redo_action = tool_bar.addAction(redo_icon, "Redo (Ctrl + Y)")
-        redo_action.setDisabled(True)
-        redo_action.setShortcut("Ctrl+Y")
+        self.redo_action = tool_bar.addAction(redo_icon, "Redo (Ctrl + Y)")
+        self.redo_action.setDisabled(True)
+        self.redo_action.setShortcut("Ctrl+Y")
 
         main_layout.addWidget(self.text_edit)
 
         self.text_edit.selectionChanged.connect(self.on_new_selection)
         self.text_edit.cursorPositionChanged.connect(self.on_new_selection)
+
+        self.text_edit.undoAvailable.connect(self.on_undo_available)
+        self.text_edit.redoAvailable.connect(self.on_redo_available)
+
+    def on_strikethrough(self, checked: bool):
+        char_format = self.text_edit.currentCharFormat()
+        char_format.setFontStrikeOut(checked)
+        self.text_edit.setCurrentCharFormat(char_format)
 
     def get_text(self):
         plain_text = self.text_edit.toPlainText()
@@ -113,12 +123,20 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         if text_format.fontItalic():
             format_tag_positions[end].append("[/i]")
             format_tag_positions[start].append("[i]")
+        if text_format.fontUnderline():
+            format_tag_positions[end].append("[/u]")
+            format_tag_positions[start].append("[u]")
+        if text_format.fontStrikeOut():
+            format_tag_positions[end].append("[/strike]")
+            format_tag_positions[start].append("[strike]")
         return format_tag_positions
 
     def set_text(self, text: str):
         tags = {
             "[b]": "[/b]",
             "[i]": "[/i]",
+            "[u]": "[/u]",
+            "[strike]": "[/strike]"
         }
         plain_text = text
 
@@ -170,6 +188,12 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 case "[i]":
                     text_format.setFontItalic(True)
                     cursor.mergeCharFormat(text_format)
+                case "[u]":
+                    text_format.setFontUnderline(True)
+                    cursor.mergeCharFormat(text_format)
+                case "[strike]":
+                    text_format.setFontStrikeOut(True)
+                    cursor.mergeCharFormat(text_format)
                     
     def on_new_selection(self):
         # get selection text format
@@ -182,6 +206,8 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             text_format = cursor.charFormat()
             self.bold_action.setChecked(text_format.fontWeight() == QtGui.QFont.Bold)
             self.italic_action.setChecked(text_format.fontItalic())
+            self.underline_action.setChecked(text_format.fontUnderline())
+            self.strikethrough_action.setChecked(text_format.fontStrikeOut())
             return
 
         # get all blocks in selection
@@ -194,6 +220,8 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         bold = True
         italic = True
+        underline = True
+        strikethrough = True
 
         for block in blocks:
             for format_range in block.textFormats():
@@ -203,8 +231,26 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                         bold = False
                     if not text_format.fontItalic():
                         italic = False
+                    if not text_format.fontUnderline():
+                        underline = False
+                    if not text_format.fontStrikeOut():
+                        strikethrough = False
 
         self.bold_action.setChecked(bold)
         self.italic_action.setChecked(italic)
+        self.underline_action.setChecked(underline)
+        self.strikethrough_action.setChecked(strikethrough)
+
+    def on_undo_available(self, available: bool):
+        self.undo_action.setDisabled(not available)
+
+    def on_redo_available(self, available: bool):
+        self.redo_action.setDisabled(not available)
+
+    def on_undo(self):
+        self.text_edit.document().undo()
+
+    def on_redo(self):
+        self.text_edit.document().redo()
 
 
