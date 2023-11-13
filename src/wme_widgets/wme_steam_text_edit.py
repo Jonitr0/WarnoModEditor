@@ -38,6 +38,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         italic_action = tool_bar.addAction(icon_manager.load_icon("italic.png", COLORS.PRIMARY), "Italic (Ctrl + I)")
         italic_action.setCheckable(True)
         italic_action.setShortcut("Ctrl+I")
+        italic_action.triggered.connect(lambda checked: self.text_edit.setFontItalic(checked))
 
         underline_action = tool_bar.addAction(icon_manager.load_icon("underline.png", COLORS.PRIMARY),
                                               "Underline (Ctrl + U)")
@@ -92,18 +93,29 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         # apply format tags
         for pos in reversed(sorted(format_tag_positions.keys())):
-            plain_text = plain_text[:pos] + format_tag_positions[pos] + plain_text[pos:]
+            for tag in format_tag_positions[pos]:
+                plain_text = plain_text[:pos] + tag + plain_text[pos:]
 
         return plain_text
 
     def mark_format_tags(self, start: int, end: int, text_format: QtGui.QTextCharFormat, format_tag_positions: dict):
+        if start not in format_tag_positions:
+            format_tag_positions[start] = []
+        if end not in format_tag_positions:
+            format_tag_positions[end] = []
         if text_format.fontWeight() == QtGui.QFont.Bold:
-            format_tag_positions[end] = "[/b]"
-            format_tag_positions[start] = "[b]"
+            format_tag_positions[end].append("[/b]")
+            format_tag_positions[start].append("[b]")
+        if text_format.fontItalic():
+            format_tag_positions[end].append("[/i]")
+            format_tag_positions[start].append("[i]")
         return format_tag_positions
 
     def set_text(self, text: str):
-        tags = {"[b]": "[/b]"}
+        tags = {
+            "[b]": "[/b]",
+            "[i]": "[/i]",
+        }
         plain_text = text
 
         # create plain text
@@ -150,4 +162,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             match key:
                 case "[b]":
                     text_format.setFontWeight(QtGui.QFont.Bold)
+                    cursor.mergeCharFormat(text_format)
+                case "[i]":
+                    text_format.setFontItalic(True)
                     cursor.mergeCharFormat(text_format)
