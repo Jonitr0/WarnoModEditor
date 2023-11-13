@@ -6,7 +6,7 @@ from src.utils.color_manager import *
 import re
 
 
-class SteamTextEdit(QtWidgets.QWidget):
+class WMESteamTextEdit(QtWidgets.QWidget):
     def __init__(self, parent: QtWidgets.QWidget = None):
         super().__init__(parent)
         self.text_edit = QtWidgets.QTextEdit()
@@ -32,6 +32,8 @@ class SteamTextEdit(QtWidgets.QWidget):
         bold_action = tool_bar.addAction(icon_manager.load_icon("bold.png", COLORS.PRIMARY), "Bold (Ctrl + B)")
         bold_action.setCheckable(True)
         bold_action.setShortcut("Ctrl+B")
+        bold_action.triggered.connect(lambda checked: self.text_edit.setFontWeight(QtGui.QFont.Bold if checked else
+                                                                                   QtGui.QFont.Normal))
 
         italic_action = tool_bar.addAction(icon_manager.load_icon("italic.png", COLORS.PRIMARY), "Italic (Ctrl + I)")
         italic_action.setCheckable(True)

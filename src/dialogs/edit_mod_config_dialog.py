@@ -3,7 +3,7 @@ from pathlib import Path
 from PySide6 import QtWidgets, QtCore
 from src.dialogs.base_dialog import BaseDialog
 from src.dialogs import essential_dialogs
-from src.wme_widgets import wme_essentials, main_widget, steam_text_edit
+from src.wme_widgets import wme_essentials, main_widget, wme_steam_text_edit
 
 
 class EditModConfigDialog(BaseDialog):
@@ -15,7 +15,7 @@ class EditModConfigDialog(BaseDialog):
         self.warning_label = QtWidgets.QLabel("WARNING! Uploading this mod might fail if it's name does not match "
                                               "the name of the directory (" +
                                               main_widget.instance.get_loaded_mod_name() + ")")
-        self.description_text_edit = steam_text_edit.SteamTextEdit()
+        self.description_text_edit = wme_steam_text_edit.WMESteamTextEdit()
         self.icon_path_line_edit = wme_essentials.WMELineEdit()
         self.config_values = config_values
         # copy for warning on cancel
@@ -57,7 +57,7 @@ class EditModConfigDialog(BaseDialog):
         icon_path_label.setToolTip("Path to a file which will be the preview image of the mod on Steam Workshop.")
         form_layout.addRow(icon_path_label, icon_path_layout)
 
-        self.cosmetic_checkbox.setChecked(int(self.config_values["Properties/CosmeticOnly"]))
+        self.cosmetic_checkbox.setChecked(True if int(self.config_values["Properties/CosmeticOnly"]) != 0 else False)
         cosmetic_label = QtWidgets.QLabel("Cosmetic only")
         cosmetic_label.setToolTip("Check this box if the mod does not affect gameplay.")
         form_layout.addRow(cosmetic_label, self.cosmetic_checkbox)
@@ -94,7 +94,7 @@ class EditModConfigDialog(BaseDialog):
         self.config_values["Properties/Name"] = self.name_line_edit.text()
         self.config_values["Properties/Description"] = self.description_text_edit.get_text()
         self.config_values["Properties/PreviewImagePath"] = self.icon_path_line_edit.text()
-        self.config_values["Properties/CosmeticOnly"] = self.cosmetic_checkbox.isChecked()
+        self.config_values["Properties/CosmeticOnly"] = 1 if self.cosmetic_checkbox.isChecked() else 0
         self.config_values["Properties/Version"] = self.mod_version_spinbox.value()
         self.config_values["Properties/DeckFormatVersion"] = self.deck_format_version_spinbox.value()
         return self.config_values
