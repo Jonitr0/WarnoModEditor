@@ -19,13 +19,21 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         tool_bar = QtWidgets.QToolBar()
         main_layout.addWidget(tool_bar)
 
+        text_type_layout = QtWidgets.QHBoxLayout()
+        text_type_layout.setContentsMargins(8, 0, 8, 0)
+        text_type_widget = QtWidgets.QWidget()
+        text_type_widget.setLayout(text_type_layout)
+        tool_bar.addWidget(text_type_widget)
+
+        text_type_label = QtWidgets.QLabel("Text type:")
+        text_type_layout.addWidget(text_type_label)
+
         text_type_selector = QtWidgets.QComboBox()
-        text_type_selector.addItem("Text")
+        text_type_selector.addItem("Normal")
         text_type_selector.addItem("Heading 1")
         text_type_selector.addItem("Heading 2")
         text_type_selector.addItem("Heading 3")
-
-        tool_bar.addWidget(text_type_selector)
+        text_type_layout.addWidget(text_type_selector)
 
         tool_bar.addSeparator()
 

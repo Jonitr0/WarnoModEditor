@@ -6,6 +6,7 @@ from src.dialogs import essential_dialogs
 from src.wme_widgets import wme_essentials, main_widget, wme_steam_text_edit
 
 
+# TODO: make this a page
 class EditModConfigDialog(BaseDialog):
     def __init__(self, config_values: dict):
         self.deck_format_version_spinbox = wme_essentials.WMESpinbox()
