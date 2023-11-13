@@ -28,12 +28,13 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         text_type_label = QtWidgets.QLabel("Text type:")
         text_type_layout.addWidget(text_type_label)
 
-        text_type_selector = QtWidgets.QComboBox()
-        text_type_selector.addItem("Normal")
-        text_type_selector.addItem("Heading 1")
-        text_type_selector.addItem("Heading 2")
-        text_type_selector.addItem("Heading 3")
-        text_type_layout.addWidget(text_type_selector)
+        self.text_type_selector = QtWidgets.QComboBox()
+        self.text_type_selector.addItem("Normal")
+        self.text_type_selector.addItem("Heading 1")
+        self.text_type_selector.addItem("Heading 2")
+        self.text_type_selector.addItem("Heading 3")
+        self.text_type_selector.activated.connect(self.on_text_type_changed)
+        text_type_layout.addWidget(self.text_type_selector)
 
         tool_bar.addSeparator()
 
@@ -41,25 +42,29 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         self.bold_action.setCheckable(True)
         self.bold_action.setShortcut("Ctrl+B")
         self.bold_action.triggered.connect(lambda checked: self.text_edit.setFontWeight(QtGui.QFont.Bold if checked else
-                                                                                   QtGui.QFont.Normal))
+                                                                                        QtGui.QFont.Normal))
 
-        self.italic_action = tool_bar.addAction(icon_manager.load_icon("italic.png", COLORS.PRIMARY), 
+        self.italic_action = tool_bar.addAction(icon_manager.load_icon("italic.png", COLORS.PRIMARY),
                                                 "Italic (Ctrl + I)")
         self.italic_action.setCheckable(True)
         self.italic_action.setShortcut("Ctrl+I")
         self.italic_action.triggered.connect(lambda checked: self.text_edit.setFontItalic(checked))
 
         self.underline_action = tool_bar.addAction(icon_manager.load_icon("underline.png", COLORS.PRIMARY),
-                                              "Underline (Ctrl + U)")
+                                                   "Underline (Ctrl + U)")
         self.underline_action.setCheckable(True)
         self.underline_action.setShortcut("Ctrl+U")
         self.underline_action.triggered.connect(lambda checked: self.text_edit.setFontUnderline(checked))
 
         self.strikethrough_action = tool_bar.addAction(icon_manager.load_icon("strikethrough.png", COLORS.PRIMARY),
-                                                  "Strikethrough (Ctrl + Shift + T)")
+                                                       "Strikethrough (Ctrl + Shift + T)")
         self.strikethrough_action.setCheckable(True)
         self.strikethrough_action.setShortcut("Ctrl+Shift+T")
         self.strikethrough_action.triggered.connect(self.on_strikethrough)
+
+        tool_bar.addSeparator()
+
+        link_action = tool_bar.addAction(icon_manager.load_icon("link.png", COLORS.PRIMARY), "Link")
 
         tool_bar.addSeparator()
 
@@ -67,8 +72,6 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         ordered_list_action = tool_bar.addAction(icon_manager.load_icon("ordered_list.png", COLORS.PRIMARY),
                                                  "Ordered List")
-
-        link_action = tool_bar.addAction(icon_manager.load_icon("link.png", COLORS.PRIMARY), "Link")
 
         tool_bar.addSeparator()
 
@@ -94,6 +97,42 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         self.text_edit.undoAvailable.connect(self.on_undo_available)
         self.text_edit.redoAvailable.connect(self.on_redo_available)
 
+    def on_text_type_changed(self, index: int):
+        # TODO: add font size change
+        # get selection
+        cursor = self.text_edit.textCursor()
+        start = cursor.selectionStart()
+        end = cursor.selectionEnd()
+
+        if start == end:
+            # no selection, change the text type of the current block
+            block = cursor.block()
+            block_format = self.formats_for_heading(index)
+            self.set_block_format(block, block_format)
+        else:
+            # get all the blocks in the selection
+            block_count = self.text_edit.document().blockCount()
+            blocks = []
+            for i in range(block_count):
+                block = self.text_edit.document().findBlockByNumber(i)
+                if block.position() + block.length() > start and block.position() < end:
+                    blocks.append(block)
+
+            for block in blocks:
+                block_format = self.formats_for_heading(index)
+                self.set_block_format(block, block_format)
+
+    def set_block_format(self, text_block: QtGui.QTextBlock, block_format: QtGui.QTextBlockFormat):
+        cursor = QtGui.QTextCursor(text_block)
+        cursor.select(QtGui.QTextCursor.BlockUnderCursor)
+        cursor.setBlockFormat(block_format)
+
+    def formats_for_heading(self, heading_level: int) -> QtGui.QTextBlockFormat:
+        block_format = QtGui.QTextBlockFormat()
+        block_format.setHeadingLevel(heading_level)
+        block_format.setBottomMargin(2.0 * heading_level)
+        return block_format
+
     def on_strikethrough(self, checked: bool):
         char_format = self.text_edit.currentCharFormat()
         char_format.setFontStrikeOut(checked)
@@ -106,7 +145,14 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         # get all format tag positions
         for i in range(block_count):
             block = self.text_edit.document().findBlockByNumber(block_count - i - 1)
-            # TODO: apply block format
+            if block.blockFormat().headingLevel() != 0:
+                if not block.position() in format_tag_positions:
+                    format_tag_positions[block.position()] = []
+                if not block.position() + block.length() in format_tag_positions:
+                    format_tag_positions[block.position() + block.length()] = []
+                heading_level = block.blockFormat().headingLevel()
+                format_tag_positions[block.position() + block.length()].append(f"[/h{heading_level}]")
+                format_tag_positions[block.position()].append(f"[h{heading_level}]")
             for format_range in reversed(block.textFormats()):
                 start = format_range.start
                 end = start + format_range.length
@@ -144,7 +190,10 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             "[b]": "[/b]",
             "[i]": "[/i]",
             "[u]": "[/u]",
-            "[strike]": "[/strike]"
+            "[strike]": "[/strike]",
+            "[h1]": "[/h1]",
+            "[h2]": "[/h2]",
+            "[h3]": "[/h3]",
         }
         plain_text = text
 
@@ -202,7 +251,19 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 case "[strike]":
                     text_format.setFontStrikeOut(True)
                     cursor.mergeCharFormat(text_format)
-                    
+                case "[h1]":
+                    block_format = QtGui.QTextBlockFormat()
+                    block_format.setHeadingLevel(1)
+                    cursor.mergeBlockFormat(block_format)
+                case "[h2]":
+                    block_format = QtGui.QTextBlockFormat()
+                    block_format.setHeadingLevel(2)
+                    cursor.mergeBlockFormat(block_format)
+                case "[h3]":
+                    block_format = QtGui.QTextBlockFormat()
+                    block_format.setHeadingLevel(3)
+                    cursor.mergeBlockFormat(block_format)
+
     def on_new_selection(self):
         # get selection text format
         cursor = self.text_edit.textCursor()
@@ -216,6 +277,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             self.italic_action.setChecked(text_format.fontItalic())
             self.underline_action.setChecked(text_format.fontUnderline())
             self.strikethrough_action.setChecked(text_format.fontStrikeOut())
+            self.text_type_selector.setCurrentIndex(cursor.blockFormat().headingLevel())
             return
 
         # get all blocks in selection
@@ -230,6 +292,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         italic = True
         underline = True
         strikethrough = True
+        heading_level = blocks[0].blockFormat().headingLevel()
 
         for block in blocks:
             for format_range in block.textFormats():
@@ -243,11 +306,14 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                         underline = False
                     if not text_format.fontStrikeOut():
                         strikethrough = False
+                if block.blockFormat().headingLevel() != heading_level:
+                    heading_level = 0
 
         self.bold_action.setChecked(bold)
         self.italic_action.setChecked(italic)
         self.underline_action.setChecked(underline)
         self.strikethrough_action.setChecked(strikethrough)
+        self.text_type_selector.setCurrentIndex(heading_level)
 
     def on_undo_available(self, available: bool):
         self.undo_action.setDisabled(not available)
@@ -260,5 +326,3 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
     def on_redo(self):
         self.text_edit.document().redo()
-
-
