@@ -1,1 +1,1 @@
-The **global search** is used to find text inside the .ndf files of your mod. Simply enter that text you want to find in the search bar, press enter, and the page will list all files which contain it.
+The **global search** is used to find text inside the .ndf files of your mod. Simply enter that text you want to find in the search bar, press enter, and the page will list all files which contain it. You can toggle case-sensitive search by pressing the *case-sensitive search* button (**Ctrl+E**)
