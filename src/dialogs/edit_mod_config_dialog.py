@@ -3,7 +3,7 @@ from pathlib import Path
 from PySide6 import QtWidgets, QtCore
 from src.dialogs.base_dialog import BaseDialog
 from src.dialogs import essential_dialogs
-from src.wme_widgets import wme_essentials, main_widget
+from src.wme_widgets import wme_essentials, main_widget, steam_text_edit
 
 
 class EditModConfigDialog(BaseDialog):
@@ -11,7 +11,7 @@ class EditModConfigDialog(BaseDialog):
         self.warning_label = QtWidgets.QLabel("WARNING! Uploading this mod might fail if it's name does not match "
                                               "the name of the directory (" +
                                               main_widget.instance.get_loaded_mod_name() + ")")
-        self.description_text_edit = QtWidgets.QTextEdit()
+        self.description_text_edit = steam_text_edit.SteamTextEdit()
         self.icon_path_line_edit = wme_essentials.WMELineEdit()
         self.config_values = config_values
         # copy for warning on cancel
@@ -39,8 +39,8 @@ class EditModConfigDialog(BaseDialog):
         form_layout.addWidget(self.warning_label)
 
         # TODO: make this a proper markdown textedit
-        self.description_text_edit.setPlainText(str(self.config_values["Properties/Description"]))
-        self.description_text_edit.textChanged.connect(self.on_description_changed)
+        self.description_text_edit.set_text(str(self.config_values["Properties/Description"]))
+        self.description_text_edit.text_edit.textChanged.connect(self.on_description_changed)
         description_label = QtWidgets.QLabel("Description")
         description_label.setToolTip("A short description of the mod that will be displayed on Steam Workshop.")
         form_layout.addRow(description_label, self.description_text_edit)
@@ -90,7 +90,7 @@ class EditModConfigDialog(BaseDialog):
             self.warning_label.setHidden(name == main_widget.instance.get_loaded_mod_name())
 
     def on_description_changed(self):
-        self.config_values["Properties/Description"] = self.description_text_edit.toPlainText()
+        self.config_values["Properties/Description"] = self.description_text_edit.get_text()
 
     def on_icon_path_changed(self, icon_path: str):
         self.config_values["Properties/PreviewImagePath"] = icon_path

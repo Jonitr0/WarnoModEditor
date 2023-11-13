@@ -49,8 +49,10 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         save_as_action.setShortcut("Ctrl+Shift+S")
         save_as_action.triggered.connect(self.on_save_as)
 
-        self.restore_action = tool_bar.addAction(icon_manager.load_icon("restore.png", COLORS.PRIMARY),
-                                                 "Reload File (F5)")
+        restore_icon = QtGui.QIcon()
+        restore_icon.addPixmap(icon_manager.load_pixmap("restore.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
+        restore_icon.addPixmap(icon_manager.load_pixmap("restore.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
+        self.restore_action = tool_bar.addAction(restore_icon, "Reload File (F5)")
         self.restore_action.setShortcut("F5")
         self.restore_action.setEnabled(False)
         self.restore_action.triggered.connect(self.on_restore)
