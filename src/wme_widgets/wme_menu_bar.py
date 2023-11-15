@@ -8,7 +8,7 @@ from pathlib import Path
 from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
-from src.dialogs import new_mod_dialog, edit_mod_config_dialog
+from src.dialogs import new_mod_dialog
 from src.dialogs import essential_dialogs, options_dialog, new_backup_dialog
 from src.utils import path_validator, settings_manager
 from src.wme_widgets import main_widget
@@ -215,32 +215,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                                             "create the configuration file.").exec()
             return
 
-        config = QtCore.QSettings(config_path, QtCore.QSettings.IniFormat)
-        config_values = {}
-        for key in config.allKeys():
-            config_values[key] = config.value(key)
-        dialog = edit_mod_config_dialog.EditModConfigDialog(config_values)
-        result = dialog.exec_()
-
-        if result == QtWidgets.QDialog.Accepted:
-            config_values = dialog.get_config_values()
-
-            new_name = ""
-
-            for key in config.allKeys():
-                if key == "Properties/Name" and config_values[key] != config.value(key):
-                    new_name = config_values[key]
-                config.setValue(key, config_values[key])
-
-            # delete QSettings object so file can be edited
-            del config
-
-            # replace to make the file readable for Eugen...
-            with open(config_path, "r+") as f:
-                f_content = f.read()
-                f_content = f_content.replace("=", " = ")
-                f.seek(0)
-                f.write(f_content)
+        self.main_widget_ref.tab_widget.on_mod_config()
 
     def on_delete_config_action(self):
         config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \

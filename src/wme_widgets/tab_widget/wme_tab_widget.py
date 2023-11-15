@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
 from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, global_search_page, guid_generator_page, \
-    csv_editor_page
+    csv_editor_page, mod_config_page
 from src.wme_widgets.tab_pages.diff_page import diff_page, file_comparison_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.wme_widgets.tab_pages.napo_pages import game_settings_page
@@ -28,6 +28,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         csv_editor_page.CsvEditorPage: "edit_table.png",
         diff_page.DiffPage: "diff.png",
         file_comparison_page.FileComparisonPage: "file_compare.png",
+        mod_config_page.ModConfigPage: "file_config.png",
     }
 
     def __init__(self, parent=None):
@@ -223,6 +224,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
         comp_page = file_comparison_page.FileComparisonPage()
         comp_page.highlight_differences(left_text, right_text, left_mod, right_mod)
         self.add_tab_with_auto_icon(comp_page, file_name)
+
+    def on_mod_config(self):
+        page = mod_config_page.ModConfigPage()
+        self.add_tab_with_auto_icon(page, "Mod Config")
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
         ret = super().addTab(widget, icon, title)
