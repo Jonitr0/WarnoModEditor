@@ -97,6 +97,8 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         self.text_edit.undoAvailable.connect(self.on_undo_available)
         self.text_edit.redoAvailable.connect(self.on_redo_available)
 
+        self.text_edit.setFontPointSize(10.5)
+
     def on_text_type_changed(self, index: int):
         # TODO: add font size change
         # get selection
@@ -107,8 +109,8 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         if start == end:
             # no selection, change the text type of the current block
             block = cursor.block()
-            block_format = self.formats_for_heading(index)
-            self.set_block_format(block, block_format)
+            block_format, char_format = self.formats_for_heading(index)
+            self.set_block_format(block, block_format, char_format)
         else:
             # get all the blocks in the selection
             block_count = self.text_edit.document().blockCount()
@@ -119,19 +121,25 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                     blocks.append(block)
 
             for block in blocks:
-                block_format = self.formats_for_heading(index)
-                self.set_block_format(block, block_format)
+                block_format, char_format = self.formats_for_heading(index)
+                self.set_block_format(block, block_format, char_format)
 
-    def set_block_format(self, text_block: QtGui.QTextBlock, block_format: QtGui.QTextBlockFormat):
+    def set_block_format(self, text_block: QtGui.QTextBlock, block_format: QtGui.QTextBlockFormat,
+                         char_format: QtGui.QTextCharFormat = None):
         cursor = QtGui.QTextCursor(text_block)
-        cursor.select(QtGui.QTextCursor.BlockUnderCursor)
         cursor.setBlockFormat(block_format)
 
-    def formats_for_heading(self, heading_level: int) -> QtGui.QTextBlockFormat:
+        if char_format is not None:
+            cursor.select(QtGui.QTextCursor.BlockUnderCursor)
+            cursor.mergeCharFormat(char_format)
+
+    def formats_for_heading(self, heading_level: int) -> (QtGui.QTextBlockFormat, QtGui.QTextCharFormat):
         block_format = QtGui.QTextBlockFormat()
         block_format.setHeadingLevel(heading_level)
-        block_format.setBottomMargin(2.0 * heading_level)
-        return block_format
+        block_format.setBottomMargin(8.0 - 2.0 * heading_level)
+        text_char_format = QtGui.QTextCharFormat()
+        text_char_format.setFontPointSize(10.5 if heading_level == 0 else 18 - 2 * heading_level)
+        return block_format, text_char_format
 
     def on_strikethrough(self, checked: bool):
         char_format = self.text_edit.currentCharFormat()
@@ -236,33 +244,33 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             cursor.setPosition(start)
             cursor.setPosition(end, QtGui.QTextCursor.KeepAnchor)
 
-            text_format = QtGui.QTextCharFormat()
+            text_format = cursor.charFormat()
+            block_format = cursor.blockFormat()
 
             match key:
                 case "[b]":
                     text_format.setFontWeight(QtGui.QFont.Bold)
-                    cursor.mergeCharFormat(text_format)
                 case "[i]":
                     text_format.setFontItalic(True)
-                    cursor.mergeCharFormat(text_format)
                 case "[u]":
                     text_format.setFontUnderline(True)
-                    cursor.mergeCharFormat(text_format)
                 case "[strike]":
                     text_format.setFontStrikeOut(True)
-                    cursor.mergeCharFormat(text_format)
                 case "[h1]":
-                    block_format = QtGui.QTextBlockFormat()
                     block_format.setHeadingLevel(1)
-                    cursor.mergeBlockFormat(block_format)
+                    block_format.setBottomMargin(6)
+                    text_format.setFontPointSize(16)
                 case "[h2]":
-                    block_format = QtGui.QTextBlockFormat()
                     block_format.setHeadingLevel(2)
-                    cursor.mergeBlockFormat(block_format)
+                    block_format.setBottomMargin(4)
+                    text_format.setFontPointSize(14)
                 case "[h3]":
-                    block_format = QtGui.QTextBlockFormat()
                     block_format.setHeadingLevel(3)
-                    cursor.mergeBlockFormat(block_format)
+                    block_format.setBottomMargin(2)
+                    text_format.setFontPointSize(12)
+
+            cursor.mergeBlockFormat(block_format)
+            cursor.mergeCharFormat(text_format)
 
     def on_new_selection(self):
         # get selection text format
@@ -296,7 +304,9 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         for block in blocks:
             for format_range in block.textFormats():
-                if format_range.start + format_range.length > start and format_range.start < end:
+                format_start = block.position() + format_range.start
+                format_end = format_start + format_range.length
+                if format_end >= start and format_start < end:
                     text_format = format_range.format
                     if text_format.fontWeight() != QtGui.QFont.Bold:
                         bold = False
