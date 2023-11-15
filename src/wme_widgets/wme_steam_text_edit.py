@@ -64,7 +64,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         tool_bar.addSeparator()
 
-        link_action = tool_bar.addAction(icon_manager.load_icon("link.png", COLORS.PRIMARY), "Link")
+        self.link_action = tool_bar.addAction(icon_manager.load_icon("link.png", COLORS.PRIMARY), "Add Hyperlink")
 
         tool_bar.addSeparator()
 
@@ -98,9 +98,10 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         self.text_edit.redoAvailable.connect(self.on_redo_available)
 
         self.text_edit.setFontPointSize(10.5)
+        self.text_edit.setObjectName("steam_text_edit")
+        # TODO: headings still buggy
 
     def on_text_type_changed(self, index: int):
-        # TODO: add font size change
         # get selection
         cursor = self.text_edit.textCursor()
         start = cursor.selectionStart()
@@ -136,9 +137,11 @@ class WMESteamTextEdit(QtWidgets.QWidget):
     def formats_for_heading(self, heading_level: int) -> (QtGui.QTextBlockFormat, QtGui.QTextCharFormat):
         block_format = QtGui.QTextBlockFormat()
         block_format.setHeadingLevel(heading_level)
-        block_format.setBottomMargin(8.0 - 2.0 * heading_level)
+        block_format.setBottomMargin(0 if heading_level == 0 else 8.0 - 2.0 * heading_level)
         text_char_format = QtGui.QTextCharFormat()
         text_char_format.setFontPointSize(10.5 if heading_level == 0 else 18 - 2 * heading_level)
+        color = get_color_for_key(COLORS.SECONDARY_TEXT.value if heading_level == 0 else COLORS.PRIMARY.value)
+        text_char_format.setForeground(QtGui.QBrush(color))
         return block_format, text_char_format
 
     def on_strikethrough(self, checked: bool):
@@ -257,17 +260,17 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 case "[strike]":
                     text_format.setFontStrikeOut(True)
                 case "[h1]":
-                    block_format.setHeadingLevel(1)
-                    block_format.setBottomMargin(6)
-                    text_format.setFontPointSize(16)
+                    heading_block_format, heading_char_format = self.formats_for_heading(1)
+                    block_format.merge(heading_block_format)
+                    text_format.merge(heading_char_format)
                 case "[h2]":
-                    block_format.setHeadingLevel(2)
-                    block_format.setBottomMargin(4)
-                    text_format.setFontPointSize(14)
+                    heading_block_format, heading_char_format = self.formats_for_heading(2)
+                    block_format.merge(heading_block_format)
+                    text_format.merge(heading_char_format)
                 case "[h3]":
-                    block_format.setHeadingLevel(3)
-                    block_format.setBottomMargin(2)
-                    text_format.setFontPointSize(12)
+                    heading_block_format, heading_char_format = self.formats_for_heading(3)
+                    block_format.merge(heading_block_format)
+                    text_format.merge(heading_char_format)
 
             cursor.mergeBlockFormat(block_format)
             cursor.mergeCharFormat(text_format)

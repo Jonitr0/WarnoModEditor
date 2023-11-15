@@ -166,3 +166,7 @@ QScrollBar::handle {{
 QScrollBar::handle:vertical {{
   min-height: 8px;
 }}
+
+QTextEdit#steam_text_edit {{
+  color: {QTMATERIAL_SECONDARYTEXTCOLOR};
+}}

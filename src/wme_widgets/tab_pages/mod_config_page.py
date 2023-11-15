@@ -61,6 +61,7 @@ class ModConfigPage(base_tab_page.BaseTabPage):
 
         config = QtCore.QSettings(config_path, QtCore.QSettings.IniFormat)
 
+        self.config_values = self.get_config_values()
         for key in config.allKeys():
             config.setValue(key, self.config_values[key])
 
