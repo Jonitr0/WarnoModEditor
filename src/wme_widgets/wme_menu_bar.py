@@ -259,6 +259,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                     f.write(line)
 
     def on_upload_action(self):
+        # TODO: temporarily remove line breaks from config file
         ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "UploadMod.bat", [])
         logging.info("UploadMod.bat executed with return code " + str(ret))
 

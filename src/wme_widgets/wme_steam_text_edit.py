@@ -99,7 +99,6 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         self.text_edit.setFontPointSize(10.5)
         self.text_edit.setObjectName("steam_text_edit")
-        # TODO: headings still buggy
 
     def on_text_type_changed(self, index: int):
         # get selection
@@ -156,25 +155,32 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         # get all format tag positions
         for i in range(block_count):
             block = self.text_edit.document().findBlockByNumber(block_count - i - 1)
+            block_start = block.position()
+            block_end = block_start + block.length() - 1
+            heading_level = block.blockFormat().headingLevel()
+            # set heading end tag
             if block.blockFormat().headingLevel() != 0:
-                if not block.position() in format_tag_positions:
-                    format_tag_positions[block.position()] = []
-                if not block.position() + block.length() in format_tag_positions:
-                    format_tag_positions[block.position() + block.length()] = []
-                heading_level = block.blockFormat().headingLevel()
-                format_tag_positions[block.position() + block.length()].append(f"[/h{heading_level}]")
-                format_tag_positions[block.position()].append(f"[h{heading_level}]")
+                if not block_start in format_tag_positions:
+                    format_tag_positions[block_start] = []
+                if not block_end in format_tag_positions:
+                    format_tag_positions[block_end] = []
+                format_tag_positions[block_end].append(f"[/h{heading_level}]")
+            # set in-line format tags
             for format_range in reversed(block.textFormats()):
-                start = format_range.start
+                start = block.position() + format_range.start
                 end = start + format_range.length
                 text_format = format_range.format
                 format_tag_positions = self.mark_format_tags(start, end, text_format, format_tag_positions)
+            # set heading start tag
+            if block.blockFormat().headingLevel() != 0:
+                format_tag_positions[block_start].append(f"[h{heading_level}]")
 
         # apply format tags
         for pos in reversed(sorted(format_tag_positions.keys())):
             for tag in format_tag_positions[pos]:
                 plain_text = plain_text[:pos] + tag + plain_text[pos:]
 
+        plain_text = "\"" + plain_text + "\""
         return plain_text
 
     def mark_format_tags(self, start: int, end: int, text_format: QtGui.QTextCharFormat, format_tag_positions: dict):
@@ -197,6 +203,8 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         return format_tag_positions
 
     def set_text(self, text: str):
+        text = text.removeprefix("\"").removesuffix("\"")
+
         tags = {
             "[b]": "[/b]",
             "[i]": "[/i]",
