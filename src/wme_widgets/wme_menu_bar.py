@@ -259,9 +259,27 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                     f.write(line)
 
     def on_upload_action(self):
-        # TODO: temporarily remove line breaks from config file
+        config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
+                      main_widget.instance.get_loaded_mod_name() + "\\Config.ini"
+
+        if not QtCore.QFile.exists(config_path):
+            essential_dialogs.MessageDialog("Config.ini not found", "The config.ini file for the mod does not seem "
+                                                                    "to exist. Generate the mod (Alt + G) to create "
+                                                                    "the configuration file.").exec()
+            return
+
+        with open(config_path, "r+") as f:
+            f_content = f.read()
+            orig_content = f_content
+            f_content = f_content.replace("\\n", "")
+            f.seek(0)
+            f.write(f_content)
+
         ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "UploadMod.bat", [])
         logging.info("UploadMod.bat executed with return code " + str(ret))
+
+        with open(config_path, "w") as f:
+            f.write(orig_content)
 
     def on_new_backup_action(self):
         dialog = new_backup_dialog.NewBackupDialog()
