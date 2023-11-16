@@ -47,7 +47,10 @@ class ModConfigPage(base_tab_page.BaseTabPage):
         config = QtCore.QSettings(config_path, QtCore.QSettings.IniFormat)
         self.config_values = {}
         for key in config.allKeys():
-            self.config_values[key] = config.value(key)
+            if key == "Properties/Description" and not config.value(key).startswith("\""):
+                self.config_values[key] = "\"" + config.value(key) + "\""
+            else:
+                self.config_values[key] = config.value(key)
 
         self.set_values()
 

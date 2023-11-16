@@ -1,4 +1,4 @@
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.utils.color_manager import *
@@ -102,10 +102,12 @@ class WMEDoubleSpinbox(QtWidgets.QDoubleSpinBox):
         else:
             e.ignore()
 
+
 def wrapEF(ef):
     w = QtCore.QObject()
     w.eventFilter = ef
     return w
+
 
 def sbEventFilter(s, e):
     q = s
@@ -146,3 +148,23 @@ class WMEScrollBar(QtWidgets.QScrollBar):
         self.ef = wrapEF(sbEventFilter)
         self.installEventFilter(self.ef)
 
+
+class WMETextEdit(QtWidgets.QTextEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setAcceptRichText(False)
+        self.setVerticalScrollBar(WMEScrollBar())
+        self.setHorizontalScrollBar(WMEScrollBar())
+        self.anchor = None
+
+    def mousePressEvent(self, e):
+        # if Ctrl is pressed
+        if e.modifiers() == Qt.ControlModifier:
+            self.anchor = self.anchorAt(e.pos())
+        super().mousePressEvent(e)
+
+    def mouseReleaseEvent(self, e):
+        if self.anchor:
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl(self.anchor))
+            self.anchor = None
+        super().mouseReleaseEvent(e)

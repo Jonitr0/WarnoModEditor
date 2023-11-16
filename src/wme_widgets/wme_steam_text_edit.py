@@ -3,6 +3,7 @@ from PySide6 import QtWidgets, QtGui
 from src.utils import icon_manager
 from src.utils.color_manager import *
 from src.dialogs import hyperlink_dialog
+from src.wme_widgets import wme_essentials
 
 import re
 
@@ -11,7 +12,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
     def __init__(self, parent: QtWidgets.QWidget = None):
         super().__init__(parent)
         self.hyperlink_format = QtGui.QTextCharFormat()
-        self.text_edit = QtWidgets.QTextEdit()
+        self.text_edit = wme_essentials.WMETextEdit()
         self.setup_ui()
 
     def setup_ui(self):
