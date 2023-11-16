@@ -10,6 +10,7 @@ import re
 class WMESteamTextEdit(QtWidgets.QWidget):
     def __init__(self, parent: QtWidgets.QWidget = None):
         super().__init__(parent)
+        self.hyperlink_format = QtGui.QTextCharFormat()
         self.text_edit = QtWidgets.QTextEdit()
         self.setup_ui()
 
@@ -101,6 +102,11 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         self.text_edit.setFontPointSize(10.5)
         self.text_edit.setObjectName("steam_text_edit")
+
+        self.hyperlink_format.setAnchor(True)
+        self.hyperlink_format.setAnchorHref("")
+        self.hyperlink_format.setFontPointSize(10.5)
+        self.hyperlink_format.setForeground(QtGui.QBrush(get_color_for_key(COLORS.PRIMARY.value)))
 
     def on_text_type_changed(self, index: int):
         # get selection
@@ -196,14 +202,17 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         dialog = hyperlink_dialog.HyperlinkDialog(text, link)
         if dialog.exec_():
             text, link = dialog.get_data()
-            char_format = QtGui.QTextCharFormat()
-            char_format.setAnchor(True)
-            char_format.setAnchorHref(link)
-            char_format.setForeground(QtGui.QBrush(get_color_for_key(COLORS.PRIMARY.value)))
-            char_format.setFontPointSize(10.5)
+            if link:
+                char_format = self.hyperlink_format
+                char_format.setAnchorHref(link)
 
-            cursor = self.text_edit.textCursor()
-            cursor.insertText(text, char_format)
+                cursor = self.text_edit.textCursor()
+                cursor.insertText(text, char_format)
+            else:
+                # reset format to standard
+                char_format = QtGui.QTextCharFormat()
+                char_format.setFontPointSize(10.5)
+                self.text_edit.setCurrentCharFormat(char_format)
 
     def get_text(self):
         plain_text = self.text_edit.toPlainText()
@@ -257,6 +266,9 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         if text_format.fontStrikeOut():
             format_tag_positions[end].append("[/strike]")
             format_tag_positions[start].append("[strike]")
+        if text_format.anchorHref() != "":
+            format_tag_positions[end].append("[/url]")
+            format_tag_positions[start].append(f"[url={text_format.anchorHref()}]")
         return format_tag_positions
 
     def set_text(self, text: str):
@@ -270,8 +282,17 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             "[h1]": "[/h1]",
             "[h2]": "[/h2]",
             "[h3]": "[/h3]",
+            "[url": "[/url]"
         }
         plain_text = text
+
+        # save all hyperlinks
+        hyperlinks = []
+        for match in re.finditer(r"\[url=(.+?)\](.+?)\[/url\]", plain_text):
+            hyperlinks.append(match.group(1))
+
+        # replace hyperlinks with emtpy tags
+        plain_text = re.sub(r"\[url=.+?\]", "[url", plain_text)
 
         # create plain text
         for key, val in tags.items():
@@ -285,12 +306,20 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         escaped_values = '|'.join(sorted(escaped_values, key=len, reverse=True))
         regex = escaped_keys + '|' + escaped_values
 
+        link_positions = {}
+
         # create index mapping for original text to plain text
         index_in_plain = [i for i in range(len(text))]
         for match in re.finditer(regex, text):
             start = match.start()
             end = match.end()
             length = end - start
+
+            if match.group().startswith("[url"):
+                link_positions[index_in_plain[start]] = hyperlinks.pop(0)
+                # set new end and length
+                end = text.find("]", end) + 1
+                length = end - start
 
             for i in range(length):
                 index_in_plain[start + i] = index_in_plain[start]
@@ -336,6 +365,10 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                     heading_block_format, heading_char_format = self.formats_for_heading(3)
                     block_format.merge(heading_block_format)
                     text_format.merge(heading_char_format)
+
+            if key.startswith("[url"):
+                text_format = self.hyperlink_format
+                text_format.setAnchorHref(link_positions[start])
 
             cursor.mergeBlockFormat(block_format)
             cursor.mergeCharFormat(text_format)
