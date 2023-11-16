@@ -2,6 +2,7 @@ from PySide6 import QtWidgets, QtGui
 
 from src.utils import icon_manager
 from src.utils.color_manager import *
+from src.dialogs import hyperlink_dialog
 
 import re
 
@@ -65,6 +66,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         tool_bar.addSeparator()
 
         self.link_action = tool_bar.addAction(icon_manager.load_icon("link.png", COLORS.PRIMARY), "Add Hyperlink")
+        self.link_action.triggered.connect(self.on_hyperlink)
 
         tool_bar.addSeparator()
 
@@ -148,6 +150,61 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         char_format.setFontStrikeOut(checked)
         self.text_edit.setCurrentCharFormat(char_format)
 
+    def on_hyperlink(self):
+        selection = self.text_edit.textCursor().selectedText()
+        text = selection if selection else ""
+        link = ""
+
+        # if there is a selection, check if it is a link
+        if selection:
+            start = self.text_edit.textCursor().selectionStart()
+            end = self.text_edit.textCursor().selectionEnd()
+            # get all blocks in selection
+            block_count = self.text_edit.document().blockCount()
+            blocks = []
+            for i in range(block_count):
+                block = self.text_edit.document().findBlockByNumber(i)
+                if block.position() + block.length() > start and block.position() < end:
+                    blocks.append(block)
+
+            first = True
+            for block in blocks:
+                for format_range in block.textFormats():
+                    text_format = format_range.format
+                    format_start = block.position() + format_range.start
+                    format_end = format_start + format_range.length
+
+                    if first:
+                        first = False
+                        link = text_format.anchorHref()
+                    if format_end >= start and format_start < end:
+                        text_format = format_range.format
+                        if text_format.anchorHref() != link:
+                            link = ""
+                            break
+
+        if link == "":
+            # check for link in clipboard
+            clipboard = QtGui.QGuiApplication.clipboard()
+            hl_regex = "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:" \
+                       "[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
+            if clipboard.mimeData().hasText():
+                clipboard_text = clipboard.text()
+                if re.match(hl_regex, clipboard_text):
+                    link = clipboard_text
+
+        dialog = hyperlink_dialog.HyperlinkDialog(text, link)
+        if dialog.exec_():
+            text, link = dialog.get_data()
+            char_format = QtGui.QTextCharFormat()
+            char_format.setAnchor(True)
+            char_format.setAnchorHref(link)
+            char_format.setForeground(QtGui.QBrush(get_color_for_key(COLORS.PRIMARY.value)))
+            char_format.setFontPointSize(10.5)
+
+            cursor = self.text_edit.textCursor()
+            cursor.insertText(text, char_format)
+
     def get_text(self):
         plain_text = self.text_edit.toPlainText()
         block_count = self.text_edit.document().blockCount()
@@ -160,9 +217,9 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             heading_level = block.blockFormat().headingLevel()
             # set heading end tag
             if block.blockFormat().headingLevel() != 0:
-                if not block_start in format_tag_positions:
+                if block_start not in format_tag_positions:
                     format_tag_positions[block_start] = []
-                if not block_end in format_tag_positions:
+                if block_end not in format_tag_positions:
                     format_tag_positions[block_end] = []
                 format_tag_positions[block_end].append(f"[/h{heading_level}]")
             # set in-line format tags
