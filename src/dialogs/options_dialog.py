@@ -14,6 +14,10 @@ class OptionsDialog(BaseDialog):
         self.theme_checkbox = QtWidgets.QCheckBox()
         self.path_line_edit = wme_essentials.WMELineEdit()
 
+        self.auto_backup_frequency_combobox = wme_essentials.WMECombobox()
+        self.auto_backup_count_spinbox = wme_essentials.WMESpinbox()
+        self.auto_backup_while_running_checkbox = QtWidgets.QCheckBox()
+
         super().__init__()
         self.setWindowTitle("Options")
 
@@ -49,6 +53,29 @@ class OptionsDialog(BaseDialog):
         form_layout.addRow("WARNO path:", warno_path_layout)
 
         # TODO: auto-backup
+
+        auto_backup_label = QtWidgets.QLabel("Auto-Backup default settings")
+        auto_backup_label.setObjectName("heading")
+        form_layout.addRow(auto_backup_label)
+
+        self.auto_backup_frequency_combobox.addItems({
+            "Never": 0,
+            "Every 10 minutes": 10,
+            "Every 30 minutes": 30,
+            "Every hour": 60,
+            "Every 2 hours": 120,
+            "Every 24 hours": 1440,
+        })
+        form_layout.addRow("Frequency:", self.auto_backup_frequency_combobox)
+
+        self.auto_backup_count_spinbox.setMinimum(1)
+        self.auto_backup_count_spinbox.setMaximum(100)
+        form_layout.addRow("Maximum number of backups:", self.auto_backup_count_spinbox)
+
+        self.auto_backup_while_running_checkbox.setChecked(False)
+        form_layout.addRow("Auto-Backup while running:", self.auto_backup_while_running_checkbox)
+        form_layout.addWidget(QtWidgets.QLabel("If checked, auto-backups will be created while WME is running.\n"
+                                               "If unchecked, auto-backups will only be created when WME is closed."))
 
     def on_browse_clicked(self):
         warno_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter WARNO path", self.path_line_edit.text(),
