@@ -49,6 +49,8 @@ class MainWidget(QtWidgets.QWidget):
         self.log_dialog.new_log.connect(self.on_new_log)
         self.log_dialog.error_log.connect(self.on_error_log)
 
+        # TODO: add auto-backup thread
+
         self.setup_ui()
 
         global instance
