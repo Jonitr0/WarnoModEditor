@@ -11,6 +11,9 @@ THEME_KEY = "wme_theme"
 NEXT_THEME_KEY = "wme_next_theme"
 SHOW_EXPLORER_FILESIZE_KEY = "wme_show_explorer_filesize"
 APP_STATE = "wme_app_state"
+AUTO_BACKUP_FREQUENCY_KEY = "wme_auto_backup_frequency"
+AUTO_BACKUP_COUNT_KEY = "wme_auto_backup_count"
+AUTO_BACKUP_WHILE_RUNNING_KEY = "wme_auto_backup_while_running"
 
 
 def get_settings_value(key: str, default=None):

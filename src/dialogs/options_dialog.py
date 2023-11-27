@@ -52,30 +52,47 @@ class OptionsDialog(BaseDialog):
         warno_path_layout.addWidget(browse_button)
         form_layout.addRow("WARNO path:", warno_path_layout)
 
-        # TODO: auto-backup
-
         auto_backup_label = QtWidgets.QLabel("Auto-Backup default settings")
         auto_backup_label.setObjectName("heading")
         form_layout.addRow(auto_backup_label)
 
-        self.auto_backup_frequency_combobox.addItems({
-            "Never": 0,
-            "Every 10 minutes": 10,
-            "Every 30 minutes": 30,
-            "Every hour": 60,
-            "Every 2 hours": 120,
-            "Every 24 hours": 1440,
-        })
+        self.auto_backup_frequency_combobox.addItem("Never", 0)
+        self.auto_backup_frequency_combobox.addItem("Every 10 minutes", 10)
+        self.auto_backup_frequency_combobox.addItem("Every 30 minutes", 30)
+        self.auto_backup_frequency_combobox.addItem("Every hour", 60)
+        self.auto_backup_frequency_combobox.addItem("Every 2 hours", 120)
+        self.auto_backup_frequency_combobox.addItem("Every 24 hours", 1440)
+
+        try:
+            val = int(settings_manager.get_settings_value(settings_manager.AUTO_BACKUP_FREQUENCY_KEY))
+            self.auto_backup_frequency_combobox.setCurrentIndex(self.auto_backup_frequency_combobox.findData(val))
+        except Exception:
+            settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_FREQUENCY_KEY, 60)
+            self.auto_backup_frequency_combobox.setCurrentIndex(self.auto_backup_frequency_combobox.findData(60))
+
         form_layout.addRow("Frequency:", self.auto_backup_frequency_combobox)
+
+        try:
+            val = int(settings_manager.get_settings_value(settings_manager.AUTO_BACKUP_COUNT_KEY))
+            self.auto_backup_count_spinbox.setValue(val)
+        except Exception:
+            settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_COUNT_KEY, 3)
+            self.auto_backup_count_spinbox.setValue(3)
 
         self.auto_backup_count_spinbox.setMinimum(1)
         self.auto_backup_count_spinbox.setMaximum(100)
         form_layout.addRow("Maximum number of backups:", self.auto_backup_count_spinbox)
 
-        self.auto_backup_while_running_checkbox.setChecked(False)
         form_layout.addRow("Auto-Backup while running:", self.auto_backup_while_running_checkbox)
         form_layout.addWidget(QtWidgets.QLabel("If checked, auto-backups will be created while WME is running.\n"
                                                "If unchecked, auto-backups will only be created when WME is closed."))
+
+        try:
+            val = int(settings_manager.get_settings_value(settings_manager.AUTO_BACKUP_WHILE_RUNNING_KEY))
+            self.auto_backup_while_running_checkbox.setChecked(bool(val))
+        except Exception:
+            settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_WHILE_RUNNING_KEY, 0)
+            self.auto_backup_while_running_checkbox.setChecked(False)
 
     def on_browse_clicked(self):
         warno_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter WARNO path", self.path_line_edit.text(),
@@ -99,5 +116,12 @@ class OptionsDialog(BaseDialog):
             theme = "dark "
         theme += str(self.color_combobox.currentText())
         settings_manager.write_settings_value(settings_manager.NEXT_THEME_KEY, theme)
+
+        settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_FREQUENCY_KEY,
+                                              self.auto_backup_frequency_combobox.currentData())
+        settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_COUNT_KEY,
+                                              self.auto_backup_count_spinbox.value())
+        settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_WHILE_RUNNING_KEY,
+                                              1 if self.auto_backup_while_running_checkbox.isChecked() else 0)
 
         super().accept()
