@@ -46,7 +46,7 @@ class MainWidget(QtWidgets.QWidget):
         self.title_bar = title_bar
         self.title_label = QtWidgets.QLabel("")
         self.log_dialog = log_dialog.LogDialog()
-        self.auto_backup_manager = auto_backup_manager.AutoBackupManager()
+        self.auto_backup_manager = auto_backup_manager.AutoBackupManager(self)
 
         self.log_dialog.new_log.connect(self.on_new_log)
         self.log_dialog.error_log.connect(self.on_error_log)

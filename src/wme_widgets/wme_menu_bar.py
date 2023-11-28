@@ -8,8 +8,7 @@ from pathlib import Path
 from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
-from src.dialogs import new_mod_dialog
-from src.dialogs import essential_dialogs, options_dialog, new_backup_dialog
+from src.dialogs import new_mod_dialog, essential_dialogs, options_dialog, new_backup_dialog, auto_backup_dialog
 from src.utils import path_validator, settings_manager
 from src.wme_widgets import main_widget
 
@@ -71,6 +70,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                                 self.on_retrieve_backup_action, "Restore an existing mod backup.", "Ctrl+Alt+R")
         self.add_action_to_menu("Delete Mod Backup", self.backup_menu, True, self.on_delete_backup_action,
                                 "Delete an existing mod backup.")
+        self.add_action_to_menu("Auto Backup Settings", self.backup_menu, True, self.on_auto_backup_action,
+                                "Change the auto backup settings for the current mod.")
 
     def on_new_action(self):
         dialog = new_mod_dialog.NewModDialog(self.main_widget_ref.get_warno_path())
@@ -122,7 +123,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                                                             "WARNO mod directory. Please enter a valid path").exec()
 
     def on_delete_action(self):
-        # TODO: refactor this with mutex
         # let user select a mod
         while True:
             mod_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter path of mod to delete",
@@ -147,6 +147,9 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         if ret != QtWidgets.QDialog.Accepted:
             return
 
+        if mod_path == self.main_widget_ref.get_loaded_mod_path():
+            self.main_widget_ref.unload_mod()
+
         try:
             shutil.rmtree(mod_path)
         except Exception as e:
@@ -167,9 +170,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                     shutil.rmtree(config_dir)
                 except Exception as e:
                     logging.error(e)
-
-        if mod_path == self.main_widget_ref.get_loaded_mod_path():
-            self.main_widget_ref.unload_mod()
 
         # delete mod from config
         app_state = settings_manager.get_settings_value(settings_manager.APP_STATE)
@@ -234,25 +234,23 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             if confirm_dialog.exec_() != QtWidgets.QDialog.Accepted:
                 return
 
-            main_widget.instance.auto_backup_manager.file_system_lock.lock()
-
             try:
                 os.remove(config_path)
             except Exception as e:
                 logging.error("Error while deleting config file: " + str(e))
-
-            main_widget.instance.auto_backup_manager.file_system_lock.unlock()
 
     def on_update_action(self):
         self.remove_pause_line_from_script("UpdateMod.bat")
         ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "UpdateMod.bat", [])
         logging.info("UpdateMod.bat executed with return code " + str(ret))
 
+        main_widget.instance.auto_backup_manager.file_system_lock.lock()
         try:
             if os.path.exists(self.main_widget_ref.get_loaded_mod_path() + "\\.base"):
                 shutil.rmtree(self.main_widget_ref.get_loaded_mod_path() + "\\.base")
         except Exception as e:
             logging.error(e)
+        main_widget.instance.auto_backup_manager.file_system_lock.unlock()
 
     def remove_pause_line_from_script(self, script_name: str):
         file = self.main_widget_ref.get_loaded_mod_path() + "\\" + script_name
@@ -360,10 +358,16 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         if confirm_dialog.exec_() != QtWidgets.QDialog.Accepted:
             return
 
+        main_widget.instance.auto_backup_manager.file_system_lock.lock()
         try:
             os.remove(self.main_widget_ref.get_loaded_mod_path() + "\\Backup\\" + selection)
         except Exception as ex:
             logging.error(ex)
+        main_widget.instance.auto_backup_manager.file_system_lock.unlock()
+
+    def on_auto_backup_action(self):
+        dialog = auto_backup_dialog.AutoBackupDialog()
+        dialog.exec()
 
     def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
                            slot=None, tooltip: str = "", shortcut: str = "") -> QtGui.QAction:

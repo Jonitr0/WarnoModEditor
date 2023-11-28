@@ -1,14 +1,16 @@
 from PySide6 import QtCore
 
+from src.utils import settings_manager
 
-# TODO: mutex for running, lock whenever something is saved, loaded or a script is run
+
 class AutoBackupManager(QtCore.QObject):
     file_system_lock = QtCore.QMutex()
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
         # TODO: if default settings arent set, set them
+        # TODO: run the backup creation in a thread in the background
 
     def on_mod_loaded(self):
         # TODO: load mod specific settings or default settings
