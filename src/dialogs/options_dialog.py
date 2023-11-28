@@ -25,6 +25,18 @@ class OptionsDialog(BaseDialog):
         form_layout = QtWidgets.QFormLayout()
         self.main_layout.addLayout(form_layout)
 
+        warno_path_layout = QtWidgets.QHBoxLayout()
+        self.path_line_edit.setText(main_widget.instance.get_warno_path())
+        warno_path_layout.addWidget(self.path_line_edit)
+        browse_button = QtWidgets.QPushButton("Browse..")
+        browse_button.clicked.connect(self.on_browse_clicked)
+        warno_path_layout.addWidget(browse_button)
+        form_layout.addRow("WARNO path:", warno_path_layout)
+
+        theme_label = QtWidgets.QLabel("Theme")
+        theme_label.setObjectName("heading")
+        form_layout.addRow(theme_label)
+
         color_list = theme_manager.get_all_themes()
         color_list = color_list[:len(color_list) // 2]
         for i in range(len(color_list)):
@@ -43,14 +55,6 @@ class OptionsDialog(BaseDialog):
         form_layout.addRow("Accent Color:", self.color_combobox)
         form_layout.addWidget(
             QtWidgets.QLabel("Changes to the theme will be applied when the application is restarted."))
-
-        warno_path_layout = QtWidgets.QHBoxLayout()
-        self.path_line_edit.setText(main_widget.instance.get_warno_path())
-        warno_path_layout.addWidget(self.path_line_edit)
-        browse_button = QtWidgets.QPushButton("Browse..")
-        browse_button.clicked.connect(self.on_browse_clicked)
-        warno_path_layout.addWidget(browse_button)
-        form_layout.addRow("WARNO path:", warno_path_layout)
 
         auto_backup_label = QtWidgets.QLabel("Auto-Backup default settings")
         auto_backup_label.setObjectName("heading")

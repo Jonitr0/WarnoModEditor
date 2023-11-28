@@ -88,10 +88,13 @@ class BaseTabPage(QtWidgets.QWidget):
 
         try:
             main_widget.instance.show_loading_screen("Saving changes...")
+            main_widget.instance.auto_backup_manager.file_system_lock.lock()
             self._save_changes()
+            main_widget.instance.auto_backup_manager.file_system_lock.unlock()
             main_widget.instance.hide_loading_screen()
         except Exception as e:
             logging.error("Error while saving: " + str(e))
+            main_widget.instance.auto_backup_manager.file_system_lock.unlock()
             main_widget.instance.hide_loading_screen()
             raise e
 

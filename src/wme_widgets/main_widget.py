@@ -7,7 +7,7 @@ from src.wme_widgets import wme_menu_bar, base_window
 from src.wme_widgets.project_explorer import wme_project_explorer
 from src.wme_widgets.tab_widget import wme_tab_widget, wme_detached_tab
 from src.dialogs import log_dialog, essential_dialogs
-from src.utils import path_validator, icon_manager, resource_loader
+from src.utils import path_validator, icon_manager, resource_loader, auto_backup_manager
 from src.utils.color_manager import *
 
 from pydoc import locate
@@ -25,6 +25,7 @@ def restore_window(window_obj: dict, window: base_window.BaseWindow):
 class MainWidget(QtWidgets.QWidget):
     status_set_text = QtCore.Signal(str)
     mod_loaded = QtCore.Signal(str)
+    # TODO: handle in auto-backup thread
     mod_unloaded = QtCore.Signal()
 
     def __init__(self, parent, warno_path: str, title_bar):
@@ -45,6 +46,7 @@ class MainWidget(QtWidgets.QWidget):
         self.title_bar = title_bar
         self.title_label = QtWidgets.QLabel("")
         self.log_dialog = log_dialog.LogDialog()
+        self.auto_backup_manager = auto_backup_manager.AutoBackupManager()
 
         self.log_dialog.new_log.connect(self.on_new_log)
         self.log_dialog.error_log.connect(self.on_error_log)
@@ -244,8 +246,6 @@ class MainWidget(QtWidgets.QWidget):
         next_theme = settings_manager.get_settings_value(settings_manager.NEXT_THEME_KEY)
         if next_theme:
             settings_manager.write_settings_value(settings_manager.THEME_KEY, next_theme)
-
-        # TODO: auto-backup
 
         try:
             json_obj = settings_manager.get_settings_value(settings_manager.APP_STATE, default={})

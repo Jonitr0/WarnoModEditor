@@ -173,6 +173,6 @@ QTextEdit#steam_text_edit {{
 
 QLabel#heading {{
   color: {QTMATERIAL_PRIMARYCOLOR};
-  font: 16pt;
+  font: 14pt;
   font-weight: bold;
 }}
