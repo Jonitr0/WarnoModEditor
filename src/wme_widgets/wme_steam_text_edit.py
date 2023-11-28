@@ -72,7 +72,9 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         tool_bar.addSeparator()
 
-        list_action = tool_bar.addAction(icon_manager.load_icon("bullet_list.png", COLORS.PRIMARY), "List")
+        self.list_action = tool_bar.addAction(icon_manager.load_icon("bullet_list.png", COLORS.PRIMARY), "List")
+        self.list_action.setCheckable(True)
+        self.list_action.triggered.connect(self.on_list)
 
         ordered_list_action = tool_bar.addAction(icon_manager.load_icon("ordered_list.png", COLORS.PRIMARY),
                                                  "Ordered List")
@@ -214,6 +216,32 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 char_format = QtGui.QTextCharFormat()
                 char_format.setFontPointSize(10.5)
                 self.text_edit.setCurrentCharFormat(char_format)
+
+    def on_list(self, checked: bool):
+        cursor = self.text_edit.textCursor()
+        if checked:
+            selection = self.text_edit.textCursor().selectedText()
+            if not selection:
+                # save cursor position
+                cursor_position = cursor.position()
+                # move cursor to the start of the current block
+                cursor.movePosition(QtGui.QTextCursor.StartOfBlock)
+                # insert list
+                cursor.insertList(QtGui.QTextListFormat.ListDisc)
+                # move cursor back one char
+                cursor.movePosition(QtGui.QTextCursor.PreviousCharacter)
+                # remove block
+                cursor.deleteChar()
+                # move cursor back to the saved position
+                cursor.setPosition(cursor_position)
+                self.text_edit.setTextCursor(cursor)
+            else:
+                cursor.insertList(QtGui.QTextListFormat.ListDisc)
+                # TODO: add selected text and formatting to list
+        else:
+            # TODO: remove list
+            pass
+
 
     def get_text(self):
         plain_text = self.text_edit.toPlainText()
