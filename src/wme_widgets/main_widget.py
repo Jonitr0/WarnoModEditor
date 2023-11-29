@@ -25,7 +25,6 @@ def restore_window(window_obj: dict, window: base_window.BaseWindow):
 class MainWidget(QtWidgets.QWidget):
     status_set_text = QtCore.Signal(str)
     mod_loaded = QtCore.Signal(str)
-    # TODO: handle in auto-backup thread
     mod_unloaded = QtCore.Signal()
 
     def __init__(self, parent, warno_path: str, title_bar):
@@ -53,8 +52,6 @@ class MainWidget(QtWidgets.QWidget):
 
         self.log_dialog.new_log.connect(self.on_new_log)
         self.log_dialog.error_log.connect(self.on_error_log)
-
-        # TODO: add auto-backup thread
 
         self.setup_ui()
 
@@ -133,6 +130,7 @@ class MainWidget(QtWidgets.QWidget):
 
         self.explorer.tree_view.open_text_editor.connect(self.tab_widget.on_open_ndf_editor)
         self.explorer.tree_view.open_csv_editor.connect(self.tab_widget.on_open_csv_editor)
+        self.explorer.tree_view.restore_backup.connect(self.menu_bar.retrieve_backup)
 
         separator = QtWidgets.QWidget()
         separator.setObjectName("separator")

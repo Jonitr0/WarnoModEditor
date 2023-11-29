@@ -333,8 +333,16 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
         selection = dialog.get_selection()
 
+        self.retrieve_backup(selection)
+
+    def retrieve_backup(self, backup_name: str):
+        dialog = essential_dialogs.ConfirmationDialog("All changes on the current mod will be lost. Are you sure you "
+                                                      "want to continue?", "Warning!")
+        if dialog.exec_() != QtWidgets.QDialog.Accepted:
+            return
+
         self.remove_pause_line_from_script("RetrieveModBackup.bat")
-        ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "RetrieveModBackup.bat", selection)
+        ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "RetrieveModBackup.bat", backup_name)
         logging.info("RetrieveModBackup.bat executed with return code " + str(ret))
 
         self.request_load_mod.emit(self.main_widget_ref.get_loaded_mod_path())
