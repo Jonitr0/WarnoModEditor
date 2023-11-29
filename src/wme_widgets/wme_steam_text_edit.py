@@ -238,6 +238,11 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 cursor.setPosition(cursor_position)
                 self.text_edit.setTextCursor(cursor)
             else:
+                # set block format
+                # TODO: disc can still have different sizes
+                block_format, text_format = self.formats_for_heading(0)
+                cursor.setBlockFormat(block_format)
+                cursor.mergeCharFormat(text_format)
                 # get selection length
                 selection_length = len(selection)
                 selection_html = cursor.selection().toHtml()
@@ -255,7 +260,6 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                     if block.position() + block.length() > cursor.selectionStart() and block.position() < cursor.selectionEnd():
                         blocks.append(block)
                 for block in blocks:
-                    # TODO: set format
                     text_list.add(block)
                 # if cursor is not at the end of a block, insert a newline
                 if cursor.position() != cursor.block().position() + cursor.block().length() - 1:
@@ -265,6 +269,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                     tmp_cursor.insertText("\n")
 
                     text_list.remove(tmp_cursor.block())
+
                     block_format = tmp_cursor.blockFormat()
                     block_format.setIndent(0)
                     tmp_cursor.setBlockFormat(block_format)
@@ -447,6 +452,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             self.underline_action.setChecked(text_format.fontUnderline())
             self.strikethrough_action.setChecked(text_format.fontStrikeOut())
             self.text_type_selector.setCurrentIndex(cursor.blockFormat().headingLevel())
+            self.list_action.setChecked(True if cursor.currentList() else False)
             return
 
         # get all blocks in selection
@@ -485,6 +491,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         self.underline_action.setChecked(underline)
         self.strikethrough_action.setChecked(strikethrough)
         self.text_type_selector.setCurrentIndex(heading_level)
+        self.list_action.setChecked(True if cursor.currentList() else False)
 
     def on_undo_available(self, available: bool):
         self.undo_action.setDisabled(not available)
