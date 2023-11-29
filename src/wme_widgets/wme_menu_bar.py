@@ -305,7 +305,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
     def create_named_backup(self, name: str):
         self.remove_pause_line_from_script("CreateModBackup.bat")
-        ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "CreateModBackup.bat", [name])
+        ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "CreateModBackup.bat", name)
         logging.info("CreateModBackup.bat executed with return code " + str(ret))
 
     def find_backups(self):

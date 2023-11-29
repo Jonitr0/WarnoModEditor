@@ -29,8 +29,8 @@ def get_settings_value(key: str, default=None):
 def write_settings_value(key: str, val):
     config = _open_config()
     config[key] = val
-    SettingsChangedNotifier.instance.setting_changed(key, val)
     _save_config(config)
+    SettingsChangedNotifier.instance.setting_changed(key, val)
 
 
 def _open_config() -> dict:
@@ -60,6 +60,7 @@ def _save_config(json_obj: dict):
 class SettingsChangedNotifier(QtCore.QObject):
     instance = None
     mod_state_changed = QtCore.Signal(bool)
+    app_state_saved = QtCore.Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -68,3 +69,5 @@ class SettingsChangedNotifier(QtCore.QObject):
     def setting_changed(self, key: str, val):
         if key == MOD_STATE_CHANGED_KEY:
             self.mod_state_changed.emit(bool(val))
+        elif key == APP_STATE:
+            self.app_state_saved.emit()

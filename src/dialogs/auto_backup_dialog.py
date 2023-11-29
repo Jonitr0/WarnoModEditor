@@ -2,22 +2,7 @@ from PySide6 import QtWidgets
 
 from src.dialogs import base_dialog
 from src.wme_widgets import wme_essentials, main_widget
-from src.utils import settings_manager
-
-
-def get_mod_settings():
-    try:
-        app_state = settings_manager.get_settings_value(settings_manager.APP_STATE)
-        mod_state = app_state[main_widget.instance.get_loaded_mod_name()]
-        return mod_state
-    except Exception:
-        return {}
-
-
-def set_mod_settings(mod_state):
-    app_state = settings_manager.get_settings_value(settings_manager.APP_STATE)
-    app_state[main_widget.instance.get_loaded_mod_name()] = mod_state
-    settings_manager.write_settings_value(settings_manager.APP_STATE, app_state)
+from src.utils import settings_manager, mod_settings_loader
 
 
 class AutoBackupDialog(base_dialog.BaseDialog):
@@ -41,7 +26,7 @@ class AutoBackupDialog(base_dialog.BaseDialog):
         self.auto_backup_frequency_combobox.addItem("Every 24 hours", 1440)
 
         try:
-            mod_state = get_mod_settings()
+            mod_state = mod_settings_loader.get_mod_settings()
             val = int(mod_state[settings_manager.AUTO_BACKUP_FREQUENCY_KEY])
             self.auto_backup_frequency_combobox.setCurrentIndex(self.auto_backup_frequency_combobox.findData(val))
         except Exception:
@@ -54,7 +39,7 @@ class AutoBackupDialog(base_dialog.BaseDialog):
         form_layout.addRow("Frequency:", self.auto_backup_frequency_combobox)
 
         try:
-            mod_state = get_mod_settings()
+            mod_state = mod_settings_loader.get_mod_settings()
             val = int(mod_state[settings_manager.AUTO_BACKUP_COUNT_KEY])
             self.auto_backup_count_spinbox.setValue(val)
         except Exception:
@@ -69,9 +54,9 @@ class AutoBackupDialog(base_dialog.BaseDialog):
         form_layout.addRow("Maximum number of backups:", self.auto_backup_count_spinbox)
 
     def accept(self) -> None:
-        mod_state = get_mod_settings()
+        mod_state = mod_settings_loader.get_mod_settings()
         mod_state[settings_manager.AUTO_BACKUP_FREQUENCY_KEY] = self.auto_backup_frequency_combobox.currentData()
         mod_state[settings_manager.AUTO_BACKUP_COUNT_KEY] = self.auto_backup_count_spinbox.value()
-        set_mod_settings(mod_state)
+        mod_settings_loader.set_mod_settings(mod_state)
 
         super().accept()

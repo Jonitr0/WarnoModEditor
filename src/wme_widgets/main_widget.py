@@ -7,7 +7,7 @@ from src.wme_widgets import wme_menu_bar, base_window
 from src.wme_widgets.project_explorer import wme_project_explorer
 from src.wme_widgets.tab_widget import wme_tab_widget, wme_detached_tab
 from src.dialogs import log_dialog, essential_dialogs
-from src.utils import path_validator, icon_manager, resource_loader, auto_backup_manager
+from src.utils import path_validator, icon_manager, auto_backup_manager, mod_settings_loader
 from src.utils.color_manager import *
 
 from pydoc import locate
@@ -49,6 +49,7 @@ class MainWidget(QtWidgets.QWidget):
         self.auto_backup_manager = auto_backup_manager.AutoBackupManager(self)
 
         self.auto_backup_manager.request_backup.connect(self.menu_bar.create_named_backup)
+        self.mod_loaded.connect(self.auto_backup_manager.update_settings)
 
         self.log_dialog.new_log.connect(self.on_new_log)
         self.log_dialog.error_log.connect(self.on_error_log)
@@ -276,10 +277,10 @@ class MainWidget(QtWidgets.QWidget):
         self.explorer_width = main_window_obj["explorerWidth"]
 
     def save_mod_state(self):
-        json_obj = settings_manager.get_settings_value(settings_manager.APP_STATE, default={})
+        mod_state = mod_settings_loader.get_mod_settings()
 
         main_window_tabs = self.tab_widget.to_json()
-        json_obj[self.loaded_mod_name] = {"mainWindowTabs": main_window_tabs}
+        mod_state["mainWindowTabs"] = main_window_tabs
 
         detached_objs = []
         for detached in wme_detached_tab.detached_list:
@@ -289,16 +290,16 @@ class MainWidget(QtWidgets.QWidget):
             }
             detached_objs.append(detached_obj)
 
-        json_obj[self.loaded_mod_name]["detached"] = detached_objs
+        mod_state["detached"] = detached_objs
 
-        settings_manager.write_settings_value(settings_manager.APP_STATE, json_obj)
+        mod_settings_loader.set_mod_settings(mod_state)
 
     def load_mod_state(self):
-        json_obj = settings_manager.get_settings_value(settings_manager.APP_STATE)
-        if not json_obj:
+        mod_state = mod_settings_loader.get_mod_settings()
+        if mod_state == {}:
             return
 
-        main_window_tabs = json_obj[self.loaded_mod_name]["mainWindowTabs"]
+        main_window_tabs = mod_state["mainWindowTabs"]
         for tab in main_window_tabs:
             if "do_not_restore" in tab:
                 continue
@@ -307,7 +308,7 @@ class MainWidget(QtWidgets.QWidget):
             page.from_json(tab)
             self.tab_widget.add_tab_with_auto_icon(page, tab["title"])
 
-        detached_list = json_obj[self.loaded_mod_name]["detached"]
+        detached_list = mod_state["detached"]
         for detached_obj in detached_list:
             detached_window = wme_detached_tab.WMEDetachedTab()
             restore_window(detached_obj["detachedState"], detached_window)

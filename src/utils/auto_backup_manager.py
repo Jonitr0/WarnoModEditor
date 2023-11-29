@@ -1,6 +1,6 @@
 from PySide6 import QtCore
 
-from src.utils import settings_manager
+from src.utils import settings_manager, mod_settings_loader
 
 import datetime
 import os
@@ -21,10 +21,11 @@ class AutoBackupManager(QtCore.QObject):
         self.update_settings()
 
         settings_manager.SettingsChangedNotifier.instance.mod_state_changed.connect(self.on_mod_state_changed)
+        settings_manager.SettingsChangedNotifier.instance.app_state_saved.connect(self.update_settings)
 
     def update_settings(self):
         try:
-            mod_state = self.get_mod_settings()
+            mod_state = mod_settings_loader.get_mod_settings()
             val = int(mod_state[settings_manager.AUTO_BACKUP_FREQUENCY_KEY])
             self.auto_backup_frequency = val
         except Exception:
@@ -35,7 +36,7 @@ class AutoBackupManager(QtCore.QObject):
             self.auto_backup_frequency = val
 
         try:
-            mod_state = self.get_mod_settings()
+            mod_state = mod_settings_loader.get_mod_settings()
             val = int(mod_state[settings_manager.AUTO_BACKUP_COUNT_KEY])
             self.auto_backup_count = val
         except Exception:
@@ -44,20 +45,16 @@ class AutoBackupManager(QtCore.QObject):
                 val = 3
                 settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_COUNT_KEY, val)
             self.auto_backup_count = val
-
-    def get_mod_settings(self):
-        try:
-            app_state = settings_manager.get_settings_value(settings_manager.APP_STATE)
-            mod_state = app_state[self.parent().get_loaded_mod_name()]
-            return mod_state
-        except Exception:
-            return {}
-
+            
     def on_mod_state_changed(self, changed: bool):
         if not changed:
             return
 
-        last_backup = settings_manager.get_settings_value(settings_manager.LAST_AUTO_BACKUP_KEY)
+        mod_state = mod_settings_loader.get_mod_settings()
+        if not mod_state:
+            mod_state = {}
+        last_backup = mod_state.get(settings_manager.LAST_AUTO_BACKUP_KEY, None)
+
         if not last_backup:
             self.backup()
             return
@@ -81,7 +78,7 @@ class AutoBackupManager(QtCore.QObject):
         backup_name = WME_AUTO_BACKUP_PREFIX + backup_time
 
         self.request_backup.emit(backup_name)
-        logging.info("Auto-backup created: " + backup_name)
+        logging.info("Auto-backup created: " + backup_name + ".zip")
 
         # list all backups
         backup_dir = os.path.join(self.parent().get_loaded_mod_path(), "Backup")
@@ -97,6 +94,10 @@ class AutoBackupManager(QtCore.QObject):
             logging.info("Auto-backup deleted: " + backups[0])
             backups.pop(0)
 
-        settings_manager.write_settings_value(settings_manager.LAST_AUTO_BACKUP_KEY, backup_time)
+        mod_state = mod_settings_loader.get_mod_settings()
+        if not mod_state:
+            mod_state = {}
+        mod_state[settings_manager.LAST_AUTO_BACKUP_KEY] = backup_time
+        mod_settings_loader.set_mod_settings(mod_state)
 
         self.parent().hide_loading_screen()
