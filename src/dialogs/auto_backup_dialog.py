@@ -1,15 +1,29 @@
 from PySide6 import QtWidgets
 
 from src.dialogs import base_dialog
-from src.wme_widgets import wme_essentials
+from src.wme_widgets import wme_essentials, main_widget
 from src.utils import settings_manager
+
+
+def get_mod_settings():
+    try:
+        app_state = settings_manager.get_settings_value(settings_manager.APP_STATE)
+        mod_state = app_state[main_widget.instance.get_loaded_mod_name()]
+        return mod_state
+    except Exception:
+        return {}
+
+
+def set_mod_settings(mod_state):
+    app_state = settings_manager.get_settings_value(settings_manager.APP_STATE)
+    app_state[main_widget.instance.get_loaded_mod_name()] = mod_state
+    settings_manager.write_settings_value(settings_manager.APP_STATE, app_state)
 
 
 class AutoBackupDialog(base_dialog.BaseDialog):
     def __init__(self):
         self.auto_backup_frequency_combobox = wme_essentials.WMECombobox()
         self.auto_backup_count_spinbox = wme_essentials.WMESpinbox()
-        self.auto_backup_while_running_checkbox = QtWidgets.QCheckBox()
 
         super().__init__()
         self.setWindowTitle("Auto-Backup Settings")
@@ -26,34 +40,38 @@ class AutoBackupDialog(base_dialog.BaseDialog):
         self.auto_backup_frequency_combobox.addItem("Every 2 hours", 120)
         self.auto_backup_frequency_combobox.addItem("Every 24 hours", 1440)
 
-        # TODO: get values from mod config
         try:
-            val = int(settings_manager.get_settings_value(settings_manager.AUTO_BACKUP_FREQUENCY_KEY))
+            mod_state = get_mod_settings()
+            val = int(mod_state[settings_manager.AUTO_BACKUP_FREQUENCY_KEY])
             self.auto_backup_frequency_combobox.setCurrentIndex(self.auto_backup_frequency_combobox.findData(val))
         except Exception:
-            settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_FREQUENCY_KEY, 60)
-            self.auto_backup_frequency_combobox.setCurrentIndex(self.auto_backup_frequency_combobox.findData(60))
+            val = int(settings_manager.get_settings_value(settings_manager.AUTO_BACKUP_FREQUENCY_KEY))
+            if not val:
+                val = 60
+                settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_FREQUENCY_KEY, val)
+            self.auto_backup_frequency_combobox.setCurrentIndex(self.auto_backup_frequency_combobox.findData(val))
 
         form_layout.addRow("Frequency:", self.auto_backup_frequency_combobox)
 
         try:
-            val = int(settings_manager.get_settings_value(settings_manager.AUTO_BACKUP_COUNT_KEY))
+            mod_state = get_mod_settings()
+            val = int(mod_state[settings_manager.AUTO_BACKUP_COUNT_KEY])
             self.auto_backup_count_spinbox.setValue(val)
         except Exception:
-            settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_COUNT_KEY, 3)
-            self.auto_backup_count_spinbox.setValue(3)
+            val = int(settings_manager.get_settings_value(settings_manager.AUTO_BACKUP_COUNT_KEY))
+            if not val:
+                val = 3
+                settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_COUNT_KEY, val)
+            self.auto_backup_count_spinbox.setValue(val)
 
         self.auto_backup_count_spinbox.setMinimum(1)
         self.auto_backup_count_spinbox.setMaximum(100)
         form_layout.addRow("Maximum number of backups:", self.auto_backup_count_spinbox)
 
-        form_layout.addRow("Auto-Backup while running:", self.auto_backup_while_running_checkbox)
-        form_layout.addWidget(QtWidgets.QLabel("If checked, auto-backups will be created while WME is running.\n"
-                                               "If unchecked, auto-backups will only be created when WME is closed."))
+    def accept(self) -> None:
+        mod_state = get_mod_settings()
+        mod_state[settings_manager.AUTO_BACKUP_FREQUENCY_KEY] = self.auto_backup_frequency_combobox.currentData()
+        mod_state[settings_manager.AUTO_BACKUP_COUNT_KEY] = self.auto_backup_count_spinbox.value()
+        set_mod_settings(mod_state)
 
-        try:
-            val = int(settings_manager.get_settings_value(settings_manager.AUTO_BACKUP_WHILE_RUNNING_KEY))
-            self.auto_backup_while_running_checkbox.setChecked(bool(val))
-        except Exception:
-            settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_WHILE_RUNNING_KEY, 0)
-            self.auto_backup_while_running_checkbox.setChecked(False)
+        super().accept()

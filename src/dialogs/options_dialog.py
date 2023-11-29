@@ -16,7 +16,6 @@ class OptionsDialog(BaseDialog):
 
         self.auto_backup_frequency_combobox = wme_essentials.WMECombobox()
         self.auto_backup_count_spinbox = wme_essentials.WMESpinbox()
-        self.auto_backup_while_running_checkbox = QtWidgets.QCheckBox()
 
         super().__init__()
         self.setWindowTitle("Options")
@@ -87,17 +86,6 @@ class OptionsDialog(BaseDialog):
         self.auto_backup_count_spinbox.setMaximum(100)
         form_layout.addRow("Maximum number of backups:", self.auto_backup_count_spinbox)
 
-        form_layout.addRow("Auto-Backup while running:", self.auto_backup_while_running_checkbox)
-        form_layout.addWidget(QtWidgets.QLabel("If checked, auto-backups will be created while WME is running.\n"
-                                               "If unchecked, auto-backups will only be created when WME is closed."))
-
-        try:
-            val = int(settings_manager.get_settings_value(settings_manager.AUTO_BACKUP_WHILE_RUNNING_KEY))
-            self.auto_backup_while_running_checkbox.setChecked(bool(val))
-        except Exception:
-            settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_WHILE_RUNNING_KEY, 0)
-            self.auto_backup_while_running_checkbox.setChecked(False)
-
     def on_browse_clicked(self):
         warno_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter WARNO path", self.path_line_edit.text(),
                                                                   options=(QtWidgets.QFileDialog.ShowDirsOnly |
@@ -125,7 +113,5 @@ class OptionsDialog(BaseDialog):
                                               self.auto_backup_frequency_combobox.currentData())
         settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_COUNT_KEY,
                                               self.auto_backup_count_spinbox.value())
-        settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_WHILE_RUNNING_KEY,
-                                              1 if self.auto_backup_while_running_checkbox.isChecked() else 0)
 
         super().accept()

@@ -244,24 +244,22 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "UpdateMod.bat", [])
         logging.info("UpdateMod.bat executed with return code " + str(ret))
 
-        main_widget.instance.auto_backup_manager.file_system_lock.lock()
         try:
             if os.path.exists(self.main_widget_ref.get_loaded_mod_path() + "\\.base"):
                 shutil.rmtree(self.main_widget_ref.get_loaded_mod_path() + "\\.base")
         except Exception as e:
             logging.error(e)
-        main_widget.instance.auto_backup_manager.file_system_lock.unlock()
+        settings_manager.write_settings_value(settings_manager.MOD_STATE_CHANGED_KEY, 1)
 
     def remove_pause_line_from_script(self, script_name: str):
         file = self.main_widget_ref.get_loaded_mod_path() + "\\" + script_name
-        main_widget.instance.auto_backup_manager.file_system_lock.lock()
+
         with open(file, "r") as f:
             lines = f.readlines()
         with open(file, "w") as f:
             for line in lines:
                 if not line.__contains__("pause"):
                     f.write(line)
-        main_widget.instance.auto_backup_manager.file_system_lock.unlock()
 
     def on_upload_action(self):
         config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
@@ -303,6 +301,11 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def on_quick_backup_action(self):
         self.remove_pause_line_from_script("CreateModBackup.bat")
         ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "CreateModBackup.bat", [])
+        logging.info("CreateModBackup.bat executed with return code " + str(ret))
+
+    def create_named_backup(self, name: str):
+        self.remove_pause_line_from_script("CreateModBackup.bat")
+        ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "CreateModBackup.bat", [name])
         logging.info("CreateModBackup.bat executed with return code " + str(ret))
 
     def find_backups(self):
@@ -358,12 +361,10 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         if confirm_dialog.exec_() != QtWidgets.QDialog.Accepted:
             return
 
-        main_widget.instance.auto_backup_manager.file_system_lock.lock()
         try:
             os.remove(self.main_widget_ref.get_loaded_mod_path() + "\\Backup\\" + selection)
         except Exception as ex:
             logging.error(ex)
-        main_widget.instance.auto_backup_manager.file_system_lock.unlock()
 
     def on_auto_backup_action(self):
         dialog = auto_backup_dialog.AutoBackupDialog()
@@ -388,7 +389,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
     def run_script(self, cwd: str, cmd: str, args: list):
         main_widget.instance.show_loading_screen("Running command " + cmd + "...")
-        main_widget.instance.auto_backup_manager.file_system_lock.lock()
+
         try:
             self.process = QtCore.QProcess()
             self.process.setProgram("cmd.exe")
@@ -403,12 +404,10 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             self.process.waitForFinished()
             ret = self.process.exitCode()
             self.process.close()
-            main_widget.instance.auto_backup_manager.file_system_lock.unlock()
             main_widget.instance.hide_loading_screen()
             return ret
         except Exception as ex:
             logging.error(ex)
-            main_widget.instance.auto_backup_manager.file_system_lock.unlock()
             main_widget.instance.hide_loading_screen()
             return -1
 

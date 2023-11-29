@@ -48,6 +48,8 @@ class MainWidget(QtWidgets.QWidget):
         self.log_dialog = log_dialog.LogDialog()
         self.auto_backup_manager = auto_backup_manager.AutoBackupManager(self)
 
+        self.auto_backup_manager.request_backup.connect(self.menu_bar.create_named_backup)
+
         self.log_dialog.new_log.connect(self.on_new_log)
         self.log_dialog.error_log.connect(self.on_error_log)
 
@@ -188,6 +190,7 @@ class MainWidget(QtWidgets.QWidget):
         self.loaded_mod_name = ""
         self.title_label.setText("")
         self.show_loading_screen(self.no_mod_loaded_msg)
+        settings_manager.write_settings_value(settings_manager.MOD_STATE_CHANGED_KEY, 0)
         self.mod_unloaded.emit()
 
     def ask_all_tabs_to_save(self):

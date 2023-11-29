@@ -24,6 +24,9 @@ if __name__ == '__main__':
     console_logger.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
     logging.getLogger().addHandler(console_logger)
 
+    # create settings changed notifier
+    settings_manager.SettingsChangedNotifier()
+
     # load theme
     theme_name = settings_manager.get_settings_value(settings_manager.THEME_KEY)
     theme, invert_secondary = theme_manager.get_theme_file(theme_name)

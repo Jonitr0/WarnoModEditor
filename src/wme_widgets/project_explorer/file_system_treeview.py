@@ -95,10 +95,11 @@ class FileSystemTreeView(QtWidgets.QTreeView):
     def on_delete(self, file_path: str):
         if os.path.isdir(file_path):
             text = "Do you really want to delete " + file_path + " and its contents?\n" \
-                                                                 "The directory will be actually deleted, not moved to the recycle bin. You will not be able to undo this!"
+                   "The directory will be actually deleted, not moved to the recycle bin. " \
+                   "You will not be able to undo this!"
         else:
             text = "Do you really want to delete " + file_path + "?\n" \
-                                                                 "The file will be actually deleted, not moved to the recycle bin. You will not be able to undo this!"
+                   "The file will be actually deleted, not moved to the recycle bin. You will not be able to undo this!"
         dialog = essential_dialogs.ConfirmationDialog(text, "Confirm deletion")
         # return if not confirmed
         if not dialog.exec():
@@ -110,6 +111,8 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             shutil.rmtree(file_path)
         else:
             os.remove(file_path)
+
+        settings_manager.write_settings_value(settings_manager.MOD_STATE_CHANGED_KEY, 1)
 
     def on_find_text_changed(self, text: str):
         if text == "":
