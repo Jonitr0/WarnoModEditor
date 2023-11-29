@@ -306,12 +306,32 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         plain_text = self.text_edit.toPlainText()
         block_count = self.text_edit.document().blockCount()
         format_tag_positions = {}
+        in_list = False
         # get all format tag positions
         for i in range(block_count):
             block = self.text_edit.document().findBlockByNumber(block_count - i - 1)
             block_start = block.position()
             block_end = block_start + block.length() - 1
             heading_level = block.blockFormat().headingLevel()
+            text_list = block.textList()
+            # if block is end of a list, add list end tag
+            if text_list and not in_list:
+                if block_end not in format_tag_positions:
+                    format_tag_positions[block_end] = []
+                format_tag_positions[block_end].append("\n[/list]")
+                in_list = True
+            # if block is in list, add list item tag
+            if text_list and in_list:
+                if block_start not in format_tag_positions:
+                    format_tag_positions[block_start] = []
+                format_tag_positions[block_start].append("   [*]")
+            # if block is start of a list, add list start tag
+            elif not text_list and in_list:
+                if block_end + 1 not in format_tag_positions:
+                    format_tag_positions[block_end + 1] = []
+                format_tag_positions[block_end + 1].append("[list]\n")
+                in_list = False
+            # TODO: handle lists that directly follow each other
             # set heading end tag
             if block.blockFormat().headingLevel() != 0:
                 if block_start not in format_tag_positions:
@@ -328,6 +348,11 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             # set heading start tag
             if block.blockFormat().headingLevel() != 0:
                 format_tag_positions[block_start].append(f"[h{heading_level}]")
+
+        if in_list:
+            if 0 not in format_tag_positions:
+                format_tag_positions[0] = []
+            format_tag_positions[0].append("[list]")
 
         # apply format tags
         for pos in reversed(sorted(format_tag_positions.keys())):
