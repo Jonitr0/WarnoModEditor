@@ -218,6 +218,8 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 self.text_edit.setCurrentCharFormat(char_format)
 
     def on_list(self, checked: bool):
+        self.text_edit.textCursor().beginEditBlock()
+
         cursor = self.text_edit.textCursor()
         if checked:
             selection = self.text_edit.textCursor().selectedText()
@@ -239,18 +241,38 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 # get selection length
                 selection_length = len(selection)
                 selection_html = cursor.selection().toHtml()
-                cursor.insertList(QtGui.QTextListFormat.ListDisc)
+                text_list = cursor.insertList(QtGui.QTextListFormat.ListDisc)
                 # insert selection as html
                 cursor.insertHtml(selection_html)
-                # TODO: add all inserted blocks to list
-                # TODO: give all inserted blocks standard format
                 # select length
                 cursor.setPosition(cursor.position() - selection_length, QtGui.QTextCursor.KeepAnchor)
                 self.text_edit.setTextCursor(cursor)
+                # get all blocks in selection
+                block_count = self.text_edit.document().blockCount()
+                blocks = []
+                for i in range(block_count):
+                    block = self.text_edit.document().findBlockByNumber(i)
+                    if block.position() + block.length() > cursor.selectionStart() and block.position() < cursor.selectionEnd():
+                        blocks.append(block)
+                for block in blocks:
+                    # TODO: set format
+                    text_list.add(block)
+                # if cursor is not at the end of a block, insert a newline
+                if cursor.position() != cursor.block().position() + cursor.block().length() - 1:
+                    tmp_cursor = QtGui.QTextCursor(cursor)
+                    tmp_cursor.setPosition(cursor.selectionEnd())
+                    tmp_cursor.clearSelection()
+                    tmp_cursor.insertText("\n")
+
+                    text_list.remove(tmp_cursor.block())
+                    block_format = tmp_cursor.blockFormat()
+                    block_format.setIndent(0)
+                    tmp_cursor.setBlockFormat(block_format)
         else:
             # TODO: remove list
             pass
 
+        self.text_edit.textCursor().endEditBlock()
 
     def get_text(self):
         plain_text = self.text_edit.toPlainText()
