@@ -221,8 +221,9 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         self.text_edit.textCursor().beginEditBlock()
 
         cursor = self.text_edit.textCursor()
+        selection = self.text_edit.textCursor().selectedText()
+
         if checked:
-            selection = self.text_edit.textCursor().selectedText()
             if not selection:
                 # save cursor position
                 cursor_position = cursor.position()
@@ -241,8 +242,9 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 # set block format
                 # TODO: disc can still have different sizes
                 block_format, text_format = self.formats_for_heading(0)
+                if cursor.blockFormat().headingLevel() != 0:
+                    cursor.mergeCharFormat(text_format)
                 cursor.setBlockFormat(block_format)
-                cursor.mergeCharFormat(text_format)
                 # get selection length
                 selection_length = len(selection)
                 selection_html = cursor.selection().toHtml()
@@ -257,7 +259,8 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 blocks = []
                 for i in range(block_count):
                     block = self.text_edit.document().findBlockByNumber(i)
-                    if block.position() + block.length() > cursor.selectionStart() and block.position() < cursor.selectionEnd():
+                    if block.position() + block.length() > cursor.selectionStart() and \
+                            block.position() < cursor.selectionEnd():
                         blocks.append(block)
                 for block in blocks:
                     text_list.add(block)
@@ -274,8 +277,28 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                     block_format.setIndent(0)
                     tmp_cursor.setBlockFormat(block_format)
         else:
-            # TODO: remove list
-            pass
+            if not selection:
+                # remove current block from list
+                current_list = cursor.currentList()
+                current_list.remove(cursor.block())
+                # set block format
+                block_format, _ = self.formats_for_heading(0)
+                cursor.setBlockFormat(block_format)
+            else:
+                # get all blocks in selection
+                block_count = self.text_edit.document().blockCount()
+                blocks = []
+                for i in range(block_count):
+                    block = self.text_edit.document().findBlockByNumber(i)
+                    if block.position() + block.length() > cursor.selectionStart() and \
+                            block.position() < cursor.selectionEnd():
+                        blocks.append(block)
+                for block in blocks:
+                    current_list = block.textList()
+                    current_list.remove(block)
+                # set block format
+                block_format, _ = self.formats_for_heading(0)
+                cursor.setBlockFormat(block_format)
 
         self.text_edit.textCursor().endEditBlock()
 
