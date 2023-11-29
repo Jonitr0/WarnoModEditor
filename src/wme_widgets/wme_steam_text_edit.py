@@ -236,8 +236,17 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 cursor.setPosition(cursor_position)
                 self.text_edit.setTextCursor(cursor)
             else:
+                # get selection length
+                selection_length = len(selection)
+                selection_html = cursor.selection().toHtml()
                 cursor.insertList(QtGui.QTextListFormat.ListDisc)
-                # TODO: add selected text and formatting to list
+                # insert selection as html
+                cursor.insertHtml(selection_html)
+                # TODO: add all inserted blocks to list
+                # TODO: give all inserted blocks standard format
+                # select length
+                cursor.setPosition(cursor.position() - selection_length, QtGui.QTextCursor.KeepAnchor)
+                self.text_edit.setTextCursor(cursor)
         else:
             # TODO: remove list
             pass

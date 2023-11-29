@@ -30,8 +30,8 @@ class MainWidget(QtWidgets.QWidget):
     def __init__(self, parent, warno_path: str, title_bar):
         super().__init__(parent=parent)
         self.explorer = wme_project_explorer.WMEProjectExplorer(self)
-        self.no_mod_loaded_msg = "Open the \"File\" menu (Alt +F) to create a new mod (Ctrl + Alt + N) or open an" \
-                                 " existing one (Ctrl + Alt+ O)."
+        self.no_mod_loaded_msg = "Open the \"File\" menu (Alt + F) to create a new mod (Ctrl + Alt + N) or open an" \
+                                 " existing one (Ctrl + Alt + O)."
         self.load_screen = QtWidgets.QLabel(self.no_mod_loaded_msg)
         self.splitter = QtWidgets.QSplitter(self)
         self.tab_widget = wme_tab_widget.WMETabWidget()
