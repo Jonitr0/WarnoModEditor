@@ -76,7 +76,6 @@ class ModConfigPage(base_tab_page.BaseTabPage):
             f_content = f.read()
             f_content = f_content.replace("=", " = ")
             f_content = f_content.replace("url = ", "url=")
-            f_content = f_content.replace("\\\"", "\"")
             f.seek(0)
             f.write(f_content)
 

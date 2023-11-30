@@ -307,6 +307,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         block_count = self.text_edit.document().blockCount()
         format_tag_positions = {}
         in_list = False
+        last_list = None
         # get all format tag positions
         for i in range(block_count):
             block = self.text_edit.document().findBlockByNumber(block_count - i - 1)
@@ -325,13 +326,19 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 if block_start not in format_tag_positions:
                     format_tag_positions[block_start] = []
                 format_tag_positions[block_start].append("   [*]")
+            # if a new list was started, add list start tag
+            if text_list and last_list and last_list != text_list:
+                if block_end + 1 not in format_tag_positions:
+                    format_tag_positions[block_end + 1] = []
+                format_tag_positions[block_end + 1].append("\n[/list]")
+                format_tag_positions[block_end + 1].append("[list]\n")
             # if block is start of a list, add list start tag
             elif not text_list and in_list:
                 if block_end + 1 not in format_tag_positions:
                     format_tag_positions[block_end + 1] = []
                 format_tag_positions[block_end + 1].append("[list]\n")
                 in_list = False
-            # TODO: handle lists that directly follow each other
+            last_list = text_list
             # set heading end tag
             if block.blockFormat().headingLevel() != 0:
                 if block_start not in format_tag_positions:
@@ -359,7 +366,6 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             for tag in format_tag_positions[pos]:
                 plain_text = plain_text[:pos] + tag + plain_text[pos:]
 
-        plain_text = "\"" + plain_text + "\""
         return plain_text
 
     def mark_format_tags(self, start: int, end: int, text_format: QtGui.QTextCharFormat, format_tag_positions: dict):
@@ -387,6 +393,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
     def set_text(self, text: str):
         text = text.removeprefix("\"").removesuffix("\"")
 
+        # TODO: lists
         tags = {
             "[b]": "[/b]",
             "[i]": "[/i]",
