@@ -72,10 +72,12 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         tool_bar.addSeparator()
 
+        # TODO: add list shortcuts
         self.list_action = tool_bar.addAction(icon_manager.load_icon("bullet_list.png", COLORS.PRIMARY), "List")
         self.list_action.setCheckable(True)
         self.list_action.triggered.connect(self.on_list)
 
+        # TODO: Add ordered list
         ordered_list_action = tool_bar.addAction(icon_manager.load_icon("ordered_list.png", COLORS.PRIMARY),
                                                  "Ordered List")
 
@@ -289,6 +291,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         text_list = cursor.createList(QtGui.QTextListFormat.ListDisc)
         return text_list
 
+    # TODO: fix unsaved changes
     def get_text(self):
         plain_text = self.text_edit.toPlainText()
         block_count = self.text_edit.document().blockCount()
