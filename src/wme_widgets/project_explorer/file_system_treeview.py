@@ -12,6 +12,7 @@ from src.wme_widgets.project_explorer import file_icon_provider, file_system_mod
 class FileSystemTreeView(QtWidgets.QTreeView):
     open_text_editor = QtCore.Signal(str)
     open_csv_editor = QtCore.Signal(str)
+    restore_backup = QtCore.Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -24,11 +25,12 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         self.setMinimumWidth(160)
         self.mod_path = ""
         self.setIconSize(QtCore.QSize(20, 20))
+        self.file_types = [".ndf", ".csv", ".zip"]
 
     def update_model(self, mod_path: str):
         proxy_model = file_system_model.FileSystemModel()
         proxy_model.set_root_path(mod_path)
-        proxy_model.setNameFilters(["*.ndf", "*.csv"])
+        proxy_model.setNameFilters(["*" + ft for ft in self.file_types])
         proxy_model.data_model.setNameFilterDisables(False)
         proxy_model.data_model.setIconProvider(file_icon_provider.FileIconProvider())
 
@@ -71,6 +73,9 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         if file_path.endswith(".csv"):
             csv_editor_action = context_menu.addAction("Open in CSV editor")
 
+        if file_path.endswith(".zip") and file_path.__contains__("Backup"):
+            restore_backup_action = context_menu.addAction("Restore backup")
+
         context_menu.addSeparator()
         expand_all_action = context_menu.addAction("Expand All")
         collapse_all_action = context_menu.addAction("Collapse All")
@@ -85,6 +90,9 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.open_text_editor.emit(file_path)
         elif file_path.endswith(".csv") and action == csv_editor_action:
             self.open_csv_editor.emit(file_path)
+        elif file_path.endswith(".zip") and file_path.__contains__("Backup") and action == restore_backup_action:
+            file_name = os.path.basename(file_path)
+            self.restore_backup.emit(file_name)
         elif action == expand_all_action:
             self.expandAll()
         elif action == collapse_all_action:
@@ -95,10 +103,11 @@ class FileSystemTreeView(QtWidgets.QTreeView):
     def on_delete(self, file_path: str):
         if os.path.isdir(file_path):
             text = "Do you really want to delete " + file_path + " and its contents?\n" \
-                                                                 "The directory will be actually deleted, not moved to the recycle bin. You will not be able to undo this!"
+                   "The directory will be actually deleted, not moved to the recycle bin. " \
+                   "You will not be able to undo this!"
         else:
             text = "Do you really want to delete " + file_path + "?\n" \
-                                                                 "The file will be actually deleted, not moved to the recycle bin. You will not be able to undo this!"
+                   "The file will be actually deleted, not moved to the recycle bin. You will not be able to undo this!"
         dialog = essential_dialogs.ConfirmationDialog(text, "Confirm deletion")
         # return if not confirmed
         if not dialog.exec():
@@ -111,14 +120,16 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         else:
             os.remove(file_path)
 
+        settings_manager.write_settings_value(settings_manager.MOD_STATE_CHANGED_KEY, 1)
+
     def on_find_text_changed(self, text: str):
         if text == "":
             self.model().show_all_dirs = True
-            self.model().setNameFilters(["*.ndf", "*.csv"])
+            self.model().setNameFilters(["*" + ft for ft in self.file_types])
             self.collapseAll()
         else:
             self.model().show_all_dirs = False
-            self.model().setNameFilters(["*" + text + "*.ndf", "*" + text + "*.csv"])
+            self.model().setNameFilters(["*" + text + "*" + ft for ft in self.file_types])
             self.expandAll()
 
     def on_show_size_changed(self, state: int):

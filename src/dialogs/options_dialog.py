@@ -14,12 +14,27 @@ class OptionsDialog(BaseDialog):
         self.theme_checkbox = QtWidgets.QCheckBox()
         self.path_line_edit = wme_essentials.WMELineEdit()
 
+        self.auto_backup_frequency_combobox = wme_essentials.WMECombobox()
+        self.auto_backup_count_spinbox = wme_essentials.WMESpinbox()
+
         super().__init__()
         self.setWindowTitle("Options")
 
     def setup_ui(self):
         form_layout = QtWidgets.QFormLayout()
         self.main_layout.addLayout(form_layout)
+
+        warno_path_layout = QtWidgets.QHBoxLayout()
+        self.path_line_edit.setText(main_widget.instance.get_warno_path())
+        warno_path_layout.addWidget(self.path_line_edit)
+        browse_button = QtWidgets.QPushButton("Browse..")
+        browse_button.clicked.connect(self.on_browse_clicked)
+        warno_path_layout.addWidget(browse_button)
+        form_layout.addRow("WARNO path:", warno_path_layout)
+
+        theme_label = QtWidgets.QLabel("Theme")
+        theme_label.setObjectName("heading")
+        form_layout.addRow(theme_label)
 
         color_list = theme_manager.get_all_themes()
         color_list = color_list[:len(color_list) // 2]
@@ -40,15 +55,36 @@ class OptionsDialog(BaseDialog):
         form_layout.addWidget(
             QtWidgets.QLabel("Changes to the theme will be applied when the application is restarted."))
 
-        warno_path_layout = QtWidgets.QHBoxLayout()
-        self.path_line_edit.setText(main_widget.instance.get_warno_path())
-        warno_path_layout.addWidget(self.path_line_edit)
-        browse_button = QtWidgets.QPushButton("Browse..")
-        browse_button.clicked.connect(self.on_browse_clicked)
-        warno_path_layout.addWidget(browse_button)
-        form_layout.addRow("WARNO path:", warno_path_layout)
+        auto_backup_label = QtWidgets.QLabel("Auto-Backup default settings")
+        auto_backup_label.setObjectName("heading")
+        form_layout.addRow(auto_backup_label)
 
-        # TODO: auto-backup
+        self.auto_backup_frequency_combobox.addItem("Never", 0)
+        self.auto_backup_frequency_combobox.addItem("Every 10 minutes", 10)
+        self.auto_backup_frequency_combobox.addItem("Every 30 minutes", 30)
+        self.auto_backup_frequency_combobox.addItem("Every hour", 60)
+        self.auto_backup_frequency_combobox.addItem("Every 2 hours", 120)
+        self.auto_backup_frequency_combobox.addItem("Every 24 hours", 1440)
+
+        try:
+            val = int(settings_manager.get_settings_value(settings_manager.AUTO_BACKUP_FREQUENCY_KEY))
+            self.auto_backup_frequency_combobox.setCurrentIndex(self.auto_backup_frequency_combobox.findData(val))
+        except Exception:
+            settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_FREQUENCY_KEY, 60)
+            self.auto_backup_frequency_combobox.setCurrentIndex(self.auto_backup_frequency_combobox.findData(60))
+
+        form_layout.addRow("Frequency:", self.auto_backup_frequency_combobox)
+
+        try:
+            val = int(settings_manager.get_settings_value(settings_manager.AUTO_BACKUP_COUNT_KEY))
+            self.auto_backup_count_spinbox.setValue(val)
+        except Exception:
+            settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_COUNT_KEY, 3)
+            self.auto_backup_count_spinbox.setValue(3)
+
+        self.auto_backup_count_spinbox.setMinimum(1)
+        self.auto_backup_count_spinbox.setMaximum(100)
+        form_layout.addRow("Maximum number of backups:", self.auto_backup_count_spinbox)
 
     def on_browse_clicked(self):
         warno_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter WARNO path", self.path_line_edit.text(),
@@ -72,5 +108,10 @@ class OptionsDialog(BaseDialog):
             theme = "dark "
         theme += str(self.color_combobox.currentText())
         settings_manager.write_settings_value(settings_manager.NEXT_THEME_KEY, theme)
+
+        settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_FREQUENCY_KEY,
+                                              self.auto_backup_frequency_combobox.currentData())
+        settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_COUNT_KEY,
+                                              self.auto_backup_count_spinbox.value())
 
         super().accept()

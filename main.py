@@ -16,6 +16,7 @@ from src.wme_widgets import wme_splash_screen
 
 if __name__ == '__main__':
     # setup logging
+    # TODO: put all intense tasks in threads
     logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s',
                         filename='wme.log',
                         level=logging.INFO,
@@ -25,6 +26,9 @@ if __name__ == '__main__':
     console_logger.setLevel(logging.INFO)
     console_logger.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
     logging.getLogger().addHandler(console_logger)
+
+    # create settings changed notifier
+    settings_manager.SettingsChangedNotifier()
 
     # load theme
     theme_name = settings_manager.get_settings_value(settings_manager.THEME_KEY)
@@ -49,7 +53,7 @@ if __name__ == '__main__':
     sys.excepthook = exception_handler.exceptHook
 
     # set version
-    version = "0.3.1b"
+    version = "0.3.1c"
     settings_manager.write_settings_value(settings_manager.VERSION_KEY, version)
     logging.info("\n\n")
     logging.info("Starting WME " + version)

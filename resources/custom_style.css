@@ -151,3 +151,28 @@ StringSelectionCombobox {{
 QWidget#separator {{
   background-color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
 }}
+
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal,
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {{
+  background: {QTMATERIAL_SECONDARYLIGHTCOLOR};
+}}
+
+QScrollBar::handle {{
+  background: {QTMATERIAL_PRIMARYLIGHTCOLOR};
+}}
+
+QScrollBar::handle:vertical {{
+  min-height: 8px;
+}}
+
+QTextEdit#steam_text_edit {{
+  color: {QTMATERIAL_SECONDARYTEXTCOLOR};
+}}
+
+QLabel#heading {{
+  color: {QTMATERIAL_PRIMARYCOLOR};
+  font: 14pt;
+  font-weight: bold;
+}}

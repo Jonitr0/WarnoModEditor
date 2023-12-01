@@ -1,4 +1,5 @@
 from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6.QtCore import Qt
 
 from src.utils import icon_manager
 from src.utils.color_manager import *
@@ -19,7 +20,7 @@ class FindBar(QtWidgets.QWidget):
     def eventFilter(self, obj, event) -> bool:
         if obj == self.line_edit and \
                 event.type() == QtCore.QEvent.KeyPress and \
-                event.key() == QtCore.Qt.Key_Tab:
+                event.key() == Qt.Key_Tab:
             self.tab_pressed.emit()
             return True
 
@@ -57,32 +58,32 @@ class FindBar(QtWidgets.QWidget):
         self.case_button.setChecked(False)
         self.case_button.setToolTip("Toggle case-sensitive search. If the button is enabled, search is case-sensitive. "
                                     "(Ctrl + E)")
-        self.case_button.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_E)
+        self.case_button.setShortcut(QtGui.QKeySequence("Ctrl+E"))
         self.case_button.setFixedSize(36, 36)
         self.case_button.setIconSize(QtCore.QSize(36, 36))
         self.main_layout.addWidget(self.case_button)
 
-        next_icon = QtGui.QIcon()
-        next_icon.addPixmap(icon_manager.load_pixmap("arrow_down.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
-        next_icon.addPixmap(icon_manager.load_pixmap("arrow_down.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
-        self.next_button.setIcon(next_icon)
-        self.next_button.clicked.connect(self.on_next)
-        self.next_button.setToolTip("Next search result (F3)")
-        self.next_button.setShortcut(QtCore.Qt.Key_F3)
-        self.next_button.setFixedSize(36, 36)
-        self.next_button.setIconSize(QtCore.QSize(36, 36))
-        self.main_layout.addWidget(self.next_button)
-
         prev_icon = QtGui.QIcon()
-        prev_icon.addPixmap(icon_manager.load_pixmap("arrow_up.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
-        prev_icon.addPixmap(icon_manager.load_pixmap("arrow_up.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
+        prev_icon.addPixmap(icon_manager.load_pixmap("arrow_left.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
+        prev_icon.addPixmap(icon_manager.load_pixmap("arrow_left.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
         self.prev_button.setIcon(prev_icon)
         self.prev_button.clicked.connect(self.on_prev)
-        self.prev_button.setToolTip("Previous search result (Ctrl + F3)")
-        self.prev_button.setShortcut(QtCore.Qt.CTRL + QtCore.Qt.Key_F3)
+        self.prev_button.setToolTip("Previous search result (Ctrl + Arrow Left)")
+        self.prev_button.setShortcut(QtGui.QKeySequence("Ctrl+Left"))
         self.prev_button.setFixedSize(36, 36)
         self.prev_button.setIconSize(QtCore.QSize(36, 36))
         self.main_layout.addWidget(self.prev_button)
+
+        next_icon = QtGui.QIcon()
+        next_icon.addPixmap(icon_manager.load_pixmap("arrow_right.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
+        next_icon.addPixmap(icon_manager.load_pixmap("arrow_right.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
+        self.next_button.setIcon(next_icon)
+        self.next_button.clicked.connect(self.on_next)
+        self.next_button.setToolTip("Next search result (Ctrl + Arrow Right)")
+        self.next_button.setShortcut(QtGui.QKeySequence("Ctrl+Right"))
+        self.next_button.setFixedSize(36, 36)
+        self.next_button.setIconSize(QtCore.QSize(36, 36))
+        self.main_layout.addWidget(self.next_button)
 
         self.main_layout.addWidget(self.results_label)
         self.results_label.setMinimumWidth(120)
@@ -97,7 +98,6 @@ class FindBar(QtWidgets.QWidget):
         self.close_button.setFixedSize(32, 32)
         self.main_layout.addWidget(self.close_button)
 
-    # TODO: add case-insensitive search
     def on_search(self):
         self.last_search = self.line_edit.text()
         self.last_case_sensitive = self.case_button.isChecked()
@@ -154,7 +154,7 @@ class ReplaceBar(QtWidgets.QWidget):
     def eventFilter(self, obj, event) -> bool:
         if obj == self.line_edit and \
                 event.type() == QtCore.QEvent.KeyPress and \
-                event.key() == QtCore.Qt.Key_Tab:
+                event.key() == Qt.Key_Tab:
             self.tab_pressed.emit()
             return True
 

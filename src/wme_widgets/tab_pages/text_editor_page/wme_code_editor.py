@@ -2,6 +2,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.utils.color_manager import *
+from src.wme_widgets import wme_essentials
 from src.wme_widgets.tab_pages.text_editor_page import ndf_syntax_highlighter
 
 
@@ -20,6 +21,23 @@ class LineNumberArea(QtWidgets.QWidget):
         self.editor.lineNumberAreaPaintEvent(event)
 
 
+class MarkingArea(QtWidgets.QWidget):
+    def __init__(self, editor):
+        super().__init__(editor)
+        self.editor = editor
+        self.w = 16
+        self.lines_to_marking_colors = {}
+
+    def sizeHint(self):
+        width = self.w
+        if self.editor.verticalScrollBar().isVisible():
+            width += self.editor.verticalScrollBar().width()
+        return QtCore.QSize(width, 0)
+
+    def paintEvent(self, event):
+        self.editor.markingAreaPaintEvent(event)
+
+
 class WMECodeEditor(QtWidgets.QPlainTextEdit):
     search_complete = QtCore.Signal()
     unsaved_changes = QtCore.Signal(bool)
@@ -27,6 +45,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
     def __init__(self):
         super().__init__()
         self.lineNumberArea = LineNumberArea(self)
+        self.marking_area = MarkingArea(self)
         self.setObjectName("code_editor")
         self.setWordWrapMode(QtGui.QTextOption.NoWrap)
 
@@ -44,11 +63,17 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.find_results = []
         self.drawn_results = []
 
+        # TODO: new find color
         self.find_format = QtGui.QTextCharFormat()
         self.find_format.setBackground(QtGui.QColor(get_color_for_key(COLORS.FIND_HIGHLIGHT.value)))
 
+        self.setVerticalScrollBar(wme_essentials.WMEScrollBar(self))
+        self.setHorizontalScrollBar(wme_essentials.WMEScrollBar(self))
+
         self.verticalScrollBar().valueChanged.connect(self.mark_finds_in_viewport)
         self.verticalScrollBar().valueChanged.connect(self.syntax_highlight_in_viewport)
+        self.verticalScrollBar().sliderMoved.connect(self.mark_finds_in_viewport)
+        self.verticalScrollBar().sliderMoved.connect(self.syntax_highlight_in_viewport)
         self.document().contentsChange.connect(self.update_search)
 
         self.highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
@@ -60,6 +85,10 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         # "duplicate" shortcut
         shortcut = QtGui.QShortcut("Ctrl+D", self, self.on_duplicate)
 
+        # marking colors
+        self.cursor_marking_color = COLORS.SECONDARY_LIGHT
+        self.find_marking_color = COLORS.FIND_HIGHLIGHT
+
     def lineNumberAreaWidth(self):
         digits = 1
         count = max(1, self.blockCount())
@@ -70,7 +99,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         return max(32, space)
 
     def updateLineNumberAreaWidth(self, _):
-        self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
+        self.setViewportMargins(self.lineNumberAreaWidth(), 0, self.marking_area.sizeHint().width(), 0)
 
     def updateLineNumberArea(self, rect, dy):
 
@@ -90,8 +119,17 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.lineNumberArea.setGeometry(QtCore.QRect(cr.left(), cr.top(),
                                                      self.lineNumberAreaWidth(), cr.height()))
 
+        # set geometry of marking area right of text editor
+        self.marking_area.setGeometry(QtCore.QRect(cr.right() - self.marking_area.sizeHint().width() + 1, cr.top(),
+                                                   self.marking_area.sizeHint().width(), cr.height()))
+
         self.mark_finds_in_viewport()
         self.syntax_highlight_in_viewport()
+
+    def showEvent(self, event) -> None:
+        super().showEvent(event)
+
+        self.updateLineNumberAreaWidth(None)
 
     def lineNumberAreaPaintEvent(self, event):
         painter = QtGui.QPainter(self.lineNumberArea)
@@ -119,6 +157,31 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             bottom = top + self.blockBoundingRect(block).height()
             block_number += 1
 
+    def markingAreaPaintEvent(self, event):
+        painter = QtGui.QPainter(self.marking_area)
+
+        marking_area_color = get_color_for_key(COLORS.SECONDARY_DARK.value)
+        painter.fillRect(event.rect(), marking_area_color)
+
+        area_top = event.rect().top() + 2
+        document_height = self.document().size().height()
+        line_height = self.fontMetrics().height()
+        document_height *= line_height
+        area_bottom = min(document_height, event.rect().bottom()) - 2
+        if self.horizontalScrollBar().isVisible():
+            area_bottom -= self.horizontalScrollBar().height()
+
+        area_height = area_bottom - area_top
+        total_lines = self.blockCount()
+
+        for line_number, line_colors in self.marking_area.lines_to_marking_colors.items():
+            # calculate at which y position to draw the marking
+            line_height = area_height * line_number / total_lines
+            y = area_top + line_height
+            # draw the marking
+            color = get_color_for_key(line_colors[len(line_colors) - 1].value)
+            painter.fillRect(0, y, self.marking_area.w, 2, color)
+
     def paintEvent(self, event):
         painter = QtGui.QPainter(self.viewport())
         rect = self.cursorRect()
@@ -128,7 +191,26 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         painter.setBrush(QtGui.QColor(get_color_for_key(COLORS.SECONDARY_LIGHT.value)))
         painter.drawRect(rect)
 
+        # get current cursor line number
+        cursor_line_number = self.textCursor().blockNumber()
+        # add marking
+        self.clear_markings_for_color(self.cursor_marking_color)
+        self.add_marking(cursor_line_number, self.cursor_marking_color)
+
         super().paintEvent(event)
+
+    def add_marking(self, line: int, color: COLORS):
+        if line not in self.marking_area.lines_to_marking_colors:
+            self.marking_area.lines_to_marking_colors[line] = []
+        self.marking_area.lines_to_marking_colors[line].append(color)
+
+    def clear_markings_for_color(self, color: COLORS):
+        new_markings = {}
+        for line, line_colors in self.marking_area.lines_to_marking_colors.items():
+            new_colors = [c for c in line_colors if c != color]
+            if len(new_colors) > 0:
+                new_markings[line] = new_colors
+        self.marking_area.lines_to_marking_colors = new_markings
 
     def find_pattern(self, pattern, updating=False):
         self.reset_find()
@@ -151,6 +233,9 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
             self.find_results.append((start, start + len(pattern)))
 
+            line_number = self.document().findBlock(start).blockNumber()
+            self.add_marking(line_number, self.find_marking_color)
+
             start += len(pattern)
 
         self.mark_finds_in_viewport()
@@ -162,7 +247,13 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         if len(self.find_results) == 0:
             return
 
-        self.setExtraSelections([])
+        extra_selections = self.extraSelections()
+        new_selections = []
+        for selection in extra_selections:
+            if selection.format.background() != self.find_format.background():
+                new_selections.append(selection)
+        self.setExtraSelections(new_selections)
+        self.clear_markings_for_color(self.find_marking_color)
 
         self.find_results = []
         self.drawn_results = []
@@ -333,3 +424,12 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
     def set_case_sensitive_search(self, case_sensitive: bool):
         self.case_sensitive_search = case_sensitive
 
+    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
+        if event.modifiers() == Qt.ControlModifier:
+            if event.key() == Qt.Key_Left:
+                self.goto_prev_find()
+            elif event.key() == Qt.Key_Right:
+                self.goto_next_find()
+            return
+
+        super().keyPressEvent(event)

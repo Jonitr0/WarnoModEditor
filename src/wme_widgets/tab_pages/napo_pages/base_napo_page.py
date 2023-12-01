@@ -185,6 +185,15 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
                 return
         self.update_page()
 
+    def add_help_button(self):
+        stretch = QtWidgets.QWidget()
+        stretch.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        self.tool_bar.addWidget(stretch)
+
+        help_action = self.tool_bar.addAction(icon_manager.load_icon("help.png", COLORS.PRIMARY),
+                                              "Open Page Help Popup (Alt + H)")
+        help_action.triggered.connect(self.on_help)
+
     def get_state(self):
         pass
 

@@ -14,20 +14,23 @@ if __name__ == '__main__':
         shutil.rmtree("dist")
     except Exception as e:
         print(e)
-
+    
     PyInstaller.__main__.run(["main.py",
                               "--onefile",
+                              "--icon=resources/img/app_icon_colored.ico",
                               "--add-data=resources/img/titlebar;resources/img/titlebar",
                               "--add-data=resources/img;resources/img",
                               "--add-data=resources/markdown;resources/markdown",
                               "--add-data=resources/themes;resources/themes",
                               "--add-data=resources;resources",
-                              "--hidden-import=chardet"
+                              "--hidden-import=chardet",
                               "--icon=resources/img/app_icon_colored.ico",
                               "--noconsole",
                               "-n", "WarnoModEditor"
                               ])
 
+
+    # sign exe
     try:
         cwd = os.getcwd()
         os.chdir(r'C:\Program Files (x86)\Windows Kits\10\bin\x86')

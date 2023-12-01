@@ -3,6 +3,8 @@ import logging
 from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
+from src.utils import settings_manager
+
 from src.dialogs import essential_dialogs, rich_text_dialog
 
 from src.wme_widgets import main_widget
@@ -51,6 +53,8 @@ class BaseTabPage(QtWidgets.QWidget):
         help_shortcut = QtGui.QShortcut("Alt+H", self, self.on_help)
         help_shortcut.setContext(Qt.ApplicationShortcut)
 
+        logging.info("Created tab page of type " + self.get_full_class_name())
+
     @property
     def unsaved_changes(self) -> bool:
         return self._unsaved_changes
@@ -92,6 +96,9 @@ class BaseTabPage(QtWidgets.QWidget):
             logging.error("Error while saving: " + str(e))
             main_widget.instance.hide_loading_screen()
             raise e
+
+        if self.unsaved_changes:
+            settings_manager.write_settings_value(settings_manager.MOD_STATE_CHANGED_KEY, 1)
 
         self.unsaved_changes = False
         # restore changes for other pages after successful save
@@ -138,3 +145,6 @@ class BaseTabPage(QtWidgets.QWidget):
         c = self.__class__
         m = c.__module__
         return m + "." + c.__qualname__
+
+    def get_current_tab_widget(self):
+        return self.parent().parent()

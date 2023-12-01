@@ -1,4 +1,4 @@
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.utils.color_manager import *
@@ -72,8 +72,6 @@ class WMECombobox(QtWidgets.QComboBox):
         if self.findText(self.currentText()) < 0:
             self.setCurrentIndex(0)
 
-
-
     def wheelEvent(self, e) -> None:
         if self.hasFocus():
             super().wheelEvent(e)
@@ -103,3 +101,70 @@ class WMEDoubleSpinbox(QtWidgets.QDoubleSpinBox):
             super().wheelEvent(e)
         else:
             e.ignore()
+
+
+def wrapEF(ef):
+    w = QtCore.QObject()
+    w.eventFilter = ef
+    return w
+
+
+def sbEventFilter(s, e):
+    q = s
+    if (e.type() == QtCore.QEvent.MouseButtonPress and e.button() == Qt.LeftButton
+            or e.type() == QtCore.QEvent.MouseButtonDblClick):
+        # pixelPosToRangeValue(pos)
+        opt = QtWidgets.QStyleOptionSlider()
+        q.initStyleOption(opt)
+        gr = q.style().subControlRect(QtWidgets.QStyle.CC_ScrollBar, opt,
+                                      QtWidgets.QStyle.SC_ScrollBarGroove, q)
+        sr = q.style().subControlRect(QtWidgets.QStyle.CC_ScrollBar, opt,
+                                      QtWidgets.QStyle.SC_ScrollBarSlider, q)
+        if q.orientation() == Qt.Horizontal:
+            sliderLength = sr.width()
+            sliderMin = gr.x()
+            sliderMax = gr.right() - sliderLength + 1
+            if q.layoutDirection() == Qt.RightToLeft:
+                opt.upsideDown = not opt.upsideDown
+            dt = sr.width() / 2
+            pos = e.pos().x()
+        else:
+            sliderLength = sr.height()
+            sliderMin = gr.y()
+            sliderMax = gr.bottom() - sliderLength + 1
+            dt = sr.height() / 2
+            pos = e.pos().y()
+        r = QtWidgets.QStyle.sliderValueFromPosition(q.minimum(), q.maximum(),
+                                                     pos - sliderMin - dt,
+                                                     sliderMax - sliderMin, opt.upsideDown)
+        # pixelPosToRangeValue,
+        q.setValue(r)
+    return q.eventFilter(s, e)
+
+
+class WMEScrollBar(QtWidgets.QScrollBar):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.ef = wrapEF(sbEventFilter)
+        self.installEventFilter(self.ef)
+
+
+class WMETextEdit(QtWidgets.QTextEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setAcceptRichText(False)
+        self.setVerticalScrollBar(WMEScrollBar())
+        self.setHorizontalScrollBar(WMEScrollBar())
+        self.anchor = None
+
+    def mousePressEvent(self, e):
+        # if Ctrl is pressed
+        if e.modifiers() == Qt.ControlModifier:
+            self.anchor = self.anchorAt(e.pos())
+        super().mousePressEvent(e)
+
+    def mouseReleaseEvent(self, e):
+        if self.anchor:
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl(self.anchor))
+            self.anchor = None
+        super().mouseReleaseEvent(e)

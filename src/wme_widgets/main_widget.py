@@ -7,7 +7,7 @@ from src.wme_widgets import wme_menu_bar, base_window
 from src.wme_widgets.project_explorer import wme_project_explorer
 from src.wme_widgets.tab_widget import wme_tab_widget, wme_detached_tab
 from src.dialogs import log_dialog, essential_dialogs
-from src.utils import path_validator, icon_manager, resource_loader
+from src.utils import path_validator, icon_manager, auto_backup_manager, mod_settings_loader
 from src.utils.color_manager import *
 
 from pydoc import locate
@@ -30,8 +30,8 @@ class MainWidget(QtWidgets.QWidget):
     def __init__(self, parent, warno_path: str, title_bar):
         super().__init__(parent=parent)
         self.explorer = wme_project_explorer.WMEProjectExplorer(self)
-        self.no_mod_loaded_msg = "Open the \"File\" menu (Alt +F) to create a new mod (Ctrl + Alt + N) or open an" \
-                                 " existing one (Ctrl + Alt+ O)."
+        self.no_mod_loaded_msg = "Open the \"File\" menu (Alt + F) to create a new mod (Ctrl + Alt + N) or open an" \
+                                 " existing one (Ctrl + Alt + O)."
         self.load_screen = QtWidgets.QLabel(self.no_mod_loaded_msg)
         self.splitter = QtWidgets.QSplitter(self)
         self.tab_widget = wme_tab_widget.WMETabWidget()
@@ -45,6 +45,10 @@ class MainWidget(QtWidgets.QWidget):
         self.title_bar = title_bar
         self.title_label = QtWidgets.QLabel("")
         self.log_dialog = log_dialog.LogDialog()
+        self.auto_backup_manager = auto_backup_manager.AutoBackupManager(self)
+
+        self.auto_backup_manager.request_backup.connect(self.menu_bar.create_named_backup)
+        self.mod_loaded.connect(self.auto_backup_manager.update_settings)
 
         self.log_dialog.new_log.connect(self.on_new_log)
         self.log_dialog.error_log.connect(self.on_error_log)
@@ -76,8 +80,10 @@ class MainWidget(QtWidgets.QWidget):
 
         hyperlink_color = get_color_for_key(COLORS.PRIMARY.value)
         download_url = response.json()["html_url"]
-        text = "A new version of WME is available! You can download it <a style=\"color: " + \
-               hyperlink_color + "\" href=\"" + download_url + "\">here</a>."
+        text = "WME version " + new_version + " is available! You can download it <a style=\"color: " + \
+               hyperlink_color + "\" href=\"" + download_url + "\">here</a>. It includes the following changes:<br>"
+        for change in response.json()["body"].split("\r\n"):
+            text += "<br>" + change
 
         essential_dialogs.MessageDialog("Update Available", text, rich_text=True).exec()
 
@@ -124,6 +130,7 @@ class MainWidget(QtWidgets.QWidget):
 
         self.explorer.tree_view.open_text_editor.connect(self.tab_widget.on_open_ndf_editor)
         self.explorer.tree_view.open_csv_editor.connect(self.tab_widget.on_open_csv_editor)
+        self.explorer.tree_view.restore_backup.connect(self.menu_bar.retrieve_backup)
 
         separator = QtWidgets.QWidget()
         separator.setObjectName("separator")
@@ -182,6 +189,7 @@ class MainWidget(QtWidgets.QWidget):
         self.loaded_mod_name = ""
         self.title_label.setText("")
         self.show_loading_screen(self.no_mod_loaded_msg)
+        settings_manager.write_settings_value(settings_manager.MOD_STATE_CHANGED_KEY, 0)
         self.mod_unloaded.emit()
 
     def ask_all_tabs_to_save(self):
@@ -241,8 +249,6 @@ class MainWidget(QtWidgets.QWidget):
         if next_theme:
             settings_manager.write_settings_value(settings_manager.THEME_KEY, next_theme)
 
-        # TODO: auto-backup
-
         try:
             json_obj = settings_manager.get_settings_value(settings_manager.APP_STATE, default={})
 
@@ -269,10 +275,10 @@ class MainWidget(QtWidgets.QWidget):
         self.explorer_width = main_window_obj["explorerWidth"]
 
     def save_mod_state(self):
-        json_obj = settings_manager.get_settings_value(settings_manager.APP_STATE, default={})
+        mod_state = mod_settings_loader.get_mod_settings()
 
         main_window_tabs = self.tab_widget.to_json()
-        json_obj[self.loaded_mod_name] = {"mainWindowTabs": main_window_tabs}
+        mod_state["mainWindowTabs"] = main_window_tabs
 
         detached_objs = []
         for detached in wme_detached_tab.detached_list:
@@ -282,27 +288,31 @@ class MainWidget(QtWidgets.QWidget):
             }
             detached_objs.append(detached_obj)
 
-        json_obj[self.loaded_mod_name]["detached"] = detached_objs
+        mod_state["detached"] = detached_objs
 
-        settings_manager.write_settings_value(settings_manager.APP_STATE, json_obj)
+        mod_settings_loader.set_mod_settings(mod_state)
 
     def load_mod_state(self):
-        json_obj = settings_manager.get_settings_value(settings_manager.APP_STATE)
-        if not json_obj:
+        mod_state = mod_settings_loader.get_mod_settings()
+        if mod_state == {}:
             return
 
-        main_window_tabs = json_obj[self.loaded_mod_name]["mainWindowTabs"]
+        main_window_tabs = mod_state["mainWindowTabs"]
         for tab in main_window_tabs:
+            if "do_not_restore" in tab:
+                continue
             t = locate(tab["type"])
             page = t()
             page.from_json(tab)
             self.tab_widget.add_tab_with_auto_icon(page, tab["title"])
 
-        detached_list = json_obj[self.loaded_mod_name]["detached"]
+        detached_list = mod_state["detached"]
         for detached_obj in detached_list:
             detached_window = wme_detached_tab.WMEDetachedTab()
             restore_window(detached_obj["detachedState"], detached_window)
             for tab in detached_obj["detachedTabs"]:
+                if "do_not_restore" in tab:
+                    continue
                 t = locate(tab["type"])
                 page = t()
                 page.from_json(tab)
