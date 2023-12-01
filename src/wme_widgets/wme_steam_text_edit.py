@@ -239,31 +239,8 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 cursor.setPosition(cursor_position)
                 self.text_edit.setTextCursor(cursor)
             else:
-                # set block format
-                # TODO: disc can still have different sizes
-                block_format, text_format = self.formats_for_heading(0)
-                if cursor.blockFormat().headingLevel() != 0:
-                    cursor.mergeCharFormat(text_format)
-                cursor.setBlockFormat(block_format)
-                # get selection length
-                selection_length = len(selection)
-                selection_html = cursor.selection().toHtml()
-                text_list = cursor.insertList(QtGui.QTextListFormat.ListDisc)
-                # insert selection as html
-                cursor.insertHtml(selection_html)
-                # select length
-                cursor.setPosition(cursor.position() - selection_length, QtGui.QTextCursor.KeepAnchor)
+                text_list = self.create_list_for_selection(cursor)
                 self.text_edit.setTextCursor(cursor)
-                # get all blocks in selection
-                block_count = self.text_edit.document().blockCount()
-                blocks = []
-                for i in range(block_count):
-                    block = self.text_edit.document().findBlockByNumber(i)
-                    if block.position() + block.length() > cursor.selectionStart() and \
-                            block.position() < cursor.selectionEnd():
-                        blocks.append(block)
-                for block in blocks:
-                    text_list.add(block)
                 # if cursor is not at the end of a block, insert a newline
                 if cursor.position() != cursor.block().position() + cursor.block().length() - 1:
                     tmp_cursor = QtGui.QTextCursor(cursor)
@@ -302,12 +279,22 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         self.text_edit.textCursor().endEditBlock()
 
+    def create_list_for_selection(self, cursor: QtGui.QTextCursor = None):
+        # set block format
+        # TODO: disc can still have different sizes
+        block_format, text_format = self.formats_for_heading(0)
+        if cursor.blockFormat().headingLevel() != 0:
+            cursor.mergeCharFormat(text_format)
+        cursor.setBlockFormat(block_format)
+        text_list = cursor.createList(QtGui.QTextListFormat.ListDisc)
+        return text_list
+
     def get_text(self):
         plain_text = self.text_edit.toPlainText()
         block_count = self.text_edit.document().blockCount()
         format_tag_positions = {}
         in_list = False
-        last_list = None
+        last_style = None
         # get all format tag positions
         for i in range(block_count):
             block = self.text_edit.document().findBlockByNumber(block_count - i - 1)
@@ -325,9 +312,9 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             if text_list and in_list:
                 if block_start not in format_tag_positions:
                     format_tag_positions[block_start] = []
-                format_tag_positions[block_start].append("   [*]")
+                format_tag_positions[block_start].append("[*]")
             # if a new list was started, add list start tag
-            if text_list and last_list and last_list != text_list:
+            if text_list and last_style and last_style != text_list.format().style():
                 if block_end + 1 not in format_tag_positions:
                     format_tag_positions[block_end + 1] = []
                 format_tag_positions[block_end + 1].append("\n[/list]")
@@ -338,7 +325,11 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                     format_tag_positions[block_end + 1] = []
                 format_tag_positions[block_end + 1].append("[list]\n")
                 in_list = False
-            last_list = text_list
+            # in any case, save the last style
+            if text_list:
+                last_style = text_list.format().style()
+            else:
+                last_style = None
             # set heading end tag
             if block.blockFormat().headingLevel() != 0:
                 if block_start not in format_tag_positions:
@@ -402,7 +393,8 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             "[h1]": "[/h1]",
             "[h2]": "[/h2]",
             "[h3]": "[/h3]",
-            "[url": "[/url]"
+            "[url": "[/url]",
+            "[list]\n": "\n[/list]",
         }
         plain_text = text
 
@@ -419,12 +411,14 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             plain_text = plain_text.replace(key, "")
             plain_text = plain_text.replace(val, "")
 
+        plain_text = plain_text.replace("[*]", "")
+
         # create regex
         escaped_keys = map(re.escape, tags.keys())
         escaped_values = map(re.escape, tags.values())
         escaped_keys = '|'.join(sorted(escaped_keys, key=len, reverse=True))
         escaped_values = '|'.join(sorted(escaped_values, key=len, reverse=True))
-        regex = escaped_keys + '|' + escaped_values
+        regex = escaped_keys + '|' + escaped_values + "|\\[\\*\\]"
 
         link_positions = {}
 
@@ -485,6 +479,8 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                     heading_block_format, heading_char_format = self.formats_for_heading(3)
                     block_format.merge(heading_block_format)
                     text_format.merge(heading_char_format)
+                case "[list]\n":
+                    self.create_list_for_selection(cursor)
 
             if key.startswith("[url"):
                 text_format = self.hyperlink_format
