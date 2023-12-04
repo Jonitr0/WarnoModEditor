@@ -72,14 +72,17 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         tool_bar.addSeparator()
 
-        # TODO: add list shortcuts
-        self.list_action = tool_bar.addAction(icon_manager.load_icon("bullet_list.png", COLORS.PRIMARY), "List")
+        self.list_action = tool_bar.addAction(icon_manager.load_icon("bullet_list.png", COLORS.PRIMARY),
+                                              "List (Ctrl + L)")
         self.list_action.setCheckable(True)
+        self.list_action.setShortcut("Ctrl+L")
         self.list_action.triggered.connect(self.on_list)
 
-        # TODO: Add ordered list
-        ordered_list_action = tool_bar.addAction(icon_manager.load_icon("ordered_list.png", COLORS.PRIMARY),
-                                                 "Ordered List")
+        self.ordered_list_action = tool_bar.addAction(icon_manager.load_icon("ordered_list.png", COLORS.PRIMARY),
+                                                      "Ordered List (Ctrl + Shift + L)")
+        self.ordered_list_action.setCheckable(True)
+        self.ordered_list_action.setShortcut("Ctrl+Shift+L")
+        self.ordered_list_action.triggered.connect(self.on_ordered_list)
 
         tool_bar.addSeparator()
 
@@ -281,6 +284,9 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         self.text_edit.textCursor().endEditBlock()
 
+    def on_ordered_list(self, checked: bool):
+        pass
+
     def create_list_for_selection(self, cursor: QtGui.QTextCursor = None):
         # set block format
         # TODO: disc can still have different sizes
@@ -387,7 +393,6 @@ class WMESteamTextEdit(QtWidgets.QWidget):
     def set_text(self, text: str):
         text = text.removeprefix("\"").removesuffix("\"")
 
-        # TODO: lists
         tags = {
             "[b]": "[/b]",
             "[i]": "[/i]",

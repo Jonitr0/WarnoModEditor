@@ -428,8 +428,9 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         if event.modifiers() == Qt.ControlModifier:
             if event.key() == Qt.Key_Left:
                 self.goto_prev_find()
+                return
             elif event.key() == Qt.Key_Right:
                 self.goto_next_find()
-            return
+                return
 
         super().keyPressEvent(event)
