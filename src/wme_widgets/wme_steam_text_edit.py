@@ -307,42 +307,55 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         block_count = self.text_edit.document().blockCount()
         format_tag_positions = {}
         in_list = False
-        last_style = None
+        last_list_style = None
         # get all format tag positions
         for i in range(block_count):
             block = self.text_edit.document().findBlockByNumber(block_count - i - 1)
             block_start = block.position()
             block_end = block_start + block.length() - 1
             heading_level = block.blockFormat().headingLevel()
-            text_list = block.textList()
+            if not block.textList():
+                list_style = None
+            else:
+                list_style = block.textList().format().style()
             # if block is end of a list, add list end tag
-            if text_list and not in_list:
+            if list_style is not None and not in_list:
                 if block_end not in format_tag_positions:
                     format_tag_positions[block_end] = []
-                format_tag_positions[block_end].append("\n[/list]")
+                if list_style == QtGui.QTextListFormat.ListDisc:
+                    format_tag_positions[block_end].append("\n[/list]")
+                elif list_style == QtGui.QTextListFormat.ListDecimal:
+                    format_tag_positions[block_end].append("\n[/olist]")
                 in_list = True
             # if block is in list, add list item tag
-            if text_list and in_list:
+            if list_style is not None and in_list:
                 if block_start not in format_tag_positions:
                     format_tag_positions[block_start] = []
                 format_tag_positions[block_start].append("[*]")
             # if a new list was started, add list start tag
-            if text_list and last_style and last_style != text_list.format().style():
+            if list_style is not None and last_list_style is not None and last_list_style != list_style:
                 if block_end + 1 not in format_tag_positions:
                     format_tag_positions[block_end + 1] = []
-                format_tag_positions[block_end + 1].append("\n[/list]")
-                format_tag_positions[block_end + 1].append("[list]\n")
+                if last_list_style == QtGui.QTextListFormat.ListDisc:
+                    format_tag_positions[block_end + 1].append("\n[/list]")
+                    format_tag_positions[block_end + 1].append("[olist]\n")
+                elif last_list_style == QtGui.QTextListFormat.ListDecimal:
+                    format_tag_positions[block_end + 1].append("\n[/olist]")
+                    format_tag_positions[block_end + 1].append("[list]\n")
             # if block is start of a list, add list start tag
-            elif not text_list and in_list:
+            elif not list_style and in_list:
                 if block_end + 1 not in format_tag_positions:
                     format_tag_positions[block_end + 1] = []
-                format_tag_positions[block_end + 1].append("[list]\n")
+                if last_list_style == QtGui.QTextListFormat.ListDisc:
+                    format_tag_positions[block_end + 1].append("[list]\n")
+                elif last_list_style == QtGui.QTextListFormat.ListDecimal:
+                    format_tag_positions[block_end + 1].append("[olist]\n")
                 in_list = False
             # in any case, save the last style
-            if text_list:
-                last_style = text_list.format().style()
+            if list_style is not None:
+                last_list_style = list_style
             else:
-                last_style = None
+                last_list_style = None
             # set heading end tag
             if block.blockFormat().headingLevel() != 0:
                 if block_start not in format_tag_positions:
@@ -363,7 +376,10 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         if in_list:
             if 0 not in format_tag_positions:
                 format_tag_positions[0] = []
-            format_tag_positions[0].append("[list]")
+            if last_list_style == QtGui.QTextListFormat.ListDisc:
+                format_tag_positions[0].append("[list]")
+            elif last_list_style == QtGui.QTextListFormat.ListDecimal:
+                format_tag_positions[0].append("[olist]")
 
         # apply format tags
         for pos in reversed(sorted(format_tag_positions.keys())):
@@ -537,7 +553,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         strikethrough = True
         heading_level = blocks[0].blockFormat().headingLevel()
         if cursor.currentList():
-            list_type = QtGui.QTextCursor(blocks[0]).currentList().format().style()
+            list_type = blocks[0].textList().format().style()
         else:
             list_type = None
 
@@ -557,7 +573,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                         strikethrough = False
                 if block.blockFormat().headingLevel() != heading_level:
                     heading_level = 0
-                current_list = QtGui.QTextCursor(block).currentList()
+                current_list = block.textList()
                 if not current_list or current_list.format().style() != list_type:
                     list_type = None
 
