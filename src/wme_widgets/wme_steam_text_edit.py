@@ -223,6 +223,13 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 self.text_edit.setCurrentCharFormat(char_format)
 
     def on_list(self, checked: bool):
+        self.create_or_remove_list(checked, QtGui.QTextListFormat.ListDisc)
+
+    def on_ordered_list(self, checked: bool):
+        self.create_or_remove_list(checked, QtGui.QTextListFormat.ListDecimal)
+
+    def create_or_remove_list(self, checked: bool, list_type: QtGui.QTextListFormat.ListStyle):
+
         self.text_edit.textCursor().beginEditBlock()
 
         cursor = self.text_edit.textCursor()
@@ -235,7 +242,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 # move cursor to the start of the current block
                 cursor.movePosition(QtGui.QTextCursor.StartOfBlock)
                 # insert list
-                cursor.insertList(QtGui.QTextListFormat.ListDisc)
+                cursor.insertList(list_type)
                 # move cursor back one char
                 cursor.movePosition(QtGui.QTextCursor.PreviousCharacter)
                 # remove block
@@ -244,7 +251,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 cursor.setPosition(cursor_position)
                 self.text_edit.setTextCursor(cursor)
             else:
-                text_list = self.create_list_for_selection(cursor)
+                text_list = self.create_list_for_selection(cursor, list_type)
                 self.text_edit.setTextCursor(cursor)
                 # if cursor is not at the end of a block, insert a newline
                 if cursor.position() != cursor.block().position() + cursor.block().length() - 1:
@@ -284,17 +291,14 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         self.text_edit.textCursor().endEditBlock()
 
-    def on_ordered_list(self, checked: bool):
-        pass
-
-    def create_list_for_selection(self, cursor: QtGui.QTextCursor = None):
+    def create_list_for_selection(self, cursor: QtGui.QTextCursor, list_type: QtGui.QTextListFormat.ListStyle):
         # set block format
         # TODO: disc can still have different sizes
         block_format, text_format = self.formats_for_heading(0)
         if cursor.blockFormat().headingLevel() != 0:
             cursor.mergeCharFormat(text_format)
         cursor.setBlockFormat(block_format)
-        text_list = cursor.createList(QtGui.QTextListFormat.ListDisc)
+        text_list = cursor.createList(list_type)
         return text_list
 
     # TODO: fix unsaved changes
@@ -488,7 +492,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                     block_format.merge(heading_block_format)
                     text_format.merge(heading_char_format)
                 case "[list]\n":
-                    self.create_list_for_selection(cursor)
+                    self.create_list_for_selection(cursor, QtGui.QTextListFormat.ListDisc)
 
             if key.startswith("[url"):
                 text_format = self.hyperlink_format
@@ -511,7 +515,12 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             self.underline_action.setChecked(text_format.fontUnderline())
             self.strikethrough_action.setChecked(text_format.fontStrikeOut())
             self.text_type_selector.setCurrentIndex(cursor.blockFormat().headingLevel())
-            self.list_action.setChecked(True if cursor.currentList() else False)
+            if cursor.currentList():
+                list_type = cursor.currentList().format().style()
+            else:
+                list_type = None
+            self.list_action.setChecked(True if list_type == QtGui.QTextListFormat.ListDisc else False)
+            self.ordered_list_action.setChecked(True if list_type == QtGui.QTextListFormat.ListDecimal else False)
             return
 
         # get all blocks in selection
@@ -527,6 +536,10 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         underline = True
         strikethrough = True
         heading_level = blocks[0].blockFormat().headingLevel()
+        if cursor.currentList():
+            list_type = QtGui.QTextCursor(blocks[0]).currentList().format().style()
+        else:
+            list_type = None
 
         for block in blocks:
             for format_range in block.textFormats():
@@ -544,13 +557,17 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                         strikethrough = False
                 if block.blockFormat().headingLevel() != heading_level:
                     heading_level = 0
+                current_list = QtGui.QTextCursor(block).currentList()
+                if not current_list or current_list.format().style() != list_type:
+                    list_type = None
 
         self.bold_action.setChecked(bold)
         self.italic_action.setChecked(italic)
         self.underline_action.setChecked(underline)
         self.strikethrough_action.setChecked(strikethrough)
         self.text_type_selector.setCurrentIndex(heading_level)
-        self.list_action.setChecked(True if cursor.currentList() else False)
+        self.list_action.setChecked(True if list_type == QtGui.QTextListFormat.ListDisc else False)
+        self.ordered_list_action.setChecked(True if list_type == QtGui.QTextListFormat.ListDecimal else False)
 
     def on_undo_available(self, available: bool):
         self.undo_action.setDisabled(not available)
