@@ -1,9 +1,6 @@
 # provides common functionality for Napo Tool Pages
 import os
 import json
-import shutil
-
-import ndf_parse as ndf
 
 from PySide6 import QtWidgets, QtGui
 
@@ -137,8 +134,8 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
             try:
                 self.set_state(state)
             except Exception:
-                essential_dialogs.MessageDialog("Error", "Could not import state. The file might be incompatible with "
-                                                + self.tab_name).exec()
+                essential_dialogs.MessageDialog("Error", "Could not import state. The file might be incompatible "
+                                                         "with " + self.tab_name).exec()
                 self.set_state(current_state)
         except Exception as e:
             logging.error("Error while loading config for " + str(self.__class__) + ":" + str(e))
