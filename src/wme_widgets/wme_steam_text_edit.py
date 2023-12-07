@@ -72,12 +72,17 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         tool_bar.addSeparator()
 
-        self.list_action = tool_bar.addAction(icon_manager.load_icon("bullet_list.png", COLORS.PRIMARY), "List")
+        self.list_action = tool_bar.addAction(icon_manager.load_icon("bullet_list.png", COLORS.PRIMARY),
+                                              "List (Ctrl + L)")
         self.list_action.setCheckable(True)
+        self.list_action.setShortcut("Ctrl+L")
         self.list_action.triggered.connect(self.on_list)
 
-        ordered_list_action = tool_bar.addAction(icon_manager.load_icon("ordered_list.png", COLORS.PRIMARY),
-                                                 "Ordered List")
+        self.ordered_list_action = tool_bar.addAction(icon_manager.load_icon("ordered_list.png", COLORS.PRIMARY),
+                                                      "Ordered List (Ctrl + Shift + L)")
+        self.ordered_list_action.setCheckable(True)
+        self.ordered_list_action.setShortcut("Ctrl+Shift+L")
+        self.ordered_list_action.triggered.connect(self.on_ordered_list)
 
         tool_bar.addSeparator()
 
@@ -218,6 +223,13 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 self.text_edit.setCurrentCharFormat(char_format)
 
     def on_list(self, checked: bool):
+        self.create_or_remove_list(checked, QtGui.QTextListFormat.ListDisc)
+
+    def on_ordered_list(self, checked: bool):
+        self.create_or_remove_list(checked, QtGui.QTextListFormat.ListDecimal)
+
+    def create_or_remove_list(self, checked: bool, list_type: QtGui.QTextListFormat.ListStyle):
+
         self.text_edit.textCursor().beginEditBlock()
 
         cursor = self.text_edit.textCursor()
@@ -230,7 +242,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 # move cursor to the start of the current block
                 cursor.movePosition(QtGui.QTextCursor.StartOfBlock)
                 # insert list
-                cursor.insertList(QtGui.QTextListFormat.ListDisc)
+                cursor.insertList(list_type)
                 # move cursor back one char
                 cursor.movePosition(QtGui.QTextCursor.PreviousCharacter)
                 # remove block
@@ -239,7 +251,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                 cursor.setPosition(cursor_position)
                 self.text_edit.setTextCursor(cursor)
             else:
-                text_list = self.create_list_for_selection(cursor)
+                text_list = self.create_list_for_selection(cursor, list_type)
                 self.text_edit.setTextCursor(cursor)
                 # if cursor is not at the end of a block, insert a newline
                 if cursor.position() != cursor.block().position() + cursor.block().length() - 1:
@@ -279,57 +291,71 @@ class WMESteamTextEdit(QtWidgets.QWidget):
 
         self.text_edit.textCursor().endEditBlock()
 
-    def create_list_for_selection(self, cursor: QtGui.QTextCursor = None):
+    def create_list_for_selection(self, cursor: QtGui.QTextCursor, list_type: QtGui.QTextListFormat.ListStyle):
         # set block format
         # TODO: disc can still have different sizes
         block_format, text_format = self.formats_for_heading(0)
         if cursor.blockFormat().headingLevel() != 0:
             cursor.mergeCharFormat(text_format)
         cursor.setBlockFormat(block_format)
-        text_list = cursor.createList(QtGui.QTextListFormat.ListDisc)
+        text_list = cursor.createList(list_type)
         return text_list
 
+    # TODO: fix unsaved changes
     def get_text(self):
         plain_text = self.text_edit.toPlainText()
         block_count = self.text_edit.document().blockCount()
         format_tag_positions = {}
         in_list = False
-        last_style = None
+        last_list_style = None
         # get all format tag positions
         for i in range(block_count):
             block = self.text_edit.document().findBlockByNumber(block_count - i - 1)
             block_start = block.position()
             block_end = block_start + block.length() - 1
             heading_level = block.blockFormat().headingLevel()
-            text_list = block.textList()
+            if not block.textList():
+                list_style = None
+            else:
+                list_style = block.textList().format().style()
             # if block is end of a list, add list end tag
-            if text_list and not in_list:
+            if list_style is not None and not in_list:
                 if block_end not in format_tag_positions:
                     format_tag_positions[block_end] = []
-                format_tag_positions[block_end].append("\n[/list]")
+                if list_style == QtGui.QTextListFormat.ListDisc:
+                    format_tag_positions[block_end].append("\n[/list]")
+                elif list_style == QtGui.QTextListFormat.ListDecimal:
+                    format_tag_positions[block_end].append("\n[/olist]")
                 in_list = True
             # if block is in list, add list item tag
-            if text_list and in_list:
+            if list_style is not None and in_list:
                 if block_start not in format_tag_positions:
                     format_tag_positions[block_start] = []
                 format_tag_positions[block_start].append("[*]")
             # if a new list was started, add list start tag
-            if text_list and last_style and last_style != text_list.format().style():
+            if list_style is not None and last_list_style is not None and last_list_style != list_style:
                 if block_end + 1 not in format_tag_positions:
                     format_tag_positions[block_end + 1] = []
-                format_tag_positions[block_end + 1].append("\n[/list]")
-                format_tag_positions[block_end + 1].append("[list]\n")
+                if last_list_style == QtGui.QTextListFormat.ListDisc:
+                    format_tag_positions[block_end + 1].append("\n[/list]")
+                    format_tag_positions[block_end + 1].append("[olist]\n")
+                elif last_list_style == QtGui.QTextListFormat.ListDecimal:
+                    format_tag_positions[block_end + 1].append("\n[/olist]")
+                    format_tag_positions[block_end + 1].append("[list]\n")
             # if block is start of a list, add list start tag
-            elif not text_list and in_list:
+            elif not list_style and in_list:
                 if block_end + 1 not in format_tag_positions:
                     format_tag_positions[block_end + 1] = []
-                format_tag_positions[block_end + 1].append("[list]\n")
+                if last_list_style == QtGui.QTextListFormat.ListDisc:
+                    format_tag_positions[block_end + 1].append("[list]\n")
+                elif last_list_style == QtGui.QTextListFormat.ListDecimal:
+                    format_tag_positions[block_end + 1].append("[olist]\n")
                 in_list = False
             # in any case, save the last style
-            if text_list:
-                last_style = text_list.format().style()
+            if list_style is not None:
+                last_list_style = list_style
             else:
-                last_style = None
+                last_list_style = None
             # set heading end tag
             if block.blockFormat().headingLevel() != 0:
                 if block_start not in format_tag_positions:
@@ -350,7 +376,10 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         if in_list:
             if 0 not in format_tag_positions:
                 format_tag_positions[0] = []
-            format_tag_positions[0].append("[list]")
+            if last_list_style == QtGui.QTextListFormat.ListDisc:
+                format_tag_positions[0].append("[list]")
+            elif last_list_style == QtGui.QTextListFormat.ListDecimal:
+                format_tag_positions[0].append("[olist]")
 
         # apply format tags
         for pos in reversed(sorted(format_tag_positions.keys())):
@@ -384,7 +413,6 @@ class WMESteamTextEdit(QtWidgets.QWidget):
     def set_text(self, text: str):
         text = text.removeprefix("\"").removesuffix("\"")
 
-        # TODO: lists
         tags = {
             "[b]": "[/b]",
             "[i]": "[/i]",
@@ -480,7 +508,7 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                     block_format.merge(heading_block_format)
                     text_format.merge(heading_char_format)
                 case "[list]\n":
-                    self.create_list_for_selection(cursor)
+                    self.create_list_for_selection(cursor, QtGui.QTextListFormat.ListDisc)
 
             if key.startswith("[url"):
                 text_format = self.hyperlink_format
@@ -503,7 +531,12 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             self.underline_action.setChecked(text_format.fontUnderline())
             self.strikethrough_action.setChecked(text_format.fontStrikeOut())
             self.text_type_selector.setCurrentIndex(cursor.blockFormat().headingLevel())
-            self.list_action.setChecked(True if cursor.currentList() else False)
+            if cursor.currentList():
+                list_type = cursor.currentList().format().style()
+            else:
+                list_type = None
+            self.list_action.setChecked(True if list_type == QtGui.QTextListFormat.ListDisc else False)
+            self.ordered_list_action.setChecked(True if list_type == QtGui.QTextListFormat.ListDecimal else False)
             return
 
         # get all blocks in selection
@@ -519,6 +552,10 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         underline = True
         strikethrough = True
         heading_level = blocks[0].blockFormat().headingLevel()
+        if cursor.currentList():
+            list_type = blocks[0].textList().format().style()
+        else:
+            list_type = None
 
         for block in blocks:
             for format_range in block.textFormats():
@@ -536,13 +573,17 @@ class WMESteamTextEdit(QtWidgets.QWidget):
                         strikethrough = False
                 if block.blockFormat().headingLevel() != heading_level:
                     heading_level = 0
+                current_list = block.textList()
+                if not current_list or current_list.format().style() != list_type:
+                    list_type = None
 
         self.bold_action.setChecked(bold)
         self.italic_action.setChecked(italic)
         self.underline_action.setChecked(underline)
         self.strikethrough_action.setChecked(strikethrough)
         self.text_type_selector.setCurrentIndex(heading_level)
-        self.list_action.setChecked(True if cursor.currentList() else False)
+        self.list_action.setChecked(True if list_type == QtGui.QTextListFormat.ListDisc else False)
+        self.ordered_list_action.setChecked(True if list_type == QtGui.QTextListFormat.ListDecimal else False)
 
     def on_undo_available(self, available: bool):
         self.undo_action.setDisabled(not available)
