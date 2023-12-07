@@ -60,7 +60,7 @@ PACK_PREFIX = {
 # Smart Group Button Size: SkirmishProductionMenuCombatGroupButton in UISpecificSkirmishProductionMenuView.ndf
 # (width 120, font size 12)
 
-class OperationEditor(base_napo_page.BaseNapoPage):
+class OperationEditorPage(base_napo_page.BaseNapoPage):
     value_changed = QtCore.Signal()
 
     def __init__(self):
