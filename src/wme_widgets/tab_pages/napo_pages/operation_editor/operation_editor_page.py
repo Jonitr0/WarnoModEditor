@@ -86,11 +86,11 @@ class OperationEditor(base_napo_page.BaseNapoPage):
     
         self.player_deck_obj = None
         self.player_div_obj = None
-            self.add_help_button()
-            self.deck_pack_list = None
-            self.matrix_obj = None
-            self.enemy_bg_napos = []
-            self.enemy_bg_div_rules = []
+        self.add_help_button()
+        self.deck_pack_list = None
+        self.matrix_obj = None
+        self.enemy_bg_napos = []
+        self.enemy_bg_div_rules = []
         self.help_file_path = "Help_OperationEditor.html"
     
         self.open_file(os.path.join(main_widget.instance.get_loaded_mod_path(),

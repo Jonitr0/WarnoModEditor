@@ -8,8 +8,8 @@ from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, glob
     csv_editor_page, mod_config_page
 from src.wme_widgets.tab_pages.diff_page import diff_page, file_comparison_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
-from src.wme_widgets.tab_pages.napo_pages import game_settings_page
-from src.wme_widgets.tab_pages.napo_pages.operation_editor import operation_editor
+from src.wme_widgets.tab_pages.napo_pages.game_settings_page import game_settings_page
+from src.wme_widgets.tab_pages.napo_pages.operation_editor import operation_editor_page
 from src.dialogs import essential_dialogs
 from src.utils import icon_manager
 from src.utils.color_manager import *
@@ -24,7 +24,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         guid_generator_page.GuidGeneratorPage: "cert.png",
         rich_text_viewer_page.RichTextViewerPage: "help.png",
         game_settings_page.GameSettingsPage: "game_settings.png",
-        operation_editor.OperationEditor: "chess_knight.png",
+        operation_editor_page.OperationEditorPage: "chess_knight.png",
         csv_editor_page.CsvEditorPage: "edit_table.png",
         diff_page.DiffPage: "diff.png",
         file_comparison_page.FileComparisonPage: "file_compare.png",
@@ -89,7 +89,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         game_settings_action.setToolTip("Edit available game settings such as starting points and income.")
         game_settings_action.triggered.connect(self.on_game_settings)
 
-        operation_editor_icon = self.get_icon_for_page_type(operation_editor.OperationEditor)
+        operation_editor_icon = self.get_icon_for_page_type(operation_editor_page.OperationEditorPage)
         operation_editor_action = self.tab_menu.addAction(operation_editor_icon, "Operation Editor")
         operation_editor_action.setToolTip("Change the units available to the player in Operations.")
         operation_editor_action.triggered.connect(self.on_operation_editor)
@@ -207,7 +207,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.add_tab_with_auto_icon(page, "Game Settings Editor")
 
     def on_operation_editor(self):
-        page = operation_editor.OperationEditor()
+        page = operation_editor_page.OperationEditorPage()
         self.add_tab_with_auto_icon(page, "Operation Editor")
 
     def on_open_quickstart(self):

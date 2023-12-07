@@ -5,7 +5,7 @@ from src.utils import icon_manager
 from src.utils.color_manager import *
 
 
-class NapoListWidget(QtWidgets.QWidget):
+class WMEListWidget(QtWidgets.QWidget):
     list_updated = QtCore.Signal(list)
 
     def __init__(self, title: str = "", input_mask: str = ".*", allow_empty: bool = False, fixed_length: bool = False):
