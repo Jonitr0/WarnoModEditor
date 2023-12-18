@@ -65,25 +65,10 @@ class MainWidget(QtWidgets.QWidget):
         except Exception as e:
             logging.warning("Error while loading WME config: " + str(e))
 
-        response = requests.get("https://api.github.com/repos/Jonitr0/WarnoModEditor/releases/latest")
-
-        version = settings_manager.get_settings_value(settings_manager.VERSION_KEY)
-        last_reported_version = settings_manager.get_settings_value(settings_manager.LAST_REPORTED_VERSION_KEY)
-        new_version = response.json()["tag_name"]
-
-        if version == new_version or new_version == last_reported_version:
-            return
-
-        hyperlink_color = get_color_for_key(COLORS.PRIMARY.value)
-        download_url = response.json()["html_url"]
-        text = "WME version " + new_version + " is available! You can download it <a style=\"color: " + \
-               hyperlink_color + "\" href=\"" + download_url + "\">here</a>. It includes the following changes:<br>"
-        for change in response.json()["body"].split("\r\n"):
-            text += "<br>" + change
-
-        essential_dialogs.MessageDialog("Update Available", text, rich_text=True).exec()
-
-        settings_manager.write_settings_value(settings_manager.LAST_REPORTED_VERSION_KEY, new_version)
+        try:
+            self.check_for_updates()
+        except Exception as e:
+            logging.warning("Error while checking for updates: " + str(e))
 
     def get_warno_path(self):
         return self.warno_path
@@ -310,6 +295,27 @@ class MainWidget(QtWidgets.QWidget):
                 detached_window.tab_widget.add_tab_with_auto_icon(page, tab["title"])
 
             detached_window.show()
+
+    def check_for_updates(self):
+        response = requests.get("https://api.github.com/repos/Jonitr0/WarnoModEditor/releases/latest")
+
+        version = settings_manager.get_settings_value(settings_manager.VERSION_KEY)
+        last_reported_version = settings_manager.get_settings_value(settings_manager.LAST_REPORTED_VERSION_KEY)
+        new_version = response.json()["tag_name"]
+
+        if version == new_version or new_version == last_reported_version:
+            return
+
+        hyperlink_color = get_color_for_key(COLORS.PRIMARY.value)
+        download_url = response.json()["html_url"]
+        text = "WME version " + new_version + " is available! You can download it <a style=\"color: " + \
+               hyperlink_color + "\" href=\"" + download_url + "\">here</a>. It includes the following changes:<br>"
+        for change in response.json()["body"].split("\r\n"):
+            text += "<br>" + change
+
+        essential_dialogs.MessageDialog("Update Available", text, rich_text=True).exec()
+
+        settings_manager.write_settings_value(settings_manager.LAST_REPORTED_VERSION_KEY, new_version)
 
 
 instance: MainWidget = None

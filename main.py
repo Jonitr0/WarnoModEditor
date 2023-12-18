@@ -46,7 +46,7 @@ if __name__ == '__main__':
     sys.excepthook = exception_handler.exceptHook
 
     # set version
-    version = "0.3.1c"
+    version = "0.3.1d"
     settings_manager.write_settings_value(settings_manager.VERSION_KEY, version)
     logging.info("\n\n")
     logging.info("Starting WME " + version)
