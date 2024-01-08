@@ -158,45 +158,11 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
         main_widget.instance.show_loading_screen("Loading operation files...")
     
         self.clear_layouts()
-    
-        # player bg NAPOs
-        player_div = PLAYER_DIVS[self.op_combobox.currentText()]
-        self.player_deck_obj = self.get_parsed_object_from_ndf_file("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf",
-                                                                    player_div)
-        self.player_div_obj = None
-        self.deck_pack_list = self.player_deck_obj.by_member("DeckPackList").value
-        if not self.matrix_obj:
-            self.matrix_obj = self.get_parsed_ndf_file("GameData\\Generated\\Gameplay\\Decks\\DivisionCostMatrix.ndf")
-    
-        units = sorted([i.removeprefix("Descriptor_Unit_") for i in
-                        ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")])
-        unit_widgets.UnitSelectionCombobox.units = units
-    
-        # TODO: create state from files
-        state = {}
-        state["current_op"] = self.op_combobox.currentText()
-        state["companies"] = []
-    
-        # get group list
-        company_list = self.player_deck_obj.by_member("DeckCombatGroupList").value
-        for i in range(len(company_list)):
-            # get unit object
-            company = company_list[i].value
-            company_name = company.by_member("Name").value
-            company_dict = {"name": company_name, "platoons": []}
-            platoon_list = company.by_member("SmartGroupList").value
-            for j in range(len(platoon_list)):
-                # get platoon (index/availability mapping)
-                platoon = platoon_list[j].value
-                platoon_name = platoon.by_member("Name").value
-                platoon_dict = {"name": platoon_name, "units": []}
-                platoon_packs = platoon.by_member("PackIndexUnitNumberList").value
-                for pack in platoon_packs:
-                    # TODO: get pack data from parsed obj
-                    pass
-                company_dict["platoons"].append(platoon_dict)
-            state["companies"].append(company_dict)
-    
+
+        self.controller.set_current_player_div(PLAYER_DIVS[self.op_combobox.currentText()])
+        self.controller.set_current_op(self.op_combobox.currentText())
+        state = self.controller.load_state_from_file()
+
         add_company_button = QtWidgets.QPushButton("Add Company")
         add_company_button.clicked.connect(self.on_add_company)
         add_company_button.setFixedWidth(400)
@@ -246,6 +212,7 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
         main_widget.instance.hide_loading_screen()
     
     def _save_changes(self) -> bool:
+        '''
         state = self.get_state()
         units_in_deck_list = {}
         company_list = NapoVector()
@@ -347,7 +314,7 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
     
         self.write_napo_file("GameData\\Gameplay\\Decks\\DivisionCostMatrix.ndf", self.matrix_obj)
     
-        self.saved_state = state
+        self.saved_state = state'''
         return True
     
     def get_index_for_unit(self, unit) -> int:
@@ -547,13 +514,13 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
     def add_company(self, company_name: str, index: int):
         company_widget = unit_widgets.UnitCompanyWidget(company_name, index, self)
         company_widget.delete_company.connect(self.on_delete_company)
-        company_widget.value_changed.connect(self.on_value_changed)
+        company_widget.value_changed.connect(self.on_state_changed)
         self.player_bg_scroll_layout.insertWidget(self.player_bg_scroll_layout.count() - 2, company_widget)
         return company_widget
     
     def on_add_company(self):
         self.add_company("", self.player_bg_scroll_layout.count() - 1)
-        self.on_value_changed()
+        self.on_state_changed()
     
     def on_delete_company(self, index):
         dialog = essential_dialogs.ConfirmationDialog("Do you really want to remove Company " + str(index + 1) + "?",
@@ -569,7 +536,7 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
             company = self.player_bg_scroll_layout.itemAt(i).widget()
             company.update_index(i + 1)
     
-        self.on_value_changed()
+        self.on_state_changed()
     
     def get_enemy_bg_unit_count(self, bg_index: int, unit_name: str):
         bg_rules = self.enemy_bg_div_rules[bg_index]
@@ -639,7 +606,3 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
     
     def from_json(self, json_obj: dict):
         self.op_combobox.setCurrentIndex(self.op_combobox.findText(json_obj["currentOp"]))
-    
-    def on_value_changed(self):
-        new_status = self.get_state()
-        self.unsaved_changes = new_status != self.saved_state
