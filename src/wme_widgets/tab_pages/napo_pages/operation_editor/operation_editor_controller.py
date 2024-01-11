@@ -1,3 +1,7 @@
+import logging
+
+import ndf_parse
+
 from src.wme_widgets.tab_pages.napo_pages import base_napo_controller
 from src.wme_widgets.tab_pages.napo_pages.operation_editor import unit_widgets
 
@@ -11,6 +15,7 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
         self.player_deck_obj = None
         self.player_div_obj = None
         self.deck_pack_list = None
+        self.packs = None
         self.current_op = ""
         self.current_player_div = ""
 
@@ -28,12 +33,14 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
                                                                     player_div)
         self.player_div_obj = None
         self.deck_pack_list = self.player_deck_obj.by_member("DeckPackList").value
+        self.packs = self.get_parsed_ndf_file("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
 
         units = sorted([i.removeprefix("Descriptor_Unit_") for i in
                         ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")])
         unit_widgets.UnitSelectionCombobox.units = units
 
         state = {"current_op": self.current_op, "companies": []}
+        deck_pack_list = self.player_deck_obj.by_member("DeckPackList").value
 
         # get group list
         company_list = self.player_deck_obj.by_member("DeckCombatGroupList").value
@@ -50,15 +57,33 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
                 platoon_dict = {"name": platoon_name, "units": []}
                 platoon_packs = platoon.by_member("PackIndexUnitNumberList").value
                 for pack in platoon_packs:
-                    # TODO: get pack data from parsed obj
-                    # key: index in DeckPackList
-                    # value: amount
-                    pass
+                    index = int(pack.value[0])
+                    unit_info = self.get_unit_info_from_pack(index, deck_pack_list)
+                    unit_info["amount"] = int(pack.value[1])
+                    platoon_dict["units"].append(unit_info)
                 company_dict["platoons"].append(platoon_dict)
             state["companies"].append(company_dict)
 
         # TODO: enemy BGs
         return state
+
+    def get_unit_info_from_pack(self, pack_index: int, deck_pack_list: ndf_parse.List) -> dict:
+        pack = deck_pack_list[pack_index].value
+        pack_name = pack.by_member("DeckPack").value.removeprefix("~/")
+        unit_name = ""
+        for pack_info in self.packs:
+            if pack_info.namespace == pack_name:
+                unit_name = pack_info.value.by_member("TransporterAndUnitsList").value[0].value.\
+                    by_member("UnitDescriptor").value.removeprefix("Descriptor_Unit_")
+                break
+        if unit_name == "":
+            logging.warning(f"Could not find unit name for pack {pack_name}")
+        exp = int(pack.by_member("ExperienceLevel").value)
+        try:
+            transport = pack.by_member("Transport").value
+        except ValueError:
+            transport = None
+        return {"unit_name": unit_name, "exp": exp, "transport": transport}
 
     def write_state_to_file(self, state: dict):
         # Decks.ndf: save units in battle group

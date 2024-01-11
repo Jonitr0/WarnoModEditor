@@ -6,7 +6,7 @@ from antlr4 import *
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
-from src.wme_widgets.tab_pages.napo_pages.operation_editor import unit_widgets
+from src.wme_widgets.tab_pages.napo_pages.operation_editor import unit_widgets, operation_editor_controller
 from src.wme_widgets.tab_pages.napo_pages import base_napo_page
 from src.wme_widgets import main_widget, wme_essentials
 
@@ -65,7 +65,8 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
 
     def __init__(self):
         super().__init__()
-    
+
+        self.controller = operation_editor_controller.OperationEditorController()
         self.op_combobox = wme_essentials.WMECombobox()
         self.op_combobox.addItems(PLAYER_DIVS.keys())
         self.op_combobox.currentIndexChanged.connect(self.on_new_op_selected)
@@ -162,6 +163,7 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
         self.controller.set_current_player_div(PLAYER_DIVS[self.op_combobox.currentText()])
         self.controller.set_current_op(self.op_combobox.currentText())
         state = self.controller.load_state_from_file()
+        print(state)
 
         add_company_button = QtWidgets.QPushButton("Add Company")
         add_company_button.clicked.connect(self.on_add_company)
@@ -169,7 +171,8 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
         self.player_bg_scroll_layout.addWidget(add_company_button)
         self.player_bg_scroll_layout.setAlignment(add_company_button, Qt.AlignCenter)
         self.player_bg_scroll_layout.addStretch(1)
-    
+
+        '''
         # get group list
         company_list = self.player_deck_obj.by_member("DeckCombatGroupList").value
         for i in range(len(company_list)):
@@ -208,6 +211,7 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
     
         self.saved_state = self.get_state()
         self.unsaved_changes = False
+        '''
     
         main_widget.instance.hide_loading_screen()
     
