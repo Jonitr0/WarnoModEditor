@@ -88,8 +88,10 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
     def write_state_to_file(self, state: dict):
         # Decks.ndf: save units in battle group
         # DeckRules.ndf: save enemy units
+        # TODO: check if cost matrix file has changed
         # DivisionCostMatrix.ndf: adjust if needed
         # Packs.ndf: save availability constraints
+        # TODO: set operation cost matrix, not MP matrix
         # Divisions.ndf: ?
         # DivisionRules.ndf: ?
         pass
