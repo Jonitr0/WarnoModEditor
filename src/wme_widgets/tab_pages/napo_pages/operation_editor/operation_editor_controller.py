@@ -59,7 +59,7 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
                 for pack in platoon_packs:
                     index = int(pack.value[0])
                     unit_info = self.get_unit_info_from_pack(index, deck_pack_list)
-                    unit_info["amount"] = int(pack.value[1])
+                    unit_info["count"] = int(pack.value[1])
                     platoon_dict["units"].append(unit_info)
                 company_dict["platoons"].append(platoon_dict)
             state["companies"].append(company_dict)
@@ -81,6 +81,7 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
         exp = int(pack.by_member("ExperienceLevel").value)
         try:
             transport = pack.by_member("Transport").value
+            transport = transport.removeprefix("~/Descriptor_Unit_")
         except ValueError:
             transport = None
         return {"unit_name": unit_name, "exp": exp, "transport": transport}

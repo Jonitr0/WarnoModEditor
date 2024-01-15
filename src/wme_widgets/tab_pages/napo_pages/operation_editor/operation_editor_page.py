@@ -163,14 +163,8 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
         self.controller.set_current_player_div(PLAYER_DIVS[self.op_combobox.currentText()])
         self.controller.set_current_op(self.op_combobox.currentText())
         state = self.controller.load_state_from_file()
-        print(state)
 
-        add_company_button = QtWidgets.QPushButton("Add Company")
-        add_company_button.clicked.connect(self.on_add_company)
-        add_company_button.setFixedWidth(400)
-        self.player_bg_scroll_layout.addWidget(add_company_button)
-        self.player_bg_scroll_layout.setAlignment(add_company_button, Qt.AlignCenter)
-        self.player_bg_scroll_layout.addStretch(1)
+        self.set_state(state)
 
         '''
         # get group list
@@ -571,11 +565,6 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
         self.op_combobox.currentIndexChanged.connect(self.on_new_op_selected)
     
         self.clear_layouts()
-    
-        player_div = PLAYER_DIVS[self.op_combobox.currentText()]
-        self.player_deck_obj = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", player_div)
-        self.player_div_obj = None
-        self.deck_pack_list = self.player_deck_obj.value[0].value.get_napo_value("DeckPackList")
     
         add_company_button = QtWidgets.QPushButton("Add Company")
         add_company_button.clicked.connect(self.on_add_company)
