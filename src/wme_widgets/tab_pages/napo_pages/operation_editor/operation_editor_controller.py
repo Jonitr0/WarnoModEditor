@@ -51,13 +51,13 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
         for i in range(len(company_list)):
             # get unit object
             company = company_list[i].value
-            company_name = company.by_member("Name").value
+            company_name = company.by_member("Name").value.replace("\"", "")
             company_dict = {"name": company_name, "platoons": []}
             platoon_list = company.by_member("SmartGroupList").value
             for j in range(len(platoon_list)):
                 # get platoon (index/availability mapping)
                 platoon = platoon_list[j].value
-                platoon_name = platoon.by_member("Name").value
+                platoon_name = platoon.by_member("Name").value.replace("\"", "")
                 platoon_dict = {"name": platoon_name, "units": []}
                 platoon_packs = platoon.by_member("PackIndexUnitNumberList").value
                 for pack in platoon_packs:
@@ -79,7 +79,6 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
                 enemy_div_dict["units"].append(self.get_unit_info_from_pack(i, enemy_div_pack_list))
             state["enemy_divs"].append(enemy_div_dict)
             # TODO: add count
-
         return state
 
     def get_unit_info_from_pack(self, pack_index: int, deck_pack_list: ndf_parse.List) -> dict:
@@ -89,14 +88,14 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
         for pack_info in self.packs:
             if pack_info.namespace == pack_name:
                 unit_name = pack_info.value.by_member("TransporterAndUnitsList").value[0].value.\
-                    by_member("UnitDescriptor").value.removeprefix("Descriptor_Unit_")
+                    by_member("UnitDescriptor").value.removeprefix("$/GFX/Unit/Descriptor_Unit_")
                 break
         if unit_name == "":
             logging.warning(f"Could not find unit name for pack {pack_name}")
         exp = int(pack.by_member("ExperienceLevel").value)
         try:
             transport = pack.by_member("Transport").value
-            transport = transport.removeprefix("~/Descriptor_Unit_")
+            transport = transport.removeprefix("$/GFX/Unit/Descriptor_Unit_")
         except ValueError:
             transport = None
         return {"unit_name": unit_name, "exp": exp, "transport": transport}
