@@ -18,12 +18,16 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
         self.packs = None
         self.current_op = ""
         self.current_player_div = ""
+        self.current_enemy_divs = []
 
     def set_current_op(self, op: str):
         self.current_op = op
 
     def set_current_player_div(self, player_div: str):
         self.current_player_div = player_div
+
+    def set_current_enemy_divs(self, enemy_divs: [str]):
+        self.current_enemy_divs = enemy_divs
 
     def load_state_from_file(self) -> dict:
         # Decks.ndf: get units in battle group
@@ -39,7 +43,7 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
                         ndf_scanner.get_assignment_ids("GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")])
         unit_widgets.UnitSelectionCombobox.units = units
 
-        state = {"current_op": self.current_op, "companies": []}
+        state = {"current_op": self.current_op, "companies": [], "enemy_divs": []}
         deck_pack_list = self.player_deck_obj.by_member("DeckPackList").value
 
         # get group list
@@ -64,7 +68,18 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
                 company_dict["platoons"].append(platoon_dict)
             state["companies"].append(company_dict)
 
-        # TODO: enemy BGs
+        # enemy BGs
+        enemy_divs = self.current_enemy_divs
+        for enemy_div in enemy_divs:
+            enemy_div_obj = self.get_parsed_object_from_ndf_file(
+                "GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", enemy_div)
+            enemy_div_dict = {"name": enemy_div, "units": []}
+            enemy_div_pack_list = enemy_div_obj.by_member("DeckPackList").value
+            for i in range(len(enemy_div_pack_list)):
+                enemy_div_dict["units"].append(self.get_unit_info_from_pack(i, enemy_div_pack_list))
+            state["enemy_divs"].append(enemy_div_dict)
+            # TODO: add count
+
         return state
 
     def get_unit_info_from_pack(self, pack_index: int, deck_pack_list: ndf_parse.List) -> dict:
