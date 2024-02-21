@@ -109,38 +109,40 @@ def wrapEF(ef):
     return w
 
 
-def sbEventFilter(s, e):
-    q = s
+def sbEventFilter(widget, e):
     if (e.type() == QtCore.QEvent.MouseButtonPress and e.button() == Qt.LeftButton
             or e.type() == QtCore.QEvent.MouseButtonDblClick):
-        # TODO: if mouse is already on slider, don't jump
-        # pixelPosToRangeValue(pos)
         opt = QtWidgets.QStyleOptionSlider()
-        q.initStyleOption(opt)
-        gr = q.style().subControlRect(QtWidgets.QStyle.CC_ScrollBar, opt,
-                                      QtWidgets.QStyle.SC_ScrollBarGroove, q)
-        sr = q.style().subControlRect(QtWidgets.QStyle.CC_ScrollBar, opt,
-                                      QtWidgets.QStyle.SC_ScrollBarSlider, q)
-        if q.orientation() == Qt.Horizontal:
-            sliderLength = sr.width()
-            sliderMin = gr.x()
-            sliderMax = gr.right() - sliderLength + 1
-            if q.layoutDirection() == Qt.RightToLeft:
+        widget.initStyleOption(opt)
+        groove_rect = widget.style().subControlRect(QtWidgets.QStyle.CC_ScrollBar, opt,
+                                                    QtWidgets.QStyle.SC_ScrollBarGroove, widget)
+        slider_rect = widget.style().subControlRect(QtWidgets.QStyle.CC_ScrollBar, opt,
+                                                    QtWidgets.QStyle.SC_ScrollBarSlider, widget)
+        # get event position relative to the scrollbar groove
+        click_pos = e.pos()
+        click_pos = widget.mapFromParent(click_pos)
+        if slider_rect.contains(click_pos):
+            return widget.eventFilter(widget, e)
+
+        if widget.orientation() == Qt.Horizontal:
+            slider_length = slider_rect.width()
+            slider_min = groove_rect.x()
+            slider_max = groove_rect.right() - slider_length + 1
+            if widget.layoutDirection() == Qt.RightToLeft:
                 opt.upsideDown = not opt.upsideDown
-            dt = sr.width() / 2
+            dt = slider_rect.width() / 2
             pos = e.pos().x()
         else:
-            sliderLength = sr.height()
-            sliderMin = gr.y()
-            sliderMax = gr.bottom() - sliderLength + 1
-            dt = sr.height() / 2
+            slider_length = slider_rect.height()
+            slider_min = groove_rect.y()
+            slider_max = groove_rect.bottom() - slider_length + 1
+            dt = slider_rect.height() / 2
             pos = e.pos().y()
-        r = QtWidgets.QStyle.sliderValueFromPosition(q.minimum(), q.maximum(),
-                                                     pos - sliderMin - dt,
-                                                     sliderMax - sliderMin, opt.upsideDown)
-        # pixelPosToRangeValue,
-        q.setValue(r)
-    return q.eventFilter(s, e)
+        target = QtWidgets.QStyle.sliderValueFromPosition(widget.minimum(), widget.maximum(),
+                                                          pos - slider_min - dt,
+                                                          slider_max - slider_min, opt.upsideDown)
+        widget.setValue(target)
+    return widget.eventFilter(widget, e)
 
 
 class WMEScrollBar(QtWidgets.QScrollBar):
