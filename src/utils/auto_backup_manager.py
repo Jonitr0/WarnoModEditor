@@ -29,10 +29,12 @@ class AutoBackupManager(QtCore.QObject):
             val = int(mod_state[settings_manager.AUTO_BACKUP_FREQUENCY_KEY])
             self.auto_backup_frequency = val
         except Exception:
-            val = int(settings_manager.get_settings_value(settings_manager.AUTO_BACKUP_FREQUENCY_KEY))
+            val = settings_manager.get_settings_value(settings_manager.AUTO_BACKUP_FREQUENCY_KEY)
             if not val:
                 val = 60
                 settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_FREQUENCY_KEY, val)
+            else:
+                val = int(val)
             self.auto_backup_frequency = val
 
         try:
@@ -40,10 +42,12 @@ class AutoBackupManager(QtCore.QObject):
             val = int(mod_state[settings_manager.AUTO_BACKUP_COUNT_KEY])
             self.auto_backup_count = val
         except Exception:
-            val = int(settings_manager.get_settings_value(settings_manager.AUTO_BACKUP_COUNT_KEY))
+            val = settings_manager.get_settings_value(settings_manager.AUTO_BACKUP_COUNT_KEY)
             if not val:
                 val = 3
                 settings_manager.write_settings_value(settings_manager.AUTO_BACKUP_COUNT_KEY, val)
+            else:
+                val = int(val)
             self.auto_backup_count = val
             
     def on_mod_state_changed(self, changed: bool):

@@ -113,6 +113,7 @@ def sbEventFilter(s, e):
     q = s
     if (e.type() == QtCore.QEvent.MouseButtonPress and e.button() == Qt.LeftButton
             or e.type() == QtCore.QEvent.MouseButtonDblClick):
+        # TODO: if mouse is already on slider, don't jump
         # pixelPosToRangeValue(pos)
         opt = QtWidgets.QStyleOptionSlider()
         q.initStyleOption(opt)

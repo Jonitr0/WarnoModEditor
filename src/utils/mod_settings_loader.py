@@ -12,5 +12,7 @@ def get_mod_settings():
 
 def set_mod_settings(mod_state):
     app_state = settings_manager.get_settings_value(settings_manager.APP_STATE)
+    if not app_state:
+        app_state = {}
     app_state[main_widget.instance.get_loaded_mod_name()] = mod_state
     settings_manager.write_settings_value(settings_manager.APP_STATE, app_state)
