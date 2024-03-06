@@ -175,6 +175,8 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
         main_widget.instance.hide_loading_screen()
 
     def _save_changes(self) -> bool:
+        state = self.get_state()
+        self.controller.write_state_to_file(state)
         '''
         state = self.get_state()
         units_in_deck_list = {}
