@@ -1,3 +1,5 @@
+import logging
+
 import requests
 
 from PySide6 import QtWidgets, QtCore, QtGui
@@ -69,7 +71,11 @@ class MainWidget(QtWidgets.QWidget):
         except Exception as e:
             logging.warning("Error while loading WME config: " + str(e))
 
-        response = requests.get("https://api.github.com/repos/Jonitr0/WarnoModEditor/releases/latest")
+        try:
+            response = requests.get("https://api.github.com/repos/Jonitr0/WarnoModEditor/releases/latest")
+        except Exception as e:
+            logging.warning("Error while fetching version data from GitHub: " + str(e))
+            return
 
         version = settings_manager.get_settings_value(settings_manager.VERSION_KEY)
         last_reported_version = settings_manager.get_settings_value(settings_manager.LAST_REPORTED_VERSION_KEY)

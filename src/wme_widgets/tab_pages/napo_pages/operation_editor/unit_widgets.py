@@ -436,6 +436,7 @@ class StringSelectionCombobox(wme_essentials.WMECombobox):
 
 class UnitSelectionCombobox(wme_essentials.WMECombobox):
     units = []
+    # TODO: debug if this is added unnecessarily
 
     def __init__(self, unit_name: str = "", parent=None):
         super().__init__(parent)

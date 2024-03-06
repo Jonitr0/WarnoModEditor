@@ -13,7 +13,7 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
         super().__init__()
         
         self.player_deck_obj = None
-        self.player_div_obj = None
+        self.div_rules_obj = None
         self.deck_pack_list = None
         self.packs = None
         self.current_op = ""
@@ -30,12 +30,10 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
         self.current_enemy_divs = enemy_divs
 
     def load_state_from_file(self) -> dict:
-        # Decks.ndf: get units in battle group
-        # DeckRules.ndf: get enemy units
+        # TODO: clear all saved objects
         player_div = self.current_player_div
         self.player_deck_obj = self.get_parsed_object_from_ndf_file("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf",
                                                                     player_div)
-        self.player_div_obj = None
         self.deck_pack_list = self.player_deck_obj.by_member("DeckPackList").value
         self.packs = self.get_parsed_ndf_file("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
 
@@ -69,16 +67,19 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
             state["companies"].append(company_dict)
 
         # enemy BGs
+        self.div_rules_obj = None
         enemy_divs = self.current_enemy_divs
         for enemy_div in enemy_divs:
             enemy_div_obj = self.get_parsed_object_from_ndf_file(
                 "GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", enemy_div)
+            enemy_div_name = enemy_div_obj.by_member("DeckDivision").value
             enemy_div_dict = {"name": enemy_div, "units": []}
             enemy_div_pack_list = enemy_div_obj.by_member("DeckPackList").value
             for i in range(len(enemy_div_pack_list)):
-                enemy_div_dict["units"].append(self.get_unit_info_from_pack(i, enemy_div_pack_list))
+                unit = self.get_unit_info_from_pack(i, enemy_div_pack_list)
+                unit["count"] = self.get_count_form_div_rules(unit["unit_name"], enemy_div_name)
+                enemy_div_dict["units"].append(unit)
             state["enemy_divs"].append(enemy_div_dict)
-            # TODO: add count
         return state
 
     def get_unit_info_from_pack(self, pack_index: int, deck_pack_list: ndf_parse.List) -> dict:
@@ -88,17 +89,31 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
         for pack_info in self.packs:
             if pack_info.namespace == pack_name:
                 unit_name = pack_info.value.by_member("TransporterAndUnitsList").value[0].value.\
-                    by_member("UnitDescriptor").value.removeprefix("$/GFX/Unit/Descriptor_Unit_")
+                    by_member("UnitDescriptor").value.removeprefix("Descriptor_Unit_")
                 break
         if unit_name == "":
             logging.warning(f"Could not find unit name for pack {pack_name}")
         exp = int(pack.by_member("ExperienceLevel").value)
         try:
             transport = pack.by_member("Transport").value
-            transport = transport.removeprefix("$/GFX/Unit/Descriptor_Unit_")
+            transport = transport.removeprefix("~/Descriptor_Unit_")
         except ValueError:
             transport = None
         return {"unit_name": unit_name, "exp": exp, "transport": transport}
+
+    def get_count_form_div_rules(self, unit_name: str, div_name: str) -> int:
+        if not self.div_rules_obj:
+            div_rules = self.get_parsed_object_from_ndf_file(
+                "GameData\\Generated\\Gameplay\\Decks\\DivisionRules.ndf", "DivisionRules")
+            self.div_rules_obj = div_rules.by_member("DivisionRules").value
+
+        div_unit_list = self.div_rules_obj.by_key(div_name).value.by_member("UnitRuleList").value
+        for unit in div_unit_list:
+            if unit.value.by_member("UnitDescriptor").value == "~/Descriptor_Unit_" + unit_name:
+                return int(unit.value.by_member("NumberOfUnitInPack").value)
+
+        logging.warning("Unit " + unit_name + " not found for " + div_name + " in DivisionRules.ndf")
+        return 0
 
     def write_state_to_file(self, state: dict):
         # Decks.ndf: save units in battle group

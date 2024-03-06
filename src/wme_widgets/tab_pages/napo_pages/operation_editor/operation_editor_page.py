@@ -168,6 +168,7 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
         self.controller.set_current_enemy_divs(ENEMY_DIVS[self.op_combobox.currentText()])
         self.controller.set_current_op(self.op_combobox.currentText())
         state = self.controller.load_state_from_file()
+        self.saved_state = state
 
         self.set_state(state)
 
@@ -594,8 +595,9 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
             # TODO: make this a collapsible widget with better label
             self.enemy_scroll_layout.addWidget(QtWidgets.QLabel(enemy_div["name"]))
             for i, unit in enumerate(enemy_div["units"]):
-                self.enemy_scroll_layout.addWidget(unit_widgets.UnitSelectorWidget(i, 1, unit["exp"], unit["unit_name"],
-                                                                                   unit["transport"], self))
+                self.enemy_scroll_layout.addWidget(unit_widgets.UnitSelectorWidget(i, unit["count"], unit["exp"],
+                                                                                   unit["unit_name"], unit["transport"],
+                                                                                   self))
 
         self.unsaved_changes = self.saved_state != state
 
