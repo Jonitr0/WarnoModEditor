@@ -593,11 +593,10 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
 
         for enemy_div in state["enemy_divs"]:
             # TODO: make this a collapsible widget with better label
-            self.enemy_scroll_layout.addWidget(QtWidgets.QLabel(enemy_div["name"]))
+            enemy_bg_widget = unit_widgets.BattleGroupWidget(enemy_div["name"], self)
+            self.enemy_scroll_layout.addWidget(enemy_bg_widget)
             for i, unit in enumerate(enemy_div["units"]):
-                self.enemy_scroll_layout.addWidget(unit_widgets.UnitSelectorWidget(i, unit["count"], unit["exp"],
-                                                                                   unit["unit_name"], unit["transport"],
-                                                                                   self))
+                enemy_bg_widget.add_unit(unit["count"], unit["exp"], unit["unit_name"], unit["transport"])
 
         self.unsaved_changes = self.saved_state != state
 

@@ -30,7 +30,6 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
         self.current_enemy_divs = enemy_divs
 
     def load_state_from_file(self) -> dict:
-        # TODO: clear all saved objects
         player_div = self.current_player_div
         self.player_deck_obj = self.get_parsed_object_from_ndf_file("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf",
                                                                     player_div)

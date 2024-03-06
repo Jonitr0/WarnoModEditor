@@ -49,11 +49,10 @@ class Collapsible(QtWidgets.QWidget):
 class BattleGroupWidget(Collapsible):
     value_changed = QtCore.Signal()
 
-    def __init__(self, name: str, pack_list: NapoVector, index: int, callback, parent=None):
+    def __init__(self, name: str, callback, parent=None):
         super(BattleGroupWidget, self).__init__(parent=parent)
 
         self.callback = callback
-        self.index = index
 
         name_label = QtWidgets.QLabel(name)
         self.header_layout.addWidget(name_label)
@@ -65,50 +64,20 @@ class BattleGroupWidget(Collapsible):
         self.item_layout.addWidget(add_unit_button)
         self.item_layout.setAlignment(add_unit_button, Qt.AlignCenter)
 
-        for pack in pack_list.value:
-            pack_name = pack.get_raw_value("DeckPack").removeprefix("~/")
-            exp_level = pack.get_raw_value("ExperienceLevel")
-            try:
-                transport = pack.get_raw_value("Transport").removeprefix("~/Descriptor_Unit_")
-            except:
-                transport = ""
-            self.add_unit(pack_name, exp_level, transport, self.item_layout.count() - 1)
-
         # TODO: make sure units of the same type always have the same count (pack logic)
         # TODO: get state
 
-    def add_unit(self, pack_name: str, exp_level: int, transport: str, layout_index: int):
-        unit_name = self.get_unit_name_for_pack(pack_name)
-        count = self.get_unit_count_for_pack(unit_name)
-        self.add_unit_with_data(layout_index, count, exp_level, unit_name, transport)
-
-    def add_unit_with_data(self, layout_index: int, count: int, exp_level: int, unit_name: str, transport: str):
+    def add_unit(self, count: int, exp_level: int, unit_name: str, transport: str, layout_index: int = -1):
+        if layout_index < 0:
+            layout_index = self.item_layout.count() - 1
         unit_widget = UnitSelectorWidget(layout_index, count, exp_level, unit_name, transport)
         unit_widget.delete_unit.connect(self.delete_unit)
         unit_widget.value_changed.connect(self.on_value_changed)
-        self.item_layout.insertWidget(self.item_layout.count() - 1, unit_widget)
+        self.item_layout.insertWidget(layout_index, unit_widget)
 
     def on_add_unit(self):
-        self.add_unit("", 1, "", self.item_layout.count() - 1)
+        self.add_unit(1, 0, "", None)
         self.on_value_changed()
-
-    def get_unit_name_for_pack(self, pack_name: str):
-        if pack_name == "":
-            return "2K12_KUB_DDR"
-
-        global packs_to_units_sc
-        if packs_to_units_sc.contains(pack_name):
-            unit_name = packs_to_units_sc.get(pack_name)
-        else:
-            pack = self.callback.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf", pack_name)
-            unit_name = pack.get_raw_value(pack_name +
-                                           "\\TransporterAndUnitsList\\TDeckTransporterAndUnitsDescriptor"
-                                           "\\UnitDescriptor")
-            packs_to_units_sc.set(pack_name, unit_name)
-        return unit_name.removeprefix("Descriptor_Unit_")
-
-    def get_unit_count_for_pack(self, unit_name: str):
-        return self.callback.get_enemy_bg_unit_count(self.index, unit_name)
 
     def on_value_changed(self):
         self.value_changed.emit()
