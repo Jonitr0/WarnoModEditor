@@ -172,47 +172,6 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
 
         self.set_state(state)
 
-        '''
-        # get group list
-        company_list = self.player_deck_obj.by_member("DeckCombatGroupList").value
-        for i in range(len(company_list)):
-            # get unit object
-            company = company_list[i].value
-            company_name = company.by_member("Name").value
-            company_widget = self.add_company(company_name, i + 1)
-            platoon_list = company.by_member("SmartGroupList").value
-            for j in range(len(platoon_list)):
-                # get platoon (index/availability mapping)
-                platoon = platoon_list[j].value
-                platoon_name = platoon.by_member("Name").value
-                platoon_packs = platoon.by_member("PackIndexUnitNumberList").value
-                company_widget.add_platoon(platoon_name, platoon_packs)
-                # TODO: dont create widgets here, handle this via set_state
-    
-        # enemy BGs
-        enemy_bg_list = ENEMY_DIVS[self.op_combobox.currentText()]
-        self.enemy_bg_napos = []
-        self.enemy_bg_div_rules = []
-    
-        for index, bg_name in enumerate(enemy_bg_list):
-            bg_napo = self.get_napo_from_object("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf", bg_name)
-            self.enemy_bg_napos.append(bg_napo)
-            pack_list = bg_napo.value[0].value.get_napo_value("DeckPackList")
-    
-            bg_div_name = bg_napo.value[0].value.get_raw_value("DeckDivision")
-            self.enemy_bg_div_rules.append(self.get_division_rules_list(bg_div_name))
-    
-            bg_name.removeprefix("Descriptor_Deck_")
-            bg_widget = unit_widgets.BattleGroupWidget(bg_name, pack_list, index, self)
-    
-            self.opfor_scroll_layout.addWidget(bg_widget)
-    
-        self.opfor_scroll_layout.addStretch(1)
-    
-        self.saved_state = self.get_state()
-        self.unsaved_changes = False
-        '''
-
         main_widget.instance.hide_loading_screen()
 
     def _save_changes(self) -> bool:
@@ -592,8 +551,8 @@ class OperationEditorPage(base_napo_page.BaseNapoPage):
                     unit_index += 1
 
         for enemy_div in state["enemy_divs"]:
-            # TODO: make this a collapsible widget with better label
             enemy_bg_widget = unit_widgets.BattleGroupWidget(enemy_div["name"], self)
+            enemy_bg_widget.value_changed.connect(self.on_state_changed)
             self.enemy_scroll_layout.addWidget(enemy_bg_widget)
             for i, unit in enumerate(enemy_div["units"]):
                 enemy_bg_widget.add_unit(unit["count"], unit["exp"], unit["unit_name"], unit["transport"])
