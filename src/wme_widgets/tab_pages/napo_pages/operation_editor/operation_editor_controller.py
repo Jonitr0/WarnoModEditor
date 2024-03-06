@@ -121,6 +121,6 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
         # DivisionCostMatrix.ndf: adjust if needed
         # Packs.ndf: save availability constraints
         # TODO: set operation cost matrix, not MP matrix
-        # Divisions.ndf: ?
-        # DivisionRules.ndf: ?
+        # Divisions.ndf: add packs of added units, adjust pack counts
+        # DivisionRules.ndf: save enemy unit counts
         pass
