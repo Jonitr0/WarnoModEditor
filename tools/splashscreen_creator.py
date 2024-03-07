@@ -30,8 +30,7 @@ class SplashScreenCreator(QtWidgets.QWidget):
         self.amount_slider.setValue(20)
         self.scan_lines_checkbox = QtWidgets.QCheckBox("Scan Lines")
         self.color_offset_checkbox = QtWidgets.QCheckBox("Color Offset")
-        self.noise_checkbox = QtWidgets.QCheckBox("Noise")
-        self.vignette_checkbox = QtWidgets.QCheckBox("Vignette")
+        self.fixed_seed_checkbox = QtWidgets.QCheckBox("Fixed Seed")
         self.vignette_spinbox = QtWidgets.QSpinBox()
         self.vignette_spinbox.setRange(0, 1000)
         self.vignette_spinbox.setValue(300)
@@ -44,10 +43,7 @@ class SplashScreenCreator(QtWidgets.QWidget):
         self.options_layout.addWidget(self.amount_slider)
         self.options_layout.addWidget(self.scan_lines_checkbox)
         self.options_layout.addWidget(self.color_offset_checkbox)
-        self.options_layout.addWidget(self.noise_checkbox)
-        self.options_layout.addWidget(self.vignette_checkbox)
-        self.options_layout.addWidget(QtWidgets.QLabel("Vignette Sigma: "))
-        self.options_layout.addWidget(self.vignette_spinbox)
+        self.options_layout.addWidget(self.fixed_seed_checkbox)
         self.layout.addLayout(self.options_layout)
 
         self.button_layout = QtWidgets.QHBoxLayout()
@@ -83,21 +79,25 @@ class SplashScreenCreator(QtWidgets.QWidget):
 
     def create_splash_screen(self):
         img = Image.open(self.image_path_line_edit.text())
-        img = img.resize((475, 313)).convert("RGB")
+        img = img.convert("RGB")
 
-        if self.vignette_checkbox.isChecked():
-            img = self.add_vignette(img)
+        # if self.scan_lines_checkbox.isChecked():
+        #    img = self.increase_contrast(img, 2.0, 8)
+        #    img = self.increase_brightness(img, 30)
 
         glitcher = ImageGlitcher()
-        result = glitcher.glitch_image(img, glitch_amount=self.amount_slider.value()/10.0,
-                                       scan_lines=self.scan_lines_checkbox.isChecked(),
-                                       color_offset=self.color_offset_checkbox.isChecked())
+        img = glitcher.glitch_image(img, glitch_amount=self.amount_slider.value() / 10.0,
+                                    scan_lines=self.scan_lines_checkbox.isChecked(),
+                                    color_offset=self.color_offset_checkbox.isChecked(),
+                                    seed=None if not self.fixed_seed_checkbox.isChecked() else 1)
 
-        if self.noise_checkbox.isChecked():
-            result = self.add_noise(result)
+        if self.scan_lines_checkbox.isChecked():
+            img = self.increase_brightness(img, 50)
+            img = self.increase_contrast(img, 2.0, 8)
 
-        result = QtGui.QPixmap.fromImage(ImageQt(result))
-        self.label.setPixmap(result)
+        img = img.resize((475, 313))
+        img = QtGui.QPixmap.fromImage(ImageQt(img))
+        self.label.setPixmap(img)
         self.save_button.setEnabled(True)
 
     def add_vignette(self, img):
@@ -112,8 +112,27 @@ class SplashScreenCreator(QtWidgets.QWidget):
         img = Image.fromarray(img)
         return img
 
-    def add_noise(self, img):
-        # TODO: Add noise to the image
+    def increase_brightness(self, img, value=30):
+        img = np.array(img)
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        h, s, v = cv2.split(hsv)
+        lim = 255 - value
+        v[v > lim] = 255
+        v[v <= lim] += value
+        final_hsv = cv2.merge((h, s, v))
+        img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+        img = Image.fromarray(img)
+        return img
+
+    def increase_contrast(self, img, limit: float = 2.0, grid_size: int = 8):
+        img = np.array(img)
+        lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+        l, a, b = cv2.split(lab)
+        clahe = cv2.createCLAHE(clipLimit=limit, tileGridSize=(grid_size, grid_size))
+        cl = clahe.apply(l)
+        limg = cv2.merge((cl, a, b))
+        img = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
+        img = Image.fromarray(img)
         return img
 
     def save_splash_screen(self):
