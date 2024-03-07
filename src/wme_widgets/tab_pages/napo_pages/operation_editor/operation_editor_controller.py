@@ -116,6 +116,7 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
 
     def write_state_to_file(self, state: dict):
         # Decks.ndf: save units in battle group
+        self.write_decks_ndf(state)
         # DeckRules.ndf: save enemy units
         # TODO: check if cost matrix file has changed
         # DivisionCostMatrix.ndf: adjust if needed
@@ -123,4 +124,29 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
         # TODO: set operation cost matrix, not MP matrix
         # Divisions.ndf: add packs of added units, adjust pack counts
         # DivisionRules.ndf: save enemy unit counts
+        # save all files once all changes have been applied
         pass
+
+    def write_decks_ndf(self, state: dict):
+        company_list = ndf_parse.model.List()
+        for company in state["companies"]:
+            company_name = company["name"]
+            company_text = "TDeckCombatGroupDescriptor (Name = \"" + company_name + "\"\nSmartGroupList = [])"
+            company_dict = ndf_parse.expression(company_text)
+            company_list.add(**company_dict)
+            for platoon in company["platoons"]:
+                platoon_name = platoon["name"]
+                platoon_text = "TDeckSmartGroupDescriptor (Name = \"" + platoon_name + "\"\nPackIndexUnitNumberList = [])"
+                platoon_dict = ndf_parse.expression(platoon_text)
+                company_list[-1].value.by_member("SmartGroupList").value.add(**platoon_dict)
+                for unit in platoon["units"]:
+                    unit_index = self.get_pack_index(unit)
+                    unit_text = "(" + str(unit_index) + "," + str(unit["count"]) + ")"
+                    unit_dict = ndf_parse.expression(unit_text)
+                    (company_list[-1].value.by_member("SmartGroupList").value[-1].value.
+                     by_member("PackIndexUnitNumberList").value.add(**unit_dict))
+        self.player_deck_obj.by_member("DeckCombatGroupList").value = company_list
+
+    def get_pack_index(self, unit: dict) -> int:
+        # TODO
+        return 1
