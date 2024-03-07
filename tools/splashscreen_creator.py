@@ -63,6 +63,20 @@ class SplashScreenCreator(QtWidgets.QWidget):
         self.save_button.clicked.connect(self.save_splash_screen)
         self.image_path_line_edit.textChanged.connect(self.validate_image_path)
 
+        QtCore.QCoreApplication.instance().aboutToQuit.connect(self.on_quit)
+
+        # load settings from ini
+        self.load_settings()
+
+    def load_settings(self):
+        settings = QtCore.QSettings("splash_screen_creator.ini", QtCore.QSettings.IniFormat)
+
+        self.image_path_line_edit.setText(str(settings.value("image_path", "")))
+        self.amount_slider.setValue(int(settings.value("glitch_amount", 20)))
+        self.scan_lines_checkbox.setChecked(True if settings.value("scan_lines", False) == "true" else False)
+        self.color_offset_checkbox.setChecked(True if settings.value("color_offset", False) == "true" else False)
+        self.fixed_seed_checkbox.setChecked(True if settings.value("fixed_seed", False) == "true" else False)
+
     def browse_image(self):
         file_dialog = QtWidgets.QFileDialog(self)
         file_dialog.setNameFilter("Images (*.png *.jpg *.jpeg)")
@@ -80,10 +94,6 @@ class SplashScreenCreator(QtWidgets.QWidget):
     def create_splash_screen(self):
         img = Image.open(self.image_path_line_edit.text())
         img = img.convert("RGB")
-
-        # if self.scan_lines_checkbox.isChecked():
-        #    img = self.increase_contrast(img, 2.0, 8)
-        #    img = self.increase_brightness(img, 30)
 
         glitcher = ImageGlitcher()
         img = glitcher.glitch_image(img, glitch_amount=self.amount_slider.value() / 10.0,
@@ -146,6 +156,17 @@ class SplashScreenCreator(QtWidgets.QWidget):
             return
         self.label.pixmap().save("../resources/img/splashscreen.png", "PNG")
         print("Splash screen saved")
+
+    def on_quit(self):
+        # save state to file
+        settings = QtCore.QSettings("splash_screen_creator.ini", QtCore.QSettings.IniFormat)
+        settings.setValue("image_path", self.image_path_line_edit.text())
+        settings.setValue("glitch_amount", self.amount_slider.value())
+        settings.setValue("scan_lines", self.scan_lines_checkbox.isChecked())
+        settings.setValue("color_offset", self.color_offset_checkbox.isChecked())
+        settings.setValue("fixed_seed", self.fixed_seed_checkbox.isChecked())
+
+        settings.sync()
 
 
 if __name__ == "__main__":
