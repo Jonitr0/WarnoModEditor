@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 import ndf_parse
 
@@ -7,6 +8,16 @@ from src.wme_widgets.tab_pages.napo_pages.operation_editor import unit_widgets
 
 from src.utils import ndf_scanner
 
+PACK_PREFIX = {
+    "Black Horse's Last Stand": "TOE_US_11ACR_multi_HB_",
+    "Red Juggernaut": "TOE_SOV_79_Gds_Tank_challenge_",
+    "Backhand Blow": "TOE_US_3rd_Arm_challenge_",
+    "The Kitzingen Ruse": "TOE_SOV_35_AirAslt_Brig_challenge_",
+    "Götterdämmerung": "TOE_RDA_11MSD_challenge_",
+    "The Dieburg Salient": "TOE_FR_7e_Blindee_challenge_",
+    "Hold Until Relieved": "TOE_UK_Blues_Royals_challenge_",
+    # TODO: Sledgehammer
+}
 
 class OperationEditorController(base_napo_controller.BaseNapoController):
     def __init__(self):
@@ -128,6 +139,32 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
         pass
 
     def write_decks_ndf(self, state: dict):
+        # get list of all units
+        all_units = []
+        for company in state["companies"]:
+            for platoon in company["platoons"]:
+                for unit in platoon["units"]:
+                    all_units.append(unit)
+        pack_list = ndf_parse.model.List()
+        pack_indices = {}
+        self.packs = self.get_parsed_ndf_file("GameData\\Generated\\Gameplay\\Decks\\Packs.ndf")
+        for unit in all_units:
+            key = str(unit["unit_name"]) + str(unit["exp"]) + str(unit["transport"])
+            if key in pack_indices:
+                continue
+            pack_name = "Descriptor_Deck_Pack_" + PACK_PREFIX[self.current_op] + unit["unit_name"]
+            # create pack if it does not already exist
+            if not any(pack.namespace == pack_name for pack in self.packs):
+                self.create_pack(pack_name, unit["unit_name"])
+            pack_text = "TDeckPackDescription( ExperienceLevel = " + str(unit["exp"]) + "\nDeckPack = ~/" + pack_name
+            if unit["transport"]:
+                pack_text += ("\nTransport = ~/Descriptor_Unit_" + unit["transport"])
+            pack_text += ")"
+            pack_dict = ndf_parse.expression(pack_text)
+            pack_list.add(**pack_dict)
+            pack_indices[key] = len(pack_list) - 1
+        self.player_deck_obj.by_member("DeckPackList").value = pack_list
+
         company_list = ndf_parse.model.List()
         for company in state["companies"]:
             company_name = company["name"]
@@ -140,13 +177,18 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
                 platoon_dict = ndf_parse.expression(platoon_text)
                 company_list[-1].value.by_member("SmartGroupList").value.add(**platoon_dict)
                 for unit in platoon["units"]:
-                    unit_index = self.get_pack_index(unit)
+                    key = str(unit["unit_name"]) + str(unit["exp"]) + str(unit["transport"])
+                    unit_index = pack_indices[key]
                     unit_text = "(" + str(unit_index) + "," + str(unit["count"]) + ")"
                     unit_dict = ndf_parse.expression(unit_text)
                     (company_list[-1].value.by_member("SmartGroupList").value[-1].value.
                      by_member("PackIndexUnitNumberList").value.add(**unit_dict))
         self.player_deck_obj.by_member("DeckCombatGroupList").value = company_list
 
-    def get_pack_index(self, unit: dict) -> int:
-        # TODO
-        return 1
+    def create_pack(self, pack_name: str, unit_name: str):
+        pack_text = (pack_name + " is TDeckPackDescriptor ( DescriptorId = GUID{" + str(uuid.uuid4()) +
+                     "}\nCfgName = \'" + PACK_PREFIX[self.current_op] + unit_name + "\'\nTransporterAndUnitsList = [ "
+                     "TDeckTransporterAndUnitsDescriptor (UnitDescriptor = Descriptor_Unit_" + unit_name + "), ] )")
+        print(pack_text)
+        pack_dict = ndf_parse.expression(pack_text)
+        self.packs.add(**pack_dict)
