@@ -19,10 +19,11 @@ PACK_PREFIX = {
     # TODO: Sledgehammer
 }
 
+
 class OperationEditorController(base_napo_controller.BaseNapoController):
     def __init__(self):
         super().__init__()
-        
+
         self.player_deck_obj = None
         self.div_rules_obj = None
         self.deck_pack_list = None
@@ -98,15 +99,15 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
         unit_name = ""
         for pack_info in self.packs:
             if pack_info.namespace == pack_name:
-                unit_name = pack_info.value.by_member("TransporterAndUnitsList").value[0].value.\
-                    by_member("UnitDescriptor").value.removeprefix("Descriptor_Unit_")
+                unit_name = pack_info.value.by_member("TransporterAndUnitsList").value[0].value. \
+                    by_member("UnitDescriptor").value.removeprefix("$/GFX/Unit/Descriptor_Unit_")
                 break
         if unit_name == "":
             logging.warning(f"Could not find unit name for pack {pack_name}")
         exp = int(pack.by_member("ExperienceLevel").value)
         try:
             transport = pack.by_member("Transport").value
-            transport = transport.removeprefix("~/Descriptor_Unit_")
+            transport = transport.removeprefix("$/GFX/Unit/Descriptor_Unit_")
         except ValueError:
             transport = None
         return {"unit_name": unit_name, "exp": exp, "transport": transport}
@@ -119,7 +120,7 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
 
         div_unit_list = self.div_rules_obj.by_key(div_name).value.by_member("UnitRuleList").value
         for unit in div_unit_list:
-            if unit.value.by_member("UnitDescriptor").value == "~/Descriptor_Unit_" + unit_name:
+            if unit.value.by_member("UnitDescriptor").value == "$/GFX/Unit/Descriptor_Unit_" + unit_name:
                 return int(unit.value.by_member("NumberOfUnitInPack").value)
 
         logging.warning("Unit " + unit_name + " not found for " + div_name + " in DivisionRules.ndf")
@@ -136,7 +137,18 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
         # Divisions.ndf: add packs of added units, adjust pack counts
         # DivisionRules.ndf: save enemy unit counts
         # save all files once all changes have been applied
-        pass
+        decks = self.get_parsed_ndf_file("GameData\\Generated\\Gameplay\\Decks\\Decks.ndf")
+        for i, deck in enumerate(decks):
+            if deck.namespace == self.current_player_div:
+                decks[i].value = self.player_deck_obj
+                break
+
+        files = {
+            "GameData\\Generated\\Gameplay\\Decks\\Decks.ndf": decks,
+            "GameData\\Generated\\Gameplay\\Decks\\Packs.ndf": self.packs,
+        }
+
+        self.save_files_to_mod(files)
 
     def write_decks_ndf(self, state: dict):
         # get list of all units
@@ -158,7 +170,7 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
                 self.create_pack(pack_name, unit["unit_name"])
             pack_text = "TDeckPackDescription( ExperienceLevel = " + str(unit["exp"]) + "\nDeckPack = ~/" + pack_name
             if unit["transport"]:
-                pack_text += ("\nTransport = ~/Descriptor_Unit_" + unit["transport"])
+                pack_text += ("\nTransport = $/GFX/Unit/Descriptor_Unit_" + unit["transport"])
             pack_text += ")"
             pack_dict = ndf_parse.expression(pack_text)
             pack_list.add(**pack_dict)
@@ -186,9 +198,9 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
         self.player_deck_obj.by_member("DeckCombatGroupList").value = company_list
 
     def create_pack(self, pack_name: str, unit_name: str):
-        pack_text = (pack_name + " is TDeckPackDescriptor ( DescriptorId = GUID{" + str(uuid.uuid4()) +
+        pack_text = (pack_name + " is TDeckPackDescriptor ( DescriptorId = GUID:{" + str(uuid.uuid4()) +
                      "}\nCfgName = \'" + PACK_PREFIX[self.current_op] + unit_name + "\'\nTransporterAndUnitsList = [ "
-                     "TDeckTransporterAndUnitsDescriptor (UnitDescriptor = Descriptor_Unit_" + unit_name + "), ] )")
-        print(pack_text)
+                     "TDeckTransporterAndUnitsDescriptor (UnitDescriptor = $/GFX/Unit/Descriptor_Unit_" + unit_name +
+                     "), ] )")
         pack_dict = ndf_parse.expression(pack_text)
         self.packs.add(**pack_dict)

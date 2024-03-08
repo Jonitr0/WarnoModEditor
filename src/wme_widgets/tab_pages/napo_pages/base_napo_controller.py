@@ -53,7 +53,13 @@ class BaseNapoController:
 
             with self.mod.edit(file) as obj:
                 for index, elem in enumerate(files_to_objs[file]):
-                    obj[index] = elem
+                    try:
+                        obj[index] = elem
+                    except IndexError:
+                        elem_str = ndf.printer.string(elem)
+                        elem_dict = ndf.expression(elem_str)
+                        obj.add(**elem_dict)
+
 
             with open(orig_file_path, "w", encoding="utf-8") as f_orig, \
                     open(tmp_file_path, "r", encoding="utf-8") as f_tmp:

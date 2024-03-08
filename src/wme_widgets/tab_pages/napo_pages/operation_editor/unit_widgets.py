@@ -413,4 +413,8 @@ class UnitSelectionCombobox(wme_essentials.WMECombobox):
         self.addItems(self.units)
 
         if not (unit_name == "" or unit_name is None):
-            self.setCurrentIndex(self.findText(unit_name))
+            index = self.findText(unit_name)
+            if index < 0:
+                logging.info("Unit name in selector widget not found for name: " + unit_name)
+                return
+            self.setCurrentIndex(index)
