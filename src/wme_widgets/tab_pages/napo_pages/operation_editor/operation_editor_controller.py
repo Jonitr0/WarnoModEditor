@@ -129,7 +129,7 @@ class OperationEditorController(base_napo_controller.BaseNapoController):
     def write_state_to_file(self, state: dict):
         # Decks.ndf: save units in battle group
         self.write_decks_ndf(state)
-        # DeckRules.ndf: save enemy units
+        # DivisionRules.ndf: save enemy units
         # TODO: check if cost matrix file has changed
         # DivisionCostMatrix.ndf: adjust if needed
         # Packs.ndf: save availability constraints
