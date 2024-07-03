@@ -66,7 +66,7 @@ class WMECombobox(QtWidgets.QComboBox):
     def focusOutEvent(self, event) -> None:
         super(WMECombobox, self).focusOutEvent(event)
 
-        if self.lineEdit().hasFocus():
+        if not self.isEditable() or self.lineEdit().hasFocus():
             return
 
         if self.findText(self.currentText()) < 0:

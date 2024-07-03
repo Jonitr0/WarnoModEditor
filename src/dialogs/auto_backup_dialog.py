@@ -8,6 +8,7 @@ from src.utils import settings_manager, mod_settings_loader
 class AutoBackupDialog(base_dialog.BaseDialog):
     def __init__(self):
         self.auto_backup_frequency_combobox = wme_essentials.WMECombobox()
+        self.auto_backup_frequency_combobox.setEditable(False)
         self.auto_backup_count_spinbox = wme_essentials.WMESpinbox()
 
         super().__init__()
