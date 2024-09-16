@@ -4,6 +4,7 @@ import logging
 
 from src.utils.resource_loader import get_resource_path
 
+# TODO: use ndf-parse package in build
 os.environ["NDF_LIB_PATH"] = get_resource_path("resources/dependencies/ndf.dll")
 
 from PySide6 import QtWidgets
