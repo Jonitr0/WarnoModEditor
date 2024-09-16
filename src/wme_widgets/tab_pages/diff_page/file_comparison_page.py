@@ -181,6 +181,7 @@ class FileComparisonPage(BaseTabPage):
         return relative_diff[0], int(len(relative_diff[1].encode('utf-16-le')) / 2)
 
     def on_left_slider_moved(self, value: int):
+        # TODO: make sure sliders only both move when cursors are synchronized
         self.right_text_edit.verticalScrollBar().setValue(value)
 
     def on_right_slider_moved(self, value: int):

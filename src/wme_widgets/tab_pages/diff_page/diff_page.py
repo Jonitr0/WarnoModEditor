@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt
 
 from src.wme_widgets.tab_pages.diff_page import diff_widget, file_comparison_page
 from src.wme_widgets.tab_pages import base_tab_page
-from src.wme_widgets import main_widget
+from src.wme_widgets import main_widget, wme_collapsible
 from src.dialogs import essential_dialogs
 
 from filecmp import dircmp
@@ -106,21 +106,23 @@ class DiffPage(base_tab_page.BaseTabPage):
         else:
             right_name = target[target.rindex('/') + 1:]
 
-        # TODO: separate, collapsible layouts
         if len(res_l) > 0:
-            self.results_layout.addWidget(QtWidgets.QLabel(left_name + " only:"))
+            collapsible = wme_collapsible.WMECollapsible(title=left_name + " only:")
+            self.results_layout.addWidget(collapsible)
         for diff_file in res_l:
-            self.add_diff_widget(diff_file, mod_dir, None, left_name, right_name)
+            self.add_diff_widget(diff_file, collapsible, mod_dir, None, left_name, right_name)
 
         if len(res_r) > 0:
-            self.results_layout.addWidget(QtWidgets.QLabel(right_name + " only:"))
+            collapsible = wme_collapsible.WMECollapsible(title=right_name + " only:")
+            self.results_layout.addWidget(collapsible)
         for diff_file in res_r:
-            self.add_diff_widget(diff_file, None, target, left_name, right_name)
+            self.add_diff_widget(diff_file, collapsible, None, target, left_name, right_name)
 
         if len(res_d) > 0:
-            self.results_layout.addWidget(QtWidgets.QLabel("Different files:"))
+            collapsible = wme_collapsible.WMECollapsible(title="Different files")
+            self.results_layout.addWidget(collapsible)
         for diff_file in res_d:
-            self.add_diff_widget(diff_file, mod_dir, target, left_name, right_name)
+            self.add_diff_widget(diff_file, collapsible, mod_dir, target, left_name, right_name)
 
         if delete:
             try:
@@ -133,8 +135,8 @@ class DiffPage(base_tab_page.BaseTabPage):
 
         main_widget.instance.hide_loading_screen()
 
-    def add_diff_widget(self, file_name: str, left_mod_path: str = None, right_mod_path: str = None,
-                        left_mod_name: str = None, right_mod_name: str = None):
+    def add_diff_widget(self, file_name: str, collapsible: wme_collapsible.WMECollapsible, left_mod_path: str = None,
+                        right_mod_path: str = None, left_mod_name: str = None, right_mod_name: str = None):
         left_text = None
         right_text = None
         file_type = diff_widget.FILE_TYPE.OTHER
@@ -149,6 +151,8 @@ class DiffPage(base_tab_page.BaseTabPage):
                     left_text = f.read()
             elif os.path.isdir(full_path):
                 file_type = diff_widget.FILE_TYPE.DIR
+
+        # TODO: add a compiler based-comparison
 
         if right_mod_path is not None:
             right_text = ""
@@ -165,7 +169,7 @@ class DiffPage(base_tab_page.BaseTabPage):
                                         left_mod_name, right_mod_name, file_type, self)
         widget.open_in_text_editor.connect(self.get_current_tab_widget().on_open_ndf_editor)
         widget.open_comparison_page.connect(self.get_current_tab_widget().on_open_comparison)
-        self.results_layout.addWidget(widget)
+        collapsible.add_widget(widget)
 
     # copy and unzip mod data to randomly named dir, delete it afterwards
     def create_tmp_mod(self):
@@ -208,6 +212,14 @@ class DiffPage(base_tab_page.BaseTabPage):
 
         return diffs, left, right
 
-    # TODO: fill this
+    def from_json(self, json_obj: dict):
+        try:
+            target = json_obj["selected"]
+            self.target_combobox.setCurrentIndex(self.target_combobox.findData(target))
+        except Exception as e:
+            logging.warning(f"Exception while trying to restore Diff Page: {str(e)}")
+
     def to_json(self) -> dict:
-        return {}
+        return {
+            "selected": self.target_combobox.currentData()
+        }
