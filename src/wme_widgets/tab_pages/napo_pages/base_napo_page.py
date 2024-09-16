@@ -98,8 +98,8 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
                                               "Open Page Help Popup (Alt + H)")
         help_action.triggered.connect(self.on_help)
 
-    def get_state(self):
-        pass
+    def get_state(self) -> dict:
+        return {}
 
     def set_state(self, state: dict):
         pass
@@ -108,7 +108,6 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         if self.saved_state != self.get_state():
             self.unsaved_changes = True
 
-    # TODO: add version checking
     def import_state(self):
         if self.unsaved_changes:
             dialog = essential_dialogs.AskToSaveDialog(self.tab_name)
@@ -143,10 +142,10 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
         main_widget.instance.hide_loading_screen()
 
-    # TODO: add header/payload with metadata (version)
     def export_state(self):
         try:
             state = self.get_state()
+            state["version"] = settings_manager.get_settings_value(settings_manager.VERSION_KEY)
             file_name = resource_loader.get_persistant_path(self.get_state_file_name())
             file_path, ret = QtWidgets.QFileDialog().getSaveFileName(self, "Select export file name", file_name,
                                                                      options=QtWidgets.QFileDialog.ReadOnly,

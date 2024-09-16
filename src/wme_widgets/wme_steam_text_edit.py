@@ -301,7 +301,6 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         text_list = cursor.createList(list_type)
         return text_list
 
-    # TODO: fix unsaved changes
     def get_text(self):
         plain_text = self.text_edit.toPlainText()
         block_count = self.text_edit.document().blockCount()

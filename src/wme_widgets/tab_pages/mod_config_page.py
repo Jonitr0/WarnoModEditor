@@ -85,6 +85,9 @@ class ModConfigPage(base_tab_page.BaseTabPage):
         config_values = self.config_values.copy()
         config_values["Properties/Name"] = self.name_line_edit.text()
         config_values["Properties/Description"] = self.description_text_edit.get_text()
+        if not config_values["Properties/Description"].startswith("\""):
+            text = config_values["Properties/Description"]
+            config_values["Properties/Description"] = f"\"{text}\""
         config_values["Properties/PreviewImagePath"] = self.icon_path_line_edit.text()
         config_values["Properties/CosmeticOnly"] = "1" if self.cosmetic_checkbox.isChecked() else "0"
         config_values["Properties/Version"] = str(self.mod_version_spinbox.value())
