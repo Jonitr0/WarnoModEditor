@@ -19,12 +19,26 @@ class DiffCodeEditor(wme_code_editor.WMECodeEditor):
         self.left_highlight_color = COLORS.LEFT_HIGHLIGHT
         self.right_highlight_color = COLORS.RIGHT_HIGHLIGHT
 
+        self.added_line_color = COLORS.ADDED_HIGHLIGHT
+
     def add_empty_lines(self, pos: int, num: int):
         cursor = self.textCursor()
         cursor.movePosition(QtGui.QTextCursor.Start)
-        cursor.movePosition(QtGui.QTextCursor.Down, QtGui.QTextCursor.MoveAnchor, pos)
+        cursor.movePosition(QtGui.QTextCursor.Down, QtGui.QTextCursor.MoveAnchor, pos - 1)
         cursor.movePosition(QtGui.QTextCursor.EndOfLine, QtGui.QTextCursor.MoveAnchor)
         cursor.insertText("\n" * num)
+        cursor.movePosition(QtGui.QTextCursor.Down, QtGui.QTextCursor.MoveAnchor, 1)
+        cursor.movePosition(QtGui.QTextCursor.Up, QtGui.QTextCursor.KeepAnchor, num)
+
+        extra_selections = self.extraSelections()
+
+        extra_selection = QtWidgets.QTextEdit.ExtraSelection()
+        extra_selection.cursor = cursor
+        extra_selection.format.setBackground(QtGui.QColor(get_color_for_key(self.added_line_color.value)))
+        extra_selection.format.setProperty(QtGui.QTextFormat.FullWidthSelection, True)
+        extra_selections.append(extra_selection)
+
+        self.setExtraSelections(extra_selections)
 
     def highlight_lines(self, pos: int, num: int, left: bool):
         # add extra selections to the given lines
@@ -51,7 +65,6 @@ class DiffCodeEditor(wme_code_editor.WMECodeEditor):
         extra_selection.cursor = cursor
         extra_selection.format.setBackground(QtGui.QColor(get_color_for_key(highlight_color.value)))
         extra_selection.format.setProperty(QtGui.QTextFormat.FullWidthSelection, True)
-        extra_selection.format.setForeground(QtGui.QColor(get_color_for_key(COLORS.SECONDARY_TEXT.value)))
         extra_selections.append(extra_selection)
 
         self.setExtraSelections(extra_selections)

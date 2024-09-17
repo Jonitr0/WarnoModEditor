@@ -214,7 +214,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_open_comparison(self, file_name, left_text, right_text, left_mod, right_mod):
         comp_page = file_comparison_page.FileComparisonPage()
         comp_page.highlight_differences(left_text, right_text, left_mod, right_mod)
-        self.add_tab_with_auto_icon(comp_page, file_name)
+        self.add_tab_with_auto_icon(comp_page, f"Diff: {file_name}")
 
     def on_mod_config(self):
         page = mod_config_page.ModConfigPage()

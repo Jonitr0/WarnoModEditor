@@ -159,18 +159,44 @@ class FileComparisonPage(BaseTabPage):
                 self.right_text_edit.highlight_lines(right_line_number, length, False)
                 right_line_number += length
 
-            if self.prev_line_numbers_unequal and left_line_number != right_line_number:
-                start_line = right_line_number - length
-                if left_line_number > right_line_number:
-                    num_lines = left_line_number - right_line_number
-                    self.right_text_edit.add_empty_lines(start_line, num_lines)
-                    right_line_number = left_line_number
-                else:
-                    num_lines = right_line_number - left_line_number
-                    self.left_text_edit.add_empty_lines(start_line, num_lines)
-                    left_line_number = right_line_number
-
-            self.prev_line_numbers_unequal = left_line_number != right_line_number
+            # if next diff exists and lengths are different, add empty lines
+            if len(diffs) > index + 1 and left_line_number != right_line_number:
+                next_diff = diffs[index + 1]
+                next_length = int(len(next_diff[1].encode('utf-16-le')) / 2)
+                # if next diff has status 0 add empty lines
+                if next_diff[0] == 0:
+                    if left_line_number < right_line_number:
+                        self.left_text_edit.add_empty_lines(left_line_number, right_line_number - left_line_number)
+                        left_line_number = right_line_number
+                    elif right_line_number < left_line_number:
+                        self.right_text_edit.add_empty_lines(right_line_number, left_line_number - right_line_number)
+                        right_line_number = left_line_number
+                # if next diff has different lengths, add empty lines
+                elif next_length != length:
+                    # last diff was 1, added to right
+                    if next_diff[0] == -1:
+                        # next diff is shorter, add lines to the left
+                        if left_line_number + next_length < right_line_number:
+                            empty_lines = right_line_number - left_line_number - next_length
+                            self.left_text_edit.add_empty_lines(left_line_number, empty_lines)
+                            left_line_number += empty_lines
+                        # next diff is longer, add lines to the right
+                        else:
+                            empty_lines = left_line_number + next_length - right_line_number
+                            self.right_text_edit.add_empty_lines(right_line_number, empty_lines)
+                            right_line_number += empty_lines
+                    # last diff was -1, added to left
+                    elif next_diff[0] == 1:
+                        # next diff is shorter, add lines to the right
+                        if right_line_number + next_length < left_line_number:
+                            empty_lines = left_line_number - right_line_number - next_length
+                            self.right_text_edit.add_empty_lines(right_line_number, empty_lines)
+                            right_line_number += empty_lines
+                        # next diff is longer, add lines to the left
+                        else:
+                            empty_lines = right_line_number + next_length - left_line_number
+                            self.left_text_edit.add_empty_lines(left_line_number, empty_lines)
+                            left_line_number += empty_lines
 
         main_widget.instance.hide_loading_screen()
 
@@ -305,7 +331,7 @@ class FileComparisonPage(BaseTabPage):
             right_diff = self.right_text_edit.get_next_diff_line(start)
 
         while True:
-            if left_diff > -1 ^ right_diff > -1:
+            if bool(left_diff > -1) ^ bool(right_diff > -1):
                 target = max(left_diff, right_diff)
                 break
             elif left_diff > -1 and right_diff > -1:
