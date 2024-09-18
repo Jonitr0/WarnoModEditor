@@ -385,6 +385,10 @@ class WMESteamTextEdit(QtWidgets.QWidget):
             for tag in format_tag_positions[pos]:
                 plain_text = plain_text[:pos] + tag + plain_text[pos:]
 
+        # remove all line breaks
+        plain_text = plain_text.replace("\n", "")
+        # TODO: straight up remove lists from this thing
+
         return plain_text
 
     def mark_format_tags(self, start: int, end: int, text_format: QtGui.QTextCharFormat, format_tag_positions: dict):

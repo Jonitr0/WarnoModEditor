@@ -152,8 +152,6 @@ class DiffPage(base_tab_page.BaseTabPage):
             elif os.path.isdir(full_path):
                 file_type = diff_widget.FILE_TYPE.DIR
 
-        # TODO: add a compiler based-comparison
-
         if right_mod_path is not None:
             right_text = ""
             full_path = os.path.join(right_mod_path, file_name)
