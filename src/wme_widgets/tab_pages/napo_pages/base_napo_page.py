@@ -60,6 +60,7 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
     def update_page(self):
         main_widget.instance.show_loading_screen("loading data form .ndf files...")
         state = self.controller.load_state_from_file()
+        self.saved_state = state
         self.set_state(state)
         main_widget.instance.hide_loading_screen()
 
@@ -105,8 +106,7 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         pass
 
     def on_state_changed(self):
-        if self.saved_state != self.get_state():
-            self.unsaved_changes = True
+        self.unsaved_changes = self.saved_state != self.get_state()
 
     def import_state(self):
         if self.unsaved_changes:

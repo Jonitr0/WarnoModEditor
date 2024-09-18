@@ -15,17 +15,18 @@ class GameSettingsController(base_napo_controller.BaseNapoController):
 
             if obj_row.namespace == "WargameConstantes":
                 obj.by_member("ArgentInitialSetting").value = py_list_to_parsed_list(state["starting_points"])
-                obj.by_member("DefaultArgentInitial").value = state["default_starting_points"]
+                obj.by_member("DefaultArgentInitial").value = str(state["default_starting_points"])
                 obj.by_member("ConquestPossibleScores").value = py_list_to_parsed_list(state["conquest_scores"])
                 obj.by_member("DestructionScoreToReachSetting").value = \
                     py_list_to_parsed_list(state["destruction_scores"])
                 obj.by_member("VictoryTypeDestructionLevelsTable").value = py_map_to_parsed_map(dest_table)
-                obj.by_member("BaseIncome").value.by_key("CombatRule/Conquest").value = state["conquest_income"]
-                obj.by_member("BaseIncome").value.by_key("CombatRule/Destruction").value = state["destruction_income"]
+                obj.by_member("BaseIncome").value.by_key("CombatRule/Conquest").value = str(state["conquest_income"])
+                obj.by_member("BaseIncome").value.by_key("CombatRule/Destruction").value = \
+                    str(state["destruction_income"])
                 obj.by_member("TimeBeforeEarningCommandPoints").value.by_key("CombatRule/Conquest").value = \
-                    state["conquest_tick"]
+                    str(state["conquest_tick"])
                 obj.by_member("TimeBeforeEarningCommandPoints").value.by_key("CombatRule/Destruction").value = \
-                    state["destruction_tick"]
+                    str(state["destruction_tick"])
 
         # write to file
         self.save_files_to_mod({"GameData\\Gameplay\\Constantes\\GDConstantes.ndf": gdc_file_obj})
@@ -38,17 +39,17 @@ class GameSettingsController(base_napo_controller.BaseNapoController):
 
             if obj_row.namespace == "WargameConstantes":
                 state = {
-                    "starting_points": parsed_list_to_py_list(obj.by_member("ArgentInitialSetting"), int),
+                    "starting_points": parsed_list_to_py_list(obj.by_member("ArgentInitialSetting"), str),
                     "conquest_tick": float(obj.by_member("TimeBeforeEarningCommandPoints").value.by_key(
                         "CombatRule/Conquest").value),
                     "conquest_income": int(obj.by_member("BaseIncome").value.by_key("CombatRule/Conquest").value),
-                    "conquest_scores": parsed_list_to_py_list(obj.by_member("ConquestPossibleScores"), int),
+                    "conquest_scores": parsed_list_to_py_list(obj.by_member("ConquestPossibleScores"), str),
                     "destruction_tick": float(obj.by_member("TimeBeforeEarningCommandPoints").value.by_key(
                         "CombatRule/Destruction").value),
                     "destruction_income": int(obj.by_member("BaseIncome").value.by_key("CombatRule/Destruction").value),
                     "destruction_scores": parsed_list_to_py_list(obj.by_member("DestructionScoreToReachSetting"),
-                                                                 int),
-                    "default_starting_points": int(obj.by_member("DefaultArgentInitial").value),
+                                                                 str),
+                    "default_starting_points": str(obj.by_member("DefaultArgentInitial").value),
                 }
 
         return state

@@ -1,4 +1,6 @@
 import ndf_parse as ndf
+from ndf_parse.printer import string as ndf_string
+from ndf_parse import convert
 
 
 def parsed_list_to_py_list(parsed_list: ndf.model.List, d_type=str):
@@ -30,3 +32,7 @@ def py_map_to_parsed_map(py_map: dict):
         expr = ndf.expression(pair_str)
         parsed_map.add(key=str(key), value=str(py_map[key]))
     return parsed_map
+
+
+def round_trip(ndf_text: str):
+    return ndf_string(convert(ndf_text))

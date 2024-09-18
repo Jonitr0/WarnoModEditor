@@ -79,9 +79,9 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
     def set_state(self, state: dict):
         self.starting_pts_list_widget.update_list(state["starting_points"])
         self.conquest_score_list_widget.update_list(state["conquest_scores"])
-        destruction_scores = state["destruction_scores"]
-        if destruction_scores.__contains__(0):
-            destruction_scores.remove(0)
+        destruction_scores = state["destruction_scores"].copy()
+        if destruction_scores.__contains__("0"):
+            destruction_scores.remove("0")
         self.destruction_score_list_widget.update_list(destruction_scores)
 
         self.conquest_income_widget.set_values(state["conquest_income"], state["conquest_tick"])

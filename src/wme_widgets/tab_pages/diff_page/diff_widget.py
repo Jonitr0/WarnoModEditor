@@ -38,7 +38,7 @@ icon_type_for_file_type = {
 # widget representing a single entry on the diff page
 class DiffWidget(QtWidgets.QFrame):
     open_in_text_editor = QtCore.Signal(str)
-    open_comparison_page = QtCore.Signal(str, str, str, str, str)
+    open_comparison_page = QtCore.Signal(str, str, str, str, str, bool)
 
     def __init__(self, file_name: str, left_text: str, right_text: str, left_mod: str, right_mod: str,
                  file_type: FILE_TYPE = FILE_TYPE.OTHER, parent: QtWidgets.QWidget = None):
@@ -81,15 +81,26 @@ class DiffWidget(QtWidgets.QFrame):
             self.main_layout.addWidget(open_left_button)
 
         if self.get_role() is DIFF_ROLE.CHANGED and self.file_type == FILE_TYPE.TEXT:
+            # if file name ends with .ndf, add parser based comparison button
+            if self.file_name.endswith(".ndf"):
+                open_compiler_diff_button = QtWidgets.QToolButton()
+                open_compiler_diff_button.setFixedSize(32, 32)
+                open_compiler_diff_button.setIconSize(QtCore.QSize(32, 32))
+                open_compiler_diff_button.setToolTip("Show Differences (Parser Based)")
+                open_compiler_diff_button.setIcon(icon_manager.load_icon("parser_compare.png", COLORS.PRIMARY))
+                open_compiler_diff_button.clicked.connect(lambda: self.open_comparison_page.emit(
+                    self.file_name[self.file_name.rindex('/') + 1:], self.left_text, self.right_text,
+                    self.left_mod, self.right_mod, True))
+                self.main_layout.addWidget(open_compiler_diff_button)
             # add button to open file comparison page
             open_diff_button = QtWidgets.QToolButton()
             open_diff_button.setFixedSize(32, 32)
             open_diff_button.setIconSize(QtCore.QSize(32, 32))
-            open_diff_button.setToolTip("Show Differences")
+            open_diff_button.setToolTip("Show Differences (Plain Text)")
             open_diff_button.setIcon(icon_manager.load_icon("file_compare.png", COLORS.PRIMARY))
             open_diff_button.clicked.connect(lambda: self.open_comparison_page.emit(
                 self.file_name[self.file_name.rindex('/') + 1:], self.left_text, self.right_text,
-                self.left_mod, self.right_mod))
+                self.left_mod, self.right_mod, False))
             self.main_layout.addWidget(open_diff_button)
 
     def get_role(self) -> DIFF_ROLE:

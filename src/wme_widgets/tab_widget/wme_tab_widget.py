@@ -10,7 +10,7 @@ from src.wme_widgets.tab_pages.diff_page import diff_page, file_comparison_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.wme_widgets.tab_pages.napo_pages.game_settings_page import game_settings_page
 from src.dialogs import essential_dialogs
-from src.utils import icon_manager
+from src.utils import icon_manager, parser_utils
 from src.utils.color_manager import *
 
 
@@ -211,10 +211,29 @@ class WMETabWidget(QtWidgets.QTabWidget):
         viewer = rich_text_viewer_page.RichTextViewerPage("UserManual.html")
         self.add_tab_with_auto_icon(viewer, "Shortcut Reference")
 
-    def on_open_comparison(self, file_name, left_text, right_text, left_mod, right_mod):
+    def on_open_comparison(self, file_name, left_text, right_text, left_mod, right_mod, parser_based=False):
+        if parser_based:
+            text = f"Parser-based Diff: {file_name}"
+            try:
+                left_text = parser_utils.round_trip(left_text)
+            except Exception as e:
+                logging.error(f"Error parsing text form file {file_name} of {left_mod}: {str(e)}")
+                essential_dialogs.MessageDialog("Parser Error",
+                                                f"Error parsing text form file {file_name} of {left_mod}").exec()
+                return
+            try:
+                right_text = parser_utils.round_trip(right_text)
+            except Exception as e:
+                logging.error(f"Error parsing text form file {file_name} of {right_mod}: {str(e)}")
+                essential_dialogs.MessageDialog("Parser Error",
+                                                f"Error parsing text form file {file_name} of {right_mod}").exec()
+                return
+        else:
+            text = f"Text Diff: {file_name}"
+
         comp_page = file_comparison_page.FileComparisonPage()
         comp_page.highlight_differences(left_text, right_text, left_mod, right_mod)
-        self.add_tab_with_auto_icon(comp_page, f"Diff: {file_name}")
+        self.add_tab_with_auto_icon(comp_page, text)
 
     def on_mod_config(self):
         page = mod_config_page.ModConfigPage()
