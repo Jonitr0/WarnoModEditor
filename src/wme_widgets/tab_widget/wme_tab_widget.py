@@ -3,6 +3,7 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
+from src.wme_widgets import main_widget
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
 from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, global_search_page, guid_generator_page, \
     csv_editor_page, mod_config_page
@@ -212,6 +213,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.add_tab_with_auto_icon(viewer, "Shortcut Reference")
 
     def on_open_comparison(self, file_name, left_text, right_text, left_mod, right_mod, parser_based=False):
+        main_widget.instance.show_loading_screen("Comparing files...")
         if parser_based:
             text = f"Parser-based Diff: {file_name}"
             try:
@@ -220,6 +222,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
                 logging.error(f"Error parsing text form file {file_name} of {left_mod}: {str(e)}")
                 essential_dialogs.MessageDialog("Parser Error",
                                                 f"Error parsing text form file {file_name} of {left_mod}").exec()
+                main_widget.instance.hide_loading_screen()
                 return
             try:
                 right_text = parser_utils.round_trip(right_text)
@@ -227,12 +230,14 @@ class WMETabWidget(QtWidgets.QTabWidget):
                 logging.error(f"Error parsing text form file {file_name} of {right_mod}: {str(e)}")
                 essential_dialogs.MessageDialog("Parser Error",
                                                 f"Error parsing text form file {file_name} of {right_mod}").exec()
+                main_widget.instance.hide_loading_screen()
                 return
         else:
             text = f"Text Diff: {file_name}"
 
         comp_page = file_comparison_page.FileComparisonPage()
         comp_page.highlight_differences(left_text, right_text, left_mod, right_mod)
+        main_widget.instance.hide_loading_screen()
         self.add_tab_with_auto_icon(comp_page, text)
 
     def on_mod_config(self):
