@@ -8,6 +8,7 @@ import ndf_parse as ndf
 
 
 # handles all parser functionality for a NAPO page
+# TODO: no need for tmp mod, use stuff from roundtrip
 class BaseNapoController:
     def __init__(self):
         self.mod = None

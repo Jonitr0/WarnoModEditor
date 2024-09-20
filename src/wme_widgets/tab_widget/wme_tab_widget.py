@@ -7,6 +7,7 @@ from src.wme_widgets import main_widget
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
 from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, global_search_page, guid_generator_page, \
     csv_editor_page, mod_config_page
+from src.wme_widgets.tab_pages.script_runner import script_runner_page
 from src.wme_widgets.tab_pages.diff_page import diff_page, file_comparison_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.wme_widgets.tab_pages.napo_pages.game_settings_page import game_settings_page
@@ -28,6 +29,8 @@ class WMETabWidget(QtWidgets.QTabWidget):
         diff_page.DiffPage: "diff.png",
         file_comparison_page.FileComparisonPage: "file_compare.png",
         mod_config_page.ModConfigPage: "file_config.png",
+        # TODO: icon
+        script_runner_page.ScriptRunnerPage: "parser_compare.png"
     }
 
     def __init__(self, parent=None):
@@ -87,6 +90,11 @@ class WMETabWidget(QtWidgets.QTabWidget):
         game_settings_action = self.tab_menu.addAction(game_settings_icon, "Game Settings Editor")
         game_settings_action.setToolTip("Edit available game settings such as starting points and income.")
         game_settings_action.triggered.connect(self.on_game_settings)
+
+        script_runner_icon = self.get_icon_for_page_type(script_runner_page.ScriptRunnerPage)
+        script_runner_action = self.tab_menu.addAction(script_runner_icon, "Script Runner")
+        script_runner_action.setToolTip("Run predefined scripts to perform changes on your mod.")
+        script_runner_action.triggered.connect(self.on_script_runner)
 
         self.tab_menu.addSeparator()
 
@@ -243,6 +251,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_mod_config(self):
         page = mod_config_page.ModConfigPage()
         self.add_tab_with_auto_icon(page, "Mod Config")
+
+    def on_script_runner(self):
+        page = script_runner_page.ScriptRunnerPage()
+        self.add_tab_with_auto_icon(page, "Script Runner")
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
         ret = super().addTab(widget, icon, title)
