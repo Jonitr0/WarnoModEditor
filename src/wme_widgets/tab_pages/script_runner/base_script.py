@@ -1,22 +1,20 @@
-
 class ScriptParameter:
-    def __init__(self, key: str, name, description, d_type, default_value):
-        self.key = key
+    def __init__(self, name: str, description: str, default_value):
         self.name = name
         self.description = description
-        self.d_type = d_type
         self.default_value = default_value
-
 
 
 class BaseScript:
     def __init__(self):
-        self.parameters = [ScriptParameter]
+        self.parameters: [ScriptParameter] = []
         # to make sure page checks if files can be safely edited
-        self.edited_files = []
+        self.edited_files: [str] = []
+        # name displayed in script selector
+        self.name = ""
         pass
 
-    def run(self):
+    def run(self, parameter_values: dict):
         # to be overwritten with actual script
         pass
 

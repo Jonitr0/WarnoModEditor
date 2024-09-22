@@ -2,7 +2,7 @@ import sys
 import os
 import logging
 
-from src.utils.resource_loader import get_resource_path
+from src.utils.resource_loader import *
 
 os.environ["NDF_LIB_PATH"] = get_resource_path("resources/dependencies/ndf.dll")
 
@@ -58,6 +58,12 @@ if __name__ == '__main__':
     logging.info("\n\n")
     logging.info("Starting WME " + version)
     logging.info("Working Directory: " + get_resource_path(''))
+
+    # make sure scripts dir exits and has __init__.py
+    scripts_dir = get_persistant_path("Scripts")
+    if not os.path.exists(os.path.join(scripts_dir, "__init__.py")):
+        with open(os.path.join(scripts_dir, "__init__.py"), "w") as file:
+            pass
 
     # setup splash screen
     splash_screen = wme_splash_screen.WMESplashScreen("Warno Mod Editor v" + version)

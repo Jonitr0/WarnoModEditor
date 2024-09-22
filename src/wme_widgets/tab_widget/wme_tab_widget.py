@@ -29,8 +29,7 @@ class WMETabWidget(QtWidgets.QTabWidget):
         diff_page.DiffPage: "diff.png",
         file_comparison_page.FileComparisonPage: "file_compare.png",
         mod_config_page.ModConfigPage: "file_config.png",
-        # TODO: icon
-        script_runner_page.ScriptRunnerPage: "parser_compare.png"
+        script_runner_page.ScriptRunnerPage: "file_code.png"
     }
 
     def __init__(self, parent=None):
