@@ -36,3 +36,12 @@ def py_map_to_parsed_map(py_map: dict):
 
 def round_trip(ndf_text: str):
     return ndf_string(convert(ndf_text))
+
+
+def get_parsed_ndf_file(file_path: str):
+    with open(file_path, "r") as file:
+        return convert(file.read())
+
+
+def get_text_from_ndf_obj(obj):
+    return ndf_string(obj)

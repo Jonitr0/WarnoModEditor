@@ -19,6 +19,11 @@ class GameSettingsController(base_napo_controller.BaseNapoController):
                 obj.by_member("ConquestPossibleScores").value = py_list_to_parsed_list(state["conquest_scores"])
                 obj.by_member("DestructionScoreToReachSetting").value = \
                     py_list_to_parsed_list(state["destruction_scores"])
+                for k, v in dest_table.items():
+                    new_v = []
+                    for entry in v:
+                        new_v.append(int(entry))
+                    dest_table[k] = new_v
                 obj.by_member("VictoryTypeDestructionLevelsTable").value = py_map_to_parsed_map(dest_table)
                 obj.by_member("BaseIncome").value.by_key("CombatRule/Conquest").value = str(state["conquest_income"])
                 obj.by_member("BaseIncome").value.by_key("CombatRule/Destruction").value = \
@@ -33,7 +38,6 @@ class GameSettingsController(base_napo_controller.BaseNapoController):
 
     def load_state_from_file(self) -> dict:
         gdc_file_obj = self.get_parsed_ndf_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
-        self.delete_tmp_mod()
         for obj_row in gdc_file_obj:
             obj = obj_row.value
 
