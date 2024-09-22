@@ -5,7 +5,7 @@ import os
 
 from PySide6 import QtWidgets, QtCore
 
-from src.wme_widgets import wme_essentials
+from src.wme_widgets import wme_essentials, main_widget
 from src.wme_widgets.tab_pages import base_tab_page
 from src.wme_widgets.tab_pages.script_runner import base_script
 from src.utils import icon_manager, resource_loader
@@ -28,13 +28,10 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
         run_action.setShortcut("Ctrl+F5")
         run_action.triggered.connect(self.run_script)
 
-        # define import location, automatically import from there
-        # add script objects as data
         self.script_selector = wme_essentials.WMECombobox()
+        self.script_selector.currentIndexChanged.connect(lambda: self.on_new_script_selected(
+            self.script_selector.currentData()))
         self.tool_bar.addWidget(self.script_selector)
-
-        # TODO: restore action
-        # TODO: action that opens import location in explorer
 
         restore_action = self.tool_bar.addAction(icon_manager.load_icon("restore.png", COLORS.PRIMARY),
                                                  "Discard changes and restore page (F5)")
@@ -56,17 +53,18 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
         self.scripts: [base_script.BaseScript] = []
         self.update_page()
 
+        # TODO: write this
+        self.help_page = "Help_ScriptRunner.html"
+
     def update_page(self):
         self.import_scripts()
-        # TODO: reset to default parameters
+        self.on_new_script_selected(self.script_selector.currentData())
 
     def on_new_script_selected(self, script: base_script.BaseScript):
+        self.script_description_label.setText(script.description)
         # clear parameter layout
-        for i in reversed(range(self.parameter_layout.count())):
-            widget_to_remove = self.parameter_layout.itemAt(i).widget()
-            self.parameter_layout.removeWidget(widget_to_remove)
-            if widget_to_remove:
-                widget_to_remove.setParent(None)
+        while self.parameter_layout.rowCount() > 0:
+            self.parameter_layout.removeRow(0)
 
         for param in script.parameters:
             label = QtWidgets.QLabel(param.name)
@@ -111,6 +109,8 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
                         importlib.reload(sys.modules[module_name])
                     # get classes from module
                     for name, obj in inspect.getmembers(sys.modules[module_name]):
+                        if name == "BaseScript":
+                            continue
                         if inspect.isclass(obj) and issubclass(obj, base_script.BaseScript):
                             script = obj()
                             self.scripts.append(script)
@@ -123,9 +123,28 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
         QtCore.QProcess.startDetached("explorer", [resource_loader.get_persistant_path("Scripts")])
 
     def get_parameter_values(self) -> dict:
-        # make this return names to current values of parameters
-        return {}
+        params = {}
+        for i in range(self.parameter_layout.rowCount()):
+            label = self.parameter_layout.itemAt(i, QtWidgets.QFormLayout.LabelRole).widget()
+            input_widget = self.parameter_layout.itemAt(i, QtWidgets.QFormLayout.FieldRole).widget()
+            match type(input_widget):
+                case wme_essentials.WMESpinbox:
+                    params[label.text()] = input_widget.value()
+                case wme_essentials.WMEDoubleSpinbox:
+                    params[label.text()] = input_widget.value()
+                case wme_essentials.WMELineEdit:
+                    params[label.text()] = input_widget.text()
+                case QtWidgets.QCheckBox:
+                    params[label.text()] = input_widget.isChecked()
+                case _:
+                    params[label.text()] = input_widget.text()
+        return params
 
     def run_script(self):
-        # lots of error handling, maybe backup before?
-        pass
+        main_widget.instance.show_loading_screen(f"Running script {self.script_selector.currentData().name}...")
+        try:
+            script = self.script_selector.currentData()
+            script.run(self.get_parameter_values())
+        except Exception as e:
+            logging.error(f"Failed to run script: {e}")
+        main_widget.instance.hide_loading_screen()
