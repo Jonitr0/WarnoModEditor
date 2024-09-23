@@ -2,8 +2,6 @@ import sys
 import importlib
 import inspect
 import os
-import logging
-import time
 
 from PySide6 import QtWidgets, QtCore
 
@@ -44,7 +42,16 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
                                                          "Open the script import location in the file explorer")
         import_location_action.triggered.connect(self.open_script_dir)
 
-        self.script_description_label = QtWidgets.QLabel("This will display the description of the selected script")
+        stretch = QtWidgets.QWidget()
+        stretch.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        self.tool_bar.addWidget(stretch)
+
+        help_action = self.tool_bar.addAction(icon_manager.load_icon("help.png", COLORS.PRIMARY),
+                                              "Open Page Help Popup (Alt + H)")
+        help_action.triggered.connect(self.on_help)
+
+        self.script_description_label = QtWidgets.QLabel()
+        self.script_description_label.setWordWrap(True)
         self.main_layout.addWidget(self.script_description_label)
 
         self.parameter_layout = QtWidgets.QFormLayout()
@@ -63,6 +70,8 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
         self.on_new_script_selected(self.script_selector.currentData())
 
     def on_new_script_selected(self, script: base_script.BaseScript):
+        if script is None:
+            return
         self.script_description_label.setText(script.description)
         # clear parameter layout
         while self.parameter_layout.rowCount() > 0:

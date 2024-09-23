@@ -1,11 +1,11 @@
-from src.wme_widgets.tab_pages.script_runner.base_script import BaseScript, ScriptParameter
+from src.wme_widgets.tab_pages.script_runner.base_script import BaseScript
 
 
 class SupplyMultiplier(BaseScript):
     def __init__(self):
         super().__init__()
         self.name = "Supply Multiplier"
-        self.description = "Multiplies the supply of all supply units by a given factor."
+        self.description = "Multiplies the supply of all supply units by a given factor. Edits UniteDescriptor.ndf"
         self.add_parameter("multiplier", "Multiplier", 2.0)
 
     def _run(self, parameter_values: dict):
