@@ -2,6 +2,8 @@ import sys
 import importlib
 import inspect
 import os
+import logging
+import time
 
 from PySide6 import QtWidgets, QtCore
 
@@ -113,6 +115,7 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
                             continue
                         if inspect.isclass(obj) and issubclass(obj, base_script.BaseScript):
                             script = obj()
+                            script.page = self
                             self.scripts.append(script)
                             logging.info(f"Imported script {script.name} from {file}")
                 except Exception as e:
@@ -141,9 +144,9 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
         return params
 
     def run_script(self):
-        main_widget.instance.show_loading_screen(f"Running script {self.script_selector.currentData().name}...")
+        script = self.script_selector.currentData()
+        main_widget.instance.show_loading_screen(f"Running script {script.name}...")
         try:
-            script = self.script_selector.currentData()
             script.run(self.get_parameter_values())
         except Exception as e:
             logging.error(f"Failed to run script: {e}")
