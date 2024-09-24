@@ -7,6 +7,7 @@ import logging
 
 
 # handles all parser functionality for a NAPO page
+# TODO: remove controllers, put functionality directly into pages
 class BaseNapoController:
     def get_parsed_ndf_file(self, file_name: str):
         mod_path = main_widget.instance.get_loaded_mod_path()

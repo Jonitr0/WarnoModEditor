@@ -2,6 +2,7 @@ import sys
 import importlib
 import inspect
 import os
+import traceback
 
 from PySide6 import QtWidgets, QtCore
 
@@ -159,4 +160,6 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
             script.run(self.get_parameter_values())
         except Exception as e:
             logging.error(f"Failed to run script: {e}")
+            logging.error(traceback.format_exc())
+            # TODO: add proper exception dialog
         main_widget.instance.hide_loading_screen()

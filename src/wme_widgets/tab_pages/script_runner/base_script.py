@@ -50,7 +50,9 @@ class BaseScript:
     def add_parameter(self, name: str, description: str, default_value):
         self.parameters.append(ScriptParameter(name, description, default_value))
 
-    def get_parsed_ndf_file(self, file_path: str):
+    def get_parsed_ndf_file(self, file_path: str, save: bool = True):
         full_path = os.path.join(main_widget.instance.get_loaded_mod_path(), file_path)
-        self.opened_files[file_path] = parser_utils.get_parsed_ndf_file(full_path)
-        return self.opened_files[file_path]
+        file = parser_utils.get_parsed_ndf_file(full_path)
+        if save:
+            self.opened_files[file_path] = file
+        return file
