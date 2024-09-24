@@ -14,7 +14,7 @@ if __name__ == '__main__':
         shutil.rmtree("dist")
     except Exception as e:
         print(e)
-    
+
     PyInstaller.__main__.run(["main.py",
                               "--onefile",
                               "--icon=resources/img/app_icon_colored.ico",
@@ -29,7 +29,6 @@ if __name__ == '__main__':
                               "-n", "WarnoModEditor"
                               ])
 
-
     # sign exe
     try:
         cwd = os.getcwd()
@@ -39,4 +38,4 @@ if __name__ == '__main__':
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         out, err = proc.communicate()
     except Exception as e:
-        print(e)
+        print(f"Error while signing .exe: {e}")
