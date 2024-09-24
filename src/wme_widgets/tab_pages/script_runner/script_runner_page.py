@@ -105,17 +105,22 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
         self.scripts.clear()
         self.script_selector.clear()
         self.import_scripts_from_dir(resource_loader.get_resource_path("resources/scripts"))
-        self.import_scripts_from_dir(resource_loader.get_persistant_path("Scripts"))
+        self.import_scripts_from_dir(resource_loader.get_persistant_path("Scripts"), external=True)
         for script in self.scripts:
             self.script_selector.addItem(script.name, script)
 
-    def import_scripts_from_dir(self, dir_path):
+    def import_scripts_from_dir(self, dir_path, external: bool = False):
         for file in os.listdir(dir_path):
             if file.endswith(".py") and file != "__init__.py":
                 try:
                     # check if module with same name is already imported
-                    module_name = "resources.scripts." + file[:-3]
+                    if external:
+                        module_name = file[:-3]
+                    else:
+                        module_name = "resources.scripts." + file[:-3]
                     if module_name not in sys.modules:
+                        if external:
+                            sys.path.append(dir_path)
                         importlib.import_module(module_name)
                     else:
                         importlib.reload(sys.modules[module_name])
