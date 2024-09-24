@@ -32,7 +32,7 @@ class EraRework(BaseScript):
         else:
             self.adjust_weapon_constants()
 
-        # TODO: edit WeaponConstants, ResistLists
+        # TODO: edit ResistLists
         # TODO: add armor type to unit descriptors, remove reactive flag
         # TODO: add tandem type to tandem weapons, remove tandem flag
 
