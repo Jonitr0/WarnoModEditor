@@ -10,7 +10,8 @@ class EraRework(BaseScript):
         self.description = ("Redone damage calculation for explosive reactive armor (ERA). ERA-equipped vehicles will "
                             "now have a damage reduction for incoming HEAT munitions from the front and side instead "
                             "of an HP increase. Tandem weapons will negate this damage reduction. Edits the following "
-                            "files:\n- DamageResistance.ndf\n- WeaponConstantes.ndf\n")
+                            "files:\n- DamageResistance.ndf\n- WeaponConstantes.ndf\n- DamageResistanceFamilyList.ndf"
+                            "\n- DamageResistanceFamilyListImpl.ndf")
 
     def _run(self, parameter_values: dict):
         # load DamageResistance.ndf read-only
@@ -19,7 +20,7 @@ class EraRework(BaseScript):
         resistance_families = dmg_resist_obj[0].value.by_member("ResistanceFamilyDefinitionList").value
         # check if ERA resistance family already exists
         if any(resist_type.value.by_member("Family").value == "ResistanceFamily_ERA"
-                for resist_type in resistance_families):
+               for resist_type in resistance_families):
             logging.info("ERA resistance family already in DamageResistance.ndf, skipping")
         else:
             self.adjust_damage_resistance()
@@ -32,7 +33,22 @@ class EraRework(BaseScript):
         else:
             self.adjust_weapon_constants()
 
-        # TODO: edit ResistLists
+        resist_lists = self.get_parsed_ndf_file(r"GameData\Generated\Gameplay\Gfx\DamageResistanceFamilyList.ndf",
+                                                save=False)
+        if self.get_number_of_objects_by_prefix("ResistanceFamily_ERA", resist_lists) > 0:
+            logging.info("ERA resistance family already in DamageResistanceFamilyList.ndf, skipping")
+        else:
+            self.adjust_resist_lists()
+
+        resist_lists_impl = self.get_parsed_ndf_file(
+            r"GameData\Generated\Gameplay\Gfx\DamageResistanceFamilyListImpl.ndf", save=False).by_namespace(
+            "Generated_ResistanceFamily_Enum").value.by_member("Values").value
+        if any(obj.value == "\"ResistanceFamily_ERA\"" for obj in resist_lists_impl):
+            logging.info("ERA resistance family already in DamageResistanceFamilyListImpl.ndf, skipping")
+        else:
+            self.adjust_resist_lists_impl()
+
+        # TODO: add tandem to UIMousePolicyResources, UIInGameUnitResouces, WeaponTypePriorities
         # TODO: add armor type to unit descriptors, remove reactive flag
         # TODO: add tandem type to tandem weapons, remove tandem flag
 
@@ -101,3 +117,28 @@ class EraRework(BaseScript):
         ignore_armor = weapon_constants.by_member("BlindagesToIgnoreForDamageFamilies").value
         for row in ignore_armor:
             row.value.add("ResistanceFamily_ERA")
+
+    def adjust_resist_lists(self):
+        resist_lists = self.get_parsed_ndf_file(r"GameData\Generated\Gameplay\Gfx\DamageResistanceFamilyList.ndf")
+        resist_count = self.get_number_of_objects_by_prefix("ResistanceFamily_", resist_lists)
+        era_str = f"ResistanceFamily_ERA is {resist_count}"
+        dmg_count = self.get_number_of_objects_by_prefix("DamageFamily_", resist_lists)
+        tandem_str = f"DamageFamily_tandem is {dmg_count}"
+        resist_lists.add(era_str)
+        resist_lists.add(tandem_str)
+
+    def get_number_of_objects_by_prefix(self, prefix: str, obj_list: list) -> int:
+        count = 0
+        for obj in obj_list:
+            if obj.namespace.startswith(prefix):
+                count += 1
+        return count
+
+    def adjust_resist_lists_impl(self):
+        resist_lists_impl = self.get_parsed_ndf_file(
+            r"GameData\Generated\Gameplay\Gfx\DamageResistanceFamilyListImpl.ndf")
+        for obj in resist_lists_impl:
+            if obj.namespace == "Generated_ResistanceFamily_Enum":
+                obj.value.by_member("Values").value.add("\"ResistanceFamily_ERA\"")
+            if obj.namespace == "Generated_DamageFamily_Enum":
+                obj.value.by_member("Values").value.add("\"DamageFamily_tandem\"")
