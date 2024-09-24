@@ -10,7 +10,7 @@ from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, glob
 from src.wme_widgets.tab_pages.script_runner import script_runner_page
 from src.wme_widgets.tab_pages.diff_page import diff_page, file_comparison_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
-from src.wme_widgets.tab_pages.napo_pages.game_settings_page import game_settings_page
+from src.wme_widgets.tab_pages.napo_pages import game_settings_page
 from src.dialogs import essential_dialogs
 from src.utils import icon_manager, parser_utils
 from src.utils.color_manager import *

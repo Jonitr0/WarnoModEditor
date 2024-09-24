@@ -4,11 +4,10 @@ import json
 
 from PySide6 import QtWidgets, QtGui
 
-from src.wme_widgets.tab_pages.napo_pages import base_napo_controller
 from src.wme_widgets.tab_pages import base_tab_page
 from src.wme_widgets import main_widget
 
-from src.utils import icon_manager, resource_loader
+from src.utils import icon_manager, resource_loader, parser_utils
 from src.utils.color_manager import *
 from src.dialogs import essential_dialogs
 
@@ -18,7 +17,6 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         super().__init__()
 
         self.saved_state = None
-        self.controller = base_napo_controller.BaseNapoController()
 
         self.main_layout = QtWidgets.QVBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 0, 0)
@@ -53,35 +51,57 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
     def _save_changes(self) -> bool:
         state = self.get_state()
-        self.controller.write_state_to_file(state)
+        self.write_state_to_file(state)
         self.saved_state = state
         return True
 
+    def write_state_to_file(self, state: dict):
+        pass
+
+    def load_state_from_file(self) -> dict:
+        pass
+
     def update_page(self):
         main_widget.instance.show_loading_screen("loading data form .ndf files...")
-        state = self.controller.load_state_from_file()
+        state = self.load_state_from_file()
         self.saved_state = state
         self.set_state(state)
         main_widget.instance.hide_loading_screen()
 
     def get_parsed_ndf_file(self, file_name: str, editing: bool = True):
+        mod_path = main_widget.instance.get_loaded_mod_path()
+        file_path = os.path.join(mod_path, file_name)
+
         if editing:
-            mod_path = main_widget.instance.get_loaded_mod_path()
-            file_path = os.path.join(mod_path, file_name)
             self.open_file(file_path)
 
-        return self.controller.get_parsed_ndf_file(file_name)
+        return parser_utils.get_parsed_ndf_file(file_path)
 
     def get_parsed_object_from_ndf_file(self, file_name: str, obj_name: str, editing: bool = True):
+        mod_path = main_widget.instance.get_loaded_mod_path()
+        file_path = os.path.join(mod_path, file_name)
+
         if editing:
-            mod_path = main_widget.instance.get_loaded_mod_path()
-            file_path = os.path.join(mod_path, file_name)
             self.open_file(file_path)
 
-        return self.controller.get_parsed_object_from_ndf_file(file_name, obj_name)
+        file_obj = self.get_parsed_ndf_file(file_name)
+        for row in file_obj:
+            if row.namespace == obj_name:
+                return row.value
+
+        logging.warning("Object " + obj_name + " not found in " + file_name)
+        return None
 
     def save_files_to_mod(self, files_to_objs: dict):
-        self.controller.save_files_to_mod(files_to_objs)
+        mod_path = main_widget.instance.get_loaded_mod_path()
+
+        files = files_to_objs.keys()
+
+        for file in files:
+            text = parser_utils.get_text_from_ndf_obj(files_to_objs[file])
+            file_path = os.path.join(mod_path, file)
+            with open(file_path, "w") as f:
+                f.write(text)
 
     def on_restore(self):
         if self.unsaved_changes:
