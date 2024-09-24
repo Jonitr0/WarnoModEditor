@@ -79,9 +79,9 @@ class BaseTabPage(QtWidgets.QWidget):
         # if more than one page has unsaved changes
         for file_path in self.file_paths:
             page_list = get_pages_for_file(file_path, unsaved_only=True)
-            if len(page_list) > 1:
+            if len(page_list) > 1 or (len(page_list) == 1 and page_list[0] != self):
                 file_name = file_path[file_path.rindex('\\') + 1:]
-                dialog = essential_dialogs.ConfirmationDialog(f"Multiple tabs have unsaved changes on {file_name}."
+                dialog = essential_dialogs.ConfirmationDialog(f"Other tabs have unsaved changes on {file_name}."
                                                               f" If you save on this tab ({self.tab_name}), changes on "
                                                               f"other tabs will be discarded. Continue?",
                                                               "Warning!")

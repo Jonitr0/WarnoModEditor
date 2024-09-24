@@ -9,13 +9,15 @@ from PySide6 import QtWidgets, QtCore
 from src.wme_widgets import wme_essentials, main_widget
 from src.wme_widgets.tab_pages import base_tab_page
 from src.wme_widgets.tab_pages.script_runner import base_script
-from src.utils import icon_manager, resource_loader
+from src.utils import icon_manager, resource_loader, parser_utils
 from src.utils.color_manager import *
 
 
 class ScriptRunnerPage(base_tab_page.BaseTabPage):
     def __init__(self):
         super().__init__()
+
+        self.files_to_save = {}
 
         self.main_layout = QtWidgets.QVBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 0, 0)
@@ -162,9 +164,26 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
         script = self.script_selector.currentData()
         main_widget.instance.show_loading_screen(f"Running script {script.name}...")
         try:
-            script.run(self.get_parameter_values())
+            self.files_to_save = script.run(self.get_parameter_values())
+            for file in self.files_to_save.keys():
+                full_path = os.path.join(main_widget.instance.get_loaded_mod_path(), file)
+                self.file_paths.add(full_path)
+                self.unsaved_changes = True
+            self.save_changes()
         except Exception as e:
             logging.error(f"Failed to run script: {e}")
             logging.error(traceback.format_exc())
             # TODO: add proper exception dialog
         main_widget.instance.hide_loading_screen()
+
+    def _save_changes(self) -> bool:
+        try:
+            for file in self.files_to_save.keys():
+                text = parser_utils.get_text_from_ndf_obj(self.files_to_save[file])
+                full_path = os.path.join(main_widget.instance.get_loaded_mod_path(), file)
+                with open(full_path, "w") as f:
+                    f.write(text)
+        except Exception as e:
+            logging.error("Error while saving script files: " + str(e))
+            return False
+        return True
