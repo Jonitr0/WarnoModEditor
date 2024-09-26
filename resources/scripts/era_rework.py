@@ -11,7 +11,8 @@ class EraRework(BaseScript):
                             "now have a damage reduction for incoming HEAT munitions from the front and side instead "
                             "of an HP increase. Tandem weapons will negate this damage reduction. Edits the following "
                             "files:\n- DamageResistance.ndf\n- WeaponConstantes.ndf\n- DamageResistanceFamilyList.ndf"
-                            "\n- DamageResistanceFamilyListImpl.ndf")
+                            "\n- DamageResistanceFamilyListImpl.ndf\n- UIMousePolicyResources.ndf"
+                            "\n- UIInGameUnitLabelResources.ndf\n - WeaponTypePriorities.ndf")
 
     def _run(self, parameter_values: dict):
         # load DamageResistance.ndf read-only
@@ -48,7 +49,31 @@ class EraRework(BaseScript):
         else:
             self.adjust_resist_lists_impl()
 
-        # TODO: add tandem to UIMousePolicyResources, UIInGameUnitResouces, WeaponTypePriorities
+        ui_mouse_policy = self.get_parsed_ndf_file(
+            r"GameData\UserInterface\Use\Ingame\UIMousePolicyResources.ndf", save=False).by_namespace(
+            "MouseWidgetSelector_Attack").value.by_member("TextForDamageType").value
+        if any(obj.key == "DamageFamily_tandem" for obj in ui_mouse_policy):
+            logging.info("Tandem damage family already in UIMousePolicyResources.ndf, skipping")
+        else:
+            self.adjust_ui_mouse_policy()
+
+        ui_unit_resources = self.get_parsed_ndf_file(
+            r"GameData\UserInterface\Use\Ingame\UIInGameUnitLabelResources.ndf", save=False).by_namespace(
+            "SpecificInGameUnitLabelResources").value.by_member("DamageTypeNameToFeedbackType").value
+        if any(obj.key == "DamageFamily_tandem" for obj in ui_unit_resources):
+            logging.info("Tandem damage family already in UIInGameUnitLabelResources.ndf, skipping")
+        else:
+            self.adjust_ui_unit_resources()
+
+        weapon_type_priorities = self.get_parsed_ndf_file(
+            r"GameData\Gameplay\Constantes\WeaponTypePriorities.ndf", save=False).by_namespace(
+            "WeaponTypePriorities").value.by_member("WeaponTypes").value
+        if any(obj == "DamageFamily_tandem" for obj in weapon_type_priorities):
+            logging.info("Tandem weapon type already in WeaponTypePriorities.ndf, skipping")
+        else:
+            self.adjust_weapon_type_priorities()
+
+        # TODO: add tandem WeaponTypePriorities
         # TODO: add armor type to unit descriptors, remove reactive flag
         # TODO: add tandem type to tandem weapons, remove tandem flag
 
@@ -142,3 +167,28 @@ class EraRework(BaseScript):
                 obj.value.by_member("Values").value.add("\"ResistanceFamily_ERA\"")
             if obj.namespace == "Generated_DamageFamily_Enum":
                 obj.value.by_member("Values").value.add("\"DamageFamily_tandem\"")
+
+    def adjust_ui_mouse_policy(self):
+        ui_mouse_policy = self.get_parsed_ndf_file(
+            r"GameData\UserInterface\Use\Ingame\UIMousePolicyResources.ndf")
+        for obj in ui_mouse_policy:
+            if obj.namespace == "MouseWidgetSelector_Attack":
+                obj.value.by_member("TextForDamageType").value.add("(DamageFamily_tandem, \"TC_HEAT\")")
+                break
+
+    def adjust_ui_unit_resources(self):
+        ui_unit_resources = self.get_parsed_ndf_file(
+            r"GameData\UserInterface\Use\Ingame\UIInGameUnitLabelResources.ndf")
+        for obj in ui_unit_resources:
+            if obj.namespace == "SpecificInGameUnitLabelResources":
+                obj.value.by_member("DamageTypeNameToFeedbackType").value.add(
+                    "(DamageFamily_tandem, ~/InGameUnitLabelUpdateFeedbackType/Missile)")
+                break
+
+    def adjust_weapon_type_priorities(self):
+        weapon_type_priorities = self.get_parsed_ndf_file(
+            r"GameData\Gameplay\Constantes\WeaponTypePriorities.ndf")
+        for obj in weapon_type_priorities:
+            if obj.namespace == "WeaponTypePriorities":
+                obj.value.by_member("WeaponTypes").value.add("(DamageFamily_tandem, EWeaponRangeDependant/NotDefined)")
+                break
