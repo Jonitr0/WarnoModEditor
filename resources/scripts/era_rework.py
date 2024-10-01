@@ -123,20 +123,54 @@ class EraRework(BaseScript):
         dmg_types.add(tandem_dmg_type_str)
 
         # get damage matrix
+        # TODO: check this
         dmg_matrix = dmg_resist_obj[0].value.by_member("Values").value
         # copy each entry in the ap_missile range to the end (tandem damage)
         for i, dmg_vals in enumerate(dmg_matrix):
             if ap_missile_index <= i < ap_missile_index + ap_missile_count:
-                dmg_matrix.add(dmg_vals)
+                dmg_matrix.add(dmg_vals.copy())
             elif i >= ap_missile_index + ap_missile_count:
                 break
         # for each entry, copy the values from the range of blindage to the end (ERA resistance)
         for i, dmg_vals in enumerate(dmg_matrix):
             for j, val in enumerate(dmg_vals.value):
                 if blindage_index <= j < blindage_index + blindage_count:
+                    val = val.copy()
                     if ap_missile_index <= i < ap_missile_index + ap_missile_count:
-                        val.value = str(max(1.0, float(val.value) - 1.0))
+                        val.value = str(max(1.0, float(val.value) + 1.0))
                     dmg_vals.value.add(val)
+
+        # create a labeled damage matrix and save it to excel file
+        dmg_matrix_labeled = []
+        # rows
+        current_row = 0
+        current_col = 0
+        for dmg_type in dmg_types:
+            for i in range(int(dmg_type.value.by_member("MaxIndex").value)):
+                row = []
+                # columns
+                for resist_type in resistance_families:
+                    for j in range(int(resist_type.value.by_member("MaxIndex").value)):
+                        row.append(dmg_matrix[current_row].value[current_col].value)
+                        current_col += 1
+                current_col = 0
+                current_row += 1
+                dmg_matrix_labeled.append(row)
+
+        import pandas as pd
+        df = pd.DataFrame(dmg_matrix_labeled)
+        # add column and row labels
+        col_labels = []
+        for resist_type in resistance_families:
+            for j in range(int(resist_type.value.by_member("MaxIndex").value)):
+                col_labels.append(f"{resist_type.value.by_member('Family').value}_{j}")
+        df.columns = col_labels
+        row_labels = []
+        for dmg_type in dmg_types:
+            for i in range(int(dmg_type.value.by_member("MaxIndex").value)):
+                row_labels.append(f"{dmg_type.value.by_member('Family').value}_{i}")
+        df.index = row_labels
+        df.to_excel("dmg_matrix.xlsx")
 
     def adjust_weapon_constants(self):
         weapon_constants = self.get_parsed_ndf_file(r"GameData\Gameplay\Constantes\WeaponConstantes.ndf")[0].value
