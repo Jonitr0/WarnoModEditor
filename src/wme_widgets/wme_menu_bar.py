@@ -188,6 +188,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
     def generate_mod(self):
         # for whatever reason, the successful run returns 18?
+        self.remove_pause_line_from_script("GenerateMod.bat")
         ret_code = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "GenerateMod.bat", [])
         logging.info("GenerateMod.bat executed with return code " + str(ret_code))
 
@@ -258,7 +259,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             lines = f.readlines()
         with open(file, "w") as f:
             for line in lines:
-                if not line.__contains__("pause"):
+                if not line.__contains__("pause") and not line.__contains__("PAUSE"):
                     f.write(line)
 
     def on_upload_action(self):
@@ -409,7 +410,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             self.process.readyReadStandardError.connect(self.print_porcess_error)
 
             self.process.start()
-            self.process.waitForFinished()
+            if not self.process.waitForFinished(60000):
+                logging.warning("Process did not finish in time (60 secs).")
             ret = self.process.exitCode()
             self.process.close()
             main_widget.instance.hide_loading_screen()
