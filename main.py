@@ -49,7 +49,7 @@ if __name__ == '__main__':
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
 
     # setup exception handler
-    exception_handler = exception_handler_dialog.ExceptionHandlerDialog()
+    exception_handler = exception_handler_dialog.ExceptionHandler()
     sys.excepthook = exception_handler.exceptHook
 
     # set version

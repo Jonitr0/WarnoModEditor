@@ -11,6 +11,7 @@ from src.wme_widgets.tab_pages import base_tab_page
 from src.wme_widgets.tab_pages.script_runner import base_script
 from src.utils import icon_manager, resource_loader, parser_utils
 from src.utils.color_manager import *
+from src.dialogs import exception_handler_dialog
 
 
 class ScriptRunnerPage(base_tab_page.BaseTabPage):
@@ -37,7 +38,7 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
         self.tool_bar.addWidget(self.script_selector)
 
         restore_action = self.tool_bar.addAction(icon_manager.load_icon("restore.png", COLORS.PRIMARY),
-                                                 "Discard changes and restore page (F5)")
+                                                 "Reload all scripts (F5)")
         restore_action.setShortcut("F5")
         restore_action.triggered.connect(self.update_page)
 
@@ -171,9 +172,13 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
                 self.unsaved_changes = True
             self.save_changes()
         except Exception as e:
-            logging.error(f"Failed to run script: {e}")
+            logging.error(f"Failed to run script {script.name}: {e}")
             logging.error(traceback.format_exc())
-            # TODO: add proper exception dialog
+            dialog = exception_handler_dialog.ExceptionHandlerDialog()
+            dialog.set_exception(type(e), e, traceback.format_exc())
+            info_text = f"An error occurred while trying to run {script.name}."
+            dialog.set_info_text(info_text)
+            dialog.exec_()
         main_widget.instance.hide_loading_screen()
 
     def _save_changes(self) -> bool:
