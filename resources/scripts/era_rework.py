@@ -1,5 +1,7 @@
 import logging
 
+import ndf_parse as ndf
+
 from src.wme_widgets.tab_pages.script_runner.base_script import BaseScript
 
 
@@ -12,7 +14,8 @@ class EraRework(BaseScript):
                             "of an HP increase. Tandem weapons will negate this damage reduction. Edits the following "
                             "files:\n- DamageResistance.ndf\n- WeaponConstantes.ndf\n- DamageResistanceFamilyList.ndf"
                             "\n- DamageResistanceFamilyListImpl.ndf\n- UIMousePolicyResources.ndf"
-                            "\n- UIInGameUnitLabelResources.ndf\n - WeaponTypePriorities.ndf")
+                            "\n- UIInGameUnitLabelResources.ndf\n- WeaponTypePriorities.ndf\n- UniteDescriptor.ndf"
+                            "\n- Ammunition.ndf\n- AmmunitionMissiles.ndf")
 
     def _run(self, parameter_values: dict):
         # load DamageResistance.ndf read-only
@@ -68,14 +71,13 @@ class EraRework(BaseScript):
         weapon_type_priorities = self.get_parsed_ndf_file(
             r"GameData\Gameplay\Constantes\WeaponTypePriorities.ndf", save=False).by_namespace(
             "WeaponTypePriorities").value.by_member("WeaponTypes").value
-        if any(obj == "DamageFamily_tandem" for obj in weapon_type_priorities):
+        if any(obj.value.__contains__("DamageFamily_tandem") for obj in weapon_type_priorities):
             logging.info("Tandem weapon type already in WeaponTypePriorities.ndf, skipping")
         else:
             self.adjust_weapon_type_priorities()
 
-        # TODO: add tandem WeaponTypePriorities
-        # TODO: add armor type to unit descriptors, remove reactive flag
-        # TODO: add tandem type to tandem weapons, remove tandem flag
+        self.adjust_units()
+        self.adjust_weapons()
 
     def adjust_damage_resistance(self):
         dmg_resist_obj = self.get_parsed_ndf_file(r"GameData\Generated\Gameplay\Gfx\DamageResistance.ndf")
@@ -192,3 +194,41 @@ class EraRework(BaseScript):
             if obj.namespace == "WeaponTypePriorities":
                 obj.value.by_member("WeaponTypes").value.add("(DamageFamily_tandem, EWeaponRangeDependant/NotDefined)")
                 break
+
+    def adjust_units(self):
+        units = self.get_parsed_ndf_file(r"GameData\Generated\Gameplay\Gfx\UniteDescriptor.ndf")
+        for unit in units:
+            # get TUnitUIModuleDescriptor
+            try:
+                ui_module = unit.value.by_member("ModulesDescriptors").value.find_by_cond(
+                    lambda m: type(m.value) == ndf.model.Object and m.value.type == "TUnitUIModuleDescriptor")
+            except Exception:
+                continue
+            for trait in ui_module.value.by_member("SpecialtiesList").value:
+                if trait.value == "\'_era\'":
+                    # set health to 10
+                    dmg_module = unit.value.by_member("ModulesDescriptors").value.find_by_cond(
+                        lambda m: type(m.value) == ndf.model.Object and m.value.type == "TBaseDamageModuleDescriptor")
+                    dmg_module.value.by_member("MaxPhysicalDamages").value = "10"
+                    # set armor family to ERA
+                    armor_module = unit.value.by_member("ModulesDescriptors").value.find_by_cond(
+                        lambda m: type(m.value) == ndf.model.Object and
+                                m.value.type == "TDamageModuleDescriptor").value.by_member("BlindageProperties")
+                    armor_module.value.by_member("ResistanceFront").value.by_member("Family").value = \
+                        "ResistanceFamily_ERA"
+                    armor_module.value.by_member("ResistanceSides").value.by_member("Family").value = \
+                        "ResistanceFamily_ERA"
+                    # Remove Eugen ERA trait
+                    armor_module.value.by_member("ExplosiveReactiveArmor").value = "False"
+                    break
+
+    def adjust_weapons(self):
+        weapons = self.get_parsed_ndf_file(r"GameData\Generated\Gameplay\Gfx\Ammunition.ndf")
+        missiles = self.get_parsed_ndf_file(r"GameData\Generated\Gameplay\Gfx\AmmunitionMissiles.ndf")
+        self.adjust_weapons_list(weapons)
+        self.adjust_weapons_list(missiles)
+
+    def adjust_weapons_list(self, w_list):
+        for wpn in w_list.match_pattern("TAmmunitionDescriptor(TandemCharge = True)"):
+            wpn.value.by_member("Arme").value.by_member("Family").value = "DamageFamily_tandem"
+            wpn.value.by_member("TandemCharge").value = "False"
