@@ -7,6 +7,10 @@ QMenuBar::item {{
   padding: 10px;
 }}
 
+QMenuBar::item:disabled {{
+  color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
+}}
+
 QLabel#title {{
   color: {QTMATERIAL_PRIMARYCOLOR};
   font: italic;

@@ -1,5 +1,6 @@
 import logging
-
+import threading
+import time
 import requests
 
 from PySide6 import QtWidgets, QtCore, QtGui
@@ -48,6 +49,7 @@ class MainWidget(QtWidgets.QWidget):
         self.title_label = QtWidgets.QLabel("")
         self.log_dialog = log_dialog.LogDialog()
         self.auto_backup_manager = auto_backup_manager.AutoBackupManager(self)
+        self.running_threads = []
 
         self.auto_backup_manager.request_backup.connect(self.menu_bar.create_named_backup)
         self.mod_loaded.connect(self.auto_backup_manager.update_settings)
@@ -194,7 +196,7 @@ class MainWidget(QtWidgets.QWidget):
         self.loaded_mod_path = ""
         self.loaded_mod_name = ""
         self.title_label.setText("")
-        self.show_loading_screen(self.no_mod_loaded_msg)
+        self.show_loading_screen(self.no_mod_loaded_msg, disable_menu=False)
         settings_manager.write_settings_value(settings_manager.MOD_STATE_CHANGED_KEY, 0)
         self.mod_unloaded.emit()
 
@@ -202,11 +204,14 @@ class MainWidget(QtWidgets.QWidget):
         # ask all tabs on all windows to save/discard, return False on cancel
         return self.tab_widget.ask_all_tabs_to_save(all_windows=True)
 
-    def show_loading_screen(self, text: str = "loading..."):
+    def show_loading_screen(self, text: str = "loading...", disable_menu: bool = True):
         # TODO: add hints
         self.load_screen.setText(text)
         self.load_screen.setHidden(False)
         self.splitter.setHidden(True)
+        if disable_menu:
+            self.menu_bar.setEnabled(False)
+            self.window().title_bar.close_button.setEnabled(False)
 
         for detached in wme_detached_tab.detached_list:
             detached.show_loading_screen(text)
@@ -216,6 +221,9 @@ class MainWidget(QtWidgets.QWidget):
     def hide_loading_screen(self):
         QtWidgets.QApplication.processEvents()
 
+        self.menu_bar.setEnabled(True)
+        # TODO: fix colors
+        self.window().title_bar.close_button.setEnabled(True)
         self.load_screen.setHidden(True)
         self.splitter.setHidden(False)
 
@@ -325,6 +333,22 @@ class MainWidget(QtWidgets.QWidget):
                 detached_window.tab_widget.add_tab_with_auto_icon(page, tab["title"])
 
             detached_window.show()
+
+    def run_worker_thread(self, target, *args):
+        # clean up dead threads
+        self.running_threads = [t for t in self.running_threads if t.is_alive()]
+
+        thread = threading.Thread(target=target, args=args)
+        thread.start()
+        self.running_threads.append(thread)
+        return thread
+
+    def wait_for_worker_thread(self, thread):
+        while thread.is_alive():
+            QtWidgets.QApplication.processEvents()
+            time.sleep(0.01)
+
+
 
 
 instance: MainWidget = None

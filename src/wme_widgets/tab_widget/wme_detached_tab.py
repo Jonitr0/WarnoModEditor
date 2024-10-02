@@ -89,11 +89,13 @@ class WMEDetachedTab(base_window.BaseWindow):
             super().keyPressEvent(event)
 
     def show_loading_screen(self, text: str):
+        self.title_bar.close_button.setDisabled(True)
         self.load_screen.setText(text)
         self.tab_widget.setHidden(True)
         self.load_screen.setHidden(False)
 
     def hide_loading_screen(self):
+        self.title_bar.close_button.setDisabled(False)
         self.tab_widget.setHidden(False)
         self.load_screen.setHidden(True)
 
