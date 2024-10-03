@@ -1,6 +1,8 @@
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
 
+import time
+
 # based on:
 # https://stackoverflow.com/questions/63669844/pyqt5-dont-show-empty-folders-after-filtering-files-with-a-setnamefilters
 
@@ -15,6 +17,8 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
         self.data_model = QtWidgets.QFileSystemModel()
         self.data_model.setFilter(
             QtCore.QDir.NoDotAndDotDot | QtCore.QDir.AllDirs | QtCore.QDir.Files)
+        self.dirs_to_load = []
+        self.data_model.directoryLoaded.connect(self.on_directory_loaded)
         self.setSourceModel(self.data_model)
 
     def setNameFilters(self, filters):
@@ -72,3 +76,31 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
     def set_root_path(self, root_path: str):
         self.data_model.setRootPath(root_path)
         self.root_path = root_path
+
+    def load_dir(self, path: str):
+        index = self.data_model.index(path)
+        self.data_model.fetchMore(index)
+        for i in range(self.data_model.rowCount(index)):
+            child_path = self.data_model.filePath(self.data_model.index(i, 0, index))
+            if child_path in self.dirs_to_load:
+                continue
+            self.dirs_to_load.append(child_path)
+            self.load_dir(child_path)
+
+    def on_directory_loaded(self, path):
+        if path in self.dirs_to_load:
+            self.dirs_to_load.remove(path)
+
+            index = self.data_model.index(path)
+            # add children to the list
+            for i in range(self.data_model.rowCount(index)):
+                child_path = self.data_model.filePath(self.data_model.index(i, 0, index))
+                if child_path in self.dirs_to_load:
+                    continue
+                self.dirs_to_load.append(child_path)
+                self.load_dir(child_path)
+
+    def load_all_dirs(self):
+        self.load_dir(self.root_path)
+        while len(self.dirs_to_load) > 0:
+            time.sleep(0.1)
