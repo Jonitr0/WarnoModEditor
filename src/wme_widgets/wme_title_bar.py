@@ -2,7 +2,7 @@
 # has a title that can be set, can be used to drag the window around etc.
 # can take wme_widgets (e.g. the wme_menu_bar)
 
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.utils import icon_manager
@@ -60,7 +60,11 @@ class WMETitleBar(QtWidgets.QWidget):
         self.minimize_button.setHidden(only_close)
         self.minimize_button.installEventFilter(self)
         self.minimize_button.setProperty('class', 'titlebar')
-        min_icon = icon_manager.load_icon("titlebar/showMin.png", COLORS.PRIMARY)
+        min_icon = QtGui.QIcon()
+        min_icon.addPixmap(icon_manager.load_pixmap("titlebar/showMin.png", COLORS.PRIMARY),
+                           QtGui.QIcon.Normal)
+        min_icon.addPixmap(icon_manager.load_pixmap("titlebar/showMin.png", COLORS.SECONDARY_LIGHT),
+                           QtGui.QIcon.Disabled)
         self.minimize_button.setIcon(min_icon)
         self.minimize_button.setFixedSize(self.button_width, self.button_height)
         self.minimize_button.clicked.connect(self.on_min_clicked)
@@ -69,14 +73,20 @@ class WMETitleBar(QtWidgets.QWidget):
         self.maximize_button.setHidden(only_close)
         self.maximize_button.installEventFilter(self)
         self.maximize_button.setProperty('class', 'titlebar')
-        max_icon = icon_manager.load_icon("titlebar/showMax.png", COLORS.PRIMARY)
+        max_icon = QtGui.QIcon()
+        max_icon.addPixmap(icon_manager.load_pixmap("titlebar/showMax.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
+        max_icon.addPixmap(icon_manager.load_pixmap("titlebar/showMax.png", COLORS.SECONDARY_LIGHT),
+                           QtGui.QIcon.Disabled)
         self.maximize_button.setIcon(max_icon)
         self.maximize_button.setFixedSize(self.button_width, self.button_height)
         self.maximize_button.clicked.connect(self.on_max_clicked)
         button_layout.addWidget(self.maximize_button)
 
         self.close_button.installEventFilter(self)
-        close_icon = icon_manager.load_icon("titlebar/close.png", COLORS.DANGER)
+        close_icon = QtGui.QIcon()
+        close_icon.addPixmap(icon_manager.load_pixmap("titlebar/close.png", COLORS.DANGER), QtGui.QIcon.Normal)
+        close_icon.addPixmap(icon_manager.load_pixmap("titlebar/close.png", COLORS.SECONDARY_LIGHT),
+                             QtGui.QIcon.Disabled)
         self.close_button.setIcon(close_icon)
         self.close_button.setFixedSize(self.button_width, self.button_height)
         self.close_button.clicked.connect(self.on_close_clicked)
@@ -89,6 +99,9 @@ class WMETitleBar(QtWidgets.QWidget):
         # only capture left click
         if event.type() is (QtCore.QEvent.MouseButtonPress or QtCore.QEvent.MouseButtonRelease) \
                 and event.button() is not QtCore.Qt.MouseButton.LeftButton:
+            return False
+
+        if not source.isEnabled():
             return False
 
         # behaviour when mouse button is held down

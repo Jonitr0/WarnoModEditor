@@ -222,7 +222,6 @@ class MainWidget(QtWidgets.QWidget):
         QtWidgets.QApplication.processEvents()
 
         self.menu_bar.setEnabled(True)
-        # TODO: fix colors
         self.window().title_bar.close_button.setEnabled(True)
         self.load_screen.setHidden(True)
         self.splitter.setHidden(False)
