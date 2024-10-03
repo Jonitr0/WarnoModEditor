@@ -16,6 +16,23 @@ from src.utils.color_manager import *
 from pydoc import locate
 
 
+class ThreadWithReturnValue(threading.Thread):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, *, daemon=None):
+        threading.Thread.__init__(self, group, target, name, args, kwargs, daemon=daemon)
+        self._return = None
+
+    def run(self):
+        if self._target is not None:
+            self._return = self._target(*self._args, **self._kwargs)
+
+    def join(self, *args):
+        threading.Thread.join(self, *args)
+        return self._return
+
+    def get_return(self):
+        return self._return
+
+
 def restore_window(window_obj: dict, window: base_window.BaseWindow):
     window.move(window_obj["x"], window_obj["y"])
     if window_obj["maximized"]:
@@ -337,7 +354,7 @@ class MainWidget(QtWidgets.QWidget):
         # clean up dead threads
         self.running_threads = [t for t in self.running_threads if t.is_alive()]
 
-        thread = threading.Thread(target=target, args=args)
+        thread = ThreadWithReturnValue(target=target, args=args)
         thread.start()
         self.running_threads.append(thread)
         return thread
@@ -346,6 +363,7 @@ class MainWidget(QtWidgets.QWidget):
         while thread.is_alive():
             QtWidgets.QApplication.processEvents()
             time.sleep(0.01)
+        return thread.get_return()
 
 
 

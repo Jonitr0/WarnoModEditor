@@ -85,7 +85,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             mods_path = self.main_widget_ref.get_warno_path() + "/Mods/"
             mods_path = mods_path.replace("/", "\\")
 
-            if self.run_script(mods_path, "CreateNewMod.bat", mod_name) != 0:
+            ret_code = self.run_script(mods_path, "CreateNewMod.bat", mod_name)
+            if ret_code != 0:
                 logging.error("Error while running CreateNewMod.bat")
                 return
 
@@ -399,7 +400,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def run_script(self, cwd: str, cmd: str, args: list):
         main_widget.instance.show_loading_screen("Running command " + cmd + "...")
         t = main_widget.instance.run_worker_thread(self.run_script_task, cwd, cmd, args)
-        main_widget.instance.wait_for_worker_thread(t)
+        return main_widget.instance.wait_for_worker_thread(t)
 
     def run_script_task(self, cwd: str, cmd: str, args: list):
         try:
