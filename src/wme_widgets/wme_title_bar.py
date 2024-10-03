@@ -33,8 +33,10 @@ class WMETitleBar(QtWidgets.QWidget):
         # change for light theme
         if theme_manager.is_light_theme():
             self.background_color = COLORS.SECONDARY_LIGHT
-            self.setStyleSheet("WMETitleBar, QMenuBar { background-color: "
-                               + get_color_for_key(COLORS.SECONDARY_LIGHT.value) + ";}")
+            stylesheet = "WMETitleBar, QMenuBar { background-color: " + get_color_for_key(COLORS.SECONDARY_LIGHT.value)\
+                         + ";}\nQMenuBar::item:disabled { color: " + get_color_for_key(COLORS.SECONDARY_DARK.value)\
+                         + ";}"
+            self.setStyleSheet(stylesheet)
 
         self.setup_ui(window_title, only_close)
 
@@ -60,12 +62,7 @@ class WMETitleBar(QtWidgets.QWidget):
         self.minimize_button.setHidden(only_close)
         self.minimize_button.installEventFilter(self)
         self.minimize_button.setProperty('class', 'titlebar')
-        min_icon = QtGui.QIcon()
-        min_icon.addPixmap(icon_manager.load_pixmap("titlebar/showMin.png", COLORS.PRIMARY),
-                           QtGui.QIcon.Normal)
-        min_icon.addPixmap(icon_manager.load_pixmap("titlebar/showMin.png", COLORS.SECONDARY_LIGHT),
-                           QtGui.QIcon.Disabled)
-        self.minimize_button.setIcon(min_icon)
+        self.minimize_button.setIcon(self.add_icon("titlebar/showMin.png", COLORS.PRIMARY))
         self.minimize_button.setFixedSize(self.button_width, self.button_height)
         self.minimize_button.clicked.connect(self.on_min_clicked)
         button_layout.addWidget(self.minimize_button)
@@ -73,27 +70,28 @@ class WMETitleBar(QtWidgets.QWidget):
         self.maximize_button.setHidden(only_close)
         self.maximize_button.installEventFilter(self)
         self.maximize_button.setProperty('class', 'titlebar')
-        max_icon = QtGui.QIcon()
-        max_icon.addPixmap(icon_manager.load_pixmap("titlebar/showMax.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
-        max_icon.addPixmap(icon_manager.load_pixmap("titlebar/showMax.png", COLORS.SECONDARY_LIGHT),
-                           QtGui.QIcon.Disabled)
-        self.maximize_button.setIcon(max_icon)
+        self.maximize_button.setIcon(self.add_icon("titlebar/showMax.png", COLORS.PRIMARY))
         self.maximize_button.setFixedSize(self.button_width, self.button_height)
         self.maximize_button.clicked.connect(self.on_max_clicked)
         button_layout.addWidget(self.maximize_button)
 
         self.close_button.installEventFilter(self)
-        close_icon = QtGui.QIcon()
-        close_icon.addPixmap(icon_manager.load_pixmap("titlebar/close.png", COLORS.DANGER), QtGui.QIcon.Normal)
-        close_icon.addPixmap(icon_manager.load_pixmap("titlebar/close.png", COLORS.SECONDARY_LIGHT),
-                             QtGui.QIcon.Disabled)
-        self.close_button.setIcon(close_icon)
+        self.close_button.setIcon(self.add_icon("titlebar/close.png", COLORS.DANGER))
         self.close_button.setFixedSize(self.button_width, self.button_height)
         self.close_button.clicked.connect(self.on_close_clicked)
         self.close_button.setProperty('class', 'danger')
         button_layout.addWidget(self.close_button)
 
         self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
+
+    def add_icon(self, icon_path: str, standard_color: COLORS):
+        icon = QtGui.QIcon()
+        icon.addPixmap(icon_manager.load_pixmap(icon_path, standard_color), QtGui.QIcon.Normal)
+        if theme_manager.is_light_theme():
+            icon.addPixmap(icon_manager.load_pixmap(icon_path, COLORS.SECONDARY_DARK), QtGui.QIcon.Disabled)
+        else:
+            icon.addPixmap(icon_manager.load_pixmap(icon_path, COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
+        return icon
 
     def eventFilter(self, source, event):
         # only capture left click
