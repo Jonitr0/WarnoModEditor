@@ -63,7 +63,8 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
     def update_page(self):
         main_widget.instance.show_loading_screen("loading data form .ndf files...")
-        state = self.load_state_from_file()
+        t = main_widget.instance.run_worker_thread(self.load_state_from_file)
+        state = main_widget.instance.wait_for_worker_thread(t)
         self.saved_state = state
         self.set_state(state)
         main_widget.instance.hide_loading_screen()

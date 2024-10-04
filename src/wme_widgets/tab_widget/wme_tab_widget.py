@@ -221,6 +221,14 @@ class WMETabWidget(QtWidgets.QTabWidget):
 
     def on_open_comparison(self, file_name, left_text, right_text, left_mod, right_mod, parser_based=False):
         main_widget.instance.show_loading_screen("Comparing files...")
+        comp_page = file_comparison_page.FileComparisonPage()
+        t = main_widget.instance.run_worker_thread(self.compare_files_task, file_name, left_text, right_text,
+                                                   left_mod, right_mod, parser_based, comp_page)
+        text = main_widget.instance.wait_for_worker_thread(t)
+        self.add_tab_with_auto_icon(comp_page, text)
+        main_widget.instance.hide_loading_screen()
+
+    def compare_files_task(self, file_name, left_text, right_text, left_mod, right_mod, parser_based, comp_page):
         if parser_based:
             text = f"Parser-based Diff: {file_name}"
             try:
@@ -242,10 +250,8 @@ class WMETabWidget(QtWidgets.QTabWidget):
         else:
             text = f"Text Diff: {file_name}"
 
-        comp_page = file_comparison_page.FileComparisonPage()
         comp_page.highlight_differences(left_text, right_text, left_mod, right_mod)
-        main_widget.instance.hide_loading_screen()
-        self.add_tab_with_auto_icon(comp_page, text)
+        return text
 
     def on_mod_config(self):
         page = mod_config_page.ModConfigPage()

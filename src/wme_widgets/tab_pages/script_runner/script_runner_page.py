@@ -165,7 +165,8 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
         script = self.script_selector.currentData()
         main_widget.instance.show_loading_screen(f"Running script {script.name}...")
         try:
-            self.files_to_save = script.run(self.get_parameter_values())
+            t = main_widget.instance.run_worker_thread(script.run, self.get_parameter_values())
+            self.files_to_save = main_widget.instance.wait_for_worker_thread(t)
             for file in self.files_to_save.keys():
                 full_path = os.path.join(main_widget.instance.get_loaded_mod_path(), file)
                 self.file_paths.add(full_path)

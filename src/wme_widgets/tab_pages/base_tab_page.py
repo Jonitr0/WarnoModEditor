@@ -91,7 +91,8 @@ class BaseTabPage(QtWidgets.QWidget):
 
         try:
             main_widget.instance.show_loading_screen("Saving changes...")
-            self._save_changes()
+            t = main_widget.instance.run_worker_thread(self._save_changes)
+            main_widget.instance.wait_for_worker_thread(t)
             main_widget.instance.hide_loading_screen()
         except Exception as e:
             logging.error("Error while saving: " + str(e))

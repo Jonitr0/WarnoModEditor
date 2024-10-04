@@ -90,16 +90,12 @@ class DiffPage(base_tab_page.BaseTabPage):
 
         main_widget.instance.show_loading_screen("Running comparison...")
 
+        t = main_widget.instance.run_worker_thread(self.comparison_task, target)
+        res_d, res_l, res_r, delete, target = main_widget.instance.wait_for_worker_thread(t)
+
+        main_widget.instance.show_loading_screen("Preparing results...")
+
         mod_dir = main_widget.instance.get_loaded_mod_path()
-        delete = False
-        # comparison with original files
-        if target == "unmodded":
-            target = self.create_tmp_mod()
-            delete = True
-
-        res = dircmp(mod_dir, target)
-        res_d, res_l, res_r = self.compare_subdirs(res, [], [], [])
-
         left_name = main_widget.instance.get_loaded_mod_name()
         if delete:
             right_name = "unmodded game files"
@@ -134,6 +130,19 @@ class DiffPage(base_tab_page.BaseTabPage):
             self.results_layout.insertWidget(self.results_layout.count() - 1, QtWidgets.QLabel("No differences found."))
 
         main_widget.instance.hide_loading_screen()
+
+    def comparison_task(self, target):
+        mod_dir = main_widget.instance.get_loaded_mod_path()
+        delete = False
+        # comparison with original files
+        if target == "unmodded":
+            target = self.create_tmp_mod()
+            delete = True
+
+        res = dircmp(mod_dir, target)
+        res_d, res_l, res_r = self.compare_subdirs(res, [], [], [])
+
+        return res_d, res_l, res_r, delete, target
 
     def add_diff_widget(self, file_name: str, collapsible: wme_collapsible.WMECollapsible, left_mod_path: str = None,
                         right_mod_path: str = None, left_mod_name: str = None, right_mod_name: str = None):
