@@ -17,7 +17,7 @@ QLabel#title {{
 }}
 
 QLabel#log {{
-  font: 10pt 'Courier New';
+  font: 11pt 'Courier New';
   background-color: {QTMATERIAL_SECONDARYCOLOR};
   padding: 10px;
 }}

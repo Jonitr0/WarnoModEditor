@@ -16,7 +16,6 @@ from src.wme_widgets import wme_splash_screen
 
 if __name__ == '__main__':
     # setup logging
-    # TODO: put all intense tasks in threads, block menu bar while running (via show/hide loading screen)
     logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s',
                         filename='wme.log',
                         level=logging.INFO,

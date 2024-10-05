@@ -41,6 +41,7 @@ class MarkingArea(QtWidgets.QWidget):
 class WMECodeEditor(QtWidgets.QPlainTextEdit):
     search_complete = QtCore.Signal()
     unsaved_changes = QtCore.Signal(bool)
+    zoom_changed = QtCore.Signal(float)
 
     def __init__(self):
         super().__init__()
@@ -48,6 +49,8 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.marking_area = MarkingArea(self)
         self.setObjectName("code_editor")
         self.setWordWrapMode(QtGui.QTextOption.NoWrap)
+
+        self.current_font_size = 11
 
         self.blockCountChanged.connect(self.updateLineNumberAreaWidth)
         self.updateRequest.connect(self.updateLineNumberArea)
@@ -75,11 +78,12 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.verticalScrollBar().sliderMoved.connect(self.mark_finds_in_viewport)
         self.verticalScrollBar().sliderMoved.connect(self.syntax_highlight_in_viewport)
         self.document().contentsChange.connect(self.update_search)
+        self.zoom_changed.connect(self.syntax_highlight_in_viewport)
 
         self.highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
 
         # set tab size
-        font = QtGui.QFont('Courier New', 10)
+        font = QtGui.QFont('Courier New', 11)
         self.setTabStopDistance(4 * QtGui.QFontMetrics(font).horizontalAdvance(" "))
 
         # "duplicate" shortcut
@@ -89,13 +93,15 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.cursor_marking_color = COLORS.SECONDARY_LIGHT
         self.find_marking_color = COLORS.FIND_HIGHLIGHT
 
+        self.installEventFilter(self)
+
     def lineNumberAreaWidth(self):
         digits = 1
         count = max(1, self.blockCount())
         while count >= 10:
             count /= 10
             digits += 1
-        space = 4 + self.fontMetrics().boundingRect('9').width() * digits
+        space = 4 + QtGui.QFontMetrics(self.font()).boundingRect('9').width() * digits
         return max(32, space)
 
     def updateLineNumberAreaWidth(self, _):
@@ -144,6 +150,9 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
         # Just to make sure I use the right font
         height = self.fontMetrics().height()
+        font = painter.font()
+        font.setPointSize(self.current_font_size - 1)
+        painter.setFont(font)
         while block.isValid() and (top <= event.rect().bottom()):
             if block.isVisible() and (bottom >= event.rect().top()):
                 number = str(block_number + 1)
@@ -183,6 +192,9 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             painter.fillRect(0, y, self.marking_area.w, 2, color)
 
     def paintEvent(self, event):
+        if abs(self.current_font_size - self.font().pointSizeF()) > 1.0:
+            self.set_font_size(self.current_font_size)
+
         painter = QtGui.QPainter(self.viewport())
         rect = self.cursorRect()
         rect.setLeft(0)
@@ -434,3 +446,38 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
                 return
 
         super().keyPressEvent(event)
+
+    def zoomInF(self, range=1.0):
+        if self.current_font_size + range > 22:
+            if self.current_font_size == 22:
+                return
+            range = 22 - self.current_font_size
+        super().zoomInF(range)
+        self.current_font_size += range
+        self.zoom_changed.emit(self.current_font_size)
+
+    def zoomOutF(self, range=1.0):
+        if self.current_font_size - range < 5:
+            if self.current_font_size == 5:
+                return
+            range = self.current_font_size - 5
+        super().zoomInF(-range)
+        self.current_font_size -= range
+        self.zoom_changed.emit(self.current_font_size)
+
+    def set_font_size(self, size: float):
+        size = max(5.0, min(size, 22.0))
+        font = self.font()
+        font.setPointSize(size)
+        self.setFont(font)
+        self.current_font_size = size
+        self.zoom_changed.emit(size)
+
+    def eventFilter(self, widget, e):
+        if e.type() == QtCore.QEvent.Wheel and e.modifiers() == Qt.ControlModifier:
+            if e.angleDelta().y() > 0:
+                self.zoomInF(1)
+            else:
+                self.zoomOutF(1)
+            return True
+        return super().eventFilter(widget, e)
