@@ -132,6 +132,7 @@ class FindBar(QtWidgets.QWidget):
 
     def reset(self):
         self.request_find_reset.emit()
+        self.last_search = None
         self.line_edit.setText("")
         self.results_label.setText("")
         self.setHidden(True)
