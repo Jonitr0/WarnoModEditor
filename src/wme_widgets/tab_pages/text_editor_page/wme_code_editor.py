@@ -78,6 +78,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.verticalScrollBar().sliderMoved.connect(self.mark_finds_in_viewport)
         self.verticalScrollBar().sliderMoved.connect(self.syntax_highlight_in_viewport)
         self.document().contentsChange.connect(self.update_search)
+        self.zoom_changed.connect(self.mark_finds_in_viewport)
         self.zoom_changed.connect(self.syntax_highlight_in_viewport)
 
         self.highlighter = ndf_syntax_highlighter.NdfSyntaxHighlighter(self.document())
@@ -435,6 +436,9 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
 
     def set_case_sensitive_search(self, case_sensitive: bool):
         self.case_sensitive_search = case_sensitive
+
+        self.find_pattern(self.pattern, updating=True)
+        self.mark_finds_in_viewport()
 
     def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
         if event.modifiers() == Qt.ControlModifier:
