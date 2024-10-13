@@ -25,6 +25,8 @@ class FileComparisonPage(BaseTabPage):
         self.setup_ui()
 
         self.help_file_path = "Help_FileComparisonPage.html"
+        # TODO: empty lines should have no line numbers
+        # TODO: match line counts of both editors
 
     def setup_ui(self):
         main_layout = QtWidgets.QVBoxLayout()
@@ -84,6 +86,26 @@ class FileComparisonPage(BaseTabPage):
         self.link_cursor_action.setCheckable(True)
         self.link_cursor_action.setChecked(True)
         self.link_cursor_action.triggered.connect(lambda checked: self.synchronize_cursors() if checked else None)
+
+        icon_tool_bar.addSeparator()
+
+        self.zoom_out_action = icon_tool_bar.addAction(icon_manager.load_icon("minus.png", COLORS.PRIMARY),
+                                                  "Decrease Zoom (Ctrl + -)")
+        self.zoom_out_action.setShortcut("Ctrl+-")
+        self.zoom_out_action.triggered.connect(self.on_zoom_out)
+
+        self.zoom_selector = QtWidgets.QSpinBox()
+        self.zoom_selector.setRange(50, 200)
+        self.zoom_selector.setValue(100)
+        self.zoom_selector.setSuffix("%   ")
+        self.zoom_selector.setButtonSymbols(QtWidgets.QAbstractSpinBox.NoButtons)
+        self.zoom_selector.valueChanged.connect(self.on_zoom_selector_changed)
+        icon_tool_bar.addWidget(self.zoom_selector)
+
+        self.zoom_in_action = icon_tool_bar.addAction(icon_manager.load_icon("plus.png", COLORS.PRIMARY),
+                                                 "Increase Zoom (Ctrl + +)")
+        self.zoom_in_action.setShortcut("Ctrl++")
+        self.zoom_in_action.triggered.connect(self.on_zoom_in)
 
         stretch = QtWidgets.QWidget()
         stretch.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
@@ -406,6 +428,15 @@ class FileComparisonPage(BaseTabPage):
             else:
                 self.left_text_edit.set_cursor_line(right_target_line)
                 self.right_text_edit.set_cursor_pos(target_pos)
+
+    def on_zoom_in(self):
+        pass
+
+    def on_zoom_out(self):
+        pass
+
+    def on_zoom_selector_changed(self, value: int):
+        pass
 
     def to_json(self) -> dict:
         return {"do_not_restore": True}
