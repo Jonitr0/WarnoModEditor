@@ -32,6 +32,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
         script_runner_page.ScriptRunnerPage: "file_code.png"
     }
 
+    # TODO: add back Operation Editor
+    # TODO: add String Manager
+    # TODO: add Icon Manager
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
