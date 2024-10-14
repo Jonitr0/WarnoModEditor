@@ -94,8 +94,6 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.cursor_marking_color = COLORS.SECONDARY_LIGHT
         self.find_marking_color = COLORS.FIND_HIGHLIGHT
 
-        self.installEventFilter(self)
-
     def lineNumberAreaWidth(self):
         digits = 1
         count = max(1, self.blockCount())
@@ -477,11 +475,11 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.current_font_size = size
         self.zoom_changed.emit(size)
 
-    def eventFilter(self, widget, e):
-        if e.type() == QtCore.QEvent.Wheel and e.modifiers() == Qt.ControlModifier:
+    def wheelEvent(self, e: QtGui.QWheelEvent) -> None:
+        if e.modifiers() == Qt.ControlModifier:
             if e.angleDelta().y() > 0:
                 self.zoomInF(1.0)
             else:
                 self.zoomOutF(1.0)
-            return True
-        return super().eventFilter(widget, e)
+            return
+        super(WMECodeEditor, self).wheelEvent(e)

@@ -82,7 +82,7 @@ class FileComparisonPage(BaseTabPage):
         prev_diff_action.triggered.connect(self.on_prev_diff)
 
         self.link_cursor_action = icon_tool_bar.addAction(icon_manager.load_icon("link_cursor.png", COLORS.PRIMARY),
-                                                          "Link text cursors")
+                                                          "Link text cursors. Deactivate to select text")
         self.link_cursor_action.setCheckable(True)
         self.link_cursor_action.setChecked(True)
         self.link_cursor_action.triggered.connect(lambda checked: self.synchronize_cursors() if checked else None)
@@ -146,8 +146,8 @@ class FileComparisonPage(BaseTabPage):
         self.right_text_edit.verticalScrollBar().sliderMoved.connect(self.on_right_slider_moved)
 
         # connect zoom slots
-        self.left_text_edit.zoom_changed.connect(self.on_left_zoom_changed)
-        self.right_text_edit.zoom_changed.connect(self.on_right_zoom_changed)
+        self.left_text_edit.zoom_changed.connect(self.on_zoom_changed)
+        self.right_text_edit.zoom_changed.connect(self.on_zoom_changed)
 
     def highlight_differences(self, left_text: str, right_text: str, left_mod: str, right_mod: str):
         main_widget.instance.show_loading_screen("Computing differences...")
@@ -441,13 +441,9 @@ class FileComparisonPage(BaseTabPage):
         diff = 10 * 11 / 100
         self.left_text_edit.zoomOutF(diff)
 
-    def on_left_zoom_changed(self, pt_value):
+    def on_zoom_changed(self, pt_value):
         perc_value = round(pt_value * 100 / 11)
         self.zoom_selector.setValue(perc_value)
-
-    def on_right_zoom_changed(self, pt_value):
-        # TODO: fix mouse wheel zooming
-        pass
 
     def on_zoom_selector_changed(self, value: int):
         value = value * 11 / 100
