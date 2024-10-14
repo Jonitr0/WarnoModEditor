@@ -26,7 +26,6 @@ class FileComparisonPage(BaseTabPage):
 
         self.help_file_path = "Help_FileComparisonPage.html"
         # TODO: empty lines should have no line numbers
-        # TODO: match line counts of both editors
 
     def setup_ui(self):
         main_layout = QtWidgets.QVBoxLayout()
@@ -222,6 +221,12 @@ class FileComparisonPage(BaseTabPage):
                             empty_lines = right_line_number + next_length - left_line_number
                             self.left_text_edit.add_empty_lines(left_line_number, empty_lines)
                             left_line_number += empty_lines
+
+        if left_line_number != right_line_number:
+            if left_line_number < right_line_number:
+                self.left_text_edit.add_empty_lines(left_line_number, right_line_number - left_line_number)
+            elif right_line_number < left_line_number:
+                self.right_text_edit.add_empty_lines(right_line_number, left_line_number - right_line_number)
 
         main_widget.instance.hide_loading_screen()
 
