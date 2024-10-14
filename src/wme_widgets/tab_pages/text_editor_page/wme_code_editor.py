@@ -461,18 +461,18 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.zoom_changed.emit(self.current_font_size)
 
     def zoomOutF(self, range=1.0):
-        if self.current_font_size - range < 5:
-            if self.current_font_size == 5:
+        if self.current_font_size - range < 5.5:
+            if self.current_font_size == 5.5:
                 return
-            range = self.current_font_size - 5
+            range = self.current_font_size - 5.5
         super().zoomInF(-range)
         self.current_font_size -= range
         self.zoom_changed.emit(self.current_font_size)
 
     def set_font_size(self, size: float):
-        size = max(5.0, min(size, 22.0))
+        size = max(5.5, min(size, 22.0))
         font = self.font()
-        font.setPointSize(size)
+        font.setPointSizeF(size)
         self.setFont(font)
         self.current_font_size = size
         self.zoom_changed.emit(size)
@@ -480,8 +480,8 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
     def eventFilter(self, widget, e):
         if e.type() == QtCore.QEvent.Wheel and e.modifiers() == Qt.ControlModifier:
             if e.angleDelta().y() > 0:
-                self.zoomInF(1)
+                self.zoomInF(1.0)
             else:
-                self.zoomOutF(1)
+                self.zoomOutF(1.0)
             return True
         return super().eventFilter(widget, e)

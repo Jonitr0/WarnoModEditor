@@ -90,7 +90,7 @@ class FileComparisonPage(BaseTabPage):
         icon_tool_bar.addSeparator()
 
         self.zoom_out_action = icon_tool_bar.addAction(icon_manager.load_icon("minus.png", COLORS.PRIMARY),
-                                                  "Decrease Zoom (Ctrl + -)")
+                                                       "Decrease Zoom (Ctrl + -)")
         self.zoom_out_action.setShortcut("Ctrl+-")
         self.zoom_out_action.triggered.connect(self.on_zoom_out)
 
@@ -103,7 +103,7 @@ class FileComparisonPage(BaseTabPage):
         icon_tool_bar.addWidget(self.zoom_selector)
 
         self.zoom_in_action = icon_tool_bar.addAction(icon_manager.load_icon("plus.png", COLORS.PRIMARY),
-                                                 "Increase Zoom (Ctrl + +)")
+                                                      "Increase Zoom (Ctrl + +)")
         self.zoom_in_action.setShortcut("Ctrl++")
         self.zoom_in_action.triggered.connect(self.on_zoom_in)
 
@@ -135,15 +135,19 @@ class FileComparisonPage(BaseTabPage):
         self.right_text_edit.search_complete.connect(self.on_search_complete)
 
         self.left_text_edit.cursorPositionChanged.connect(lambda: self.synchronize_cursors()
-            if self.link_cursor_action.isChecked() else None)
+        if self.link_cursor_action.isChecked() else None)
         self.right_text_edit.cursorPositionChanged.connect(lambda: self.synchronize_cursors(False)
-            if self.link_cursor_action.isChecked() else None)
+        if self.link_cursor_action.isChecked() else None)
 
         # connect slider slots
         self.left_text_edit.verticalScrollBar().valueChanged.connect(self.on_left_slider_moved)
         self.right_text_edit.verticalScrollBar().valueChanged.connect(self.on_right_slider_moved)
         self.left_text_edit.verticalScrollBar().sliderMoved.connect(self.on_left_slider_moved)
         self.right_text_edit.verticalScrollBar().sliderMoved.connect(self.on_right_slider_moved)
+
+        # connect zoom slots
+        self.left_text_edit.zoom_changed.connect(self.on_left_zoom_changed)
+        self.right_text_edit.zoom_changed.connect(self.on_right_zoom_changed)
 
     def highlight_differences(self, left_text: str, right_text: str, left_mod: str, right_mod: str):
         main_widget.instance.show_loading_screen("Computing differences...")
@@ -430,13 +434,27 @@ class FileComparisonPage(BaseTabPage):
                 self.right_text_edit.set_cursor_pos(target_pos)
 
     def on_zoom_in(self):
-        pass
+        diff = 10 * 11 / 100
+        self.left_text_edit.zoomInF(diff)
 
     def on_zoom_out(self):
+        diff = 10 * 11 / 100
+        self.left_text_edit.zoomOutF(diff)
+
+    def on_left_zoom_changed(self, pt_value):
+        perc_value = round(pt_value * 100 / 11)
+        self.zoom_selector.setValue(perc_value)
+
+    def on_right_zoom_changed(self, pt_value):
+        # TODO: fix mouse wheel zooming
         pass
 
     def on_zoom_selector_changed(self, value: int):
-        pass
+        value = value * 11 / 100
+        if value != self.left_text_edit.current_font_size:
+            self.left_text_edit.set_font_size(value)
+        if self.left_text_edit.current_font_size != self.right_text_edit.current_font_size:
+            self.right_text_edit.set_font_size(self.left_text_edit.current_font_size)
 
     def to_json(self) -> dict:
         return {"do_not_restore": True}
