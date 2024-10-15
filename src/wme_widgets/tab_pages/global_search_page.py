@@ -34,7 +34,7 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
         self.case_button = QtWidgets.QToolButton()
         self.case_button.setIcon(icon_manager.load_icon("case_sensitivity.png", COLORS.PRIMARY))
         self.case_button.setToolTip("Toggle case-sensitive search. If the button is enabled, search is case-sensitive."
-                                    "(Ctrl + E)")
+                                    " (Ctrl + E)")
         self.case_button.setShortcut("Ctrl+E")
         self.case_button.setFixedSize(36, 36)
         self.case_button.setIconSize(QtCore.QSize(36, 36))

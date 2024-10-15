@@ -6,7 +6,7 @@ class SupplyMultiplier(BaseScript):
         super().__init__()
         self.name = "Supply Multiplier"
         self.description = "Multiplies the supply of all supply units by a given factor. Edits UniteDescriptor.ndf"
-        self.add_parameter("multiplier", "Multiplier", 2.0)
+        self.add_parameter("multiplier", "All supply values are multiplied by this amount", 2.0)
 
     def _run(self, parameter_values: dict):
         units = self.get_parsed_ndf_file(r"GameData\Generated\Gameplay\Gfx\UniteDescriptor.ndf")

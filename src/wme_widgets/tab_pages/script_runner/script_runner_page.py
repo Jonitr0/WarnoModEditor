@@ -70,7 +70,10 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
         self.help_page = "Help_ScriptRunner.html"
 
     def update_page(self):
+        current_script_name = self.script_selector.currentText()
         self.import_scripts()
+        if self.script_selector.findText(current_script_name) != -1:
+            self.script_selector.setCurrentIndex(self.script_selector.findText(current_script_name))
         self.on_new_script_selected(self.script_selector.currentData())
 
     def on_new_script_selected(self, script: base_script.BaseScript):
