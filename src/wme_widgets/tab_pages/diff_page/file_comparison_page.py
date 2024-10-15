@@ -25,7 +25,6 @@ class FileComparisonPage(BaseTabPage):
         self.setup_ui()
 
         self.help_file_path = "Help_FileComparisonPage.html"
-        # TODO: empty lines should have no line numbers
 
     def setup_ui(self):
         main_layout = QtWidgets.QVBoxLayout()

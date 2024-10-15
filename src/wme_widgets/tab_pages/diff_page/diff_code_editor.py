@@ -21,6 +21,8 @@ class DiffCodeEditor(wme_code_editor.WMECodeEditor):
 
         self.added_line_color = COLORS.ADDED_HIGHLIGHT
 
+        self.empty_lines = []
+
     def add_empty_lines(self, pos: int, num: int):
         cursor = self.textCursor()
         cursor.movePosition(QtGui.QTextCursor.Start)
@@ -37,6 +39,9 @@ class DiffCodeEditor(wme_code_editor.WMECodeEditor):
         extra_selection.format.setBackground(QtGui.QColor(get_color_for_key(self.added_line_color.value)))
         extra_selection.format.setProperty(QtGui.QTextFormat.FullWidthSelection, True)
         extra_selections.append(extra_selection)
+
+        for i in range(num):
+            self.empty_lines.append(pos + i)
 
         self.setExtraSelections(extra_selections)
 
@@ -109,4 +114,37 @@ class DiffCodeEditor(wme_code_editor.WMECodeEditor):
 
     def get_cursor_line(self):
         return self.textCursor().blockNumber()
+
+    def lineNumberAreaPaintEvent(self, event):
+        painter = QtGui.QPainter(self.lineNumberArea)
+
+        line_number_area_color = get_color_for_key(COLORS.SECONDARY_DARK.value)
+        painter.fillRect(event.rect(), line_number_area_color)
+
+        block = self.firstVisibleBlock()
+        block_number = block.blockNumber()
+        top = self.blockBoundingGeometry(block).translated(self.contentOffset()).top()
+        bottom = top + self.blockBoundingRect(block).height()
+
+        # Just to make sure I use the right font
+        height = self.fontMetrics().height()
+        font = painter.font()
+        font.setPointSize(self.current_font_size - 1)
+        painter.setFont(font)
+        while block.isValid() and (top <= event.rect().bottom()):
+            if block.isVisible() and (bottom >= event.rect().top()) and block_number not in self.empty_lines:
+                number = str(block_number + 1)
+                # reduce number by all empty lines before this line
+                for empty_line in self.empty_lines:
+                    if empty_line < block_number:
+                        number = str(int(number) - 1)
+                line_number_text_color = get_color_for_key(COLORS.SECONDARY_TEXT.value)
+                painter.setPen(line_number_text_color)
+                painter.drawText(0, top, self.lineNumberArea.width(), height,
+                                 Qt.AlignLeft, number)
+
+            block = block.next()
+            top = bottom
+            bottom = top + self.blockBoundingRect(block).height()
+            block_number += 1
 
