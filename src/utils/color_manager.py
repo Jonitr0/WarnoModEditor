@@ -30,6 +30,7 @@ class COLORS(Enum):
     L_VALUE = "lValueColor"
     LEFT_HIGHLIGHT = "leftHighlightColor"
     RIGHT_HIGHLIGHT = "rightHighlightColor"
+    ADDED_HIGHLIGHT = "addedHighlightColor"
     LEFT_ICON = "leftIconColor"
     RIGHT_ICON = "rightIconColor"
     CHANGED_ICON = "changedIconColor"

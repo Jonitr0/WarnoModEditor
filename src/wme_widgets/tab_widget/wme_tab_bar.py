@@ -20,7 +20,7 @@ class WMETabBar(QtWidgets.QTabBar):
         super().__init__(parent)
 
         self.setAcceptDrops(True)
-        self.setUsesScrollButtons(False)
+        self.setUsesScrollButtons(True)
         self.setElideMode(Qt.ElideRight)
 
     def mousePressEvent(self, event):
@@ -42,7 +42,7 @@ class WMETabBar(QtWidgets.QTabBar):
         self.parent().removeTab(self.dragging_tab_index)
         detached.add_tab(widget, icon, title)
         point = QtGui.QCursor.pos()
-        
+
         detached.move(point)
         detached.resize(640, 480)
         detached.show()
@@ -227,7 +227,7 @@ class WMETabBar(QtWidgets.QTabBar):
                 self.tabCloseRequested.emit(start_count - i - 1)
         elif action == close_others_action:
             for i in range(start_count):
-                if start_count- i - 1 is not index:
+                if start_count - i - 1 is not index:
                     self.tabCloseRequested.emit(start_count - i - 1)
         elif action == help_action:
             self.help_requested.emit(index)

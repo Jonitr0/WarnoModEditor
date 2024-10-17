@@ -23,7 +23,6 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         self.setup_ui()
 
     def setup_ui(self):
-        # TODO: add zoom
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
@@ -48,8 +47,10 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         save_as_action.setShortcut("Ctrl+Shift+S")
         save_as_action.triggered.connect(self.on_save_as)
 
-        self.restore_action = tool_bar.addAction(icon_manager.load_icon("restore.png", COLORS.PRIMARY),
-                                                 "Reload File (F5)")
+        restore_icon = QtGui.QIcon()
+        restore_icon.addPixmap(icon_manager.load_pixmap("restore.png", COLORS.PRIMARY), QtGui.QIcon.Normal)
+        restore_icon.addPixmap(icon_manager.load_pixmap("restore.png", COLORS.SECONDARY_LIGHT), QtGui.QIcon.Disabled)
+        self.restore_action = tool_bar.addAction(restore_icon, "Reload File (F5)")
         self.restore_action.setShortcut("F5")
         self.restore_action.setEnabled(False)
         self.restore_action.triggered.connect(self.on_restore)
@@ -85,6 +86,34 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         self.replace_action.setCheckable(True)
         self.replace_action.toggled.connect(self.on_replace)
 
+        tool_bar.addSeparator()
+
+        self.zoom_out_action = tool_bar.addAction(icon_manager.load_icon("minus.png", COLORS.PRIMARY),
+                                                  "Decrease Zoom (Ctrl + -)")
+        self.zoom_out_action.setShortcut("Ctrl+-")
+        self.zoom_out_action.triggered.connect(self.on_zoom_out)
+
+        self.zoom_selector = QtWidgets.QSpinBox()
+        self.zoom_selector.setRange(50, 200)
+        self.zoom_selector.setValue(100)
+        self.zoom_selector.setSuffix("%   ")
+        self.zoom_selector.setButtonSymbols(QtWidgets.QAbstractSpinBox.NoButtons)
+        self.zoom_selector.valueChanged.connect(self.on_zoom_selector_changed)
+        tool_bar.addWidget(self.zoom_selector)
+
+        self.zoom_in_action = tool_bar.addAction(icon_manager.load_icon("plus.png", COLORS.PRIMARY),
+                                                 "Increase Zoom (Ctrl + +)")
+        self.zoom_in_action.setShortcut("Ctrl++")
+        self.zoom_in_action.triggered.connect(self.on_zoom_in)
+
+        stretch = QtWidgets.QWidget()
+        stretch.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        tool_bar.addWidget(stretch)
+
+        help_action = tool_bar.addAction(icon_manager.load_icon("help.png", COLORS.PRIMARY),
+                                         "Open Page Help Popup (Alt + H)")
+        help_action.triggered.connect(self.on_help)
+
         main_layout.addWidget(self.find_bar)
         self.find_bar.setHidden(True)
         self.find_bar.request_find_pattern.connect(self.code_editor.find_pattern)
@@ -105,6 +134,7 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         main_layout.addWidget(self.code_editor)
         self.code_editor.search_complete.connect(self.on_search_complete)
         self.code_editor.unsaved_changes.connect(self.set_unsaved_changes)
+        self.code_editor.zoom_changed.connect(self.on_zoom_changed)
         self.code_editor.document().undoAvailable.connect(self.on_undo_available)
         self.code_editor.document().redoAvailable.connect(self.on_redo_available)
 
@@ -301,12 +331,30 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
         find_pattern = self.find_bar.line_edit.text()
         self.code_editor.replace_all(find_pattern, replace_pattern)
 
+    def on_zoom_in(self):
+        diff = 10 * 11 / 100
+        self.code_editor.zoomInF(diff)
+
+    def on_zoom_out(self):
+        diff = 10 * 11 / 100
+        self.code_editor.zoomOutF(diff)
+
+    def on_zoom_changed(self, value):
+        value = round(value * 100 / 11)
+        self.zoom_selector.setValue(value)
+
+    def on_zoom_selector_changed(self, value):
+        value = value * 11 / 100
+        if value != self.code_editor.current_font_size:
+            self.code_editor.set_font_size(value)
+
     def from_json(self, json_obj: dict):
         if not json_obj["filePath"] == "":
             self.open_file(json_obj["filePath"])
         cursor = self.code_editor.textCursor()
         cursor.setPosition(json_obj["cursorPos"])
         self.code_editor.setTextCursor(cursor)
+        self.code_editor.set_font_size(json_obj["zoom"])
 
     def to_json(self) -> dict:
         if len(self.file_paths) == 0:
@@ -315,5 +363,6 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
             file_path = list(self.file_paths)[0]
         return {
             "filePath": file_path,
-            "cursorPos": self.code_editor.textCursor().position()
+            "cursorPos": self.code_editor.textCursor().position(),
+            "zoom": self.code_editor.current_font_size,
         }

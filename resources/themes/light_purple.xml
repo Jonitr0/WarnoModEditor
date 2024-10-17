@@ -2,8 +2,8 @@
 <resources>
   <color name="primaryColor">#e040fb</color>
   <color name="primaryLightColor">#ff79ff</color>
-  <color name="secondaryColor">#ffffff</color>
-  <color name="secondaryLightColor">#f5f5f5</color>
+  <color name="secondaryColor">#f5f5f5</color>
+  <color name="secondaryLightColor">#ffffff</color>
   <color name="secondaryDarkColor">#e0e0e0</color>
   <color name="primaryTextColor">#3c3c3c</color>
   <color name="secondaryTextColor">#555555</color>

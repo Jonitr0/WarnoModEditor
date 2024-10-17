@@ -1,3 +1,5 @@
+from PySide6 import QtCore
+
 from src.utils import resource_loader
 
 import json
@@ -11,6 +13,10 @@ THEME_KEY = "wme_theme"
 NEXT_THEME_KEY = "wme_next_theme"
 SHOW_EXPLORER_FILESIZE_KEY = "wme_show_explorer_filesize"
 APP_STATE = "wme_app_state"
+AUTO_BACKUP_FREQUENCY_KEY = "wme_auto_backup_frequency"
+AUTO_BACKUP_COUNT_KEY = "wme_auto_backup_count"
+LAST_AUTO_BACKUP_KEY = "wme_last_auto_backup"
+MOD_STATE_CHANGED_KEY = "wme_mod_state_changed"
 
 
 def get_settings_value(key: str, default=None):
@@ -24,6 +30,7 @@ def write_settings_value(key: str, val):
     config = _open_config()
     config[key] = val
     _save_config(config)
+    SettingsChangedNotifier.instance.setting_changed(key, val)
 
 
 def _open_config() -> dict:
@@ -48,3 +55,19 @@ def _save_config(json_obj: dict):
             f.write(json_str)
     except Exception as e:
         logging.info("Config could not be saved: " + str(e))
+
+
+class SettingsChangedNotifier(QtCore.QObject):
+    instance = None
+    mod_state_changed = QtCore.Signal(bool)
+    app_state_saved = QtCore.Signal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        SettingsChangedNotifier.instance = self
+
+    def setting_changed(self, key: str, val):
+        if key == MOD_STATE_CHANGED_KEY:
+            self.mod_state_changed.emit(bool(val))
+        elif key == APP_STATE:
+            self.app_state_saved.emit()

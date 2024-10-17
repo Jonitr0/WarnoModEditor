@@ -2,12 +2,15 @@ import sys
 import os
 import logging
 
+from src.utils.resource_loader import *
+
+os.environ["NDF_LIB_PATH"] = get_resource_path("resources/dependencies/ndf.dll")
+
 from PySide6 import QtWidgets
 from qt_material import apply_stylesheet
 
 from src import main_window
 from src.utils import settings_manager, theme_manager
-from src.utils.resource_loader import get_resource_path
 from src.dialogs import exception_handler_dialog
 from src.wme_widgets import wme_splash_screen
 
@@ -22,6 +25,9 @@ if __name__ == '__main__':
     console_logger.setLevel(logging.INFO)
     console_logger.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
     logging.getLogger().addHandler(console_logger)
+
+    # create settings changed notifier
+    settings_manager.SettingsChangedNotifier()
 
     # load theme
     theme_name = settings_manager.get_settings_value(settings_manager.THEME_KEY)
@@ -42,7 +48,7 @@ if __name__ == '__main__':
         app.setStyleSheet(stylesheet + file.read().format(**os.environ))
 
     # setup exception handler
-    exception_handler = exception_handler_dialog.ExceptionHandlerDialog()
+    exception_handler = exception_handler_dialog.ExceptionHandler()
     sys.excepthook = exception_handler.exceptHook
 
     # set version
@@ -50,6 +56,13 @@ if __name__ == '__main__':
     settings_manager.write_settings_value(settings_manager.VERSION_KEY, version)
     logging.info("\n\n")
     logging.info("Starting WME " + version)
+    logging.info("Working Directory: " + get_resource_path(''))
+
+    # make sure scripts dir exits and has __init__.py
+    scripts_dir = get_persistant_path("Scripts")
+    if not os.path.exists(os.path.join(scripts_dir, "__init__.py")):
+        with open(os.path.join(scripts_dir, "__init__.py"), "w") as file:
+            pass
 
     # setup splash screen
     splash_screen = wme_splash_screen.WMESplashScreen("Warno Mod Editor v" + version)

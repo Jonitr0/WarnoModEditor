@@ -3,6 +3,8 @@ import logging
 from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
+from src.utils import settings_manager
+
 from src.dialogs import essential_dialogs, rich_text_dialog
 
 from src.wme_widgets import main_widget
@@ -51,6 +53,8 @@ class BaseTabPage(QtWidgets.QWidget):
         help_shortcut = QtGui.QShortcut("Alt+H", self, self.on_help)
         help_shortcut.setContext(Qt.ApplicationShortcut)
 
+        logging.info("Created tab page of type " + self.get_full_class_name())
+
     @property
     def unsaved_changes(self) -> bool:
         return self._unsaved_changes
@@ -75,23 +79,28 @@ class BaseTabPage(QtWidgets.QWidget):
         # if more than one page has unsaved changes
         for file_path in self.file_paths:
             page_list = get_pages_for_file(file_path, unsaved_only=True)
-            if len(page_list) > 1:
+            if len(page_list) > 1 or (len(page_list) == 1 and page_list[0] != self):
                 file_name = file_path[file_path.rindex('\\') + 1:]
-                dialog = essential_dialogs.ConfirmationDialog("Multiple tabs have unsaved changes on " + file_name +
-                                                              ". If you save on this tab, changes on other tabs will "
-                                                              "be discarded. Continue?", "Warning!")
+                dialog = essential_dialogs.ConfirmationDialog(f"Other tabs have unsaved changes on {file_name}."
+                                                              f" If you save on this tab ({self.tab_name}), changes on "
+                                                              f"other tabs will be discarded. Continue?",
+                                                              "Warning!")
                 res = dialog.exec()
                 if res == QtWidgets.QDialog.Rejected:
                     return False
 
         try:
             main_widget.instance.show_loading_screen("Saving changes...")
-            self._save_changes()
+            t = main_widget.instance.run_worker_thread(self._save_changes)
+            main_widget.instance.wait_for_worker_thread(t)
             main_widget.instance.hide_loading_screen()
         except Exception as e:
             logging.error("Error while saving: " + str(e))
             main_widget.instance.hide_loading_screen()
             raise e
+
+        if self.unsaved_changes:
+            settings_manager.write_settings_value(settings_manager.MOD_STATE_CHANGED_KEY, 1)
 
         self.unsaved_changes = False
         # restore changes for other pages after successful save
@@ -138,3 +147,6 @@ class BaseTabPage(QtWidgets.QWidget):
         c = self.__class__
         m = c.__module__
         return m + "." + c.__qualname__
+
+    def get_current_tab_widget(self):
+        return self.parent().parent()

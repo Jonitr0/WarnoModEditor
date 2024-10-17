@@ -8,8 +8,7 @@ from pathlib import Path
 from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
-from src.dialogs import new_mod_dialog, edit_mod_config_dialog
-from src.dialogs import essential_dialogs, options_dialog, new_backup_dialog
+from src.dialogs import new_mod_dialog, essential_dialogs, options_dialog, new_backup_dialog, auto_backup_dialog
 from src.utils import path_validator, settings_manager
 from src.wme_widgets import main_widget
 
@@ -71,6 +70,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                                 self.on_retrieve_backup_action, "Restore an existing mod backup.", "Ctrl+Alt+R")
         self.add_action_to_menu("Delete Mod Backup", self.backup_menu, True, self.on_delete_backup_action,
                                 "Delete an existing mod backup.")
+        self.add_action_to_menu("Auto Backup Settings", self.backup_menu, True, self.on_auto_backup_action,
+                                "Change the auto backup settings for the current mod.")
 
     def on_new_action(self):
         dialog = new_mod_dialog.NewModDialog(self.main_widget_ref.get_warno_path())
@@ -84,7 +85,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             mods_path = self.main_widget_ref.get_warno_path() + "/Mods/"
             mods_path = mods_path.replace("/", "\\")
 
-            if self.run_script(mods_path, "CreateNewMod.bat", mod_name) != 0:
+            ret_code = self.run_script(mods_path, "CreateNewMod.bat", mod_name)
+            if ret_code != 0:
                 logging.error("Error while running CreateNewMod.bat")
                 return
 
@@ -146,6 +148,9 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         if ret != QtWidgets.QDialog.Accepted:
             return
 
+        if mod_path == self.main_widget_ref.get_loaded_mod_path():
+            self.main_widget_ref.unload_mod()
+
         try:
             shutil.rmtree(mod_path)
         except Exception as e:
@@ -167,9 +172,6 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                 except Exception as e:
                     logging.error(e)
 
-        if mod_path == self.main_widget_ref.get_loaded_mod_path():
-            self.main_widget_ref.unload_mod()
-
         # delete mod from config
         app_state = settings_manager.get_settings_value(settings_manager.APP_STATE)
         if app_state:
@@ -187,10 +189,12 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
     def generate_mod(self):
         # for whatever reason, the successful run returns 18?
+        self.remove_pause_line_from_script("GenerateMod.bat")
         ret_code = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "GenerateMod.bat", [])
         logging.info("GenerateMod.bat executed with return code " + str(ret_code))
 
     def on_generate_action(self):
+        # TODO: ask to save changes
         # backup old config, if applicable
         config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
                       self.main_widget_ref.get_loaded_mod_name() + "\\"
@@ -214,32 +218,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                                             "create the configuration file.").exec()
             return
 
-        config = QtCore.QSettings(config_path, QtCore.QSettings.IniFormat)
-        config_values = {}
-        for key in config.allKeys():
-            config_values[key] = config.value(key)
-        dialog = edit_mod_config_dialog.EditModConfigDialog(config_values)
-        result = dialog.exec_()
-
-        if result == QtWidgets.QDialog.Accepted:
-            config_values = dialog.get_config_values()
-
-            new_name = ""
-
-            for key in config.allKeys():
-                if key == "Properties/Name" and config_values[key] != config.value(key):
-                    new_name = config_values[key]
-                config.setValue(key, config_values[key])
-
-            # delete QSettings object so file can be edited
-            del config
-
-            # replace to make the file readable for Eugen...
-            with open(config_path, "r+") as f:
-                f_content = f.read()
-                f_content = f_content.replace("=", " = ")
-                f.seek(0)
-                f.write(f_content)
+        self.main_widget_ref.tab_widget.on_mod_config()
 
     def on_delete_config_action(self):
         config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
@@ -272,19 +251,40 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                 shutil.rmtree(self.main_widget_ref.get_loaded_mod_path() + "\\.base")
         except Exception as e:
             logging.error(e)
+        settings_manager.write_settings_value(settings_manager.MOD_STATE_CHANGED_KEY, 1)
 
     def remove_pause_line_from_script(self, script_name: str):
         file = self.main_widget_ref.get_loaded_mod_path() + "\\" + script_name
+
         with open(file, "r") as f:
             lines = f.readlines()
         with open(file, "w") as f:
             for line in lines:
-                if not line.__contains__("pause"):
+                if not line.__contains__("pause") and not line.__contains__("PAUSE"):
                     f.write(line)
 
     def on_upload_action(self):
+        config_path = str(Path.home()) + "\\Saved Games\\EugenSystems\\WARNO\\mod\\" + \
+                      main_widget.instance.get_loaded_mod_name() + "\\Config.ini"
+
+        if not QtCore.QFile.exists(config_path):
+            essential_dialogs.MessageDialog("Config.ini not found", "The config.ini file for the mod does not seem "
+                                                                    "to exist. Generate the mod (Alt + G) to create "
+                                                                    "the configuration file.").exec()
+            return
+
+        with open(config_path, "r+") as f:
+            f_content = f.read()
+            orig_content = f_content
+            f_content = f_content.replace("\\n", "")
+            f.seek(0)
+            f.write(f_content)
+
         ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "UploadMod.bat", [])
         logging.info("UploadMod.bat executed with return code " + str(ret))
+
+        with open(config_path, "w") as f:
+            f.write(orig_content)
 
     def on_new_backup_action(self):
         dialog = new_backup_dialog.NewBackupDialog()
@@ -303,6 +303,11 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def on_quick_backup_action(self):
         self.remove_pause_line_from_script("CreateModBackup.bat")
         ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "CreateModBackup.bat", [])
+        logging.info("CreateModBackup.bat executed with return code " + str(ret))
+
+    def create_named_backup(self, name: str):
+        self.remove_pause_line_from_script("CreateModBackup.bat")
+        ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "CreateModBackup.bat", name)
         logging.info("CreateModBackup.bat executed with return code " + str(ret))
 
     def find_backups(self):
@@ -330,8 +335,16 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
         selection = dialog.get_selection()
 
+        self.retrieve_backup(selection)
+
+    def retrieve_backup(self, backup_name: str):
+        dialog = essential_dialogs.ConfirmationDialog("All changes on the current mod will be lost. Are you sure you "
+                                                      "want to continue?", "Warning!")
+        if dialog.exec_() != QtWidgets.QDialog.Accepted:
+            return
+
         self.remove_pause_line_from_script("RetrieveModBackup.bat")
-        ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "RetrieveModBackup.bat", selection)
+        ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "RetrieveModBackup.bat", backup_name)
         logging.info("RetrieveModBackup.bat executed with return code " + str(ret))
 
         self.request_load_mod.emit(self.main_widget_ref.get_loaded_mod_path())
@@ -363,6 +376,10 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         except Exception as ex:
             logging.error(ex)
 
+    def on_auto_backup_action(self):
+        dialog = auto_backup_dialog.AutoBackupDialog()
+        dialog.exec()
+
     def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
                            slot=None, tooltip: str = "", shortcut: str = "") -> QtGui.QAction:
         action = QtGui.QAction(name)
@@ -382,6 +399,10 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
 
     def run_script(self, cwd: str, cmd: str, args: list):
         main_widget.instance.show_loading_screen("Running command " + cmd + "...")
+        t = main_widget.instance.run_worker_thread(self.run_script_task, cwd, cmd, args)
+        return main_widget.instance.wait_for_worker_thread(t)
+
+    def run_script_task(self, cwd: str, cmd: str, args: list):
         try:
             self.process = QtCore.QProcess()
             self.process.setProgram("cmd.exe")
@@ -393,7 +414,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             self.process.readyReadStandardError.connect(self.print_porcess_error)
 
             self.process.start()
-            self.process.waitForFinished()
+            if not self.process.waitForFinished(60000):
+                logging.warning("Process did not finish in time (60 secs).")
             ret = self.process.exitCode()
             self.process.close()
             main_widget.instance.hide_loading_screen()

@@ -1,13 +1,9 @@
-import logging
-import os.path
-
 from PySide6 import QtWidgets, QtCore
 
-from src.wme_widgets import main_widget, wme_essentials
+from src.wme_widgets import main_widget, wme_essentials, wme_list_widget
 from src.wme_widgets.tab_pages.napo_pages import base_napo_page
-from src.wme_widgets.tab_pages.napo_pages import napo_list_widget
 
-from src.ndf_parser.napo_entities.napo_entity import *
+from src.utils.parser_utils import *
 
 
 class GameSettingsPage(base_napo_page.BaseNapoPage):
@@ -15,13 +11,23 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         super().__init__()
         self.destruction_income_widget = BaseIncomeWidget(self, "Destruction base income: ")
         self.conquest_income_widget = BaseIncomeWidget(self, "Conquest base income: ")
-        self.starting_pts_list_widget = napo_list_widget.NapoListWidget("Starting Points in Skirmish and Multiplayer",
+        self.starting_pts_list_widget = wme_list_widget.WMEListWidget("Starting Points in Skirmish and Multiplayer",
                                                                         "\\d+", fixed_length=True)
-        self.conquest_score_list_widget = napo_list_widget.NapoListWidget("Conquest Scores", "\\d+")
-        self.destruction_score_list_widget = napo_list_widget.NapoListWidget(
+        self.conquest_score_list_widget = wme_list_widget.WMEListWidget("Conquest Scores", "\\d+")
+        self.destruction_score_list_widget = wme_list_widget.WMEListWidget(
             "Destruction Scores", "\\d+", fixed_length=True)
-        self.constants_napo = None
-        self.saved_state = None
+
+        self.add_help_button()
+
+        scroll_area = QtWidgets.QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        self.main_layout.addWidget(scroll_area)
+
+        scroll_widget = QtWidgets.QWidget()
+        scroll_area.setWidget(scroll_widget)
+        self.scroll_layout = QtWidgets.QVBoxLayout()
+        self.scroll_layout.setContentsMargins(0, 0, 0, 0)
+        scroll_widget.setLayout(self.scroll_layout)
 
         self.scroll_layout.addWidget(self.starting_pts_list_widget)
         self.scroll_layout.addWidget(self.conquest_score_list_widget)
@@ -41,71 +47,6 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.destruction_income_widget.value_changed.connect(self.on_state_changed)
 
         self.help_file_path = "Help_GameSettingsEditor.html"
-
-    def update_page(self):
-        main_widget.instance.show_loading_screen("loading GDConstantes.ndf...")
-
-        self.constants_napo = self.get_napo_from_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
-        self.saved_state = {
-            "starting_points": self.constants_napo.get_raw_value("WargameConstantes\\ArgentInitialSetting"),
-            "conquest_tick": self.constants_napo.get_raw_value(
-                "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/CaptureTheFlag"),
-            "conquest_income": self.constants_napo.get_raw_value(
-                "WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag"),
-            "conquest_scores": self.constants_napo.get_raw_value("WargameConstantes\\ConquestPossibleScores"),
-            "destruction_tick": self.constants_napo.get_raw_value(
-                "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/Destruction"),
-            "destruction_income": self.constants_napo.get_raw_value(
-                "WargameConstantes\\BaseIncome\\CombatRule/Destruction"),
-            "destruction_scores": self.constants_napo.get_raw_value(
-                "WargameConstantes\\DestructionScoreToReachSetting"),
-            "default_starting_points": self.constants_napo.get_raw_value("WargameConstantes\\DefaultArgentInitial"),
-        }
-
-        self.set_state(self.saved_state)
-
-        main_widget.instance.hide_loading_screen()
-
-    def _save_changes(self) -> bool:
-        state = self.get_state()
-
-        dest_table = {}
-        dest_types = [NapoDatatype.Integer] * (len(state["destruction_scores"]) + 1) * len(state["destruction_scores"])
-        for val in state["starting_points"]:
-            dest_table[val] = state["destruction_scores"]
-
-        self.constants_napo.set_raw_value("WargameConstantes\\ArgentInitialSetting", state["starting_points"],
-                                          len(state["starting_points"]) * [NapoDatatype.Integer])
-        self.constants_napo.set_raw_value("WargameConstantes\\DefaultArgentInitial", state["default_starting_points"],
-                                          [NapoDatatype.Integer])
-        self.constants_napo.set_raw_value("WargameConstantes\\ConquestPossibleScores", state["conquest_scores"],
-                                          len(state["conquest_scores"]) * [NapoDatatype.Integer])
-        self.constants_napo.set_raw_value("WargameConstantes\\DestructionScoreToReachSetting",
-                                          state["destruction_scores"], len(state["destruction_scores"]) *
-                                          [NapoDatatype.Integer])
-        self.constants_napo.set_raw_value("WargameConstantes\\VictoryTypeDestructionLevelsTable", dest_table,
-                                          dest_types)
-        self.constants_napo.set_raw_value("WargameConstantes\\BaseIncome\\CombatRule/CaptureTheFlag",
-                                          state["conquest_income"], [NapoDatatype.Integer])
-        self.constants_napo.set_raw_value(
-            "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/CaptureTheFlag",
-            state["conquest_tick"], [NapoDatatype.Float])
-        self.constants_napo.set_raw_value("WargameConstantes\\BaseIncome\\CombatRule/Destruction",
-                                          state["destruction_income"], [NapoDatatype.Integer])
-        self.constants_napo.set_raw_value(
-            "WargameConstantes\\TimeBeforeEarningCommandPoints\\CombatRule/Destruction",
-            state["destruction_tick"], [NapoDatatype.Float])
-
-        # write to file
-        self.write_napo_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf", self.constants_napo)
-
-        self.saved_state = state
-
-        return True
-
-    def on_state_changed(self):
-        if self.saved_state != self.get_state():
-            self.unsaved_changes = True
 
     def get_state(self):
         starting_points = self.starting_pts_list_widget.list_widget.all_item_labels()
@@ -136,9 +77,9 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
     def set_state(self, state: dict):
         self.starting_pts_list_widget.update_list(state["starting_points"])
         self.conquest_score_list_widget.update_list(state["conquest_scores"])
-        destruction_scores = state["destruction_scores"]
-        if destruction_scores.__contains__(0):
-            destruction_scores.remove(0)
+        destruction_scores = state["destruction_scores"].copy()
+        if destruction_scores.__contains__("0"):
+            destruction_scores.remove("0")
         self.destruction_score_list_widget.update_list(destruction_scores)
 
         self.conquest_income_widget.set_values(state["conquest_income"], state["conquest_tick"])
@@ -149,6 +90,60 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
 
     def get_state_file_name(self) -> str:
         return "GameSettings"
+
+    def write_state_to_file(self, state: dict):
+        dest_table = {}
+        for val in state["starting_points"]:
+            dest_table[val] = state["destruction_scores"]
+
+        gdc_file_obj = self.get_parsed_ndf_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
+        for obj_row in gdc_file_obj:
+            obj = obj_row.value
+
+            if obj_row.namespace == "WargameConstantes":
+                obj.by_member("ArgentInitialSetting").value = py_list_to_parsed_list(state["starting_points"])
+                obj.by_member("DefaultArgentInitial").value = str(state["default_starting_points"])
+                obj.by_member("ConquestPossibleScores").value = py_list_to_parsed_list(state["conquest_scores"])
+                obj.by_member("DestructionScoreToReachSetting").value = \
+                    py_list_to_parsed_list(state["destruction_scores"])
+                for k, v in dest_table.items():
+                    new_v = []
+                    for entry in v:
+                        new_v.append(int(entry))
+                    dest_table[k] = new_v
+                obj.by_member("VictoryTypeDestructionLevelsTable").value = py_map_to_parsed_map(dest_table)
+                obj.by_member("BaseIncome").value.by_key("CombatRule/Conquest").value = str(state["conquest_income"])
+                obj.by_member("BaseIncome").value.by_key("CombatRule/Destruction").value = \
+                    str(state["destruction_income"])
+                obj.by_member("TimeBeforeEarningCommandPoints").value.by_key("CombatRule/Conquest").value = \
+                    str(state["conquest_tick"])
+                obj.by_member("TimeBeforeEarningCommandPoints").value.by_key("CombatRule/Destruction").value = \
+                    str(state["destruction_tick"])
+
+        # write to file
+        self.save_files_to_mod({"GameData\\Gameplay\\Constantes\\GDConstantes.ndf": gdc_file_obj})
+
+    def load_state_from_file(self) -> dict:
+        gdc_file_obj = self.get_parsed_ndf_file("GameData\\Gameplay\\Constantes\\GDConstantes.ndf")
+        for obj_row in gdc_file_obj:
+            obj = obj_row.value
+
+            if obj_row.namespace == "WargameConstantes":
+                state = {
+                    "starting_points": parsed_list_to_py_list(obj.by_member("ArgentInitialSetting"), str),
+                    "conquest_tick": float(obj.by_member("TimeBeforeEarningCommandPoints").value.by_key(
+                        "CombatRule/Conquest").value),
+                    "conquest_income": int(obj.by_member("BaseIncome").value.by_key("CombatRule/Conquest").value),
+                    "conquest_scores": parsed_list_to_py_list(obj.by_member("ConquestPossibleScores"), str),
+                    "destruction_tick": float(obj.by_member("TimeBeforeEarningCommandPoints").value.by_key(
+                        "CombatRule/Destruction").value),
+                    "destruction_income": int(obj.by_member("BaseIncome").value.by_key("CombatRule/Destruction").value),
+                    "destruction_scores": parsed_list_to_py_list(obj.by_member("DestructionScoreToReachSetting"),
+                                                                 str),
+                    "default_starting_points": str(obj.by_member("DefaultArgentInitial").value),
+                }
+
+        return state
 
 
 class BaseIncomeWidget(QtWidgets.QWidget):

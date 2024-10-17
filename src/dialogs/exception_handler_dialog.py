@@ -9,28 +9,43 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import Qt
 
 
+class ExceptionHandler:
+    def exceptHook(self, exceptionType, exceptionValue, exceptionTraceback):
+        exception_summary = str(exceptionType) + ": " + str(exceptionValue) + "\n"
+        stack_trace = "".join(traceback.extract_tb(exceptionTraceback).format())
+        exception_summary += "Stacktrace:\n" + stack_trace
+
+        logging.error(exception_summary)
+        dialog = ExceptionHandlerDialog()
+        dialog.set_exception(exceptionType, exceptionValue, stack_trace)
+        hyperlink_color = get_color_for_key(COLORS.PRIMARY.value)
+        info_text = "WARNO mod editor has run into an unhandled exception. Please open an issue on " \
+                    "the <a style=\"color: " + hyperlink_color + "\" href=\"https://github.com/Jonitr0/" \
+                    "WarnoModEditor/issues\"> WME Github page</a> if this error has not been reported yet."
+        dialog.set_info_text(info_text)
+        if main_widget.instance:
+            main_widget.instance.hide_loading_screen()
+
+        dialog.exec_()
+
+
 class ExceptionHandlerDialog(BaseDialog):
     def __init__(self):
         self.error_description_label = QtWidgets.QLabel()
+        self.info_label = QtWidgets.QLabel()
 
         super().__init__(ok_only=True)
 
         self.setWindowTitle("WME has encountered a problem")
 
     def setup_ui(self):
-        hyperlink_color = get_color_for_key(COLORS.PRIMARY.value)
+        self.info_label.setTextFormat(Qt.RichText)
+        self.info_label.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        self.info_label.setOpenExternalLinks(True)
+        self.info_label.setMaximumWidth(800)
+        self.info_label.setWordWrap(True)
 
-        info_label = QtWidgets.QLabel("It seems like WARNO mod editor has run into an unhandled exception. Please "
-                                      "open an issue on the <a style=\"color: " + hyperlink_color + "\" "
-                                      "href=\"https://github.com/Jonitr0/WarnoModEditor/issues\"> WME Github page</a> "
-                                      "if this error has not been reported yet.")
-        info_label.setTextFormat(Qt.RichText)
-        info_label.setTextInteractionFlags(Qt.TextBrowserInteraction)
-        info_label.setOpenExternalLinks(True)
-        info_label.setMaximumWidth(800)
-        info_label.setWordWrap(True)
-
-        self.main_layout.addWidget(info_label)
+        self.main_layout.addWidget(self.info_label)
 
         self.error_description_label.setFixedWidth(800)
         self.error_description_label.setWordWrap(True)
@@ -54,18 +69,14 @@ class ExceptionHandlerDialog(BaseDialog):
 
         self.main_layout.addWidget(copy_button)
 
-    def exceptHook(self, exceptionType, exceptionValue, exceptionTraceback):
-        exception_summary = str(exceptionType) + ": " + str(exceptionValue) + "\n"
-        stack_trace = "".join(traceback.extract_tb(exceptionTraceback).format())
-        exception_summary += "Stacktrace:\n" + stack_trace
+    def set_exception(self, e_type, e_value, e_traceback):
+        exception_summary = str(e_type) + ": " + str(e_value) + "\n"
+        exception_summary += "Stacktrace:\n" + e_traceback
 
-        logging.error(exception_summary)
         self.error_description_label.setText(exception_summary)
 
-        if main_widget.instance:
-            main_widget.instance.hide_loading_screen()
-
-        self.exec_()
+    def set_info_text(self, text):
+        self.info_label.setText(text)
 
     def on_clipboard(self):
         cb = QtWidgets.QApplication.clipboard()

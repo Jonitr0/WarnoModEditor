@@ -47,19 +47,27 @@ class CsvEditorPage(base_tab_page.BaseTabPage):
         tool_bar.addSeparator()
 
         add_row_before_action = tool_bar.addAction(icon_manager.load_icon("add_row_before.png", COLORS.PRIMARY),
-                                                   "Add row before selected (Ctrl + Arrow Up)")
-        add_row_before_action.setShortcut("Ctrl+Up")
+                                                   "Add row before selected (Ctrl + Alt + Arrow Up)")
+        add_row_before_action.setShortcut("Ctrl+Alt+Up")
         add_row_before_action.triggered.connect(self.on_add_row_before)
 
         add_row_after_action = tool_bar.addAction(icon_manager.load_icon("add_row_after.png", COLORS.PRIMARY),
-                                                  "Add row after selected (Ctrl + Arrow Down)")
-        add_row_after_action.setShortcut("Ctrl+Down")
+                                                  "Add row after selected (Ctrl + Alt + Arrow Down)")
+        add_row_after_action.setShortcut("Ctrl+Alt+Down")
         add_row_after_action.triggered.connect(self.on_add_row_after)
 
         delete_row_action = tool_bar.addAction(icon_manager.load_icon("remove_row.png", COLORS.PRIMARY),
                                                "Remove selected rows (Shift + Del)")
         delete_row_action.setShortcut("Shift+Del")
         delete_row_action.triggered.connect(self.on_remove_row)
+
+        stretch = QtWidgets.QWidget()
+        stretch.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        tool_bar.addWidget(stretch)
+
+        help_action = tool_bar.addAction(icon_manager.load_icon("help.png", COLORS.PRIMARY),
+                                         "Open Page Help Popup (Alt + H)")
+        help_action.triggered.connect(self.on_help)
 
         self.table_widget = QtWidgets.QTableWidget()
         main_layout.addWidget(self.table_widget)

@@ -17,7 +17,7 @@ class WMEProjectExplorer(QtWidgets.QWidget):
 
         # create minimalistic search bar
         self.search_bar = wme_essentials.WMELineEdit()
-        self.search_bar.setPlaceholderText("Find .ndf and .csv files in Directory...")
+        self.search_bar.setPlaceholderText("Find files in Directory...")
         main_layout.addWidget(self.search_bar)
 
         # file size checkbox
@@ -53,12 +53,8 @@ class WMEProjectExplorer(QtWidgets.QWidget):
 
         main_widget.instance.show_loading_screen("Loading file system...")
 
-        # load file system
-        for i in range(20):
-            self.tree_view.expandAll()
-            QtWidgets.QApplication.processEvents()
-
-        self.tree_view.collapseAll()
+        t = main_widget.instance.run_worker_thread(self.tree_view.model().load_all_dirs)
+        main_widget.instance.wait_for_worker_thread(t)
 
         self.search_bar.setText("")
         main_widget.instance.hide_loading_screen()

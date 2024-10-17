@@ -7,13 +7,17 @@ QMenuBar::item {{
   padding: 10px;
 }}
 
+QMenuBar::item:disabled {{
+  color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
+}}
+
 QLabel#title {{
   color: {QTMATERIAL_PRIMARYCOLOR};
   font: italic;
 }}
 
 QLabel#log {{
-  font: 10pt 'Courier New';
+  font: 11pt 'Courier New';
   background-color: {QTMATERIAL_SECONDARYCOLOR};
   padding: 10px;
 }}
@@ -87,14 +91,30 @@ QFrame#list_entry {{
   border-color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
 }}
 
+QTabBar::tab:top {{
+  border-bottom: 2px solid {QTMATERIAL_SECONDARYLIGHTCOLOR};
+}}
+
 QTabBar::tab:top:hover {{
   color: {QTMATERIAL_PRIMARYCOLOR};
-  border-bottom: 2px solid {QTMATERIAL_SECONDARYDARKCOLOR};
+  border-bottom: 2px solid {QTMATERIAL_SECONDARYLIGHTCOLOR};
 }}
 
 QTabBar::tab:top:selected:hover {{
   color: {QTMATERIAL_PRIMARYCOLOR};
   border-bottom: 2px solid {QTMATERIAL_PRIMARYCOLOR};
+}}
+
+QTabBar::scroller {{
+  width: 48px;
+}}
+
+WMETabBar::tab:top {{
+  border-bottom: 2px solid {QTMATERIAL_SECONDARYDARKCOLOR};
+}}
+
+WMETabBar::tab:top:hover {{
+  border-bottom: 2px solid {QTMATERIAL_SECONDARYDARKCOLOR};
 }}
 
 QToolTip {{
@@ -138,4 +158,29 @@ StringSelectionCombobox {{
 
 QWidget#separator {{
   background-color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
+}}
+
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal,
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {{
+  background: {QTMATERIAL_SECONDARYLIGHTCOLOR};
+}}
+
+QScrollBar::handle {{
+  background: {QTMATERIAL_PRIMARYLIGHTCOLOR};
+}}
+
+QScrollBar::handle:vertical {{
+  min-height: 8px;
+}}
+
+QTextEdit#steam_text_edit {{
+  color: {QTMATERIAL_SECONDARYTEXTCOLOR};
+}}
+
+QLabel#heading {{
+  color: {QTMATERIAL_PRIMARYCOLOR};
+  font: 14pt;
+  font-weight: bold;
 }}

@@ -38,4 +38,4 @@ if __name__ == '__main__':
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         out, err = proc.communicate()
     except Exception as e:
-        print(e)
+        print(f"Error while signing .exe: {e}")

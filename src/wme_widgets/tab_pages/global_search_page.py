@@ -34,7 +34,7 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
         self.case_button = QtWidgets.QToolButton()
         self.case_button.setIcon(icon_manager.load_icon("case_sensitivity.png", COLORS.PRIMARY))
         self.case_button.setToolTip("Toggle case-sensitive search. If the button is enabled, search is case-sensitive."
-                                    "(Ctrl + E)")
+                                    " (Ctrl + E)")
         self.case_button.setShortcut("Ctrl+E")
         self.case_button.setFixedSize(36, 36)
         self.case_button.setIconSize(QtCore.QSize(36, 36))
@@ -144,6 +144,6 @@ class SearchResultWidget(QtWidgets.QFrame):
         main_layout.addWidget(button)
 
     def on_button_pressed(self):
-        current_tab_widget = self.page.parent().parent()
+        current_tab_widget = self.page.get_current_tab_widget()
         full_path = os.path.join(main_widget.instance.get_loaded_mod_path(), self.file_name)
         current_tab_widget.on_open_and_find_ndf_editor(full_path, self.pattern, self.page.last_search_case_sensitive)
