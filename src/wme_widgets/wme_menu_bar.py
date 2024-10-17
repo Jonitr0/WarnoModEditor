@@ -96,6 +96,9 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             except Exception as e:
                 logging.error(e)
 
+            # create Backup of vanilla state
+            self.create_named_backup("Vanilla")
+
             # load mod
             self.request_load_mod.emit(mods_path + mod_name)
             # open quickstart guide

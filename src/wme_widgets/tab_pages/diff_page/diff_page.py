@@ -66,13 +66,23 @@ class DiffPage(base_tab_page.BaseTabPage):
 
         self.target_combobox.addItem("Unmodded game files", "unmodded")
         # list of items that can't be compared with
-        exclude_list = ["Utils", "ModData", main_widget.instance.get_loaded_mod_name()]
+        exclude_list = ["Utils", "ModData", "Meshes", main_widget.instance.get_loaded_mod_name()]
         dir_iter = QtCore.QDirIterator(mod_dir, (QtCore.QDir.NoDotAndDotDot | QtCore.QDir.Dirs))
         while dir_iter.hasNext():
             next = dir_iter.next()
             next_name = next[next.rindex('/') + 1:]
             if not exclude_list.__contains__(next_name):
                 self.target_combobox.addItem(next_name, next)
+        # add Backups to list
+        all_backups = []
+        backup_path = main_widget.instance.get_loaded_mod_path() + "\\Backup"
+        backup_dir = QtCore.QDir(backup_path)
+        if backup_dir.exists():
+            file_filter = ["*.zip"]
+            all_backups = backup_dir.entryList(file_filter)
+
+        for backup in all_backups:
+            self.target_combobox.addItem(f"{backup} (Backup)", os.path.join(backup_path, backup))
 
     def on_compare(self):
         # clear results layout
@@ -138,6 +148,9 @@ class DiffPage(base_tab_page.BaseTabPage):
         if target == "unmodded":
             target = self.create_tmp_mod()
             delete = True
+        elif target.endswith(".zip"):
+            target = self.create_tmp_mod_from_backup(target)
+            delete = True
 
         res = dircmp(mod_dir, target)
         res_d, res_l, res_r = self.compare_subdirs(res, [], [], [])
@@ -188,6 +201,21 @@ class DiffPage(base_tab_page.BaseTabPage):
         new_base = os.path.join(mods_base_dir + "\\ModData", "base.zip")
 
         with zipfile.ZipFile(new_base, 'r') as archive:
+            archive.extractall(target)
+        try:
+            shutil.rmtree(os.path.join(target, ".base"))
+        except Exception as e:
+            pass
+
+        main_widget.instance.show_loading_screen("Running comparison...")
+        return target
+
+    def create_tmp_mod_from_backup(self, backup_path: str):
+        main_widget.instance.show_loading_screen("Creating temporary mod...")
+        mod_dir = main_widget.instance.get_loaded_mod_path()
+        mods_base_dir = mod_dir[:mod_dir.rindex('\\')]
+        target = mods_base_dir + "\\" + ''.join(random.choice(string.ascii_letters) for i in range(8))
+        with zipfile.ZipFile(backup_path, 'r') as archive:
             archive.extractall(target)
         try:
             shutil.rmtree(os.path.join(target, ".base"))

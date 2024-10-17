@@ -137,6 +137,8 @@ class BaseTabPage(QtWidgets.QWidget):
         if self.help_file_path == "":
             essential_dialogs.MessageDialog("Oops...", "This help page is not implemented yet.").exec_()
             return
+        elif self.help_file_path == "DontShow":
+            return
 
         if self.help_page:
             self.help_page.deleteLater()

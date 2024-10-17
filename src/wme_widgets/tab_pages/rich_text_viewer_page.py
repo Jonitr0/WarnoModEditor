@@ -32,6 +32,8 @@ class RichTextViewerPage(base_tab_page.BaseTabPage):
         main_layout.addWidget(scroll_area)
         self.setLayout(main_layout)
 
+        self.help_file_path = "DontShow"
+
     def load_file(self):
         hyperlink_color = get_color_for_key(COLORS.PRIMARY.value)
 
