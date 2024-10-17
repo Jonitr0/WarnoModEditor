@@ -196,3 +196,15 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
             logging.error("Error while saving script files: " + str(e))
             return False
         return True
+
+    def to_json(self) -> dict:
+        return {
+            "script": self.script_selector.currentData().name,
+        }
+
+    def from_json(self, data: dict):
+        for i in range(self.script_selector.count()):
+            if self.script_selector.itemText(i) == data["script"]:
+                self.script_selector.setCurrentIndex(i)
+                break
+        self.on_new_script_selected(self.script_selector.currentData())
