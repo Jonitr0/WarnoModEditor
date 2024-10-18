@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Splah Screen Creator" type="PythonConfigurationType" factoryName="Python">
+  <configuration default="false" name="Splash Screen Creator" type="PythonConfigurationType" factoryName="Python">
     <module name="WarnoModEditor" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />

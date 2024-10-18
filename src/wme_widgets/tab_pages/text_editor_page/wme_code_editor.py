@@ -5,6 +5,8 @@ from src.utils.color_manager import *
 from src.wme_widgets import wme_essentials
 from src.wme_widgets.tab_pages.text_editor_page import ndf_syntax_highlighter
 
+import uuid
+
 
 # Based on: https://stackoverflow.com/questions/33243852/codeeditor-example-in-pyqt
 
@@ -87,8 +89,11 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         font = QtGui.QFont('Courier New', 11)
         self.setTabStopDistance(4 * QtGui.QFontMetrics(font).horizontalAdvance(" "))
 
-        # "duplicate" shortcut
-        shortcut = QtGui.QShortcut("Ctrl+D", self, self.on_duplicate)
+        # shortcuts to work outside of context menu
+        self.shortcuts = [
+            QtGui.QShortcut("Ctrl+D", self, self.on_duplicate),
+            QtGui.QShortcut("Ctrl+U", self, self.on_guid),
+        ]
 
         # marking colors
         self.cursor_marking_color = COLORS.SECONDARY_LIGHT
@@ -403,8 +408,22 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
             block = self.document().findBlockByNumber(start + i)
             self.highlighter.rehighlightBlock(block)
 
+    def contextMenuEvent(self, event):
+        menu = self.createStandardContextMenu()
+
+        duplicate_action = menu.addAction("Duplicate Selection/Line", "Ctrl+D")
+        duplicate_action.triggered.connect(self.on_duplicate)
+
+        menu.addSeparator()
+        guid_action = menu.addAction("Insert GUID", "Ctrl+U")
+        guid_action.triggered.connect(self.on_guid)
+
+        menu.exec(event.globalPos())
+        del menu
+
     def on_duplicate(self):
         cursor = self.textCursor()
+        cursor.beginEditBlock()
         selection = cursor.selectedText()
         if selection == "":
             # select current line
@@ -422,6 +441,14 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         else:
             cursor.clearSelection()
             cursor.insertText(selection)
+        cursor.endEditBlock()
+
+    def on_guid(self):
+        cursor = self.textCursor()
+        cursor.beginEditBlock()
+        guid_str = "GUID:{" + str(uuid.uuid4()) + "}"
+        cursor.insertText(guid_str)
+        cursor.endEditBlock()
 
     def get_cursor_pos(self):
         return self.textCursor().position()
