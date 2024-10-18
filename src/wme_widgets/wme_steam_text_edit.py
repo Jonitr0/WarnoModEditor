@@ -270,15 +270,20 @@ class WMESteamTextEdit(QtWidgets.QWidget):
         return format_tag_positions
 
     def set_text(self, text: str):
+        # remember all locations for line breaks
+        line_breaks = []
         # for each opening heading tag, add a line break before it unless it is at the start of the text
         for match in re.finditer(r"\[h\d\]", text):
             if match.start() != 0:
-                text = text[:match.start()] + "\n" + text[match.start():]
+                line_breaks.append(match.start())
 
         # for each closing heading tag, add a line break after it unless it is at the end of the text
         for match in re.finditer(r"\[/h\d\]", text):
             if match.end() != len(text):
-                text = text[:match.end()] + "\n" + text[match.end():]
+                line_breaks.append(match.end())
+
+        for lb in reversed(sorted(line_breaks)):
+            text = text[:lb] + "\n" + text[lb:]
 
         tags = {
             "[b]": "[/b]",
