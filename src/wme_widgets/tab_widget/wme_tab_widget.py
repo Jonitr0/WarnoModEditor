@@ -10,7 +10,7 @@ from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, glob
 from src.wme_widgets.tab_pages.script_runner import script_runner_page
 from src.wme_widgets.tab_pages.diff_page import diff_page, file_comparison_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
-from src.wme_widgets.tab_pages.napo_pages import game_settings_page
+from src.wme_widgets.tab_pages.napo_pages import game_settings_page, division_editor_page
 from src.dialogs import essential_dialogs
 from src.utils import icon_manager, parser_utils
 from src.utils.color_manager import *
@@ -29,7 +29,8 @@ class WMETabWidget(QtWidgets.QTabWidget):
         diff_page.DiffPage: "diff.png",
         file_comparison_page.FileComparisonPage: "file_compare.png",
         mod_config_page.ModConfigPage: "file_config.png",
-        script_runner_page.ScriptRunnerPage: "file_code.png"
+        script_runner_page.ScriptRunnerPage: "file_code.png",
+        division_editor_page.DivisionEditorPage: "div_editor.png"
     }
 
     # TODO: add back Operation Editor
@@ -98,6 +99,11 @@ class WMETabWidget(QtWidgets.QTabWidget):
         script_runner_action = self.tab_menu.addAction(script_runner_icon, "Script Runner")
         script_runner_action.setToolTip("Run predefined scripts to perform changes on your mod.")
         script_runner_action.triggered.connect(self.on_script_runner)
+
+        div_editor_icon = self.get_icon_for_page_type(division_editor_page.DivisionEditorPage)
+        div_editor_action = self.tab_menu.addAction(div_editor_icon, "Division Editor")
+        div_editor_action.setToolTip("Edit available units and slots for a division.")
+        div_editor_action.triggered.connect(self.on_div_editor)
 
         self.tab_menu.addSeparator()
 
@@ -264,6 +270,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_script_runner(self):
         page = script_runner_page.ScriptRunnerPage()
         self.add_tab_with_auto_icon(page, "Script Runner")
+
+    def on_div_editor(self):
+        page = division_editor_page.DivisionEditorPage()
+        self.add_tab_with_auto_icon(page, "Division Editor")
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
         ret = super().addTab(widget, icon, title)
