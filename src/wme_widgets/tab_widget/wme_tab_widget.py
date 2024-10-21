@@ -5,8 +5,8 @@ from PySide6.QtCore import Qt
 
 from src.wme_widgets import main_widget
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
-from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, global_search_page, guid_generator_page, \
-    csv_editor_page, mod_config_page
+from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, global_search_page, csv_editor_page, \
+    mod_config_page
 from src.wme_widgets.tab_pages.script_runner import script_runner_page
 from src.wme_widgets.tab_pages.diff_page import diff_page, file_comparison_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
@@ -22,7 +22,6 @@ class WMETabWidget(QtWidgets.QTabWidget):
     icon_paths_for_pages = {
         ndf_editor_page.NdfEditorPage: "text_editor.png",
         global_search_page.GlobalSearchPage: "magnify.png",
-        guid_generator_page.GuidGeneratorPage: "cert.png",
         rich_text_viewer_page.RichTextViewerPage: "help.png",
         game_settings_page.GameSettingsPage: "game_settings.png",
         csv_editor_page.CsvEditorPage: "edit_table.png",
@@ -80,12 +79,6 @@ class WMETabWidget(QtWidgets.QTabWidget):
         diff_action = self.tab_menu.addAction(diff_icon, "Diff Page")
         diff_action.setToolTip("Compare the files of your mod to another or the unmodded game files.")
         diff_action.triggered.connect(self.on_diff)
-
-        guid_generator_icon = self.get_icon_for_page_type(guid_generator_page.GuidGeneratorPage)
-        guid_generator_action = self.tab_menu.addAction(guid_generator_icon, "GUID Generator")
-        guid_generator_action.setToolTip("Generate GUIDs (Globally Unique Identifiers), "
-                                         "which are used in some NDF objects.")
-        guid_generator_action.triggered.connect(self.on_guid_generator)
 
         self.tab_menu.addSeparator()
 
@@ -202,10 +195,6 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_diff(self):
         page = diff_page.DiffPage()
         self.add_tab_with_auto_icon(page, "Diff Page")
-
-    def on_guid_generator(self):
-        page = guid_generator_page.GuidGeneratorPage()
-        self.add_tab_with_auto_icon(page, "GUID Generator")
 
     def on_game_settings(self):
         page = game_settings_page.GameSettingsPage()
