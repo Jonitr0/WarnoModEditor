@@ -16,8 +16,9 @@ from src.wme_widgets import wme_splash_screen
 
 if __name__ == '__main__':
     # setup logging
+    log_file = "wme.log"
     logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s',
-                        filename='wme.log',
+                        filename=log_file,
                         level=logging.INFO,
                         datefmt='%d/%m/%Y %H:%M:%S')
 
@@ -54,7 +55,10 @@ if __name__ == '__main__':
     # set version
     version = "0.4.0"
     settings_manager.write_settings_value(settings_manager.VERSION_KEY, version)
-    logging.info("\n\n")
+
+    # append line breaks to log
+    with open(log_file, 'a') as file:
+        file.write("\n\n")
     logging.info("Starting WME " + version)
     logging.info("Working Directory: " + get_resource_path(''))
 
