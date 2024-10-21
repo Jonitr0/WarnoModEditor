@@ -65,7 +65,7 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
         scroll_area.setWidget(list_widget)
         main_layout.addWidget(scroll_area)
 
-        self.help_file_path = "Help_GlobalSearch.html"
+        self.help_file_path = "Help_GlobalSearch.md"
 
     def on_search(self):
         # clear layout

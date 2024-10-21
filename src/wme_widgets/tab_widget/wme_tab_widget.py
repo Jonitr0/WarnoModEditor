@@ -201,15 +201,15 @@ class WMETabWidget(QtWidgets.QTabWidget):
         self.add_tab_with_auto_icon(page, "Game Settings Editor")
 
     def on_open_quickstart(self):
-        viewer = rich_text_viewer_page.RichTextViewerPage("Quickstart.html")
+        viewer = rich_text_viewer_page.RichTextViewerPage("Quickstart.md")
         self.add_tab_with_auto_icon(viewer, "Quickstart Guide")
 
     def on_open_ndf_reference(self):
-        viewer = rich_text_viewer_page.RichTextViewerPage("NdfReference.html")
+        viewer = rich_text_viewer_page.RichTextViewerPage("NdfReference.md")
         self.add_tab_with_auto_icon(viewer, "NDF Reference")
 
     def on_open_manual(self):
-        viewer = rich_text_viewer_page.RichTextViewerPage("UserManual.html")
+        viewer = rich_text_viewer_page.RichTextViewerPage("UserManual.md")
         self.add_tab_with_auto_icon(viewer, "Shortcut Reference")
 
     def on_open_comparison(self, file_name, left_text, right_text, left_mod, right_mod, parser_based=False):

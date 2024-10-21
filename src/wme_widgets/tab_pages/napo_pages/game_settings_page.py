@@ -46,7 +46,7 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
         self.destruction_score_list_widget.list_updated.connect(self.on_state_changed)
         self.destruction_income_widget.value_changed.connect(self.on_state_changed)
 
-        self.help_file_path = "Help_GameSettingsEditor.html"
+        self.help_file_path = "Help_GameSettingsEditor.md"
 
     def get_state(self):
         starting_points = self.starting_pts_list_widget.list_widget.all_item_labels()

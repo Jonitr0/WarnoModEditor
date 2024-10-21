@@ -4,3 +4,4 @@ qt-material==2.12
 requests==2.31.0
 ndf-parse==0.2.0
 diff-match-patch
+Markdown==3.7

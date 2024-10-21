@@ -67,7 +67,7 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
         self.update_page()
 
         # TODO: write this
-        self.help_page = "Help_ScriptRunner.html"
+        self.help_page = "Help_ScriptRunner.md"
 
     def update_page(self):
         current_script_name = self.script_selector.currentText()

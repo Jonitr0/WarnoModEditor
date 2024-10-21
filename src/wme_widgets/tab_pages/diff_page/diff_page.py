@@ -57,7 +57,7 @@ class DiffPage(base_tab_page.BaseTabPage):
         main_layout.addWidget(results_area)
 
         # TODO: create and fill this file
-        self.help_file_path = "Help_DiffPage.html"
+        self.help_file_path = "Help_DiffPage.md"
 
     def load_mods_to_combobox(self):
         # get Mods dir
