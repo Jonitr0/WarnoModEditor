@@ -52,11 +52,14 @@ class CustomQCompleter(QtWidgets.QCompleter):
 
 
 class WMECombobox(QtWidgets.QComboBox):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, editable=True):
         super().__init__(parent)
-        self.setEditable(True)
+        self.setEditable(editable)
         self.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
         self.setFocusPolicy(Qt.StrongFocus)
+
+        if not editable:
+            return
 
         completer = CustomQCompleter(self)
         completer.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)
