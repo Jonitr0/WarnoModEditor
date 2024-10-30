@@ -14,6 +14,7 @@ from src.utils.color_manager import *
 from src.dialogs import exception_handler_dialog
 
 
+# TODO: new script: dual-mode AA
 class ScriptRunnerPage(base_tab_page.BaseTabPage):
     def __init__(self):
         super().__init__()
