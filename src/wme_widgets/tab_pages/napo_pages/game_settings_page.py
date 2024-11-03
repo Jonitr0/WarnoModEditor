@@ -74,7 +74,7 @@ class GameSettingsPage(base_napo_page.BaseNapoPage):
             "default_starting_points": default_starting_points,
         }
 
-    def set_state(self, state: dict):
+    def _set_state(self, state: dict):
         self.starting_pts_list_widget.update_list(state["starting_points"])
         self.conquest_score_list_widget.update_list(state["conquest_scores"])
         destruction_scores = state["destruction_scores"].copy()

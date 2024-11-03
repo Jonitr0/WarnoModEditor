@@ -112,7 +112,7 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
         self.scripts.clear()
         self.script_selector.clear()
         self.import_scripts_from_dir(resource_loader.get_resource_path("resources/scripts"))
-        self.import_scripts_from_dir(resource_loader.get_persistant_path("Scripts"), external=True)
+        self.import_scripts_from_dir(resource_loader.get_export_path("Scripts"), external=True)
         for script in self.scripts:
             self.script_selector.addItem(script.name, script)
 
@@ -145,7 +145,7 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
 
     def open_script_dir(self):
         # open explorer in script dir
-        QtCore.QProcess.startDetached("explorer", [resource_loader.get_persistant_path("Scripts")])
+        QtCore.QProcess.startDetached("explorer", [resource_loader.get_export_path("Scripts")])
 
     def get_parameter_values(self) -> dict:
         params = {}
