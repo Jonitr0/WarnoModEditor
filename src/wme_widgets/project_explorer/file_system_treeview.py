@@ -129,7 +129,13 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.collapseAll()
         else:
             self.model().show_all_dirs = False
-            self.model().setNameFilters(["*" + text + "*" + ft for ft in self.file_types])
+            filters = []
+            for ft in self.file_types:
+                if ft.__contains__(text):
+                    filters.append("*" + ft)
+                else:
+                    filters.append("*" + text + "*" + ft)
+            self.model().setNameFilters(filters)
             self.expandAll()
 
     def on_show_size_changed(self, state: int):
