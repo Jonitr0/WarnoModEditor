@@ -75,6 +75,8 @@ if __name__ == '__main__':
     main_window = main_window.MainWindow()
     splash_screen.finish(main_window)
 
+    # TODO: add thanks to README, update Quickstart Guide
+
     # only start app if warno path was verified
     if main_window.isVisible():
         sys.exit(app.exec())
