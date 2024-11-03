@@ -12,6 +12,7 @@ from src.wme_widgets.tab_widget import wme_tab_widget, wme_detached_tab
 from src.dialogs import log_dialog, essential_dialogs
 from src.utils import path_validator, icon_manager, auto_backup_manager, mod_settings_loader
 from src.utils.color_manager import *
+from src.assets import asset_string_manager, asset_icon_manager
 
 from pydoc import locate
 
@@ -70,6 +71,9 @@ class MainWidget(QtWidgets.QWidget):
 
         self.auto_backup_manager.request_backup.connect(self.menu_bar.create_named_backup)
         self.mod_loaded.connect(self.auto_backup_manager.update_settings)
+
+        self.asset_string_manager = asset_string_manager.AssetStringManager()
+        self.asset_icon_manager = asset_icon_manager.AssetIconManager()
 
         self.log_dialog.new_log.connect(self.on_new_log)
         self.log_dialog.error_log.connect(self.on_error_log)
