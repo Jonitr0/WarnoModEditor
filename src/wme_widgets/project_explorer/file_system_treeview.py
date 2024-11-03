@@ -25,7 +25,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         self.setMinimumWidth(160)
         self.mod_path = ""
         self.setIconSize(QtCore.QSize(20, 20))
-        self.file_types = [".ndf", ".csv", ".zip"]
+        self.file_types = [".ndf", ".csv", ".zip", ".png"]
 
     def update_model(self, mod_path: str):
         proxy_model = file_system_model.FileSystemModel()
