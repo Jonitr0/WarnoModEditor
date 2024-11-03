@@ -1,13 +1,13 @@
 import sys
 
+from PySide6 import QtWidgets, QtCore, QtGui
+
 from glitch_this import ImageGlitcher
 from PIL import Image
 from PIL.ImageQt import ImageQt
 
 import cv2
 import numpy as np
-
-from PySide6 import QtWidgets, QtCore, QtGui
 
 
 class SplashScreenCreator(QtWidgets.QWidget):

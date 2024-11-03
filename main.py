@@ -1,6 +1,7 @@
 import sys
 import os
 import logging
+from pathlib import Path
 
 from src.utils.resource_loader import *
 
@@ -16,8 +17,9 @@ from src.wme_widgets import wme_splash_screen
 
 if __name__ == '__main__':
     # setup logging
+    log_file = get_persistant_path("wme.log")
     logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s',
-                        filename='wme.log',
+                        filename=log_file,
                         level=logging.INFO,
                         datefmt='%d/%m/%Y %H:%M:%S')
 
@@ -25,6 +27,12 @@ if __name__ == '__main__':
     console_logger.setLevel(logging.INFO)
     console_logger.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
     logging.getLogger().addHandler(console_logger)
+
+    # if a wme_config.json still exists in the old location, move it to the new location
+    old_config_path = os.path.join(Path.home(), "WarnoModEditor\\wme_config.json")
+    if os.path.exists(old_config_path) and not os.path.exists(get_persistant_path("wme_config.json")):
+        new_config_path = get_persistant_path("wme_config.json")
+        os.rename(old_config_path, new_config_path)
 
     # create settings changed notifier
     settings_manager.SettingsChangedNotifier()
@@ -54,12 +62,15 @@ if __name__ == '__main__':
     # set version
     version = "0.4.0"
     settings_manager.write_settings_value(settings_manager.VERSION_KEY, version)
-    logging.info("\n\n")
+
+    # append line breaks to log
+    with open(log_file, 'a') as file:
+        file.write("\n\n")
     logging.info("Starting WME " + version)
     logging.info("Working Directory: " + get_resource_path(''))
 
     # make sure scripts dir exits and has __init__.py
-    scripts_dir = get_persistant_path("Scripts")
+    scripts_dir = get_export_path("Scripts")
     if not os.path.exists(os.path.join(scripts_dir, "__init__.py")):
         with open(os.path.join(scripts_dir, "__init__.py"), "w") as file:
             pass
@@ -70,6 +81,8 @@ if __name__ == '__main__':
 
     main_window = main_window.MainWindow()
     splash_screen.finish(main_window)
+
+    # TODO: add thanks and paths(!) to README, update Quickstart Guide
 
     # only start app if warno path was verified
     if main_window.isVisible():

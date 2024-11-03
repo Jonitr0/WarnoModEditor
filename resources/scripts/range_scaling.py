@@ -23,3 +23,4 @@ class RangeScaling(BaseScript):
         goal_str = f"LBUToGRUConversionFactor = {parameter_values['gru_multiplier']}"
         obj_str = re.sub("LBUToGRUConversionFactor = \d+\.?\d*", goal_str, obj_str)
         distance_units[0].v = obj_str
+        # TODO: add plane altitude

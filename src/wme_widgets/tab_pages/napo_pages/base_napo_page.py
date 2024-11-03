@@ -124,7 +124,16 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         return {}
 
     def set_state(self, state: dict):
+        if "version" in state:
+            state = self.handle_version_change(state)
+            state.pop("version")
+        self._set_state(state)
+
+    def _set_state(self, state: dict):
         pass
+
+    def handle_version_change(self, state: dict) -> dict:
+        return state
 
     def on_state_changed(self):
         self.unsaved_changes = self.saved_state != self.get_state()
@@ -141,7 +150,7 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
         current_state = self.get_state()
         try:
-            file_name = resource_loader.get_persistant_path("")
+            file_name = resource_loader.get_export_path("")
             file_path, ret = QtWidgets.QFileDialog().getOpenFileName(self, "Select config file", file_name,
                                                                      options=QtWidgets.QFileDialog.ReadOnly,
                                                                      filter="*.txt")
@@ -167,7 +176,7 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         try:
             state = self.get_state()
             state["version"] = settings_manager.get_settings_value(settings_manager.VERSION_KEY)
-            file_name = resource_loader.get_persistant_path(self.get_state_file_name())
+            file_name = resource_loader.get_export_path(self.get_state_file_name())
             file_path, ret = QtWidgets.QFileDialog().getSaveFileName(self, "Select export file name", file_name,
                                                                      options=QtWidgets.QFileDialog.ReadOnly,
                                                                      filter="*.txt")

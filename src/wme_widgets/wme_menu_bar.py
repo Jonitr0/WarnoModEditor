@@ -73,6 +73,14 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.add_action_to_menu("Auto Backup Settings", self.backup_menu, True, self.on_auto_backup_action,
                                 "Change the auto backup settings for the current mod.")
 
+        self.assets_menu = self.addMenu("&Assets")
+        self.assets_menu.setToolTipsVisible(True)
+
+        self.add_action_to_menu("Add Icon", self.assets_menu, True, self.on_add_icon_action,
+                                "Add an icon to the mod.")
+        self.add_action_to_menu("Add String", self.assets_menu, True, self.on_add_string_action,
+                                "Add new text to the mod.")
+
     def on_new_action(self):
         dialog = new_mod_dialog.NewModDialog(self.main_widget_ref.get_warno_path())
         result = dialog.exec_()
@@ -100,6 +108,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             self.request_load_mod.emit(mods_path + mod_name)
 
             # create Backup of vanilla state
+            # TODO: add version to backup name
             self.create_named_backup("Vanilla")
 
             # open quickstart guide
@@ -246,6 +255,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                 logging.error("Error while deleting config file: " + str(e))
 
     def on_update_action(self):
+        # TODO: add diff-based updater
         self.remove_pause_line_from_script("UpdateMod.bat")
         ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "UpdateMod.bat", [])
         logging.info("UpdateMod.bat executed with return code " + str(ret))
@@ -383,6 +393,12 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def on_auto_backup_action(self):
         dialog = auto_backup_dialog.AutoBackupDialog()
         dialog.exec()
+
+    def on_add_icon_action(self):
+        pass
+
+    def on_add_string_action(self):
+        pass
 
     def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
                            slot=None, tooltip: str = "", shortcut: str = "") -> QtGui.QAction:

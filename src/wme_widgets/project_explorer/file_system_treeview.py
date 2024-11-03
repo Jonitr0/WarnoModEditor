@@ -25,7 +25,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         self.setMinimumWidth(160)
         self.mod_path = ""
         self.setIconSize(QtCore.QSize(20, 20))
-        self.file_types = [".ndf", ".csv", ".zip"]
+        self.file_types = [".ndf", ".csv", ".zip", ".png"]
 
     def update_model(self, mod_path: str):
         proxy_model = file_system_model.FileSystemModel()
@@ -129,7 +129,13 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.collapseAll()
         else:
             self.model().show_all_dirs = False
-            self.model().setNameFilters(["*" + text + "*" + ft for ft in self.file_types])
+            filters = []
+            for ft in self.file_types:
+                if ft.__contains__(text):
+                    filters.append("*" + ft)
+                else:
+                    filters.append("*" + text + "*" + ft)
+            self.model().setNameFilters(filters)
             self.expandAll()
 
     def on_show_size_changed(self, state: int):

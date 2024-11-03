@@ -24,7 +24,7 @@ class FileComparisonPage(BaseTabPage):
 
         self.setup_ui()
 
-        self.help_file_path = "Help_FileComparisonPage.html"
+        self.help_file_path = "Help_FileComparisonPage.md"
 
     def setup_ui(self):
         main_layout = QtWidgets.QVBoxLayout()

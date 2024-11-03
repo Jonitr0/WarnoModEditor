@@ -48,6 +48,7 @@ These shortcuts are available inside the text editor.
 - **Ctrl + Arrow Right:** next find result
 - **Ctrl + R:** replace text in file
 - **Ctrl + D:** duplicate current line / selected text
+- **Ctrl + U:** insert GUID at cursor position
 - **Ctrl + E:** toggle case-sensitive search
 
 #### CSV Editor

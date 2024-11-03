@@ -12,57 +12,50 @@ WME runs on Windows 10. I have not yet tested it for Windows 11, but it should r
 
 Head to [releases](https://github.com/Jonitr0/WarnoModEditor/releases) and download the latest version. It is an executable that you can use right away, no installation required.
 
-##### Running WME from source
+##### Running or Building WME from source
 
-Set up a Python 3.10 environment, install [PySide6](https://pypi.org/project/PySide6/), [antlr4](https://www.antlr.org/) and [qt-material](https://pypi.org/project/qt-material/), download the source code from this repository and run [main.py](https://github.com/Jonitr0/WarnoModEditor/blob/main/main.py).
+In order to run or build WME from source, you need to have [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [Python 3.10](https://www.python.org/downloads/windows/) installed on your machine.
 
-A more comprehensive documentation on how to build or run WME from source will come in a future update.
+Open a new cmd.exe and clone the repository:
+
+````
+git clone https://github.com/Jonitr0/WarnoModEditor.git
+````
+
+Create a virtual environment in the directory:
+
+````
+cd WarnoModEditor
+python -m venv .\venv
+````
+
+Start the virtual environment and install the requirements:
+
+````
+.\venv\Scripts\activate.bat
+pip install -r requirements.txt
+````
+
+To run WME, make sure your venv is still running and execute **main.py**:
+
+````
+python main.py
+````
+
+To build WME, make sure your venv is still running and execute **build.py**:
+
+````
+python build.py
+````
+
+You find the .exe file in the **dist** directory.
+If you open the Project in PyCharm, “Run WME” and “Build WME” configurations should be recognized automatically.
 
 ##### First steps
 
 When you first start WME, you might get asked to enter the path to your WARNO installation. 
 
 Please refer to the [Quickstart Guide](https://github.com/Jonitr0/WarnoModEditor/blob/main/resources/markdown/Quickstart.md) to learn how to use WME.
-
-### Tools
-
-WME offers a range of tools that make creating mods for WARNO easier. Click the "Add Tab" button to access them.
-
-##### Project Explorer
-
-Located on the left side of the main window, the project explorer lets you navigate through the files in your mod and find .ndf files by entering text in the search bar.
-
-##### Run Scripts
-
-You can run scripts ("Generate Mod", "Upload Mod", "Create Backup",...) from the "Edit" menu in WME once you have loaded a mod.
-
-##### Text Editor
-
-Double-click a .ndf file in the project explorer to open it in the text editor. It supports NDF syntax highlighting and has find and replace functions.
-
-##### CSV Editor
-
-A table editor to edit .csv files. Open it by double-clicking a .csv file in the project explorer.
-
-##### Operation Editor
-
-GUI-based editing of player battle groups in operations.
-
-##### Game Settings Editor
-
-A page to edit starting points, income and victory conditions for skirmish and multiplayer.
-
-##### Global Search
-
-Allows you to find text in any .ndf file of our mod. Useful to find object references across files.
-
-##### GUID Generator
-
-Generates random GUIDs which are required by some NDF objects.
-
-##### Resources
-
-In addition, WME includes a Quickstart Guide, a Shortcut Reference and a reference for the NDF language.
 
 ### Feedback
 
