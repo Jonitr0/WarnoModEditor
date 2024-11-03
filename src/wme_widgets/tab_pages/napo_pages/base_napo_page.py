@@ -59,7 +59,7 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
         pass
 
     def load_state_from_file(self) -> dict:
-        pass
+        return {}
 
     def update_page(self):
         main_widget.instance.show_loading_screen("loading data form .ndf files...")
