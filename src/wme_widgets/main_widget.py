@@ -72,7 +72,8 @@ class MainWidget(QtWidgets.QWidget):
         self.auto_backup_manager.request_backup.connect(self.menu_bar.create_named_backup)
         self.mod_loaded.connect(self.auto_backup_manager.update_settings)
 
-        self.asset_string_manager = asset_string_manager.AssetStringManager()
+        self.asset_string_manager = asset_string_manager.AssetStringManager(self)
+        self.mod_loaded.connect(self.asset_string_manager.load_asset_strings)
         self.asset_icon_manager = asset_icon_manager.AssetIconManager()
 
         self.log_dialog.new_log.connect(self.on_new_log)

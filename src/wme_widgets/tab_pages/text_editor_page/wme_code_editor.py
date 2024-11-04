@@ -4,6 +4,7 @@ from PySide6.QtCore import Qt
 from src.utils.color_manager import *
 from src.wme_widgets import wme_essentials
 from src.wme_widgets.tab_pages.text_editor_page import ndf_syntax_highlighter
+from src.dialogs import insert_string_dialog
 
 import uuid
 
@@ -93,6 +94,7 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         self.shortcuts = [
             QtGui.QShortcut("Ctrl+D", self, self.on_duplicate),
             QtGui.QShortcut("Ctrl+U", self, self.on_guid),
+            QtGui.QShortcut("Ctrl+K", self, self.on_string_token),
         ]
 
         # marking colors
@@ -411,12 +413,16 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
     def contextMenuEvent(self, event):
         menu = self.createStandardContextMenu()
 
-        duplicate_action = menu.addAction("Duplicate Selection/Line", "Ctrl+D")
-        duplicate_action.triggered.connect(self.on_duplicate)
+        if not self.isReadOnly():
+            duplicate_action = menu.addAction("Duplicate Selection/Line", "Ctrl+D")
+            duplicate_action.triggered.connect(self.on_duplicate)
 
-        menu.addSeparator()
-        guid_action = menu.addAction("Insert GUID", "Ctrl+U")
-        guid_action.triggered.connect(self.on_guid)
+            menu.addSeparator()
+            guid_action = menu.addAction("Insert GUID", "Ctrl+U")
+            guid_action.triggered.connect(self.on_guid)
+
+            string_token_action = menu.addAction("Insert String Token", "Ctrl+K")
+            string_token_action.triggered.connect(self.on_string_token)
 
         menu.exec(event.globalPos())
         del menu
@@ -448,6 +454,17 @@ class WMECodeEditor(QtWidgets.QPlainTextEdit):
         cursor.beginEditBlock()
         guid_str = "GUID:{" + str(uuid.uuid4()) + "}"
         cursor.insertText(guid_str)
+        cursor.endEditBlock()
+
+    def on_string_token(self):
+        dialog = insert_string_dialog.InsertStringDialog()
+        if not dialog.exec():
+            return
+
+        cursor = self.textCursor()
+        cursor.beginEditBlock()
+        token_str = f"\"{dialog.get_result()}\""
+        cursor.insertText(token_str)
         cursor.endEditBlock()
 
     def get_cursor_pos(self):
