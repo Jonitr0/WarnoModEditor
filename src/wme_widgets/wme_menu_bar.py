@@ -81,7 +81,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.add_action_to_menu("Add Icon", self.assets_menu, True, self.on_add_icon_action,
                                 "Add an icon to the mod.")
         self.add_action_to_menu("Add String", self.assets_menu, True, self.on_add_string_action,
-                                "Add new text to the mod.", "Ctrl+Shift+K")
+                                "Add new text to the mod.", "Ctrl+Alt+K")
 
     def on_new_action(self):
         dialog = new_mod_dialog.NewModDialog(self.main_widget_ref.get_warno_path())

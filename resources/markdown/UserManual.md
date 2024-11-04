@@ -26,6 +26,7 @@ These shortcuts are available when a mod is loaded.
 - **Ctrl + Alt + E:** open the text editor
 - **Ctrl + Alt + F:** open global search
 - **Ctrl + Shift + F:** find .ndf files in project
+- **Ctrl + Alt + K:** add string to mod
 
 #### Editors
 
@@ -50,6 +51,7 @@ These shortcuts are available inside the text editor.
 - **Ctrl + D:** duplicate current line / selected text
 - **Ctrl + U:** insert GUID at cursor position
 - **Ctrl + E:** toggle case-sensitive search
+- **Ctrl + K:** insert string token
 
 #### CSV Editor
 

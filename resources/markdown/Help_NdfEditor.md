@@ -8,4 +8,4 @@ Use the *find* button (**Ctrl+F**) to search the file for specific text. You can
 
 The *replace* button (**Ctrl+R**) allows you to replace either the next or all occurrences of the text in the find bar with that in the replace bar.
 
-You can duplicate the current selection, or current line of nothing is selected, by pressing **Ctrl+D**. You can also insert a Warno-formatted GUID at the current cursor position with **Ctrl+U**. Both of these actions are also accessible via the context menu (right click).
+You can duplicate the current selection, or current line of nothing is selected, by pressing **Ctrl+D**. You can also insert a Warno-formatted GUID at the current cursor position with **Ctrl+U**. To insert a string token of a previously added string, press **Ctrl+K**. These actions are also accessible via the context menu (right click).
