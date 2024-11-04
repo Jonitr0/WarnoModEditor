@@ -12,6 +12,8 @@ class AssetStringManager:
         self.watcher.fileChanged.connect(self.load_strings_from_csv)
 
     def load_asset_strings(self):
+        self.asset_strings = {}
+
         mod_path = self.main_widget.get_loaded_mod_path()
         mod_name = self.main_widget.get_loaded_mod_name()
         csv_path = os.path.join(mod_path, "GameData", "Localisation", mod_name)
@@ -24,6 +26,8 @@ class AssetStringManager:
 
     def load_strings_from_csv(self, file_path: str):
         file_name = os.path.basename(file_path)
+        if not os.path.exists(file_path):
+            return
         self.asset_strings[file_name] = {}
         with open(file_path, "r", encoding="utf-8") as f:
             lines = f.readlines()

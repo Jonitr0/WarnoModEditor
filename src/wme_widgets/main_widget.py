@@ -75,6 +75,7 @@ class MainWidget(QtWidgets.QWidget):
         self.asset_string_manager = asset_string_manager.AssetStringManager(self)
         self.mod_loaded.connect(self.asset_string_manager.load_asset_strings)
         self.asset_icon_manager = asset_icon_manager.AssetIconManager()
+        self.mod_loaded.connect(self.asset_icon_manager.load_asset_icons)
 
         self.log_dialog.new_log.connect(self.on_new_log)
         self.log_dialog.error_log.connect(self.on_error_log)

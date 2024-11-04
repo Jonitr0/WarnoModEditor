@@ -12,6 +12,8 @@ class FileIconProvider(QtWidgets.QFileIconProvider):
                 return icon_manager.load_icon("table_file.png", COLORS.PRIMARY_LIGHT)
             elif file_info.fileName().endswith(".zip"):
                 return icon_manager.load_icon("zip_file.png", COLORS.PRIMARY_LIGHT)
+            elif file_info.fileName().endswith(".png"):
+                return icon_manager.load_icon("image.png", COLORS.PRIMARY_LIGHT)
             elif file_info.isDir():
                 return icon_manager.load_icon("dir.png", COLORS.SECONDARY_LIGHT)
 
