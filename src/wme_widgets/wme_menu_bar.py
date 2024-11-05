@@ -9,7 +9,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
 from src.dialogs import new_mod_dialog, essential_dialogs, options_dialog, new_backup_dialog, auto_backup_dialog, \
-    add_string_dialog
+    add_string_dialog, add_icon_dialog
 from src.utils import path_validator, settings_manager
 from src.wme_widgets import main_widget
 from src.wme_widgets.tab_pages import base_tab_page
@@ -78,8 +78,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.assets_menu = self.addMenu("&Assets")
         self.assets_menu.setToolTipsVisible(True)
 
-        self.add_action_to_menu("Add Icon", self.assets_menu, True, self.on_add_icon_action,
-                                "Add an icon to the mod.")
+        self.add_action_to_menu("Add Image", self.assets_menu, True, self.on_add_icon_action,
+                                "Add an image to the mod.", "Ctrl+Alt+I")
         self.add_action_to_menu("Add String", self.assets_menu, True, self.on_add_string_action,
                                 "Add new text to the mod.", "Ctrl+Alt+K")
 
@@ -397,7 +397,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         dialog.exec()
 
     def on_add_icon_action(self):
-        pass
+        dialog = add_icon_dialog.AddIconDialog()
+        dialog.exec()
 
     def on_add_string_action(self):
         dialog = add_string_dialog.AddStringDialog()

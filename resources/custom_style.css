@@ -184,3 +184,7 @@ QLabel#heading {{
   font: 14pt;
   font-weight: bold;
 }}
+
+QLabel#img_preview {{
+  background-color: {QTMATERIAL_SECONDARYLIGHTCOLOR};
+}}
