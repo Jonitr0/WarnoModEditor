@@ -411,7 +411,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
                                                                          f"file {file} with the same value. No changes "
                                                                          f"made.").exec()
                 return
-            if value is not None:
+            if value_old is not None:
                 if not essential_dialogs.ConfirmationDialog(f"The token \"{key}\" already exists in the file {file}. "
                                                             f"The value is \"{value_old}\". Overwrite it with "
                                                             f"\"{value}\"?", "Warning!").exec():
