@@ -1,3 +1,5 @@
+import os.path
+
 from PySide6 import QtCore
 
 from src.utils import resource_loader
@@ -55,6 +57,19 @@ def _save_config(json_obj: dict):
             f.write(json_str)
     except Exception as e:
         logging.info("Config could not be saved: " + str(e))
+
+
+def get_current_warno_version() -> int:
+    warno_path = get_settings_value(WARNO_PATH_KEY)
+    if not warno_path:
+        logging.warning("Unable to load WARNO version path!")
+        return 0
+    version_path = os.path.join(warno_path, "Data", "PC")
+    highest = 0
+    for ver in os.listdir(version_path):
+        if int(ver) > highest:
+            highest = int(ver)
+    return highest
 
 
 class SettingsChangedNotifier(QtCore.QObject):
