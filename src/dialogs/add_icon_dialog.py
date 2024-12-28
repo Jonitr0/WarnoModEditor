@@ -1,8 +1,9 @@
 import os
 
 from PySide6 import QtWidgets, QtGui
+from PySide6.QtCore import Qt
 
-from src.dialogs import base_dialog
+from src.dialogs import base_dialog, essential_dialogs
 from src.wme_widgets import wme_essentials, main_widget
 
 
@@ -28,7 +29,7 @@ class AddIconDialog(base_dialog.BaseDialog):
 
         self.img_preview.setFixedSize(256, 256)
         self.img_preview.setObjectName("img_preview")
-        # TODO: center image
+        self.img_preview.setAlignment(Qt.AlignCenter)
         h_layout.addWidget(self.img_preview)
 
         form_layout = QtWidgets.QFormLayout()
@@ -175,6 +176,25 @@ class AddIconDialog(base_dialog.BaseDialog):
         return True
 
     def accept(self):
-        # TODO: check if origin and destination are valid
-        # TODO: save image from origin as png with selected size
+        # check if origin is valid
+        valid_endings = [".png", ".jpg", ".bmp"]
+        if (not os.path.exists(self.origin_line_edit.text()) or
+                not self.origin_line_edit.text().endswith(tuple(valid_endings))):
+            (essential_dialogs.MessageDialog("Path invalid", "Origin path is not valid image file path. It "
+                                                             "should be a path to an existing .png, .jpg or .bmp file.")
+             .exec())
+            return
+        # check if destination starts with mod path
+        mod_path = main_widget.instance.get_loaded_mod_path().replace("/", "\\")
+        dest_path = self.destination_line_edit.text().replace("/", "\\")
+        if not dest_path.startswith(mod_path):
+            essential_dialogs.MessageDialog("Path invalid", "Destination path is not in mod directory.").exec()
+            return
+        if not dest_path.endswith(".png"):
+            essential_dialogs.MessageDialog("Path invalid", "Destination path should end with .png").exec()
+            return
+        # save image from origin as png with selected size
+        image = QtGui.QImage(self.origin_line_edit.text())
+        image = image.smoothScaled(self.width_spin_box.value(), self.height_spin_box.value())
+        image.save(self.destination_line_edit.text(), "PNG")
         super().accept()
