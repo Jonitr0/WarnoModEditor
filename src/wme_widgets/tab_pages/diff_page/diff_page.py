@@ -247,6 +247,13 @@ class DiffPage(base_tab_page.BaseTabPage):
 
         return diffs, left, right
 
+    def update_page(self):
+        for i in reversed(range(self.results_layout.count())):
+            widget_to_remove = self.results_layout.itemAt(i).widget()
+            self.results_layout.removeWidget(widget_to_remove)
+            if widget_to_remove:
+                widget_to_remove.setParent(None)
+
     def from_json(self, json_obj: dict):
         try:
             target = json_obj["selected"]
