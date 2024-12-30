@@ -15,6 +15,8 @@ from src.dialogs import exception_handler_dialog
 
 
 # TODO: new script: dual-mode AA
+# TODO: new script: freedom deck builder
+# TODO: new script: LoS changes
 class ScriptRunnerPage(base_tab_page.BaseTabPage):
     def __init__(self):
         super().__init__()

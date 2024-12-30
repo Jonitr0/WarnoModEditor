@@ -8,9 +8,11 @@ from pathlib import Path
 from PySide6 import QtWidgets, QtCore, QtGui
 from PySide6.QtCore import Qt
 
-from src.dialogs import new_mod_dialog, essential_dialogs, options_dialog, new_backup_dialog, auto_backup_dialog
+from src.dialogs import new_mod_dialog, essential_dialogs, options_dialog, new_backup_dialog, auto_backup_dialog, \
+    add_string_dialog, add_icon_dialog
 from src.utils import path_validator, settings_manager
 from src.wme_widgets import main_widget
+from src.wme_widgets.tab_pages import base_tab_page
 
 
 class WMEMainMenuBar(QtWidgets.QMenuBar):
@@ -76,10 +78,10 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.assets_menu = self.addMenu("&Assets")
         self.assets_menu.setToolTipsVisible(True)
 
-        self.add_action_to_menu("Add Icon", self.assets_menu, True, self.on_add_icon_action,
-                                "Add an icon to the mod.")
+        self.add_action_to_menu("Add Image", self.assets_menu, True, self.on_add_icon_action,
+                                "Add an image to the mod.", "Ctrl+Alt+I")
         self.add_action_to_menu("Add String", self.assets_menu, True, self.on_add_string_action,
-                                "Add new text to the mod.")
+                                "Add new text to the mod.", "Ctrl+Alt+K")
 
     def on_new_action(self):
         dialog = new_mod_dialog.NewModDialog(self.main_widget_ref.get_warno_path())
@@ -108,8 +110,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             self.request_load_mod.emit(mods_path + mod_name)
 
             # create Backup of vanilla state
-            # TODO: add version to backup name
-            self.create_named_backup("Vanilla")
+            self.create_named_backup(f"Vanilla_v{settings_manager.get_current_warno_version()}")
 
             # open quickstart guide
             self.request_quickstart.emit()
@@ -395,10 +396,40 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         dialog.exec()
 
     def on_add_icon_action(self):
-        pass
+        dialog = add_icon_dialog.AddIconDialog()
+        dialog.exec()
 
     def on_add_string_action(self):
-        pass
+        dialog = add_string_dialog.AddStringDialog()
+        if dialog.exec():
+            file, key, value = dialog.get_result()
+            # check if a string with the same key already exists
+            value_old = self.main_widget_ref.asset_string_manager.get_string(file, key)
+            if value_old == value:
+                essential_dialogs.MessageDialog("String already exists", f"The token \"{key}\" already exists in the "
+                                                                         f"file {file} with the same value. No changes "
+                                                                         f"made.").exec()
+                return
+            if value_old is not None:
+                if not essential_dialogs.ConfirmationDialog(f"The token \"{key}\" already exists in the file {file}. "
+                                                            f"The value is \"{value_old}\". Overwrite it with "
+                                                            f"\"{value}\"?", "Warning!").exec():
+                    return
+            # check if an open editor has unsaved changes
+            mod_path = self.main_widget_ref.get_loaded_mod_path()
+            mod_name = self.main_widget_ref.get_loaded_mod_name()
+            file_path = os.path.join(mod_path, "GameData", "Localisation", mod_name, file)
+            unsaved_pages = base_tab_page.get_pages_for_file(file_path)
+            for page in unsaved_pages:
+                if page.unsaved_changes:
+                    ret = essential_dialogs.ConfirmationDialog(f"The page {page.tab_name} has unsaved changes on the "
+                                                               f"file {file}. If you add a new string now, the unsaved "
+                                                               f"changes will be lost. Continue?", "Warning!").exec()
+                    if not ret:
+                        return
+            self.main_widget_ref.asset_string_manager.add_string_to_file(file, key, value)
+            for page in base_tab_page.get_pages_for_file(file_path, False):
+                page.update_page()
 
     def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
                            slot=None, tooltip: str = "", shortcut: str = "") -> QtGui.QAction:
