@@ -161,6 +161,7 @@ class MainWidget(QtWidgets.QWidget):
 
         self.explorer.tree_view.open_text_editor.connect(self.tab_widget.on_open_ndf_editor)
         self.explorer.tree_view.open_csv_editor.connect(self.tab_widget.on_open_csv_editor)
+        self.explorer.tree_view.image_preview.connect(self.tab_widget.on_open_image_preview)
         self.explorer.tree_view.restore_backup.connect(self.menu_bar.retrieve_backup)
 
         separator = QtWidgets.QWidget()

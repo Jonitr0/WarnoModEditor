@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt
 from src.wme_widgets import main_widget
 from src.wme_widgets.tab_widget import wme_detached_tab, wme_tab_bar
 from src.wme_widgets.tab_pages import base_tab_page, rich_text_viewer_page, global_search_page, csv_editor_page, \
-    mod_config_page
+    mod_config_page, img_preview_page
 from src.wme_widgets.tab_pages.script_runner import script_runner_page
 from src.wme_widgets.tab_pages.diff_page import diff_page, file_comparison_page
 from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
@@ -28,7 +28,8 @@ class WMETabWidget(QtWidgets.QTabWidget):
         diff_page.DiffPage: "diff.png",
         file_comparison_page.FileComparisonPage: "file_compare.png",
         mod_config_page.ModConfigPage: "file_config.png",
-        script_runner_page.ScriptRunnerPage: "file_code.png"
+        script_runner_page.ScriptRunnerPage: "file_code.png",
+        img_preview_page.ImgPreviewPage: "image.png",
     }
 
     # TODO: add back Operation Editor
@@ -251,6 +252,13 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def on_script_runner(self):
         page = script_runner_page.ScriptRunnerPage()
         self.add_tab_with_auto_icon(page, "Script Runner")
+
+    def on_open_image_preview(self, file_path: str):
+        page = img_preview_page.ImgPreviewPage()
+        page.set_image(file_path)
+        file_path = file_path.replace("/", "\\")
+        file_name = file_path[file_path.rindex('\\') + 1:]
+        self.add_tab_with_auto_icon(page, file_name)
 
     def addTab(self, widget, icon: QtGui.QIcon, title: str) -> int:
         ret = super().addTab(widget, icon, title)

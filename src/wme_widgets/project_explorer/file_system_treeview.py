@@ -13,6 +13,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
     open_text_editor = QtCore.Signal(str)
     open_csv_editor = QtCore.Signal(str)
     restore_backup = QtCore.Signal(str)
+    image_preview = QtCore.Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -55,6 +56,8 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.open_text_editor.emit(file_path)
         elif file_path.endswith(".csv"):
             self.open_csv_editor.emit(file_path)
+        elif file_path.endswith(tuple([".png", ".jpg", ".bmp"])):
+            self.image_preview.emit(file_path)
 
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -76,6 +79,9 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         if file_path.endswith(".zip") and file_path.__contains__("Backup"):
             restore_backup_action = context_menu.addAction("Restore backup")
 
+        if file_path.endswith(tuple([".png", ".jpg", ".bmp"])):
+            image_preview_action = context_menu.addAction("Preview Image")
+
         context_menu.addSeparator()
         expand_all_action = context_menu.addAction("Expand All")
         collapse_all_action = context_menu.addAction("Collapse All")
@@ -93,6 +99,8 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         elif file_path.endswith(".zip") and file_path.__contains__("Backup") and action == restore_backup_action:
             file_name = os.path.basename(file_path)
             self.restore_backup.emit(file_name)
+        elif file_path.endswith(tuple([".png, .jpg, .bmp"])) and action == image_preview_action:
+            self.image_preview.emit(file_path)
         elif action == expand_all_action:
             self.expandAll()
         elif action == collapse_all_action:

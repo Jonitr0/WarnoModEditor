@@ -60,6 +60,7 @@ def _save_config(json_obj: dict):
 
 
 def get_current_warno_version() -> int:
+    # TODO: try to load from ndf first
     warno_path = get_settings_value(WARNO_PATH_KEY)
     if not warno_path:
         logging.warning("Unable to load WARNO version path!")
