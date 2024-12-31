@@ -82,7 +82,7 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
         self.data_model.fetchMore(index)
         for i in range(self.data_model.rowCount(index)):
             child_path = self.data_model.filePath(self.data_model.index(i, 0, index))
-            if child_path in self.dirs_to_load:
+            if child_path in self.dirs_to_load or not self.data_model.isDir(self.data_model.index(i, 0, index)):
                 continue
             self.dirs_to_load.append(child_path)
             self.load_dir(child_path)
@@ -95,7 +95,7 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
             # add children to the list
             for i in range(self.data_model.rowCount(index)):
                 child_path = self.data_model.filePath(self.data_model.index(i, 0, index))
-                if child_path in self.dirs_to_load:
+                if child_path in self.dirs_to_load or not self.data_model.isDir(self.data_model.index(i, 0, index)):
                     continue
                 self.dirs_to_load.append(child_path)
                 self.load_dir(child_path)
