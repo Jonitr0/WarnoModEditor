@@ -17,7 +17,7 @@ class WMEProjectExplorer(QtWidgets.QWidget):
 
         # create minimalistic search bar
         self.search_bar = wme_essentials.WMELineEdit()
-        self.search_bar.setPlaceholderText("Find files in Directory...")
+        self.search_bar.setPlaceholderText("Find files...")
         main_layout.addWidget(self.search_bar)
 
         # file size checkbox

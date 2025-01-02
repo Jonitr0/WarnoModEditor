@@ -1,5 +1,5 @@
-import shutil
 import os
+import shutil
 
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import Qt
@@ -27,6 +27,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         self.mod_path = ""
         self.setIconSize(QtCore.QSize(20, 20))
         self.file_types = [".ndf", ".csv", ".zip", ".png"]
+        self.delete_origin = False
 
     def update_model(self, mod_path: str):
         proxy_model = file_system_model.FileSystemModel()
@@ -65,7 +66,6 @@ class FileSystemTreeView(QtWidgets.QTreeView):
 
     def on_context_menu(self, point: QtCore.QPoint):
         index = self.indexAt(point)
-
         file_path = self.model().get_file_path_for_index(index)
         context_menu = QtWidgets.QMenu(self)
 
@@ -82,12 +82,32 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         if file_path.endswith(tuple([".png", ".jpg", ".bmp"])):
             image_preview_action = context_menu.addAction("Preview Image")
 
+        if os.path.isdir(file_path):
+            expand_action = None
+            collapse_action = None
+            if self.isExpanded(index):
+                collapse_action = context_menu.addAction("Collapse")
+            else:
+                expand_action = context_menu.addAction("Expand")
+
         context_menu.addSeparator()
         expand_all_action = context_menu.addAction("Expand All")
         collapse_all_action = context_menu.addAction("Collapse All")
 
-        context_menu.addSeparator()
-        delete_action = context_menu.addAction("Delete")
+        # if not clickd on empty space
+        if file_path != "":
+            context_menu.addSeparator()
+            rename_action = context_menu.addAction("Rename")
+            copy_action = context_menu.addAction("Copy")
+            copy_action.setShortcut("Ctrl+C")
+            cut_action = context_menu.addAction("Cut")
+            cut_action.setShortcut("Ctrl+X")
+            paste_action = context_menu.addAction("Paste")
+            paste_action.setShortcut("Ctrl+V")
+
+            context_menu.addSeparator()
+            delete_action = context_menu.addAction("Delete")
+            delete_action.setShortcut("Del")
 
         action = context_menu.exec_(self.mapToGlobal(point))
 
@@ -101,21 +121,74 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.restore_backup.emit(file_name)
         elif file_path.endswith(tuple([".png, .jpg, .bmp"])) and action == image_preview_action:
             self.image_preview.emit(file_path)
+        elif os.path.isdir(file_path) and action == expand_action:
+            self.expand(index)
+        elif os.path.isdir(file_path) and action == collapse_action:
+            self.collapse(index)
         elif action == expand_all_action:
             self.expandAll()
         elif action == collapse_all_action:
             self.collapseAll()
-        elif action == delete_action:
-            self.on_delete(file_path)
+        elif file_path != "":
+            if action == rename_action:
+                # TODO: not working
+                self.edit(index)
+            elif action == copy_action:
+                self.on_copy(file_path)
+            elif action == cut_action:
+                self.on_cut(file_path)
+            elif action == paste_action:
+                self.on_paste(file_path)
+            elif action == delete_action:
+                self.on_delete(file_path)
+
+    def on_copy(self, file_path: str):
+        mime_data = QtCore.QMimeData()
+        mime_data.setUrls([QtCore.QUrl.fromLocalFile(file_path)])
+        clipboard = QtWidgets.QApplication.clipboard()
+        clipboard.setMimeData(mime_data)
+        self.delete_origin = False
+
+    def on_cut(self, file_path: str):
+        mime_data = QtCore.QMimeData()
+        mime_data.setUrls([QtCore.QUrl.fromLocalFile(file_path)])
+        clipboard = QtWidgets.QApplication.clipboard()
+        clipboard.setMimeData(mime_data)
+        self.delete_origin = True
+
+    def on_paste(self, file_path: str):
+        clipboard = QtWidgets.QApplication.clipboard()
+        mime_data = clipboard.mimeData()
+        if mime_data.hasUrls():
+            urls = mime_data.urls()
+            for url in urls:
+                source_path = url.toLocalFile()
+                if not os.path.isdir(file_path):
+                    file_path = os.path.dirname(file_path)
+                target_path = os.path.join(file_path, os.path.basename(source_path))
+                if os.path.exists(target_path):
+                    if os.path.isdir(target_path):
+                        target_path = os.path.join(file_path, os.path.basename(source_path) + "_copy")
+                    else:
+                        file_name = os.path.basename(source_path).split(".")[0]
+                        file_ending = os.path.basename(source_path).split(".")[-1]
+                        target_path = os.path.join(file_path, file_name + "_copy." + file_ending)
+                if os.path.isdir(source_path):
+                    if self.delete_origin:
+                        shutil.move(source_path, target_path)
+                    else:
+                        shutil.copytree(source_path, target_path)
+                else:
+                    if self.delete_origin:
+                        QtCore.QFile.rename(source_path, target_path)
+                    else:
+                        QtCore.QFile.copy(source_path, target_path)
 
     def on_delete(self, file_path: str):
         if os.path.isdir(file_path):
-            text = "Do you really want to delete " + file_path + " and its contents?\n" \
-                   "The directory will be actually deleted, not moved to the recycle bin. " \
-                   "You will not be able to undo this!"
+            text = "Do you really want to delete " + file_path + " and its contents?"
         else:
-            text = "Do you really want to delete " + file_path + "?\n" \
-                   "The file will be actually deleted, not moved to the recycle bin. You will not be able to undo this!"
+            text = "Do you really want to delete " + file_path + "?"
         dialog = essential_dialogs.ConfirmationDialog(text, "Confirm deletion")
         # return if not confirmed
         if not dialog.exec():
@@ -126,7 +199,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         if os.path.isdir(file_path):
             shutil.rmtree(file_path)
         else:
-            os.remove(file_path)
+            QtCore.QFile.moveToTrash(file_path)
 
         settings_manager.write_settings_value(settings_manager.MOD_STATE_CHANGED_KEY, 1)
 
