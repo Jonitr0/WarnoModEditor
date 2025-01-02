@@ -19,6 +19,7 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
             QtCore.QDir.NoDotAndDotDot | QtCore.QDir.AllDirs | QtCore.QDir.Files)
         self.dirs_to_load = []
         self.data_model.directoryLoaded.connect(self.on_directory_loaded)
+        self.data_model.setReadOnly(False)
         self.setSourceModel(self.data_model)
 
     def setNameFilters(self, filters):
@@ -68,7 +69,7 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
     def flags(self, index):
         if not index.isValid():
             return Qt.NoItemFlags  # 0
-        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ToolTip
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ToolTip | Qt.ItemIsEditable
 
     def get_file_path_for_index(self, index):
         return QtWidgets.QFileSystemModel.filePath(self.data_model, self.mapToSource(index))

@@ -23,6 +23,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         self.customContextMenuRequested.connect(self.on_context_menu)
         self.setHeaderHidden(True)
         self.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Expanding)
+        self.setEditTriggers(QtWidgets.QAbstractItemView.EditKeyPressed)
         self.setMinimumWidth(160)
         self.mod_path = ""
         self.setIconSize(QtCore.QSize(20, 20))
@@ -131,7 +132,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.collapseAll()
         elif file_path != "":
             if action == rename_action:
-                # TODO: not working
+                # TODO: ItemDelegate with setEditorData and setModelData to intercept invalid renames
                 self.edit(index)
             elif action == copy_action:
                 self.on_copy(file_path)
