@@ -9,6 +9,37 @@ from src.dialogs import essential_dialogs
 from src.wme_widgets.project_explorer import file_icon_provider, file_system_model
 
 
+class ItemDelegate(QtWidgets.QStyledItemDelegate):
+    def __init__(self, parent=None):
+        super(ItemDelegate, self).__init__(parent)
+        self.file_ending = ""
+
+    def setEditorData(self, editor:QtWidgets.QWidget, index) -> None:
+        # if index is a directory, set file ending to empty string
+        path = index.model().get_file_path_for_index(index)
+        if os.path.isdir(path):
+            self.file_ending = ""
+        else:
+            self.file_ending = path.split(".")[-1]
+        super(ItemDelegate, self).setEditorData(editor, index)
+
+    def setModelData(self, editor:QtWidgets.QWidget, model:QtCore.QAbstractItemModel, index) -> None:
+        # if index is a dir and the new name contains a file ending, remove it
+        new_name = editor.text()
+        if os.path.isdir(model.get_file_path_for_index(index)):
+            if "." in new_name:
+                new_name = new_name.split(".")[0]
+                model.setData(index, new_name)
+                return
+        # otherwise make sure the new name has the correct file ending
+        else:
+            if not new_name.endswith(self.file_ending):
+                new_name += "." + self.file_ending
+                model.setData(index, new_name)
+                return
+        super(ItemDelegate, self).setModelData(editor, model, index)
+
+
 class FileSystemTreeView(QtWidgets.QTreeView):
     open_text_editor = QtCore.Signal(str)
     open_csv_editor = QtCore.Signal(str)
@@ -29,6 +60,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         self.setIconSize(QtCore.QSize(20, 20))
         self.file_types = [".ndf", ".csv", ".zip", ".png"]
         self.delete_origin = False
+        self.setItemDelegate(ItemDelegate())
 
     def update_model(self, mod_path: str):
         proxy_model = file_system_model.FileSystemModel()
@@ -132,7 +164,6 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.collapseAll()
         elif file_path != "":
             if action == rename_action:
-                # TODO: ItemDelegate with setEditorData and setModelData to intercept invalid renames
                 self.edit(index)
             elif action == copy_action:
                 self.on_copy(file_path)
