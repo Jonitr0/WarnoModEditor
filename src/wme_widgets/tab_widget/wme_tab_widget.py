@@ -38,8 +38,15 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        tab_bar = wme_tab_bar.WMETabBar(self)
+        self.restore_stack = []
+
+        self.shortcuts = [
+            QtGui.QShortcut("Ctrl+Shift+T", self, self.restore_tab),
+        ]
+
+        tab_bar = wme_tab_bar.WMETabBar(self, can_restore_callback=lambda: len(self.restore_stack) > 0)
         tab_bar.help_requested.connect(self.on_help_requested)
+        tab_bar.restore_requested.connect(self.restore_tab)
         self.setTabBar(tab_bar)
 
         new_tab_button = QtWidgets.QToolButton(self)
@@ -291,7 +298,14 @@ class WMETabWidget(QtWidgets.QTabWidget):
     def removeTab(self, index: int):
         widget = self.widget(index)
         base_tab_page.all_pages.remove(widget)
+        self.restore_stack.append([index, self.tabText(index), widget])
         super().removeTab(index)
+
+    def remove_from_restore_stack(self, widget):
+        for i in range(len(self.restore_stack)):
+            if self.restore_stack[i][2] == widget:
+                self.restore_stack.pop(i)
+                return
 
     def ask_all_tabs_to_save(self, all_windows: bool = False) -> bool:
         # iterate through own tabs
@@ -366,3 +380,16 @@ class WMETabWidget(QtWidgets.QTabWidget):
 
     def on_help_requested(self, index: int):
         self.widget(index).on_help()
+
+    def restore_tab(self):
+        if len(self.restore_stack) == 0:
+            return
+        index, title, widget = self.restore_stack.pop()
+        try:
+            widget.update_page()
+        except Exception as e:
+            logging.error(f"Error restoring tab: {str(e)}")
+            essential_dialogs.MessageDialog("Error", f"Error restoring tab: {str(e)}").exec()
+            return
+        self.insertTab(index, widget, self.get_icon_for_page_type(type(widget)), title)
+        self.setCurrentIndex(index)

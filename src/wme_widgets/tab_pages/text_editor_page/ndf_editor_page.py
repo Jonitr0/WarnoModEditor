@@ -266,6 +266,7 @@ class NdfEditorPage(base_tab_page.BaseTabPage):
             last_pos = self.code_editor.get_cursor_pos()
             self.open_file(list(self.file_paths)[0])
             self.code_editor.set_cursor_pos(last_pos)
+        self.unsaved_changes = False
 
     def on_find_bar_close(self, _):
         self.find_action.setChecked(False)
