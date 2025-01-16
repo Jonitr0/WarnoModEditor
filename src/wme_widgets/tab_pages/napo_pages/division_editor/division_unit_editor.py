@@ -20,11 +20,17 @@ class DivisionUnitEditor(wme_collapsible.WMECollapsible):
             category_widget.add_widget(add_unit_button)
             self.add_widget(category_widget)
 
+    def get_state(self) -> dict:
+        # sort units alphabetically for better comparison
+        pass
+
+    def set_state(self, state: dict):
+        pass
+
 
 class DivisionUnitWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        # transports (popup?)
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
@@ -33,13 +39,20 @@ class DivisionUnitWidget(QtWidgets.QWidget):
 
         delete_button = QtWidgets.QToolButton()
         # TODO: proper delete icon
-        delete_button.setToolTip("Remove Unit from Division")
+        delete_button.setToolTip("Remove unit from division")
         delete_button.setIcon(icon_manager.load_icon("titlebar/close.png", COLORS.PRIMARY))
         top_layout.addWidget(delete_button)
 
         self.unit_selector = wme_essentials.WMECombobox()
         top_layout.addWidget(self.unit_selector)
-        # TODO: duplication warning in new universal warning color (orange)
+        self.duplication_label = QtWidgets.QLabel()
+        self.duplication_label.setFixedSize(32, 32)
+        # TODO: proper warning icon
+        # TODO: orange warning color
+        self.duplication_label.setPixmap(icon_manager.load_icon("error_log.png", COLORS.WARNING).pixmap(24))
+        self.duplication_label.setToolTip("Duplicate Warning: This unit already exists in the division, this "
+                                          "instance will be ignored.")
+        top_layout.addWidget(self.duplication_label)
         top_layout.addStretch(1)
 
         label_0_vet = QtWidgets.QLabel()
@@ -79,6 +92,8 @@ class DivisionUnitWidget(QtWidgets.QWidget):
         top_layout.addWidget(selector_3_vet)
 
         transports_section = wme_collapsible.WMECollapsible(title="Transports")
+        transports_section.add_widget(DivisionTransportWidget())
+        transports_section.add_widget(DivisionTransportWidget())
         transports_section.set_collapsed(True)
         layout.addWidget(transports_section)
 
@@ -92,3 +107,37 @@ class DivisionUnitWidget(QtWidgets.QWidget):
         wo_transport_layout.addWidget(wo_transport_checkbox)
         wo_transport_layout.addWidget(add_transport_button)
         transports_section.set_corner_widget(wo_transport_widget)
+
+    def get_state(self) -> dict:
+        pass
+
+    def set_state(self, state: dict):
+        pass
+
+
+class DivisionTransportWidget(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        layout = QtWidgets.QHBoxLayout()
+        self.setLayout(layout)
+
+        delete_button = QtWidgets.QToolButton()
+        # TODO: proper delete icon
+        delete_button.setToolTip("Remove transport from unit")
+        delete_button.setIcon(icon_manager.load_icon("titlebar/close.png", COLORS.PRIMARY))
+        layout.addWidget(delete_button)
+
+        unit_selector = wme_essentials.WMECombobox()
+        layout.addWidget(unit_selector)
+
+        self.duplication_label = QtWidgets.QLabel()
+        self.duplication_label.setFixedSize(32, 32)
+        # TODO: proper warning icon
+        # TODO: orange warning color
+        self.duplication_label.setPixmap(icon_manager.load_icon("error_log.png", COLORS.WARNING).pixmap(24))
+        self.duplication_label.setToolTip("Duplicate Warning: This transport already exists for the unit, this "
+                                          "instance will be ignored.")
+        layout.addWidget(self.duplication_label)
+        layout.addStretch(1)
+
+

@@ -33,3 +33,9 @@ class DivisionPropertiesEditor(wme_collapsible.WMECollapsible):
         # needs to be able to load existing icon or import new one
         self.icon_lineedit = wme_essentials.WMELineEdit()
         form_layout.addRow("Emblem:", self.icon_lineedit)
+
+    def get_state(self) -> dict:
+        pass
+
+    def set_state(self, state: dict):
+        pass

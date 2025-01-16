@@ -52,6 +52,12 @@ class DivisionSlotMatrixEditor(wme_collapsible.WMECollapsible):
                         last = self.grid_layout.itemAtPosition(row, i).widget()
                         w.setCurrentText(last.currentText())
 
+    def get_state(self) -> dict:
+        pass
+
+    def set_state(self, state: dict):
+        pass
+
 
 class SlotMatrixComboBox(wme_essentials.WMECombobox):
     value_changed = QtCore.Signal(str, int, int)
