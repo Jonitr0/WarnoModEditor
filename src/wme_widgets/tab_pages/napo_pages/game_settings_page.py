@@ -1,9 +1,9 @@
 from PySide6 import QtWidgets, QtCore
 
-from src.wme_widgets import main_widget, wme_essentials, wme_list_widget
+from src.wme_widgets import wme_essentials, wme_list_widget
 from src.wme_widgets.tab_pages.napo_pages import base_napo_page
 
-from src.utils.parser_utils import *
+from src.ndf.parser_utils import *
 
 
 class GameSettingsPage(base_napo_page.BaseNapoPage):

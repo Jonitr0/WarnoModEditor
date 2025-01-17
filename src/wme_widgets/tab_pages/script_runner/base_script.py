@@ -4,7 +4,7 @@ import time
 
 from src.wme_widgets import main_widget
 from src.wme_widgets.tab_pages import base_tab_page
-from src.utils import parser_utils
+from src.ndf import parser_utils
 
 
 class ScriptParameter:

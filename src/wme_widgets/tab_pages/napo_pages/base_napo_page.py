@@ -7,7 +7,8 @@ from PySide6 import QtWidgets, QtGui
 from src.wme_widgets.tab_pages import base_tab_page
 from src.wme_widgets import main_widget
 
-from src.utils import icon_manager, resource_loader, parser_utils
+from src.utils import icon_manager, resource_loader
+from src.ndf import parser_utils
 from src.utils.color_manager import *
 from src.dialogs import essential_dialogs
 
@@ -95,14 +96,7 @@ class BaseNapoPage(base_tab_page.BaseTabPage):
 
     def save_files_to_mod(self, files_to_objs: dict):
         mod_path = main_widget.instance.get_loaded_mod_path()
-
-        files = files_to_objs.keys()
-
-        for file in files:
-            text = parser_utils.get_text_from_ndf_obj(files_to_objs[file])
-            file_path = os.path.join(mod_path, file)
-            with open(file_path, "w") as f:
-                f.write(text)
+        parser_utils.save_files_to_mod(files_to_objs, mod_path)
 
     def on_restore(self):
         if self.unsaved_changes:

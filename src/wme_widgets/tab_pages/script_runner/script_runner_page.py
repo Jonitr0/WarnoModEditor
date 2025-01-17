@@ -9,7 +9,8 @@ from PySide6 import QtWidgets, QtCore
 from src.wme_widgets import wme_essentials, main_widget
 from src.wme_widgets.tab_pages import base_tab_page
 from src.wme_widgets.tab_pages.script_runner import base_script
-from src.utils import icon_manager, resource_loader, parser_utils
+from src.utils import icon_manager, resource_loader
+from src.ndf import parser_utils
 from src.utils.color_manager import *
 from src.dialogs import exception_handler_dialog
 
@@ -190,11 +191,8 @@ class ScriptRunnerPage(base_tab_page.BaseTabPage):
 
     def _save_changes(self) -> bool:
         try:
-            for file in self.files_to_save.keys():
-                text = parser_utils.get_text_from_ndf_obj(self.files_to_save[file])
-                full_path = os.path.join(main_widget.instance.get_loaded_mod_path(), file)
-                with open(full_path, "w") as f:
-                    f.write(text)
+            mod_path = main_widget.instance.get_loaded_mod_path()
+            parser_utils.save_files_to_mod(self.files_to_save, mod_path)
         except Exception as e:
             logging.error("Error while saving script files: " + str(e))
             return False

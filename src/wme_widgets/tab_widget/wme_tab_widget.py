@@ -13,7 +13,8 @@ from src.wme_widgets.tab_pages.text_editor_page import ndf_editor_page
 from src.wme_widgets.tab_pages.napo_pages import game_settings_page
 from src.wme_widgets.tab_pages.napo_pages.division_editor import division_editor_page
 from src.dialogs import essential_dialogs
-from src.utils import icon_manager, parser_utils
+from src.utils import icon_manager
+from src.ndf import parser_utils
 from src.utils.color_manager import *
 
 

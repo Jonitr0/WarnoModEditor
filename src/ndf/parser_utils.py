@@ -1,6 +1,11 @@
+import os
+
 import ndf_parse as ndf
 from ndf_parse.printer import string as ndf_string
 from ndf_parse import convert
+
+loaded_files = {}
+load_times = {}
 
 
 def parsed_list_to_py_list(parsed_list: ndf.model.List, d_type=str):
@@ -39,8 +44,24 @@ def round_trip(ndf_text: str):
 
 
 def get_parsed_ndf_file(file_path: str):
-    with open(file_path, "r") as file:
-        return convert(file.read())
+    if file_path in loaded_files and file_path in load_times and load_times[file_path] >= os.path.getmtime(file_path):
+        return loaded_files[file_path]
+    else:
+        with open(file_path, "r") as file:
+            ndf_obj = convert(file.read())
+            loaded_files[file_path] = ndf_obj
+            load_times[file_path] = os.path.getmtime(file_path)
+            return ndf_obj
+
+
+def save_files_to_mod(files_to_objs: dict, mod_path: str):
+    for file in files_to_objs.keys():
+        text = get_text_from_ndf_obj(files_to_objs[file])
+        file_path = os.path.join(mod_path, file)
+        with open(file_path, "w") as f:
+            f.write(text)
+        loaded_files[file_path] = files_to_objs[file]
+        load_times[file_path] = os.path.getmtime(file_path)
 
 
 def get_text_from_ndf_obj(obj):
