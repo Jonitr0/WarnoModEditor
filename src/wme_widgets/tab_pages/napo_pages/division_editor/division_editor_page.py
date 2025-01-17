@@ -20,10 +20,13 @@ class DivisionEditorPage(base_napo_page.BaseNapoPage):
         new_div_action.setShortcut('Ctrl+N')
         self.tool_bar.insertAction(self.tool_bar.actions()[0], new_div_action)
 
+        # TODO: better a load button with a dialog
         div_selector = wme_essentials.WMECombobox()
         div_selector.currentIndexChanged.connect(self.on_division_changed)
         self.tool_bar.insertWidget(self.tool_bar.actions()[2], div_selector)
         # load all available divisions
+
+        # TODO: add "delete division" function
 
         self.add_help_button()
 

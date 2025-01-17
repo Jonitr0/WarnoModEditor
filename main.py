@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
     extra = {'density_scale': 0,
              'danger': '#dc3545',
-             'warning': '#ffc107',
+             'warning': '#f08633',
              'success': '#17a2b8',
              }
     apply_stylesheet(app, theme=theme, extra=extra, invert_secondary=invert_secondary)
