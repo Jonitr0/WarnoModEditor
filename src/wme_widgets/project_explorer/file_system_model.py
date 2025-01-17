@@ -3,6 +3,7 @@ from PySide6.QtCore import Qt
 
 import time
 
+
 # based on:
 # https://stackoverflow.com/questions/63669844/pyqt5-dont-show-empty-folders-after-filtering-files-with-a-setnamefilters
 
@@ -17,8 +18,6 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
         self.data_model = QtWidgets.QFileSystemModel()
         self.data_model.setFilter(
             QtCore.QDir.NoDotAndDotDot | QtCore.QDir.AllDirs | QtCore.QDir.Files)
-        self.dirs_to_load = []
-        self.data_model.directoryLoaded.connect(self.on_directory_loaded)
         self.data_model.setReadOnly(False)
         self.setSourceModel(self.data_model)
 
@@ -78,30 +77,13 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
         self.data_model.setRootPath(root_path)
         self.root_path = root_path
 
-    def load_dir(self, path: str):
-        index = self.data_model.index(path)
-        self.data_model.fetchMore(index)
-        for i in range(self.data_model.rowCount(index)):
-            child_path = self.data_model.filePath(self.data_model.index(i, 0, index))
-            if child_path in self.dirs_to_load or not self.data_model.isDir(self.data_model.index(i, 0, index)):
-                continue
-            self.dirs_to_load.append(child_path)
-            self.load_dir(child_path)
-
-    def on_directory_loaded(self, path):
-        if path in self.dirs_to_load:
-            self.dirs_to_load.remove(path)
-
-            index = self.data_model.index(path)
-            # add children to the list
-            for i in range(self.data_model.rowCount(index)):
-                child_path = self.data_model.filePath(self.data_model.index(i, 0, index))
-                if child_path in self.dirs_to_load or not self.data_model.isDir(self.data_model.index(i, 0, index)):
-                    continue
-                self.dirs_to_load.append(child_path)
-                self.load_dir(child_path)
-
     def load_all_dirs(self):
-        self.load_dir(self.root_path)
-        while len(self.dirs_to_load) > 0:
-            time.sleep(0.1)
+        self.load_dir(self.data_model.index(self.data_model.rootPath()))
+
+    def load_dir(self, parent_index):
+        if self.data_model.isDir(parent_index) and self.data_model.hasChildren(parent_index):
+            path = self.data_model.filePath(parent_index)
+            it = QtCore.QDirIterator(path, QtCore.QDir.AllDirs | QtCore.QDir.NoDotAndDotDot)
+            while it.hasNext():
+                child_index = self.data_model.index(it.next())
+                self.load_dir(child_index)
