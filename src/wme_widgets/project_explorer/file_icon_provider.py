@@ -16,5 +16,7 @@ class FileIconProvider(QtWidgets.QFileIconProvider):
                 return icon_manager.load_icon("image.png", COLORS.PRIMARY_LIGHT)
             elif file_info.isDir():
                 return icon_manager.load_icon("dir.png", COLORS.SECONDARY_LIGHT)
+            else:
+                return icon_manager.load_icon("file.png", COLORS.PRIMARY_LIGHT)
 
         return super().icon(file_info)

@@ -10,12 +10,14 @@ drop_bar = None
 class WMETabBar(QtWidgets.QTabBar):
     tab_removed = QtCore.Signal()
     help_requested = QtCore.Signal(int)
+    restore_requested = QtCore.Signal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, can_restore_callback=None):
         self.dragStartPos = QtCore.QPoint(0, 0)
         self.dragging_tab_index = -1
         self.hover_tab_index = -1
         self.dragInitiated = False
+        self.can_restore_callback = can_restore_callback
 
         super().__init__(parent)
 
@@ -40,6 +42,7 @@ class WMETabBar(QtWidgets.QTabBar):
         icon = self.parent().tabIcon(self.dragging_tab_index)
         title = self.parent().tabText(self.dragging_tab_index)
         self.parent().removeTab(self.dragging_tab_index)
+        self.parent().remove_from_restore_stack(widget)
         detached.add_tab(widget, icon, title)
         point = QtGui.QCursor.pos()
 
@@ -132,10 +135,12 @@ class WMETabBar(QtWidgets.QTabBar):
             origin_bar.parent().removeTab(origin_index)
             origin_bar.parent().insertTab(new_index, widget, icon, title)
             origin_bar.parent().setCurrentIndex(new_index)
+            origin_bar.parent().remove_from_restore_stack(widget)
         # the drop comes from a different TabBar
         else:
             widget = origin_bar.parent().widget(origin_index)
             origin_bar.parent().removeTab(origin_index)
+            origin_bar.parent().remove_from_restore_stack(widget)
             # make sure window is closed if needed
             self.parent().tab_removed_by_button.emit()
             if new_index == -1:
@@ -205,6 +210,8 @@ class WMETabBar(QtWidgets.QTabBar):
         close_self_action = context_menu.addAction("Close Tab")
         close_all_action = None
         close_others_action = None
+        help_action = None
+        restore_action = None
         if self.count() > 1:
             close_all_action = context_menu.addAction("Close All Tabs")
             close_others_action = context_menu.addAction("Close Other Tabs")
@@ -212,6 +219,11 @@ class WMETabBar(QtWidgets.QTabBar):
         if self.parent().widget(index).help_file_path != "":
             context_menu.addSeparator()
             help_action = context_menu.addAction("Help")
+
+        if self.can_restore_callback():
+            context_menu.addSeparator()
+            restore_action = context_menu.addAction("Restore Tab")
+            restore_action.setShortcut("Ctrl+Shift+T")
 
         action = context_menu.exec_(self.mapToGlobal(event.pos()))
         start_count = self.count()
@@ -231,5 +243,7 @@ class WMETabBar(QtWidgets.QTabBar):
                     self.tabCloseRequested.emit(start_count - i - 1)
         elif action == help_action:
             self.help_requested.emit(index)
+        elif action == restore_action:
+            self.restore_requested.emit()
 
         super().mouseReleaseEvent(event)

@@ -193,7 +193,6 @@ class AddIconDialog(base_dialog.BaseDialog):
         if not dest_path.endswith(".png"):
             essential_dialogs.MessageDialog("Path invalid", "Destination path should end with .png").exec()
             return
-        # TODO: check if destination file exists
         # save image from origin as png with selected size
         image = QtGui.QImage(self.origin_line_edit.text())
         image = image.smoothScaled(self.width_spin_box.value(), self.height_spin_box.value())

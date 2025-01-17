@@ -372,6 +372,4 @@ class MainWidget(QtWidgets.QWidget):
         return thread.get_return()
 
 
-
-
 instance: MainWidget = None
