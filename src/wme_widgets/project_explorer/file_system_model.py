@@ -12,6 +12,7 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
     name_filters = ""
     root_path = ""
     show_all_dirs = True
+    loaded_all_dirs = QtCore.Signal()
 
     def __init__(self):
         super().__init__()
@@ -79,6 +80,7 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
 
     def load_all_dirs(self):
         self.load_dir(self.data_model.index(self.data_model.rootPath()))
+        self.loaded_all_dirs.emit()
 
     def load_dir(self, parent_index):
         if self.data_model.isDir(parent_index) and self.data_model.hasChildren(parent_index):
