@@ -49,11 +49,16 @@ class WMEProjectExplorer(QtWidgets.QWidget):
 
     def update_model(self, mod_path: str):
         self.tree_view.update_model(mod_path)
+        self.tree_view.model().loaded_all_dirs.connect(self.on_all_loaded)
         self.file_size_checkbox.stateChanged.emit(self.file_size_checkbox.checkState())
 
         main_widget.instance.run_worker_thread(self.tree_view.model().load_all_dirs)
 
         self.search_bar.setText("")
+
+    def on_all_loaded(self):
+        self.tree_view.expandAll()
+        self.tree_view.collapseAll()
 
 
 
