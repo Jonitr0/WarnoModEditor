@@ -87,3 +87,7 @@ class FileSystemModel(QtCore.QSortFilterProxyModel):
             while it.hasNext():
                 child_index = self.data_model.index(it.next())
                 self.load_dir(child_index)
+            # load files
+            it = QtCore.QDirIterator(path, QtCore.QDir.Files)
+            while it.hasNext():
+                self.data_model.index(it.next())
