@@ -1,3 +1,5 @@
+import logging
+
 from PySide6 import QtWidgets, QtGui, QtCore
 from PySide6.QtCore import Qt
 
@@ -59,6 +61,7 @@ class WMEProjectExplorer(QtWidgets.QWidget):
     def on_all_loaded(self):
         self.tree_view.expandAll()
         self.tree_view.collapseAll()
+        logging.info("All directories loaded")
 
 
 

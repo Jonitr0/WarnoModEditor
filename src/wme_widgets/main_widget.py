@@ -13,6 +13,7 @@ from src.dialogs import log_dialog, essential_dialogs
 from src.utils import path_validator, icon_manager, auto_backup_manager, mod_settings_loader
 from src.utils.color_manager import *
 from src.assets import asset_string_manager, asset_icon_manager
+from src.ndf import unit_loader
 
 from pydoc import locate
 
@@ -65,8 +66,11 @@ class MainWidget(QtWidgets.QWidget):
         self.status_timer = QtCore.QTimer()
         self.title_bar = title_bar
         self.title_label = QtWidgets.QLabel("")
+        self.progress_label = QtWidgets.QLabel("")
+        self.progress_bar = QtWidgets.QProgressBar()
         self.log_dialog = log_dialog.LogDialog()
         self.auto_backup_manager = auto_backup_manager.AutoBackupManager(self)
+        self.unit_loader = unit_loader.UnitLoader()
         self.running_threads = []
 
         self.auto_backup_manager.request_backup.connect(self.menu_bar.create_named_backup)
@@ -175,7 +179,16 @@ class MainWidget(QtWidgets.QWidget):
 
         version_label = QtWidgets.QLabel("WME v" + settings_manager.get_settings_value(settings_manager.VERSION_KEY))
         label_layout.addWidget(version_label)
-        label_layout.setAlignment(version_label, Qt.AlignLeft)
+
+        self.progress_label.setFixedWidth(200)
+        self.progress_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        label_layout.addWidget(self.progress_label)
+        self.progress_label.setHidden(True)
+
+        self.progress_bar.setRange(1, 100)
+        self.progress_bar.setHidden(True)
+        label_layout.addWidget(self.progress_bar)
+        label_layout.addStretch(1)
 
         self.log_button.setText("Event Log")
         self.log_button.setIcon(icon_manager.load_icon("message_empty.png", COLORS.SECONDARY_TEXT))
@@ -188,7 +201,6 @@ class MainWidget(QtWidgets.QWidget):
         log_shortcut.setContext(Qt.ApplicationShortcut)
 
         label_layout.addWidget(self.log_button)
-        label_layout.setAlignment(self.log_button, Qt.AlignRight)
 
     def load_mod(self, mod_path: str):
         self.unload_mod()
@@ -200,6 +212,11 @@ class MainWidget(QtWidgets.QWidget):
         self.loaded_mod_path = mod_path
         self.loaded_mod_name = mod_path[mod_path.rindex('\\') + 1:]
         logging.info("loaded mod " + self.loaded_mod_name + " at " + mod_path)
+
+        self.unit_loader.mod_path = mod_path
+        self.unit_loader.request_update_progress.connect(self.set_progress)
+        self.unit_loader.load_units()
+
         self.title_label.setText(" " + self.loaded_mod_name)
         settings_manager.write_settings_value(settings_manager.LAST_OPEN_KEY, mod_path)
         self.mod_loaded.emit(mod_path)
@@ -370,6 +387,16 @@ class MainWidget(QtWidgets.QWidget):
             QtWidgets.QApplication.processEvents()
             time.sleep(0.01)
         return thread.get_return()
+
+    def set_progress(self, progress: float, text: str = "Loading..."):
+        if progress >= 1:
+            self.progress_bar.setHidden(True)
+            self.progress_label.setHidden(True)
+            return
+        self.progress_bar.setHidden(False)
+        self.progress_bar.setValue(int(progress * 100))
+        self.progress_label.setHidden(False)
+        self.progress_label.setText(text)
 
 
 instance: MainWidget = None
