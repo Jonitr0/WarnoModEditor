@@ -1,5 +1,3 @@
-# TODO: when a mod is loaded, start loading certain information of all units in the background
-# TODO: show progress bar in main widget
 # TODO: when unit editor exists, make a unit browser for main widget
 import os
 import time
@@ -74,6 +72,12 @@ class UnitLoaderWorker:
         units_ndf = parser_utils.get_parsed_ndf_file(units_file_path)
         queue.put((0.1, "Loading units..."))
         for i, unit in enumerate(units_ndf):
+            # try parsing objects individually
             queue.put((0.1 + i / len(units_ndf) * 0.9, f"Loading units ({i}/{len(units_ndf)})..."))
             # get unit name
+            name = unit.n.removeprefix("Descriptor_Unit_")
             # get unit category
+            modules = unit.value.by_member("ModulesDescriptors").v
+            cat = modules.find_by_cond(
+                lambda x: getattr(x.v, "type", None) == "TProductionModuleDescriptor").v.by_member("Factory").v
+            print(name, cat)
