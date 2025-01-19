@@ -181,12 +181,14 @@ class MainWidget(QtWidgets.QWidget):
         version_label = QtWidgets.QLabel("WME v" + settings_manager.get_settings_value(settings_manager.VERSION_KEY))
         label_layout.addWidget(version_label)
 
-        self.progress_label.setFixedWidth(200)
+        self.progress_label.setFixedWidth(150)
         self.progress_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         label_layout.addWidget(self.progress_label)
         self.progress_label.setHidden(True)
 
         self.progress_bar.setRange(1, 100)
+        self.progress_bar.setFixedHeight(20)
+        self.progress_bar.setAlignment(Qt.AlignVCenter)
         self.progress_bar.setHidden(True)
         label_layout.addWidget(self.progress_bar)
         label_layout.addStretch(1)

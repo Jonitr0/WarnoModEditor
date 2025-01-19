@@ -4,9 +4,11 @@ import time
 import threading
 import multiprocessing
 
+import ndf_parse as ndf
+
 from PySide6 import QtCore
 
-from src.ndf import parser_utils
+from src.ndf import parser_utils, ndf_scanner
 
 
 class UnitLoader(QtCore.QObject):
@@ -68,16 +70,21 @@ class UnitLoaderWorker:
 
     def load_units(self, queue):
         units_file_path = os.path.join(self.mod_path, r"GameData\Generated\Gameplay\Gfx\UniteDescriptor.ndf")
-        queue.put((0.05, "Parsing units file..."))
-        units_ndf = parser_utils.get_parsed_ndf_file(units_file_path)
-        queue.put((0.1, "Loading units..."))
-        for i, unit in enumerate(units_ndf):
+        queue.put((0, "Loading units..."))
+        with open(units_file_path, "r") as f:
+            text = f.read()
+        index = 0
+        while index < len(text):
             # try parsing objects individually
-            queue.put((0.1 + i / len(units_ndf) * 0.9, f"Loading units ({i}/{len(units_ndf)})..."))
+            queue.put((index / len(text), "Loading units..."))
+            end = ndf_scanner.traverse_object(text, index)
+            unit_text = text[index:end]
+            index = end + 1
+            unit = ndf.convert(unit_text)[0]
             # get unit name
             name = unit.n.removeprefix("Descriptor_Unit_")
             # get unit category
             modules = unit.value.by_member("ModulesDescriptors").v
             cat = modules.find_by_cond(
                 lambda x: getattr(x.v, "type", None) == "TProductionModuleDescriptor").v.by_member("Factory").v
-            print(name, cat)
+            #print(name, cat)
