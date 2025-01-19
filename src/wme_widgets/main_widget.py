@@ -71,6 +71,7 @@ class MainWidget(QtWidgets.QWidget):
         self.log_dialog = log_dialog.LogDialog()
         self.auto_backup_manager = auto_backup_manager.AutoBackupManager(self)
         self.unit_loader = unit_loader.UnitLoader()
+        self.unit_loader.request_update_progress.connect(self.set_progress)
         self.running_threads = []
 
         self.auto_backup_manager.request_backup.connect(self.menu_bar.create_named_backup)
@@ -214,7 +215,6 @@ class MainWidget(QtWidgets.QWidget):
         logging.info("loaded mod " + self.loaded_mod_name + " at " + mod_path)
 
         self.unit_loader.mod_path = mod_path
-        self.unit_loader.request_update_progress.connect(self.set_progress)
         self.unit_loader.load_units()
 
         self.title_label.setText(" " + self.loaded_mod_name)
@@ -234,6 +234,7 @@ class MainWidget(QtWidgets.QWidget):
             self.save_mod_state()
 
         self.tab_widget.close_all(True)
+        self.unit_loader.terminate()
         self.loaded_mod_path = ""
         self.loaded_mod_name = ""
         self.title_label.setText("")
