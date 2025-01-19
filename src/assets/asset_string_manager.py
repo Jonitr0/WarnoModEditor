@@ -13,6 +13,7 @@ class AssetStringManager:
 
     def load_asset_strings(self):
         self.asset_strings = {}
+        self.watcher.removePaths(self.watcher.files())
 
         mod_path = self.main_widget.get_loaded_mod_path()
         mod_name = self.main_widget.get_loaded_mod_name()
