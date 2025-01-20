@@ -1,8 +1,19 @@
 from PySide6 import QtWidgets, QtCore
 
-from src.wme_widgets import wme_essentials, wme_collapsible
+from src.wme_widgets import wme_essentials, wme_collapsible, main_widget
 from src.utils import icon_manager
 from src.utils.color_manager import *
+
+actual_categories = {
+    "LOG": "Logistic",
+    "INF": "Infantry",
+    "ART": "Art",
+    "TNK": "Tanks",
+    "REC": "Recons",
+    "AA": "DCA",
+    "HEL": "Helis",
+    "AIR": "Planes",
+}
 
 
 class DivisionUnitEditor(wme_collapsible.WMECollapsible):
@@ -15,8 +26,7 @@ class DivisionUnitEditor(wme_collapsible.WMECollapsible):
             category_widget = wme_collapsible.WMECollapsible(title=c)
             add_unit_button = QtWidgets.QPushButton(f"Add Unit to {c}")
             add_unit_button.setFixedWidth(200)
-            category_widget.add_widget(DivisionUnitWidget())
-            category_widget.add_widget(DivisionUnitWidget())
+            category_widget.add_widget(DivisionUnitWidget(c))
             category_widget.add_widget(add_unit_button)
             self.add_widget(category_widget)
 
@@ -31,8 +41,10 @@ class DivisionUnitEditor(wme_collapsible.WMECollapsible):
 class DivisionUnitWidget(QtWidgets.QWidget):
     request_delete = QtCore.Signal(QtWidgets.QWidget)
 
-    def __init__(self, parent=None):
+    def __init__(self, category, parent=None):
         super().__init__(parent)
+        self.category = category
+
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
@@ -47,6 +59,11 @@ class DivisionUnitWidget(QtWidgets.QWidget):
         top_layout.addWidget(delete_button)
 
         self.unit_selector = wme_essentials.WMECombobox()
+
+        all_units = main_widget.instance.unit_loader.get_units()
+        unit_names = [u["name"] for u in all_units if u["category"] == actual_categories[self.category]]
+
+        self.unit_selector.addItems(unit_names)
         top_layout.addWidget(self.unit_selector)
         self.duplication_label = QtWidgets.QLabel()
         self.duplication_label.setFixedSize(32, 32)
@@ -172,6 +189,9 @@ class DivisionTransportWidget(QtWidgets.QWidget):
         layout.addWidget(delete_button)
 
         unit_selector = wme_essentials.WMECombobox()
+        all_units = main_widget.instance.unit_loader.get_units()
+        unit_names = [u["name"] for u in all_units if u["is_transport"]]
+        unit_selector.addItems(unit_names)
         unit_selector.currentTextChanged.connect(lambda t: self.unit_changed.emit(t))
         layout.addWidget(unit_selector)
 

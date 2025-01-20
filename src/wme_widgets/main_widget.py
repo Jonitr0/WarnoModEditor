@@ -70,7 +70,7 @@ class MainWidget(QtWidgets.QWidget):
         self.progress_bar = QtWidgets.QProgressBar()
         self.log_dialog = log_dialog.LogDialog()
         self.auto_backup_manager = auto_backup_manager.AutoBackupManager(self)
-        self.unit_loader = unit_loader.UnitLoader()
+        self.unit_loader = unit_loader.UnitLoader(parent=self)
         self.unit_loader.request_update_progress.connect(self.set_progress)
         self.running_threads = []
 

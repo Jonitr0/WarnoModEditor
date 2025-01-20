@@ -4,6 +4,7 @@ import ndf_parse as ndf
 from ndf_parse.printer import string as ndf_string
 from ndf_parse import convert
 
+# TODO: cache this in a file
 loaded_files = {}
 load_times = {}
 
