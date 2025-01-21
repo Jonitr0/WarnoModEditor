@@ -21,13 +21,14 @@ class DivisionUnitEditor(wme_collapsible.WMECollapsible):
         super().__init__(title="Units", parent=parent)
 
         categories = ["LOG", "INF", "ART", "TNK", "REC", "AA", "HEL", "AIR"]
+        self.set_spacing(10)
 
         for c in categories:
-            category_widget = wme_collapsible.WMECollapsible(title=c)
+            category_widget = wme_collapsible.WMECollapsible(title=c, margin=20)
             add_unit_button = QtWidgets.QPushButton(f"Add Unit to {c}")
-            add_unit_button.setFixedWidth(200)
+            add_unit_button.setFixedWidth(150)
+            category_widget.set_corner_widget(add_unit_button)
             category_widget.add_widget(DivisionUnitWidget(c))
-            category_widget.add_widget(add_unit_button)
             self.add_widget(category_widget)
 
     def get_state(self) -> dict:
@@ -38,15 +39,15 @@ class DivisionUnitEditor(wme_collapsible.WMECollapsible):
         pass
 
 
-class DivisionUnitWidget(QtWidgets.QWidget):
+class DivisionUnitWidget(QtWidgets.QFrame):
     request_delete = QtCore.Signal(QtWidgets.QWidget)
 
     def __init__(self, category, parent=None):
         super().__init__(parent)
         self.category = category
+        self.setObjectName("list_entry")
 
         layout = QtWidgets.QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         top_layout = QtWidgets.QHBoxLayout()
         layout.addLayout(top_layout)
@@ -68,9 +69,18 @@ class DivisionUnitWidget(QtWidgets.QWidget):
         self.duplication_label = QtWidgets.QLabel()
         self.duplication_label.setFixedSize(32, 32)
         self.duplication_label.setPixmap(icon_manager.load_icon("warning.png", COLORS.WARNING).pixmap(24))
-        self.duplication_label.setToolTip("Duplicate Warning: This unit already exists in the division, this "
+        self.duplication_label.setToolTip("Duplication Warning: This unit already exists in the division, this "
                                           "instance will be ignored.")
         top_layout.addWidget(self.duplication_label)
+
+        transport_button = QtWidgets.QToolButton()
+        transport_button.setToolTip("Toggle transport options")
+        transport_button.setFixedSize(32, 32)
+        transport_button.setIcon(icon_manager.load_icon("truck.png", COLORS.PRIMARY))
+        transport_button.setCheckable(True)
+        transport_button.toggled.connect(lambda t: self.transports_section.setVisible(t))
+        transport_button.setChecked(False)
+        top_layout.addWidget(transport_button)
         top_layout.addStretch(1)
 
         label_0_vet = QtWidgets.QLabel()
@@ -109,8 +119,9 @@ class DivisionUnitWidget(QtWidgets.QWidget):
         self.selector_3_vet.setRange(0, 999)
         top_layout.addWidget(self.selector_3_vet)
 
-        self.transports_section = wme_collapsible.WMECollapsible(title="Transports")
+        self.transports_section = wme_collapsible.WMECollapsible(title="Transports", margin=20)
         self.transports_section.set_collapsed(True)
+        self.transports_section.setVisible(False)
         layout.addWidget(self.transports_section)
 
         wo_transport_widget = QtWidgets.QWidget()
@@ -198,7 +209,7 @@ class DivisionTransportWidget(QtWidgets.QWidget):
         self.duplication_label = QtWidgets.QLabel()
         self.duplication_label.setFixedSize(32, 32)
         self.duplication_label.setPixmap(icon_manager.load_icon("warning.png", COLORS.WARNING).pixmap(24))
-        self.duplication_label.setToolTip("Duplicate Warning: This transport already exists for the unit, this "
+        self.duplication_label.setToolTip("Duplication Warning: This transport already exists for the unit, this "
                                           "instance will be ignored.")
         layout.addWidget(self.duplication_label)
         layout.addStretch(1)

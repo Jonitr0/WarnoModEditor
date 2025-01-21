@@ -3,12 +3,15 @@ import os
 import time
 import threading
 import multiprocessing
+import logging
+import pickle
 
 import ndf_parse as ndf
 
 from PySide6 import QtCore
 
-from src.ndf import parser_utils, ndf_scanner
+from src.ndf import ndf_scanner
+from src.utils import resource_loader
 
 
 class UnitLoader(QtCore.QObject):
@@ -18,7 +21,6 @@ class UnitLoader(QtCore.QObject):
         super().__init__(parent=parent)
         # update when mod is loaded
         self.mod_path = ""
-        # TODO: cache this in a file
         self.units = []
         self.worker = None
         self.progress_queue = None
@@ -42,6 +44,16 @@ class UnitLoader(QtCore.QObject):
             res = self.results_queue.get(block=False)
             if isinstance(res, list):
                 self.units = res
+        # save a pickled version of the units to a cache file
+        mod_name = os.path.basename(self.mod_path)
+        cache_file_path = resource_loader.get_cache_path(mod_name, "units.pkl")
+        units_file_path = os.path.join(self.mod_path, r"GameData\Generated\Gameplay\Gfx\UniteDescriptor.ndf")
+        with open(cache_file_path, "wb") as f:
+            units_data = {
+                "units": self.units,
+                "last_updated": os.path.getmtime(units_file_path)
+            }
+            pickle.dump(units_data, f)
 
     def load_units(self):
         self.terminate()
@@ -86,8 +98,25 @@ class UnitLoaderWorker:
         self.proc.start()
 
     def load_units(self, progress_queue, results_queue):
-        units_file_path = os.path.join(self.mod_path, r"GameData\Generated\Gameplay\Gfx\UniteDescriptor.ndf")
         progress_queue.put((0, "Loading units..."))
+        units_file_path = os.path.join(self.mod_path, r"GameData\Generated\Gameplay\Gfx\UniteDescriptor.ndf")
+        # first try to load from cache
+        mod_name = os.path.basename(self.mod_path)
+        cache_file_path = resource_loader.get_cache_path(mod_name, "units.pkl")
+        if os.path.exists(cache_file_path):
+            with open(cache_file_path, "rb") as f:
+                try:
+                    units_data = pickle.load(f)
+                except Exception as e:
+                    logging.error(f"Failed to load units from cache: {e}")
+                    units_data = {"last_updated": 0}
+            # check if the cache is still valid
+            if os.path.getmtime(units_file_path) == units_data["last_updated"]:
+                self.units = units_data["units"]
+                results_queue.put(self.units)
+                progress_queue.put((1, ""))
+                return
+
         with open(units_file_path, "r") as f:
             text = f.read()
         index = 0

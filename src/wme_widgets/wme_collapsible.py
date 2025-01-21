@@ -5,7 +5,7 @@ from src.utils.color_manager import *
 
 
 class WMECollapsible(QtWidgets.QWidget):
-    def __init__(self, parent = None, title: str = ""):
+    def __init__(self, parent = None, title: str = "", margin: int = 50):
         super().__init__(parent)
 
         self.collapse_icon = icon_manager.load_icon("chevron_down.png", COLORS.PRIMARY)
@@ -34,7 +34,7 @@ class WMECollapsible(QtWidgets.QWidget):
         self.header_layout.addWidget(self.corner_widget)
 
         self.item_layout = QtWidgets.QVBoxLayout()
-        self.item_layout.setContentsMargins(50, 0, 0, 0)
+        self.item_layout.setContentsMargins(margin, 0, 0, 0)
         self.item_layout.setSpacing(0)
         self.main_layout.addLayout(self.item_layout)
 
@@ -47,10 +47,18 @@ class WMECollapsible(QtWidgets.QWidget):
         self.collapse_button.setIcon(self.expand_icon if self.collapsed else self.collapse_icon)
 
         for i in range(self.item_layout.count()):
+            if not self.item_layout.itemAt(i).widget():
+                continue
             self.item_layout.itemAt(i).widget().setHidden(self.collapsed)
 
     def add_widget(self, w: QtWidgets.QWidget):
         self.item_layout.addWidget(w)
+
+    def add_spacing(self, size: int):
+        self.item_layout.addSpacing(size)
+
+    def set_spacing(self, size: int):
+        self.item_layout.setSpacing(size)
 
     def set_corner_widget(self, widget: QtWidgets.QWidget):
         self.header_layout.removeWidget(self.corner_widget)

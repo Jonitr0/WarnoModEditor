@@ -36,3 +36,19 @@ def get_export_path(relative_path: str):
         os.makedirs(os.path.join(export_path, "Scripts"))
 
     return os.path.join(export_path, relative_path)
+
+
+def get_cache_path(mod_name: str, relative_path: str):
+    # get AppData path
+    app_data = os.getenv("APPDATA")
+    wme_path = os.path.join(app_data, "WarnoModEditor")
+
+    if not os.path.exists(wme_path):
+        os.makedirs(wme_path)
+
+    cache_path = os.path.join(wme_path, "cache", mod_name)
+
+    if not os.path.exists(cache_path):
+        os.makedirs(cache_path)
+
+    return os.path.join(cache_path, relative_path)
