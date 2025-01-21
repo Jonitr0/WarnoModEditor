@@ -119,7 +119,7 @@ class DivisionUnitWidget(QtWidgets.QFrame):
         self.selector_3_vet.setRange(0, 999)
         top_layout.addWidget(self.selector_3_vet)
 
-        self.transports_section = wme_collapsible.WMECollapsible(title="Transports", margin=20)
+        self.transports_section = wme_collapsible.WMECollapsible(title="Transports (0)", margin=20)
         self.transports_section.set_collapsed(True)
         self.transports_section.setVisible(False)
         layout.addWidget(self.transports_section)
@@ -138,7 +138,7 @@ class DivisionUnitWidget(QtWidgets.QFrame):
 
     def get_transports(self) -> list:
         transports = []
-        for w in self.transports_section.item_layout.children():
+        for w in self.transports_section.widgets():
             if isinstance(w, DivisionTransportWidget) and not w.duplication_label.isVisible():
                 transports.append(w.unit_selector.currentText())
         return transports
@@ -167,20 +167,28 @@ class DivisionUnitWidget(QtWidgets.QFrame):
 
     def add_transport_widget(self):
         widget = DivisionTransportWidget()
-        widget.request_delete.connect(lambda w: self.transports_section.item_layout.removeWidget(w))
+        widget.request_delete.connect(self.remove_transport_widget)
+        widget.unit_changed.connect(self.check_transports_for_duplicates)
         self.transports_section.set_collapsed(False)
         self.transports_section.add_widget(widget)
+        self.transports_section.set_title(f"Transports ({len(self.transports_section.widgets())})")
         self.check_transports_for_duplicates()
         return widget
 
+    def remove_transport_widget(self, widget):
+        self.transports_section.remove_widget(widget)
+        self.transports_section.set_title(f"Transports ({len(self.transports_section.widgets())})")
+        self.check_transports_for_duplicates()
+
     def check_transports_for_duplicates(self):
-        transports = self.get_transports()
-        for w in self.transports_section.item_layout.children():
+        transports = []
+        for w in self.transports_section.widgets():
             if isinstance(w, DivisionTransportWidget):
                 if w.unit_selector.currentText() in transports:
                     w.duplication_label.setVisible(True)
                 else:
                     w.duplication_label.setVisible(False)
+                    transports.append(w.unit_selector.currentText())
 
 
 class DivisionTransportWidget(QtWidgets.QWidget):
@@ -199,17 +207,18 @@ class DivisionTransportWidget(QtWidgets.QWidget):
         delete_button.clicked.connect(lambda: self.request_delete.emit(self))
         layout.addWidget(delete_button)
 
-        unit_selector = wme_essentials.WMECombobox()
+        self.unit_selector = wme_essentials.WMECombobox()
         all_units = main_widget.instance.unit_loader.get_units()
         unit_names = [u["name"] for u in all_units if u["is_transport"]]
-        unit_selector.addItems(unit_names)
-        unit_selector.currentTextChanged.connect(lambda t: self.unit_changed.emit(t))
-        layout.addWidget(unit_selector)
+        self.unit_selector.addItems(unit_names)
+        self.unit_selector.currentTextChanged.connect(lambda t: self.unit_changed.emit(t))
+        layout.addWidget(self.unit_selector)
 
         self.duplication_label = QtWidgets.QLabel()
         self.duplication_label.setFixedSize(32, 32)
         self.duplication_label.setPixmap(icon_manager.load_icon("warning.png", COLORS.WARNING).pixmap(24))
         self.duplication_label.setToolTip("Duplication Warning: This transport already exists for the unit, this "
                                           "instance will be ignored.")
+        self.duplication_label.setVisible(False)
         layout.addWidget(self.duplication_label)
         layout.addStretch(1)

@@ -1,15 +1,17 @@
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtGui
 
 from src.utils import icon_manager
 from src.utils.color_manager import *
 
 
 class WMECollapsible(QtWidgets.QWidget):
-    def __init__(self, parent = None, title: str = "", margin: int = 50):
+    def __init__(self, parent=None, title: str = "", margin: int = 50):
         super().__init__(parent)
 
         self.collapse_icon = icon_manager.load_icon("chevron_down.png", COLORS.PRIMARY)
         self.expand_icon = icon_manager.load_icon("chevron_right.png", COLORS.PRIMARY)
+        self.expand_icon.addPixmap(icon_manager.load_pixmap("chevron_right.png", COLORS.SECONDARY_LIGHT),
+                                   QtGui.QIcon.Disabled)
         self.collapsed = False
 
         self.main_layout = QtWidgets.QVBoxLayout()
@@ -38,6 +40,8 @@ class WMECollapsible(QtWidgets.QWidget):
         self.item_layout.setSpacing(0)
         self.main_layout.addLayout(self.item_layout)
 
+        self.set_collapsed(True)
+
     def on_collapse(self):
         self.set_collapsed(not self.collapsed)
 
@@ -51,8 +55,19 @@ class WMECollapsible(QtWidgets.QWidget):
                 continue
             self.item_layout.itemAt(i).widget().setHidden(self.collapsed)
 
+        if collapsed and self.item_layout.count() == 0:
+            self.collapse_button.setDisabled(True)
+
     def add_widget(self, w: QtWidgets.QWidget):
         self.item_layout.addWidget(w)
+        self.collapse_button.setDisabled(False)
+
+    def remove_widget(self, w: QtWidgets.QWidget):
+        self.item_layout.removeWidget(w)
+        w.setParent(None)
+        if self.item_layout.count() == 0:
+            self.set_collapsed(True)
+            self.collapse_button.setDisabled(True)
 
     def add_spacing(self, size: int):
         self.item_layout.addSpacing(size)
@@ -60,9 +75,14 @@ class WMECollapsible(QtWidgets.QWidget):
     def set_spacing(self, size: int):
         self.item_layout.setSpacing(size)
 
+    def set_title(self, title: str):
+        self.header_label.setText(title)
+
     def set_corner_widget(self, widget: QtWidgets.QWidget):
         self.header_layout.removeWidget(self.corner_widget)
         self.corner_widget.setParent(None)
         self.header_layout.addWidget(widget)
         self.corner_widget = widget
 
+    def widgets(self):
+        return [self.item_layout.itemAt(i).widget() for i in range(self.item_layout.count())]
