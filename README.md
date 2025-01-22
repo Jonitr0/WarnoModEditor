@@ -57,6 +57,22 @@ When you first start WME, you might get asked to enter the path to your WARNO in
 
 Please refer to the [Quickstart Guide](https://github.com/Jonitr0/WarnoModEditor/blob/main/resources/markdown/Quickstart.md) to learn how to use WME.
 
+##### Paths
+
+WME saves data to and/or loads data from in the following locations:
+
+- Exported configurations from tools are saved in **Users\\[your_username]\Documents\WarnoModEditor**
+- Custom scripts for the Script Runner are loaded from **Users\\[your_username]\Documents\WarnoModEditor\Scripts** (more documentation on these is coming soon)
+- The log file (*wme.log)*, WME’s config file (*wme_config.json*) and cached data are saved to **Users\\[your_username]\AppData\\Roaming\WarnoModEditor**
+
 ### Feedback
 
 If you encounter any bugs, errors or if something does not work as you think it should, please open a new issue [here](https://github.com/Jonitr0/WarnoModEditor/issues), if your problem has not been reported already.
+
+### Acknowledgements
+
+Thanks to Eugen Systems for making WARNO and giving it such extensive support for mods.
+
+Thanks to the WARNO modding community for making many awesome mods and helping newcomers.
+
+Thanks to Ulibos for making [ndf-parse](https://github.com/Ulibos/ndf-parse), a very useful and well-documented tool for automating WARNO modding.
