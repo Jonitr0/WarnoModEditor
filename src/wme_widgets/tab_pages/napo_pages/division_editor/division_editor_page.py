@@ -56,6 +56,8 @@ class DivisionEditorPage(base_napo_page.BaseNapoPage):
 
         self.scroll_layout.addStretch(1)
 
+        # TODO: open all relevant files, possibly with new "read-only" mode
+        # TODO: in update_page, make sure we wait for unit loading
         self.update_page()
 
     def on_new_division(self):
