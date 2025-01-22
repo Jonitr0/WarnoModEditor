@@ -61,6 +61,8 @@ class WMECollapsible(QtWidgets.QWidget):
     def add_widget(self, w: QtWidgets.QWidget):
         self.item_layout.addWidget(w)
         self.collapse_button.setDisabled(False)
+        if self.collapsed:
+            w.setHidden(True)
 
     def remove_widget(self, w: QtWidgets.QWidget):
         self.item_layout.removeWidget(w)

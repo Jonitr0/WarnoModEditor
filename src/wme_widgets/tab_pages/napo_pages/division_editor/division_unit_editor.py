@@ -24,11 +24,7 @@ class DivisionUnitEditor(wme_collapsible.WMECollapsible):
         self.set_spacing(10)
 
         for c in categories:
-            category_widget = wme_collapsible.WMECollapsible(title=c, margin=20)
-            add_unit_button = QtWidgets.QPushButton(f"Add Unit to {c}")
-            add_unit_button.setFixedWidth(150)
-            category_widget.set_corner_widget(add_unit_button)
-            category_widget.add_widget(DivisionUnitWidget(c))
+            category_widget = DivisionCategoryWidget(c)
             self.add_widget(category_widget)
 
     def get_state(self) -> dict:
@@ -39,8 +35,47 @@ class DivisionUnitEditor(wme_collapsible.WMECollapsible):
         pass
 
 
+class DivisionCategoryWidget(wme_collapsible.WMECollapsible):
+    def __init__(self, category):
+        super().__init__(title=category, margin=20)
+        self.category = category
+        add_unit_button = QtWidgets.QPushButton(f"Add Unit to {category}")
+        add_unit_button.clicked.connect(self.add_unit)
+        add_unit_button.setFixedWidth(150)
+        self.set_corner_widget(add_unit_button)
+
+    def add_unit(self):
+        unit = DivisionUnitWidget(category=self.category)
+        unit.unit_changed.connect(self.check_units_for_duplicates)
+        unit.request_delete.connect(self.delete_unit)
+        self.add_widget(unit)
+        self.check_units_for_duplicates()
+        self.set_collapsed(False)
+
+    def delete_unit(self, unit):
+        self.remove_widget(unit)
+        self.check_units_for_duplicates()
+
+    def check_units_for_duplicates(self):
+        units = []
+        for w in self.widgets():
+            if isinstance(w, DivisionUnitWidget):
+                if w.unit_selector.currentText() in units:
+                    w.duplication_label.setVisible(True)
+                else:
+                    w.duplication_label.setVisible(False)
+                    units.append(w.unit_selector.currentText())
+
+    def get_state(self):
+        pass
+
+    def set_state(self, state: dict):
+        pass
+
+
 class DivisionUnitWidget(QtWidgets.QFrame):
     request_delete = QtCore.Signal(QtWidgets.QWidget)
+    unit_changed = QtCore.Signal(str)
 
     def __init__(self, category, parent=None):
         super().__init__(parent)
@@ -60,6 +95,7 @@ class DivisionUnitWidget(QtWidgets.QFrame):
         top_layout.addWidget(delete_button)
 
         self.unit_selector = wme_essentials.WMECombobox()
+        self.unit_selector.currentTextChanged.connect(lambda t: self.unit_changed.emit(t))
 
         all_units = main_widget.instance.unit_loader.get_units()
         unit_names = [u["name"] for u in all_units if u["category"] == actual_categories[self.category]]
