@@ -5,7 +5,7 @@ from src.utils.color_manager import *
 
 
 class WMECollapsible(QtWidgets.QWidget):
-    def __init__(self, parent=None, title: str = "", margin: int = 50):
+    def __init__(self, parent=None, title: str = "", margin: int = 50, expand_on_adding: bool = True):
         super().__init__(parent)
 
         self.collapse_icon = icon_manager.load_icon("chevron_down.png", COLORS.PRIMARY)
@@ -13,6 +13,7 @@ class WMECollapsible(QtWidgets.QWidget):
         self.expand_icon.addPixmap(icon_manager.load_pixmap("chevron_right.png", COLORS.SECONDARY_LIGHT),
                                    QtGui.QIcon.Disabled)
         self.collapsed = False
+        self.expand_on_adding = expand_on_adding
 
         self.main_layout = QtWidgets.QVBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 10, 0)
@@ -63,6 +64,8 @@ class WMECollapsible(QtWidgets.QWidget):
         self.collapse_button.setDisabled(False)
         if self.collapsed:
             w.setHidden(True)
+        if self.expand_on_adding:
+            self.set_collapsed(False)
 
     def remove_widget(self, w: QtWidgets.QWidget):
         self.item_layout.removeWidget(w)

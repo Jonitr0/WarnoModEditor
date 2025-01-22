@@ -111,7 +111,7 @@ class UnitLoaderWorker:
                     logging.error(f"Failed to load units from cache: {e}")
                     units_data = {"last_updated": 0}
             # check if the cache is still valid
-            if os.path.getmtime(units_file_path) == units_data["last_updated"]:
+            if os.path.getmtime(units_file_path) == units_data["last_updated"] and units_data["units"]:
                 self.units = units_data["units"]
                 results_queue.put(self.units)
                 progress_queue.put((1, ""))
