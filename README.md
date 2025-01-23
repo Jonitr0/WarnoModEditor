@@ -75,4 +75,4 @@ Thanks to Eugen Systems for making WARNO and giving it such extensive support fo
 
 Thanks to the WARNO modding community for making many awesome mods and helping newcomers.
 
-Thanks to Ulibos for making [ndf-parse](https://github.com/Ulibos/ndf-parse), a very useful and well-documented tool for automating WARNO modding.
+Thanks to Ulibos for making [ndf-parse](https://github.com/Ulibos/ndf-parse), a powerful and well-documented tool for automating WARNO modding.
