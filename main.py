@@ -1,5 +1,4 @@
-import sys
-import os
+import multiprocessing
 import logging
 from pathlib import Path
 
@@ -16,6 +15,9 @@ from src.dialogs import exception_handler_dialog
 from src.wme_widgets import wme_splash_screen
 
 if __name__ == '__main__':
+    # needed for multiprocessing with pyinstaller
+    multiprocessing.freeze_support()
+
     # setup logging
     log_file = get_persistant_path("wme.log")
     logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s',
