@@ -27,61 +27,80 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         self.file_menu = self.addMenu("&File")
         self.file_menu.setToolTipsVisible(True)
 
-        self.add_action_to_menu("New Mod", self.file_menu, False, self.on_new_action, "Create a new mod.", "Ctrl+Alt+N")
-        self.add_action_to_menu("Open Mod", self.file_menu, False, self.on_load_action,
+        self.add_action_to_menu("New Mod", self.file_menu, self.on_new_action, "Create a new mod.", "Ctrl+Alt+N")
+        self.add_action_to_menu("Open Mod", self.file_menu, self.on_load_action,
                                 "Open an existing mod.", "Ctrl+Alt+O")
-        self.add_action_to_menu("Delete Mod", self.file_menu, False, self.on_delete_action,
+        self.add_action_to_menu("Delete Mod", self.file_menu, self.on_delete_action,
                                 "Delete an existing mod.", "Ctrl+Del")
 
         self.file_menu.addSeparator()
 
-        self.add_action_to_menu("Options", self.file_menu, False, self.on_options_action,
+        self.add_action_to_menu("Options", self.file_menu, self.on_options_action,
                                 "Change WME settings.", "Ctrl+Alt+S")
-        self.add_action_to_menu("Report Issue..", self.file_menu, False, self.on_report_issue_action,
+        self.add_action_to_menu("Report Issue..", self.file_menu, self.on_report_issue_action,
                                 "Report an issue on the WME GitHub page (opened in web browser).")
-        self.add_action_to_menu("Exit", self.file_menu, False, self.on_exit_action, "Quit WME.", "Alt+X")
+        self.add_action_to_menu("Exit", self.file_menu, self.on_exit_action, "Quit WME.", "Alt+X")
 
         self.edit_menu = self.addMenu("&Edit")
         self.edit_menu.setToolTipsVisible(True)
+        self.edit_menu.setEnabled(False)
 
-        self.add_action_to_menu("Generate Mod", self.edit_menu, True, self.on_generate_action,
+        self.add_action_to_menu("Create Asset Definition Files", self.edit_menu,
+                                self.on_create_asset_defs_action,
+                                "Needs to be run on older mods to enable asset integration.")
+        self.add_action_to_menu("Generate Mod", self.edit_menu, self.on_generate_action,
                                 "Generate the binary files for the mod. Launches another application.\n"
                                 "This step is required to apply changes made to the mods files in-game.", "Alt+G")
-        self.add_action_to_menu("Update Mod", self.edit_menu, True, self.on_update_action,
+        self.add_action_to_menu("Update Mod", self.edit_menu, self.on_update_action,
                                 "Update the mod to a new version of WARNO.")
-        self.add_action_to_menu("Upload Mod", self.edit_menu, True, self.on_upload_action,
+        self.add_action_to_menu("Upload Mod", self.edit_menu, self.on_upload_action,
                                 "Upload the mod to your Steam Workshop.\n"
                                 "Will only work if the mod was generated before.")
 
         self.edit_menu.addSeparator()
 
-        self.add_action_to_menu("Edit Mod Configuration", self.edit_menu, True, self.on_edit_config_action,
+        self.add_action_to_menu("Edit Mod Configuration", self.edit_menu, self.on_edit_config_action,
                                 "Edit the mods Config.ini file.", "Ctrl+Alt+C")
-        self.add_action_to_menu("Delete Mod Configuration", self.edit_menu, True, self.on_delete_config_action,
+        self.add_action_to_menu("Delete Mod Configuration", self.edit_menu, self.on_delete_config_action,
                                 "Delete the mods Config.ini file.")
 
         self.backup_menu = self.addMenu("&Backup")
         self.backup_menu.setToolTipsVisible(True)
+        self.backup_menu.setEnabled(False)
 
-        self.add_action_to_menu("Create Mod Backup", self.backup_menu, True, self.on_new_backup_action,
+        self.add_action_to_menu("Create Mod Backup", self.backup_menu, self.on_new_backup_action,
                                 "Create a backup from the current state of the mod.")
-        self.add_action_to_menu("Create Quick Mod Backup", self.backup_menu, True, self.on_quick_backup_action,
+        self.add_action_to_menu("Create Quick Mod Backup", self.backup_menu, self.on_quick_backup_action,
                                 "Create a backup from the current state of the mod using the default name.",
                                 "Ctrl+Alt+B")
-        self.add_action_to_menu("Retrieve Mod Backup", self.backup_menu, True,
+        self.add_action_to_menu("Retrieve Mod Backup", self.backup_menu,
                                 self.on_retrieve_backup_action, "Restore an existing mod backup.", "Ctrl+Alt+R")
-        self.add_action_to_menu("Delete Mod Backup", self.backup_menu, True, self.on_delete_backup_action,
+        self.add_action_to_menu("Delete Mod Backup", self.backup_menu, self.on_delete_backup_action,
                                 "Delete an existing mod backup.")
-        self.add_action_to_menu("Auto Backup Settings", self.backup_menu, True, self.on_auto_backup_action,
+        self.add_action_to_menu("Auto Backup Settings", self.backup_menu, self.on_auto_backup_action,
                                 "Change the auto backup settings for the current mod.")
 
         self.assets_menu = self.addMenu("&Assets")
         self.assets_menu.setToolTipsVisible(True)
+        self.assets_menu.setEnabled(False)
 
-        self.add_action_to_menu("Add Image", self.assets_menu, True, self.on_add_icon_action,
+        self.add_action_to_menu("Add Image", self.assets_menu, self.on_add_icon_action,
                                 "Add an image to the mod.", "Ctrl+Alt+I")
-        self.add_action_to_menu("Add String", self.assets_menu, True, self.on_add_string_action,
+        self.add_action_to_menu("Add String", self.assets_menu, self.on_add_string_action,
                                 "Add new text to the mod.", "Ctrl+Alt+K")
+
+        main_widget_ref.mod_loaded.connect(self.on_mod_loaded)
+        main_widget_ref.mod_unloaded.connect(self.on_mod_unloaded)
+
+    def on_mod_loaded(self):
+        self.edit_menu.setEnabled(True)
+        self.backup_menu.setEnabled(True)
+        self.assets_menu.setEnabled(True)
+
+    def on_mod_unloaded(self):
+        self.edit_menu.setEnabled(False)
+        self.backup_menu.setEnabled(False)
+        self.assets_menu.setEnabled(False)
 
     def on_new_action(self):
         dialog = new_mod_dialog.NewModDialog(self.main_widget_ref.get_warno_path())
@@ -201,10 +220,14 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
     def on_exit_action(self):
         self.window().close()
 
+    def on_create_asset_defs_action(self):
+        ret = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "CreateAssetDefinitionFiles.bat", [])
+        logging.info("CreateAssetDefinitionFiles.bat executed with return code " + str(ret))
+
     def generate_mod(self):
         # for whatever reason, the successful run returns 18?
         self.remove_pause_line_from_script("GenerateMod.bat")
-        ret_code = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "GenerateMod.bat", [])
+        ret_code = self.run_script(self.main_widget_ref.get_loaded_mod_path(), "GenerateMod.bat", [], 12000)
         logging.info("GenerateMod.bat executed with return code " + str(ret_code))
 
     def on_generate_action(self):
@@ -431,7 +454,7 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             for page in base_tab_page.get_pages_for_file(file_path, False):
                 page.update_page()
 
-    def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu, start_disabled=False,
+    def add_action_to_menu(self, name: str, menu: QtWidgets.QMenu,
                            slot=None, tooltip: str = "", shortcut: str = "") -> QtGui.QAction:
         action = QtGui.QAction(name)
         menu.addAction(action)
@@ -440,20 +463,31 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
         action.setShortcut(shortcut)
         action.setShortcutContext(Qt.ApplicationShortcut)
 
-        if start_disabled:
-            action.setDisabled(True)
-            self.main_widget_ref.mod_loaded.connect(lambda: action.setDisabled(False))
-            self.main_widget_ref.mod_unloaded.connect(lambda: action.setDisabled(True))
-
         self.actions.append(action)
         return action
 
-    def run_script(self, cwd: str, cmd: str, args: list):
+    def run_requested(self, script: str):
+        if script == "CreateAssetDefinitionFiles.bat":
+            self.on_create_asset_defs_action()
+        elif script == "CreateModBackup.bat":
+            self.on_new_backup_action()
+        elif script == "GenerateMod.bat":
+            self.on_generate_action()
+        elif script == "RetrieveModBackup.bat":
+            self.on_retrieve_backup_action()
+        elif script == "UpdateMod.bat":
+            self.on_update_action()
+        elif script == "UploadMod.bat":
+            self.on_upload_action()
+        else:
+            logging.error(f"Unknown script requested: {script}")
+
+    def run_script(self, cwd: str, cmd: str, args: list, timeout: int = 60000):
         main_widget.instance.show_loading_screen("Running command " + cmd + "...")
-        t = main_widget.instance.run_worker_thread(self.run_script_task, cwd, cmd, args)
+        t = main_widget.instance.run_worker_thread(self.run_script_task, cwd, cmd, args, timeout)
         return main_widget.instance.wait_for_worker_thread(t)
 
-    def run_script_task(self, cwd: str, cmd: str, args: list):
+    def run_script_task(self, cwd: str, cmd: str, args: list, timeout: int = 60000):
         try:
             self.process = QtCore.QProcess()
             self.process.setProgram("cmd.exe")
@@ -465,8 +499,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             self.process.readyReadStandardError.connect(self.print_porcess_error)
 
             self.process.start()
-            if not self.process.waitForFinished(60000):
-                logging.warning("Process did not finish in time (60 secs).")
+            if not self.process.waitForFinished(timeout):
+                logging.warning(f"Process did not finish in time ({timeout / 1000} secs).")
             ret = self.process.exitCode()
             self.process.close()
             main_widget.instance.hide_loading_screen()

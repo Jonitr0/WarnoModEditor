@@ -1,8 +1,8 @@
-Welcome to WARNO mod editor (WME)! This guide will explain how you can create, generate and upload your first mod.
+Welcome to WARNO mod editor (WME)! This guide will explain the basics of this application. For more information on WARNO modding in general, please consult the *modding_manual.pdf* in the WARNO/Mods directory.
 
 ### Creating a new mod
 
-Open the "File" menu in the top-left corner and click "New Mod". You will be asked to enter a name. Once you confirm it, the mod will be created and loaded. You now see all files in the mod directory on the left side of the WME main window in the **Project Explorer**.
+Open the "File" menu in the top-left corner and click "New Mod". You will be asked to enter a name. Once you confirm it, the mod will be created and loaded. You now see all files in the mod directory on the left side of the WME main window in the **Project Explorer**. On the right side, you have the **Tab Widget**. Like internet browsers or IDEs, WME uses a tab system: tools are represented by tabs that you can select by clicking them. You can also reorder tabs or even create new windows by dragging them.
 
 ### Editing files
 
@@ -23,7 +23,7 @@ You can see the changes on individual files by clicking the buttons right of the
 
 ### Generating a mod
 
-Once you have saved some changes and want to apply them in-game, you will need to generate your mod. This step creates binary files which WARNO can read from the text files you edited. To generate your mod, click "Edit" > "Generate Mod". This will launch a separate application and might take some time to complete. Once finished, a message box will appear, informing you that the mod was successfully generated or that the process was aborted if there were any errors. If the generation was successful, you can launch WARNO and activate your mod in the Mod Center to see your changes in-game.
+Once you have saved some changes and want to apply them in-game, you will need to generate your mod. This step creates binary files which WARNO can read from the text files you edited. To generate your mod, click "Edit" > "Generate Mod". This will launch a separate application and might take some time to complete. If the generation was successful, you can launch WARNO and activate your mod in the Mod Center to see your changes in-game.
 
 After the mod has been generated, you can edit it's configuration by clicking "Edit" > "Edit Mod Configuration".
 

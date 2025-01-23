@@ -45,6 +45,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
     open_csv_editor = QtCore.Signal(str)
     restore_backup = QtCore.Signal(str)
     image_preview = QtCore.Signal(str)
+    run_script = QtCore.Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -90,6 +91,8 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.open_csv_editor.emit(file_path)
         elif file_path.endswith(tuple([".png", ".jpg", ".bmp"])):
             self.image_preview.emit(file_path)
+        elif file_path.endswith(".bat"):
+            self.run_script.emit(os.path.basename(file_path))
 
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -112,6 +115,9 @@ class FileSystemTreeView(QtWidgets.QTreeView):
 
         if file_path.endswith(tuple([".png", ".jpg", ".bmp"])):
             image_preview_action = context_menu.addAction("Preview Image")
+
+        if file_path.endswith(".bat"):
+            run_action = context_menu.addAction("Run Script")
 
         if os.path.isdir(file_path):
             expand_action = None
@@ -152,6 +158,8 @@ class FileSystemTreeView(QtWidgets.QTreeView):
             self.restore_backup.emit(file_name)
         elif file_path.endswith(tuple([".png, .jpg, .bmp"])) and action == image_preview_action:
             self.image_preview.emit(file_path)
+        elif file_path.endswith(".bat") and action == run_action:
+            self.run_script.emit(os.path.basename(file_path))
         elif os.path.isdir(file_path) and action == expand_action:
             self.expand(index)
         elif os.path.isdir(file_path) and action == collapse_action:
