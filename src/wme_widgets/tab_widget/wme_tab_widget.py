@@ -224,7 +224,10 @@ class WMETabWidget(QtWidgets.QTabWidget):
         t = main_widget.instance.run_worker_thread(self.compare_files_task, file_name, left_text, right_text,
                                                    left_mod, right_mod, parser_based, comp_page)
         text = main_widget.instance.wait_for_worker_thread(t)
-        self.add_tab_with_auto_icon(comp_page, text)
+        if text:
+            self.add_tab_with_auto_icon(comp_page, text)
+        else:
+            essential_dialogs.MessageDialog("No Differences", "The files are identical.").exec()
         main_widget.instance.hide_loading_screen()
 
     def compare_files_task(self, file_name, left_text, right_text, left_mod, right_mod, parser_based, comp_page):
@@ -248,6 +251,9 @@ class WMETabWidget(QtWidgets.QTabWidget):
                 return
         else:
             text = f"Text Diff: {file_name}"
+
+        if left_text == right_text:
+            return None
 
         comp_page.highlight_differences(left_text, right_text, left_mod, right_mod)
         return text

@@ -2,11 +2,24 @@ Welcome to WARNO mod editor (WME)! This guide will explain how you can create, g
 
 ### Creating a new mod
 
-Open the "File" menu in the top-left corner and click "New Mod". You will be asked to enter a name. Once you confirm it, the mod will be created and loaded. You now see all files in the mod directory on the left side of the WME main window in the **project explorer**.
+Open the "File" menu in the top-left corner and click "New Mod". You will be asked to enter a name. Once you confirm it, the mod will be created and loaded. You now see all files in the mod directory on the left side of the WME main window in the **Project Explorer**.
 
 ### Editing files
 
-Search for files you want to edit using the search bar at the top of the project explorer. Double click a file to open it in the **text editor**. A new tab will open and let you edit the selected file. For more information about tools like the text editor, right-click the tab and select "Help" from the context menu or press *Alt + H*.
+Search for files you want to edit using the search bar at the top of the project explorer. Double click a file to open it in the **Text Editor**. A new tab will open and let you edit the selected file. For more information about tools like the text editor, right-click the tab and select "Help" from the context menu or press *Alt + H*.
+
+### Assets
+
+Since WARNO now supports custom text, images and meshes for mods, WME also has systems to import and manage assets:
+
+- To add a new string (piece of text), select “Assets” > “Add String”, choose the CSV file the string should be added to and the token to represent it. To use custom string tokens in the text editor, right click to open the context menu, select “Insert String Token” and select the matching CSV file and token/value.
+- To import an image, select “Assets” > “Add Image”. The dialog will let you select and scale an image, which will then by copied to your selected location.
+
+### Visualizing changes
+
+To compare your mod to the unmodded game files, a different mod or an existing backup, open the **Diff Page** (“Add Tab” > “Diff Page”), select the desired target and click “Compare”. WME takes some time to run the comparison, after which you will see a list of added, deleted and changed files and directories.
+
+You can see the changes on individual files by clicking the buttons right of the file name. Hover over them to see what they do. “Show differences (Plain Text)” shows the as-are differences between both files. “Show differences (Parser based)” runs both files through [ndf-parse](https://github.com/Ulibos/ndf-parse) before comparing them. This shows only actual differences and ignores formatting and comments, however, line numbers will likely not match with the original files anymore. Upon clicking one of those buttons, a new view will open that shows both versions of the file side by side and highlights differences.
 
 ### Generating a mod
 
@@ -18,9 +31,6 @@ After the mod has been generated, you can edit it's configuration by clicking "E
 
 You can upload your mod to Steam Workshop if you want other people to be able to play it. To do that, simply click "Edit" > "Upload Mod". This will again launch another application and display a message box on success.
 
-### Troubleshooting
-
-- *mod upload fails:* No message box is displayed after uploading and the mod does not appear on your Steam Workshop page. In this case, delete the mod config file ("Edit" > "Delete Mod Configuration"), generate and upload the mod again.
-- *"update mod" takes long:* The update feature might not work as indented yet. You can check the log file ("wme.log", created in the directory in which you run WME) to see if the script reported any errors.
+### Feedback
 
 If you encounter any bugs, errors or if something does not work as you think it should, please open a new issue [here](https://github.com/Jonitr0/WarnoModEditor/issues), if your problem has not been reported already.

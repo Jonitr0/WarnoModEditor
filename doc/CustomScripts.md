@@ -1,0 +1,4 @@
+- subclass BaseScript, put contents in “_run”
+- add custom parameters in constructor (add_parameter)
+- use get_parsed_ndf_file with relative path and save to get ndf files as ndf_parse objects
+- place script in scrpits dir
