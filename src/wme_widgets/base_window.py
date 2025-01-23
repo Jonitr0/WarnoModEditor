@@ -91,7 +91,7 @@ class BaseWindow(QtWidgets.QWidget):
         outer_layout.addWidget(shadow_widget)
         self.setLayout(outer_layout)
 
-        self.bar_layout = QtWidgets.QVBoxLayout(self)
+        self.bar_layout = QtWidgets.QVBoxLayout()
         self.bar_layout.setContentsMargins(0, 0, 0, 0)
         self.bar_layout.setSpacing(0)
 

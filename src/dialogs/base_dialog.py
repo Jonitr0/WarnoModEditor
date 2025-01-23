@@ -31,7 +31,7 @@ class BaseDialog(QtWidgets.QDialog):
 
         self.setWindowFlags(Qt.FramelessWindowHint)
 
-        self.bar_layout = QtWidgets.QVBoxLayout(self)
+        self.bar_layout = QtWidgets.QVBoxLayout()
         self.bar_layout.setContentsMargins(0, 0, 0, 0)
         self.bar_layout.setSpacing(0)
 
@@ -47,7 +47,7 @@ class BaseDialog(QtWidgets.QDialog):
         self.title_bar = wme_title_bar.WMETitleBar(self, only_close=True)
         self.bar_layout.addWidget(self.title_bar)
 
-        self.main_layout = QtWidgets.QVBoxLayout(self)
+        self.main_layout = QtWidgets.QVBoxLayout()
         self.main_layout.setContentsMargins(10, 10, 10, 10)
         self.main_layout.setSpacing(10)
         self.bar_layout.addLayout(self.main_layout)
