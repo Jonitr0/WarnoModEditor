@@ -6,7 +6,6 @@ from src.utils.color_manager import *
 from src.utils import icon_manager
 
 
-# TODO: fix this mess
 class ImgPreviewPage(base_tab_page.BaseTabPage):
     def __init__(self):
         self.img_preview = QtWidgets.QLabel()
@@ -65,6 +64,7 @@ class ImgPreviewPage(base_tab_page.BaseTabPage):
         self.img_preview.setMinimumSize(1, 1)
         self.img_preview.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         main_layout.addWidget(self.img_preview)
+        print(self.img_preview.size())
 
         self.help_file_path = "DontShow"
 
@@ -77,38 +77,26 @@ class ImgPreviewPage(base_tab_page.BaseTabPage):
         self.set_image(self.img_path)
 
     def on_width_changed(self, value: int):
-        if self.ratio_check_box.isChecked():
-            h = int(value / self.original_aspect_ratio)
-            self.height_spin_box.blockSignals(True)
-            self.height_spin_box.setValue(h)
-            self.height_spin_box.blockSignals(False)
-            self.img_size.setHeight(h)
-            w = min(value, self.img_preview.width())
-            h = min(h, self.img_preview.height())
-            self.img_preview.setPixmap(QtGui.QPixmap(self.img_path).scaled(w, h, QtCore.Qt.KeepAspectRatio))
-        else:
-            w = min(value, self.img_preview.width())
-            h = min(self.img_size.width(), self.img_preview.height())
-            self.img_preview.setPixmap(QtGui.QPixmap(self.img_path).scaled(w, h))
+        if value == self.img_size.width():
+            return
         self.img_size.setWidth(value)
+        if self.ratio_check_box.isChecked():
+            self.img_size.setHeight(int(value / self.original_aspect_ratio))
+            self.height_spin_box.setValue(self.img_size.height())
+        self.img_preview.setPixmap(QtGui.QPixmap(self.img_path).scaled(self.img_size))
         self.unsaved_changes = self.img_size == self.saved_size
+        self.check_img_preview_size()
 
     def on_height_changed(self, value: int):
-        if self.ratio_check_box.isChecked():
-            w = int(value * self.original_aspect_ratio)
-            self.width_spin_box.blockSignals(True)
-            self.width_spin_box.setValue(w)
-            self.width_spin_box.blockSignals(False)
-            self.img_size.setWidth(w)
-            w = min(w, self.img_preview.width())
-            h = min(value, self.img_preview.height())
-            self.img_preview.setPixmap(QtGui.QPixmap(self.img_path).scaled(w, h, QtCore.Qt.KeepAspectRatio))
-        else:
-            w = min(self.img_size.width(), self.img_preview.width())
-            h = min(value, self.img_preview.height())
-            self.img_preview.setPixmap(QtGui.QPixmap(self.img_path).scaled(w, h))
+        if value == self.img_size.height():
+            return
         self.img_size.setHeight(value)
+        if self.ratio_check_box.isChecked():
+            self.img_size.setWidth(int(value * self.original_aspect_ratio))
+            self.width_spin_box.setValue(self.img_size.width())
+        self.img_preview.setPixmap(QtGui.QPixmap(self.img_path).scaled(self.img_size))
         self.unsaved_changes = self.img_size == self.saved_size
+        self.check_img_preview_size()
 
     def set_image(self, image_path: str):
         self.img_size = QtGui.QImage(image_path).size()
@@ -122,18 +110,22 @@ class ImgPreviewPage(base_tab_page.BaseTabPage):
         self.height_spin_box.setValue(self.img_size.height())
         self.height_spin_box.blockSignals(False)
 
-        w = min(self.img_preview.width(), self.img_size.width())
-        h = min(self.img_preview.height(), self.img_size.height())
-        self.img_preview.setPixmap(QtGui.QPixmap(image_path).scaled(w, h, QtCore.Qt.KeepAspectRatio))
+        self.img_preview.setPixmap(QtGui.QPixmap(image_path).scaled(self.saved_size))
         self.img_path = image_path.replace("\\", "/")
         self.tab_name = self.img_path.split("/")[-1]
         self.unsaved_changes = False
+        self.check_img_preview_size()
 
     def resizeEvent(self, event):
-        w = min(self.img_preview.width(), self.img_size.width())
-        h = min(self.img_preview.height(), self.img_size.height())
-        self.img_preview.setPixmap(QtGui.QPixmap(self.img_path).scaled(w, h, QtCore.Qt.KeepAspectRatio))
+        self.check_img_preview_size()
         super().resizeEvent(event)
+
+    def check_img_preview_size(self):
+        # make sure image preview is not larger than the label
+        if self.img_size.width() > self.img_preview.width():
+            self.img_preview.setPixmap(QtGui.QPixmap(self.img_path).scaledToWidth(self.img_preview.width()))
+        if self.img_size.height() > self.img_preview.height():
+            self.img_preview.setPixmap(QtGui.QPixmap(self.img_path).scaledToHeight(self.img_preview.height()))
 
     def to_json(self) -> dict:
         page_json = {"imagePath": self.img_path}
