@@ -6,6 +6,7 @@ from src.utils.color_manager import *
 from src.utils import icon_manager
 
 
+# TODO: fix this mess
 class ImgPreviewPage(base_tab_page.BaseTabPage):
     def __init__(self):
         self.img_preview = QtWidgets.QLabel()
@@ -29,7 +30,7 @@ class ImgPreviewPage(base_tab_page.BaseTabPage):
 
         save_action = tool_bar.addAction(icon_manager.load_icon("save.png", COLORS.PRIMARY), "Save (Ctrl + S)")
         save_action.setShortcut("Ctrl+S")
-        save_action.triggered.connect(self.on_save)
+        save_action.triggered.connect(self.save_changes)
 
         restore_action = tool_bar.addAction(icon_manager.load_icon("restore.png", COLORS.PRIMARY), "Reload File (F5)")
         restore_action.setShortcut("F5")
@@ -67,7 +68,7 @@ class ImgPreviewPage(base_tab_page.BaseTabPage):
 
         self.help_file_path = "DontShow"
 
-    def on_save(self):
+    def _save_changes(self):
         pixmap = self.img_preview.pixmap()
         pixmap.save(self.img_path)
         self.saved_size = self.img_size
