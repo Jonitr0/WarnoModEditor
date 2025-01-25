@@ -33,7 +33,7 @@ class OptionsDialog(BaseDialog):
         warno_path_layout.addWidget(browse_button)
         form_layout.addRow("WARNO path:", warno_path_layout)
 
-        self.create_vanilla_backup_checkbox.setToolTip("When enabled, a backup of the vanilla files will be made "
+        self.create_vanilla_backup_checkbox.setToolTip("When enabled, a backup of the unmodded files will be made "
                                                        "when creating a new mod.")
         form_layout.addRow("Create Vanilla Backup", self.create_vanilla_backup_checkbox)
         try:
