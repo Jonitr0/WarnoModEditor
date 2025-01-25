@@ -156,7 +156,7 @@ class FileSystemTreeView(QtWidgets.QTreeView):
         elif file_path.endswith(".zip") and file_path.__contains__("Backup") and action == restore_backup_action:
             file_name = os.path.basename(file_path)
             self.restore_backup.emit(file_name)
-        elif file_path.endswith(tuple([".png, .jpg, .bmp"])) and action == image_preview_action:
+        elif file_path.endswith(tuple([".png", ".jpg", ".bmp"])) and action == image_preview_action:
             self.image_preview.emit(file_path)
         elif file_path.endswith(".bat") and action == run_action:
             self.run_script.emit(os.path.basename(file_path))
