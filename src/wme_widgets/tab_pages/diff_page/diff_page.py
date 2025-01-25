@@ -5,6 +5,8 @@ from src.wme_widgets.tab_pages.diff_page import diff_widget, file_comparison_pag
 from src.wme_widgets.tab_pages import base_tab_page
 from src.wme_widgets import main_widget, wme_collapsible
 from src.dialogs import essential_dialogs
+from src.utils import icon_manager
+from src.utils.color_manager import *
 
 from filecmp import dircmp
 
@@ -27,23 +29,37 @@ class DiffPage(base_tab_page.BaseTabPage):
 
     def setup_ui(self):
         main_layout = QtWidgets.QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
 
-        target_selection_layout = QtWidgets.QHBoxLayout()
-        main_layout.addLayout(target_selection_layout)
+        target_selection_toolbar = QtWidgets.QToolBar()
+        main_layout.addWidget(target_selection_toolbar)
 
         # build combo box area to select comparison target
         target_info_label = QtWidgets.QLabel("Compare " +
-                                             main_widget.instance.get_loaded_mod_name() + " with: ")
+                                             main_widget.instance.get_loaded_mod_name() + " to: ")
         target_info_label.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        target_selection_layout.addWidget(target_info_label)
+        target_selection_toolbar.addWidget(target_info_label)
+
         self.target_combobox.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.target_combobox.setMaximumWidth(500)
-        target_selection_layout.addWidget(self.target_combobox)
+        target_selection_toolbar.addWidget(self.target_combobox)
+
+        spacer = QtWidgets.QWidget()
+        spacer.setFixedWidth(10)
+        target_selection_toolbar.addWidget(spacer)
+
         self.compare_button.setFixedWidth(100)
         self.compare_button.clicked.connect(self.on_compare)
-        target_selection_layout.addWidget(self.compare_button)
-        target_selection_layout.addStretch(0)
+        target_selection_toolbar.addWidget(self.compare_button)
+
+        stretch = QtWidgets.QWidget()
+        stretch.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        target_selection_toolbar.addWidget(stretch)
+
+        help_button = target_selection_toolbar.addAction("Open Page Help Popup (Alt + H)")
+        help_button.setIcon(icon_manager.load_icon("help.png", COLORS.PRIMARY))
+        help_button.triggered.connect(self.on_help)
 
         self.results_layout.setAlignment(Qt.AlignTop)
         self.results_layout.setSpacing(0)

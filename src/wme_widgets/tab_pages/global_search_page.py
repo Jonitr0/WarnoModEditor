@@ -19,10 +19,10 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
 
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setAlignment(Qt.AlignTop)
+        main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
 
         search_bar = QtWidgets.QToolBar()
-        main_layout.setContentsMargins(0, 8, 0, 8)
         main_layout.addWidget(search_bar)
 
         self.search_line_edit = wme_essentials.WMELineEdit()
