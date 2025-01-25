@@ -86,6 +86,10 @@ class OptionsDialog(BaseDialog):
         self.auto_backup_count_spinbox.setMaximum(100)
         form_layout.addRow("Maximum number of backups:", self.auto_backup_count_spinbox)
 
+        # TODO: logging levels
+        # TODO: ask about vanilla backup
+        # TODO: paths
+
     def on_browse_clicked(self):
         warno_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter WARNO path", self.path_line_edit.text(),
                                                                   options=(QtWidgets.QFileDialog.ShowDirsOnly |
