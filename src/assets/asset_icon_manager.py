@@ -19,7 +19,7 @@ class AssetIconManager:
         # find all png files in the mod directory and its subdirectories
         for root, dirs, files in os.walk(mod_path):
             for file in files:
-                if file.endswith(".png"):
+                if file.endswith(tuple([".png", ".jpg", ".bmp"])):
                     file_path = os.path.join(root, file)
                     self.icons.append(file_path)
             for d in dirs:
@@ -27,3 +27,7 @@ class AssetIconManager:
 
     def add_icon(self, icon_path):
         self.icons.append(icon_path)
+
+    def unload_asset_icons(self):
+        self.icons.clear()
+        self.watcher.removePaths(self.watcher.directories())

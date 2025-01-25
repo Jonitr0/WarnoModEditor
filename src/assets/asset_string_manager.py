@@ -74,3 +74,8 @@ class AssetStringManager:
             if not f.read().endswith("\n"):
                 f.write("\n")
             f.write(f"{token};{value}\n")
+
+    def unload_asset_strings(self):
+        if len(self.watcher.files()) > 0:
+            self.watcher.removePaths(self.watcher.files())
+        self.asset_strings = {}
