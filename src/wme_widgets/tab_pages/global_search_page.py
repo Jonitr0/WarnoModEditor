@@ -21,34 +21,30 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
         main_layout.setAlignment(Qt.AlignTop)
         self.setLayout(main_layout)
 
-        search_bar = QtWidgets.QHBoxLayout()
-        search_bar.setSpacing(0)
+        search_bar = QtWidgets.QToolBar()
         main_layout.setContentsMargins(0, 8, 0, 8)
-        main_layout.addLayout(search_bar)
+        main_layout.addWidget(search_bar)
 
         self.search_line_edit = wme_essentials.WMELineEdit()
         self.search_line_edit.setPlaceholderText("Find text in all .ndf files of your mod")
         self.search_line_edit.returnPressed.connect(self.on_search)
         search_bar.addWidget(self.search_line_edit)
 
-        self.case_button = QtWidgets.QToolButton()
-        self.case_button.setIcon(icon_manager.load_icon("case_sensitivity.png", COLORS.PRIMARY))
-        self.case_button.setToolTip("Toggle case-sensitive search. If the button is enabled, search is case-sensitive."
-                                    " (Ctrl + E)")
-        self.case_button.setShortcut("Ctrl+E")
-        self.case_button.setFixedSize(36, 36)
-        self.case_button.setIconSize(QtCore.QSize(36, 36))
-        self.case_button.setCheckable(True)
-        self.case_button.setChecked(False)
-        search_bar.addWidget(self.case_button)
+        self.case_action = search_bar.addAction("Toggle Case Sensitivity (Ctrl + E)")
+        self.case_action.setIcon(icon_manager.load_icon("case_sensitivity.png", COLORS.PRIMARY))
+        self.case_action.setCheckable(True)
+        self.case_action.setChecked(False)
+        self.case_action.setShortcut("Ctrl+E")
 
-        search_button = QtWidgets.QToolButton()
-        search_button.setIcon(icon_manager.load_icon("magnify.png", COLORS.PRIMARY))
-        search_button.setToolTip("Find search text")
-        search_button.setFixedSize(36, 36)
-        search_button.setIconSize(QtCore.QSize(36, 36))
-        search_button.clicked.connect(self.on_search)
-        search_bar.addWidget(search_button)
+        search_action = search_bar.addAction("Search (Enter)")
+        search_action.setIcon(icon_manager.load_icon("magnify.png", COLORS.PRIMARY))
+        search_action.triggered.connect(self.on_search)
+
+        search_bar.addSeparator()
+
+        help_button = search_bar.addAction("Open Page Help Popup (Alt + H)")
+        help_button.setIcon(icon_manager.load_icon("help.png", COLORS.PRIMARY))
+        help_button.triggered.connect(self.on_help)
 
         self.results_label = QtWidgets.QLabel()
         main_layout.addWidget(self.results_label)
@@ -79,7 +75,7 @@ class GlobalSearchPage(base_tab_page.BaseTabPage):
 
         main_widget.instance.show_loading_screen("Searching...")
 
-        self.last_search_case_sensitive = self.case_button.isChecked()
+        self.last_search_case_sensitive = self.case_action.isChecked()
 
         results = []
 
