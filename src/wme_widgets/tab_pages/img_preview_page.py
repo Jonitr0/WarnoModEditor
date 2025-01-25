@@ -64,7 +64,6 @@ class ImgPreviewPage(base_tab_page.BaseTabPage):
         self.img_preview.setMinimumSize(1, 1)
         self.img_preview.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         main_layout.addWidget(self.img_preview)
-        print(self.img_preview.size())
 
         self.help_file_path = "DontShow"
 

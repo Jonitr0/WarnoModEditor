@@ -19,6 +19,7 @@ AUTO_BACKUP_FREQUENCY_KEY = "wme_auto_backup_frequency"
 AUTO_BACKUP_COUNT_KEY = "wme_auto_backup_count"
 LAST_AUTO_BACKUP_KEY = "wme_last_auto_backup"
 MOD_STATE_CHANGED_KEY = "wme_mod_state_changed"
+VANILLA_BACKUP_KEY = "wme_vanilla_backup"
 
 
 def get_settings_value(key: str, default=None):
@@ -60,7 +61,6 @@ def _save_config(json_obj: dict):
 
 
 def get_current_warno_version() -> int:
-    # TODO: try to load from ndf first
     warno_path = get_settings_value(WARNO_PATH_KEY)
     if not warno_path:
         logging.warning("Unable to load WARNO version path!")

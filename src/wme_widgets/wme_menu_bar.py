@@ -129,7 +129,8 @@ class WMEMainMenuBar(QtWidgets.QMenuBar):
             self.request_load_mod.emit(mods_path + mod_name)
 
             # create Backup of vanilla state
-            self.create_named_backup(f"Vanilla_v{settings_manager.get_current_warno_version()}")
+            if settings_manager.get_settings_value(settings_manager.VANILLA_BACKUP_KEY):
+                self.create_named_backup(f"Vanilla_v{settings_manager.get_current_warno_version()}")
 
             # open quickstart guide
             self.request_quickstart.emit()

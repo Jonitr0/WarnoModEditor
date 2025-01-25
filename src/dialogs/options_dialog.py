@@ -16,6 +16,7 @@ class OptionsDialog(BaseDialog):
 
         self.auto_backup_frequency_combobox = wme_essentials.WMECombobox()
         self.auto_backup_count_spinbox = wme_essentials.WMESpinbox()
+        self.create_vanilla_backup_checkbox = QtWidgets.QCheckBox()
 
         super().__init__()
         self.setWindowTitle("Options")
@@ -31,6 +32,16 @@ class OptionsDialog(BaseDialog):
         browse_button.clicked.connect(self.on_browse_clicked)
         warno_path_layout.addWidget(browse_button)
         form_layout.addRow("WARNO path:", warno_path_layout)
+
+        self.create_vanilla_backup_checkbox.setToolTip("When enabled, a backup of the vanilla files will be made "
+                                                       "when creating a new mod.")
+        form_layout.addRow("Create Vanilla Backup", self.create_vanilla_backup_checkbox)
+        try:
+            self.create_vanilla_backup_checkbox.setChecked(
+                settings_manager.get_settings_value(settings_manager.VANILLA_BACKUP_KEY))
+        except Exception:
+            settings_manager.write_settings_value(settings_manager.VANILLA_BACKUP_KEY, True)
+            self.create_vanilla_backup_checkbox.setChecked(True)
 
         theme_label = QtWidgets.QLabel("Theme")
         theme_label.setObjectName("heading")
@@ -86,10 +97,6 @@ class OptionsDialog(BaseDialog):
         self.auto_backup_count_spinbox.setMaximum(100)
         form_layout.addRow("Maximum number of backups:", self.auto_backup_count_spinbox)
 
-        # TODO: logging levels
-        # TODO: ask about vanilla backup
-        # TODO: paths
-
     def on_browse_clicked(self):
         warno_path = QtWidgets.QFileDialog().getExistingDirectory(self, "Enter WARNO path", self.path_line_edit.text(),
                                                                   options=(QtWidgets.QFileDialog.ShowDirsOnly |
@@ -106,6 +113,9 @@ class OptionsDialog(BaseDialog):
 
         settings_manager.write_settings_value(settings_manager.WARNO_PATH_KEY, warno_path)
         main_widget.instance.set_warno_path(warno_path)
+
+        settings_manager.write_settings_value(settings_manager.VANILLA_BACKUP_KEY,
+                                              self.create_vanilla_backup_checkbox.isChecked())
 
         theme = "light "
         if self.theme_checkbox.isChecked():
