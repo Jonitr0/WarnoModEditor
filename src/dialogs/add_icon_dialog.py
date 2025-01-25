@@ -63,10 +63,10 @@ class AddIconDialog(base_dialog.BaseDialog):
 
         form_layout.addRow("Destination:", destination_widget)
 
-        self.width_spin_box.setRange(0, 4096)
+        self.width_spin_box.setRange(0, 9999)
         self.width_spin_box.valueChanged.connect(self.on_width_spin_box_value_changed)
         form_layout.addRow("Width:", self.width_spin_box)
-        self.height_spin_box.setRange(0, 4096)
+        self.height_spin_box.setRange(0, 9999)
         self.height_spin_box.valueChanged.connect(self.on_height_spin_box_value_changed)
         form_layout.addRow("Height:", self.height_spin_box)
 
@@ -86,6 +86,22 @@ class AddIconDialog(base_dialog.BaseDialog):
         form_layout.addRow("Original Size:", size_widget)
 
         # TODO: add common icon sizes with buttons to choose from
+        common_sizes_widget = QtWidgets.QWidget()
+        common_sizes_layout = QtWidgets.QHBoxLayout()
+        common_sizes_layout.setContentsMargins(0, 0, 0, 0)
+        common_sizes_widget.setLayout(common_sizes_layout)
+        form_layout.addRow("Common Sizes:", common_sizes_widget)
+
+        div_icon_button = QtWidgets.QPushButton("Division Icon")
+        div_icon_button.clicked.connect(lambda: self.set_preview_size(128, 128))
+        common_sizes_layout.addWidget(div_icon_button)
+        # TODO: proper size
+        unit_icon_button = QtWidgets.QPushButton("Unit Icon")
+        unit_icon_button.clicked.connect(lambda: self.set_preview_size(64, 64))
+        common_sizes_layout.addWidget(unit_icon_button)
+        weapon_icon_button = QtWidgets.QPushButton("Weapon Icon")
+        weapon_icon_button.clicked.connect(lambda: self.set_preview_size(64, 64))
+        common_sizes_layout.addWidget(weapon_icon_button)
 
     def on_origin_button_clicked(self):
         path = os.path.expanduser("~\\Pictures")
@@ -97,6 +113,7 @@ class AddIconDialog(base_dialog.BaseDialog):
         if img_path == "":
             return
         self.origin_line_edit.setText(img_path)
+        # TODO: add destination path
 
     def on_origin_text_changed(self, text: str):
         image_loaded = self.load_preview(text, False)
@@ -199,3 +216,13 @@ class AddIconDialog(base_dialog.BaseDialog):
         image.save(dest_path, "PNG")
         main_widget.instance.asset_icon_manager.add_icon(dest_path)
         super().accept()
+
+    def set_preview_size(self, width: int, height: int):
+        if not os.path.exists(self.origin_line_edit.text()):
+            return
+        self.set_width_no_signal(width)
+        self.set_height_no_signal(height)
+        self.ratio_check_box.setChecked(False)
+        image = QtGui.QImage(self.origin_line_edit.text())
+        image = image.smoothScaled(width, height)
+        self.img_preview.setPixmap(QtGui.QPixmap(image))
