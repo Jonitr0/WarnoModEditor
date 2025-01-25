@@ -59,7 +59,7 @@ class BaseDialog(QtWidgets.QDialog):
         if len(self.widgetList) > 0:
             self.widgetList[0].setFocus()
 
-        self.button_layout = QtWidgets.QHBoxLayout(self)
+        self.button_layout = QtWidgets.QHBoxLayout()
         self.main_layout.addLayout(self.button_layout)
         self.main_layout.setAlignment(self.button_layout, Qt.AlignCenter)
 
